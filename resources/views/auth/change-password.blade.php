@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ubah Kata Sandi Baru - Agendaris</title>
+    @vite(['resources/css/app.css', 'resources/js/app.js'])
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap');
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background: linear-gradient(135deg, #eef2ff 0%, #f8fafc 100%);
+        }
+    </style>
+</head>
+<body class="min-h-screen flex items-center justify-center p-4 relative overflow-hidden">
+    <!-- Decorative background blurred shapes -->
+    <div class="absolute top-10 left-10 w-72 h-72 bg-blue-300/20 rounded-full filter blur-3xl"></div>
+    <div class="absolute bottom-10 right-10 w-80 h-80 bg-indigo-300/10 rounded-full filter blur-3xl"></div>
+
+    <div class="w-full max-w-md z-10 space-y-6">
+        <!-- Logo & Header -->
+        <div class="text-center flex flex-col items-center justify-center">
+            <div class="w-20 h-20 bg-white rounded-3xl flex items-center justify-center p-3.5 shadow-xl hover:scale-105 transition-transform duration-300 border border-slate-100">
+                <img src="{{ asset('images/logo-banyumas.png') }}" alt="Logo Kabupaten Banyumas" class="w-full h-full object-contain">
+            </div>
+            <h1 class="text-2xl font-black text-[#09103c] tracking-widest mt-4">PENGAMANAN AKUN</h1>
+            <p class="text-slate-500 text-xs font-semibold mt-1">Pembaruan Kata Sandi Akun Anda</p>
+        </div>
+
+        <!-- Premium White Card -->
+        <div class="bg-white rounded-[32px] p-8 shadow-2xl relative border border-slate-100">
+            
+            @if(Auth::check() && Auth::user()->must_change_password)
+                <div class="mb-5 p-4 bg-amber-50 border border-amber-200 text-amber-800 rounded-2xl text-xs space-y-1">
+                    <p class="font-bold flex items-center gap-1.5 text-amber-900">
+                        <svg class="w-4 h-4 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path>
+                        </svg>
+                        Pemberitahuan Wajib!
+                    </p>
+                    <p class="leading-relaxed">Ini adalah login pertama Anda. Demi keamanan akun, Anda diwajibkan mengganti kata sandi bawaan administrator dengan kata sandi pribadi sebelum mengakses menu.</p>
+                </div>
+            @else
+                <div class="mb-5 p-4 bg-blue-50 border border-blue-100 text-[#09103c] rounded-2xl text-xs space-y-1">
+                    <p class="font-bold flex items-center gap-1.5 text-[#09103c]">
+                        <svg class="w-4 h-4 text-[#1b3bbb]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                        </svg>
+                        Ubah Kata Sandi Akun
+                    </p>
+                    <p class="leading-relaxed">Silakan masukkan kata sandi baru Anda pada kolom di bawah ini demi keamanan akses akun Anda.</p>
+                </div>
+            @endif
+
+            <form action="{{ route('password.update') }}" method="POST" class="space-y-5">
+                @csrf
+
+                @if($errors->any())
+                    <div class="bg-rose-50 border border-rose-200 text-rose-700 rounded-2xl p-4 text-xs space-y-1">
+                        @foreach($errors->all() as $error)
+                            <div class="flex items-center gap-2">
+                                <svg class="w-4 h-4 shrink-0 text-rose-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                </svg>
+                                <span>{{ $error }}</span>
+                            </div>
+                        @endforeach
+                    </div>
+                @endif
+
+                <!-- New Password Input -->
+                <div class="space-y-1.5">
+                    <label for="password" class="block text-xs font-bold uppercase tracking-wider text-[#09103c]">Kata Sandi Baru</label>
+                    <div class="relative">
+                        <span class="absolute inset-y-0 left-0 pl-4 flex items-center text-slate-400 pointer-events-none">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 7a2 2 0 012 2v12a2 2 0 01-2 2H9a2 2 0 01-2-2V9a2 2 0 012-2h6zm-6 1h6v4H9V8zm1 8v2m4-2v2"></path>
+                            </svg>
+                        </span>
+                        <input type="password" name="password" id="password" placeholder="Masukkan kata sandi baru" required autofocus
+                            class="w-full pl-12 pr-4 py-3 bg-slate-50 border border-slate-200 rounded-2xl text-[#09103c] placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-[#1b3bbb] focus:border-transparent transition-all duration-200 text-sm">
+                    </div>
+                    <p class="text-[10px] text-slate-400 pl-1">Minimal 6 karakter.</p>
+                </div>
+
+                <!-- Password Confirmation Input -->
+                <div class="space-y-1.5">
+                    <label for="password_confirmation" class="block text-xs font-bold uppercase tracking-wider text-[#09103c]">Konfirmasi Kata Sandi Baru</label>
+                    <div class="relative">
+                        <span class="absolute inset-y-0 left-0 pl-4 flex items-center text-slate-400 pointer-events-none">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"></path>
+                            </svg>
+                        </span>
+                        <input type="password" name="password_confirmation" id="password_confirmation" placeholder="Masukkan ulang kata sandi baru" required
+                            class="w-full pl-12 pr-4 py-3 bg-slate-50 border border-slate-200 rounded-2xl text-[#09103c] placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-[#1b3bbb] focus:border-transparent transition-all duration-200 text-sm">
+                    </div>
+                </div>
+
+                <!-- Submit Button -->
+                <button type="submit"
+                    class="w-full py-3.5 bg-[#1b3bbb] hover:bg-[#0d228c] active:scale-[0.98] text-white font-bold text-xs uppercase tracking-wider rounded-2xl transition-all duration-200 shadow-lg shadow-[#1b3bbb]/20 flex items-center justify-center gap-2">
+                    <span>Ubah Kata Sandi Sekarang</span>
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path>
+                    </svg>
+                </button>
+            </form>
+        </div>
+
+        <!-- Footer copyright -->
+        <div class="text-center text-slate-500 text-[10px] font-semibold">
+            &copy; 2026 Dinas Komunikasi dan Informatika Kabupaten Banyumas.
+        </div>
+    </div>
+</body>
+</html>
