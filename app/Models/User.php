@@ -73,6 +73,11 @@ class User extends Authenticatable
         return $this->role === 'ketua_bidang';
     }
 
+    public function isKetua(): bool
+    {
+        return $this->role === 'ketua_master' || $this->role === 'ketua_bidang';
+    }
+
     public function isStaff(): bool
     {
         return $this->role === 'staff';

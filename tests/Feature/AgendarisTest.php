@@ -286,4 +286,29 @@ class AgendarisTest extends TestCase
         // Status should remain 'hadir' (locked)
         $this->assertEquals('hadir', Presensi::first()->status);
     }
+
+    /**
+     * Test dashboard and calendar access for all roles.
+     */
+    public function test_dashboard_and_calendar_access_for_all_roles(): void
+    {
+        $users = [
+            $this->sekretarisMaster,
+            $this->ketuaMaster,
+            $this->sekretarisAptika,
+            $this->ketuaAptika,
+            $this->staffAptika,
+        ];
+
+        foreach ($users as $user) {
+            $user->must_change_password = false;
+            $user->save();
+
+            $response = $this->actingAs($user)->get('/dashboard');
+            $response->assertStatus(200);
+
+            $response = $this->actingAs($user)->get('/calendar');
+            $response->assertStatus(200);
+        }
+    }
 }
