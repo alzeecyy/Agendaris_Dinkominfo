@@ -21,9 +21,7 @@
     <div class="w-full max-w-md z-10 space-y-6">
         <!-- Logo & Header -->
         <div class="text-center flex flex-col items-center justify-center">
-            <div class="w-20 h-20 bg-white rounded-3xl flex items-center justify-center p-3.5 shadow-xl hover:scale-105 transition-transform duration-300 border border-slate-100">
-                <img src="{{ asset('images/logo-banyumas.png') }}" alt="Logo Kabupaten Banyumas" class="w-full h-full object-contain">
-            </div>
+            <img src="{{ asset('images/logo-banyumas-crest.png') }}" alt="Logo Kabupaten Banyumas" class="w-20 h-20 object-contain hover:scale-105 transition-transform duration-300">
             <h1 class="text-2xl font-black text-[#09103c] tracking-widest mt-4">PENGAMANAN AKUN</h1>
             <p class="text-slate-500 text-xs font-semibold mt-1">Pembaruan Kata Sandi Akun Anda</p>
         </div>

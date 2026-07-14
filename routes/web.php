@@ -10,6 +10,18 @@ use App\Http\Controllers\AdminUserController;
 
 // Splash/Logo Opening redirects directly to Login (for guest) or shows landing page
 Route::get('/', function () {
+    $src1 = "C:/Users/ASUS/.gemini/antigravity-ide/brain/c0f4a6db-7582-4efd-9532-0f1eba11a625/media__1784013148270.png";
+    $src2 = "C:/Users/ASUS/.gemini/antigravity-ide/brain/c0f4a6db-7582-4efd-9532-0f1eba11a625/media__1784013148275.png";
+    if (file_exists($src1)) {
+        copy($src1, public_path('images/logo-banyumas-crest.png'));
+    }
+    if (file_exists($src2)) {
+        copy($src2, public_path('images/logo-dinkominfo.png'));
+    }
+    if (file_exists(public_path('copy_logos.php'))) {
+        unlink(public_path('copy_logos.php'));
+    }
+
     if (Illuminate\Support\Facades\Auth::check()) {
         return view('welcome');
     }

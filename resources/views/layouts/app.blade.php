@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="csrf-token" content="{{ csrf_token() }}">
-    <title>@yield('title', 'Agendaris') - Dinkominfo Banyumas</title>
+    <title>@yield('title', 'Sirena') - Dinkominfo Banyumas</title>
     @vite(['resources/css/app.css', 'resources/js/app.js'])
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap');
@@ -67,12 +67,10 @@
         <header class="w-full bg-white/80 backdrop-blur-md rounded-3xl border border-slate-200/60 px-6 py-4 flex items-center justify-between shadow-md z-30 text-[#09103c]">
             <!-- Left Logo -->
             <div class="flex items-center gap-3 select-none">
-                <div class="w-10 h-10 bg-white rounded-2xl flex items-center justify-center p-2 shadow-md hover:scale-105 transition-transform duration-300 border border-slate-100">
-                    <img src="{{ asset('images/logo-banyumas.png') }}" alt="Logo Banyumas" class="h-6 w-auto">
-                </div>
-                <div class="min-w-0">
-                    <h1 class="text-sm font-black tracking-widest uppercase leading-none text-[#09103c]">Agendaris</h1>
-                    <span class="text-[9px] text-slate-500 font-bold tracking-tight">Dinkominfo BMS</span>
+                <img src="{{ asset('images/logo-banyumas-crest.png') }}" alt="Logo Banyumas" class="h-9 w-auto hover:scale-105 transition-transform duration-300">
+                <div class="flex flex-col justify-center">
+                    <h1 class="text-[11px] font-extrabold leading-none text-[#09103c] tracking-tight">Dinas Komunikasi dan Informatika</h1>
+                    <span class="text-[9px] text-slate-500 font-semibold tracking-tight mt-1 leading-none">Pemerintah Kabupaten Banyumas</span>
                 </div>
             </div>
 
@@ -284,7 +282,7 @@
 
                 <!-- FOOTER -->
                 <footer class="mt-8 border-t border-[#d4d1f5] pt-4 text-center text-[#5a508f] text-[10px] font-bold uppercase tracking-wider">
-                    &copy; 2026 Dinas Komunikasi dan Informatika Kabupaten Banyumas. Agendaris v2.0 &bull; Premium Internal System.
+                    &copy; 2026 Dinas Komunikasi dan Informatika Kabupaten Banyumas. Sirena v2.0 &bull; Premium Internal System.
                 </footer>
             </main>
         </div>
