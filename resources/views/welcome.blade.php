@@ -3,10 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Beranda - Agendaris Dinkominfo Banyumas</title>
+    <title>Beranda - Sirena Dinkominfo Banyumas</title>
     @vite(['resources/css/app.css', 'resources/js/app.js'])
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@800;900&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap');
         body {
             font-family: 'Plus Jakarta Sans', sans-serif;
             background: linear-gradient(135deg, #eef2ff 0%, #f8fafc 100%);
@@ -39,17 +39,17 @@
     <div class="h-full w-full max-w-[1100px] mx-auto p-4 md:p-6 flex flex-col gap-4 md:gap-5 z-10 overflow-hidden">
         
         <!-- Header / Top Bar -->
-        <header class="flex items-center justify-between bg-white/60 backdrop-blur-md rounded-2xl border border-slate-200/60 px-5 py-3 shadow-sm text-[#09103c]">
+        <header class="flex items-center justify-between relative bg-white/60 backdrop-blur-md rounded-2xl border border-slate-200/60 px-5 py-3 shadow-sm text-[#09103c]">
             <!-- Brand Logo -->
-            <div class="flex items-center gap-3 select-none">
-                <div class="w-9 h-9 bg-white rounded-xl flex items-center justify-center p-1.5 shadow-md hover:scale-105 transition-transform duration-300 border border-slate-100">
-                    <img src="{{ asset('images/logo-banyumas.png') }}" alt="Logo Banyumas" class="h-5.5 w-auto">
-                </div>
-                <div>
-                    <h1 class="text-xs font-extrabold tracking-widest uppercase leading-none text-[#09103c]">Agendaris</h1>
-                    <span class="text-[8px] text-slate-500 font-bold tracking-tight">Dinkominfo BMS</span>
+            <div class="flex items-center gap-3 select-none z-10">
+                <img src="{{ asset('images/logo-banyumas-crest.png') }}" alt="Logo Banyumas" class="h-9 w-auto hover:scale-105 transition-transform duration-300">
+                <div class="flex flex-col justify-center">
+                    <h1 class="text-[11px] font-extrabold leading-none text-[#09103c] tracking-tight">Dinas Komunikasi dan Informatika</h1>
+                    <span class="text-[9px] text-slate-500 font-semibold tracking-tight mt-1 leading-none">Pemerintah Kabupaten Banyumas</span>
                 </div>
             </div>
+
+
 
             <!-- Profile Area -->
             @auth
@@ -71,7 +71,7 @@
                         'staff' => 'bg-blue-50 text-blue-700 border-blue-100',
                     ];
                 @endphp
-                <div x-data="{ openProfile: false }" class="relative select-none text-[#09103c]">
+                <div x-data="{ openProfile: false }" class="relative select-none text-[#09103c] z-10">
                     <div @click="openProfile = !openProfile" class="flex items-center gap-2.5 cursor-pointer hover:bg-slate-100/55 p-1 rounded-xl transition-all duration-200">
                         <div class="hidden sm:block text-right">
                             <span class="inline-block text-[8px] font-bold px-2 py-0.5 rounded-full border {{ $roleColors[Auth::user()->role] ?? 'bg-slate-100 border-slate-200 text-slate-700' }} uppercase tracking-wider">
@@ -123,10 +123,10 @@
             <!-- Hero Welcome Card -->
             <div class="w-full bg-white/60 backdrop-blur-md rounded-[24px] border border-slate-200/60 p-6 md:p-8 shadow-xl text-center space-y-3 max-w-3xl animate-fade-in shrink-0">
                 <div class="flex justify-center">
-                    <span class="text-[8px] font-bold uppercase tracking-widest text-[#3b59f3] bg-[#3b59f3]/10 px-3.5 py-1 rounded-full border border-[#3b59f3]/20">Selamat Datang di Portal</span>
+                    <span class="text-[8px] font-bold uppercase tracking-widest text-[#3b59f3] bg-[#3b59f3]/10 px-3.5 py-1 rounded-full border border-[#3b59f3]/20">Portal Sirena</span>
                 </div>
                 <h2 class="text-2xl md:text-3xl font-black text-[#09103c] tracking-tight leading-tight">
-                    Halo, {{ Auth::user()->name }}!
+                    Halo, {{ Auth::user()->name }}
                 </h2>
                 <p class="text-xs md:text-sm text-slate-600 font-medium max-w-xl mx-auto leading-relaxed">
                     Sistem koordinasi dinas, pencatatan presensi rapat mandiri, dan penyusunan notulensi kerja Dinas Komunikasi dan Informatika Kabupaten Banyumas. Silakan pilih menu di bawah ini untuk memulai.
@@ -269,8 +269,8 @@
         </main>
 
         <!-- Footer Area -->
-        <footer class="bg-white/60 backdrop-blur-md rounded-2xl border border-slate-200/60 px-5 py-3 text-center text-slate-500 text-[10px] font-bold uppercase tracking-wider shadow-sm select-none shrink-0">
-            &copy; 2026 Dinas Komunikasi dan Informatika Kabupaten Banyumas. Agendaris v2.0 &bull; Premium Internal System.
+        <footer class="text-center text-slate-500 text-[10px] font-bold uppercase tracking-wider select-none shrink-0">
+            &copy; 2026 Dinas Komunikasi dan Informatika Kabupaten Banyumas. Sirena v2.0 &bull; Premium Internal System.
         </footer>
     </div>
 </body>
