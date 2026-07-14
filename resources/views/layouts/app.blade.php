@@ -74,12 +74,7 @@
                 </div>
             </div>
 
-            <!-- Center Page Title / Dynamic Breadcrumbs -->
-            <div class="hidden sm:flex items-center gap-2 text-xs font-bold text-[#09103c] uppercase tracking-wider bg-slate-100/80 px-4 py-2 rounded-2xl border border-slate-200/40 select-none">
-                <span>Halaman</span>
-                <span class="text-slate-400 font-normal">&bull;</span>
-                <span class="text-[#09103c] font-black">@yield('title', 'Dinkominfo')</span>
-            </div>
+
 
             <!-- Right Profile Drodown -->
             @if(Auth::check())
