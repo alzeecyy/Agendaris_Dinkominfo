@@ -200,36 +200,48 @@ class DashboardController extends Controller
 
         } elseif ($user->role === 'ketua_bidang') {
             // Ketua Bidang KPI: Pending reviews in their bidang
-            $kpi['ketua_pending_reviews'] = Notulensi::where('status', 'menunggu_review')
+            $pendingReviews = Notulensi::where('status', 'menunggu_review')
                 ->whereHas('agenda', function($q) use ($user) {
                     $q->whereHas('sekretaris', function($sq) use ($user) {
                         $sq->where('bidang_id', $user->bidang_id);
                     });
                 })
-                ->count();
+                ->with('agenda')
+                ->get();
 
-            if ($kpi['ketua_pending_reviews'] > 0) {
+            $kpi['ketua_pending_reviews'] = $pendingReviews->count();
+
+            foreach ($pendingReviews as $notulensi) {
                 $highlights[] = [
                     'type' => 'review',
-                    'text' => "Ada {$kpi['ketua_pending_reviews']} draf notulensi rapat bidang yang menunggu keputusan persetujuan Anda.",
+                    'agenda_id' => $notulensi->agenda_id,
+                    'text' => "Notulensi rapat '{$notulensi->agenda->judul}' menunggu keputusan persetujuan Anda.",
+                    'action_text' => 'Tinjau & Sahkan',
+                    'url' => route('notulensi.review', $notulensi->agenda_id),
                 ];
             }
 
         } elseif ($user->role === 'ketua_master') {
             // Ketua Master (Kepala Dinas) KPI: Pending reviews of Dinas / Lintas Bidang (sekretaris is null or master)
-            $kpi['ketua_pending_reviews'] = Notulensi::where('status', 'menunggu_review')
+            $pendingReviews = Notulensi::where('status', 'menunggu_review')
                 ->whereHas('agenda', function($q) {
                     $q->whereNull('sekretaris_id')
                       ->orWhereHas('sekretaris', function($sq) {
                           $sq->whereNull('bidang_id');
                       });
                 })
-                ->count();
+                ->with('agenda')
+                ->get();
 
-            if ($kpi['ketua_pending_reviews'] > 0) {
+            $kpi['ketua_pending_reviews'] = $pendingReviews->count();
+
+            foreach ($pendingReviews as $notulensi) {
                 $highlights[] = [
                     'type' => 'review',
-                    'text' => "Ada {$kpi['ketua_pending_reviews']} notulensi rapat dinas / lintas bidang yang menunggu pengesahan Anda.",
+                    'agenda_id' => $notulensi->agenda_id,
+                    'text' => "Notulensi dinas '{$notulensi->agenda->judul}' menunggu pengesahan Anda.",
+                    'action_text' => 'Tinjau & Sahkan',
+                    'url' => route('notulensi.review', $notulensi->agenda_id),
                 ];
             }
         }
