@@ -85,7 +85,8 @@
                                     </form>
                                     <span class="text-[#d4d1f5]">|</span>
                                     <!-- Toggle status -->
-                                    <form action="{{ route('admin.users.toggle-status', $user->id) }}" method="POST">
+                                    <form action="{{ route('admin.users.toggle-status', $user->id) }}" method="POST"
+                                          onsubmit="return confirm('{{ $user->active ? 'Apakah Anda yakin ingin menonaktifkan akun pegawai ini? Pegawai tersebut tidak akan bisa masuk ke sistem.' : 'Apakah Anda yakin ingin mengaktifkan kembali akun pegawai ini?' }}')">
                                         @csrf
                                         @if($user->active)
                                             <button type="submit" class="text-rose-600 hover:text-rose-500 transition-colors">Nonaktifkan</button>
