@@ -10,6 +10,8 @@
     kategori: 'rapat',
     tempat: 'Ruang Rapat Kartini',
     tempatLainnya: '',
+    showMonthPicker: false,
+    pickerYear: {{ $selectedDate->year }},
     get combinedLokasi() {
         return this.tempat === 'Lainnya' ? this.tempatLainnya : this.tempat;
     }
@@ -21,27 +23,37 @@
         <!-- Mini Calendar Card -->
         <div class="bg-white border border-[#d4d1f5]/60 rounded-3xl p-5 shadow-sm">
             <div class="flex items-center justify-between mb-4 border-b border-[#d4d1f5]/30 pb-2">
-                <a href="{{ route('calendar', ['date' => $selectedDate->copy()->subMonth()->startOfMonth()->toDateString()]) }}" 
-                   class="p-1.5 hover:bg-[#8e88dd]/20 rounded-xl text-[#2e2552] transition-colors"
-                   title="Bulan Sebelumnya">
+                <!-- Prev Button -->
+                <button type="button" 
+                        @click="if (showMonthPicker) { pickerYear-- } else { window.location.href = '{{ route('calendar', ['date' => $selectedDate->copy()->subMonth()->startOfMonth()->toDateString()]) }}' }"
+                        class="p-1.5 hover:bg-[#8e88dd]/20 rounded-xl text-[#2e2552] transition-colors"
+                        title="Sebelumnya">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
                     </svg>
-                </a>
-                <h3 class="text-xs font-black uppercase tracking-wider text-[#2e2552]">
-                    {{ $selectedDate->translatedFormat('F Y') }}
+                </button>
+                
+                <!-- Month/Year Header (Click to Toggle Month Picker) -->
+                <h3 @click="showMonthPicker = !showMonthPicker" 
+                    class="text-xs font-black uppercase tracking-wider text-[#2e2552] cursor-pointer hover:bg-[#8e88dd]/10 px-3 py-1 rounded-xl transition-colors select-none"
+                    title="Klik untuk memilih bulan">
+                    <span x-show="!showMonthPicker">{{ $selectedDate->translatedFormat('F Y') }}</span>
+                    <span x-show="showMonthPicker" x-text="pickerYear"></span>
                 </h3>
-                <a href="{{ route('calendar', ['date' => $selectedDate->copy()->addMonth()->startOfMonth()->toDateString()]) }}" 
-                   class="p-1.5 hover:bg-[#8e88dd]/20 rounded-xl text-[#2e2552] transition-colors"
-                   title="Bulan Berikutnya">
+                
+                <!-- Next Button -->
+                <button type="button" 
+                        @click="if (showMonthPicker) { pickerYear++ } else { window.location.href = '{{ route('calendar', ['date' => $selectedDate->copy()->addMonth()->startOfMonth()->toDateString()]) }}' }"
+                        class="p-1.5 hover:bg-[#8e88dd]/20 rounded-xl text-[#2e2552] transition-colors"
+                        title="Berikutnya">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
                     </svg>
-                </a>
+                </button>
             </div>
             
             <!-- Calendar Days Header -->
-            <div class="grid grid-cols-7 gap-1 text-center text-[10px] font-bold text-[#5a508f] mb-2">
+            <div x-show="!showMonthPicker" class="grid grid-cols-7 gap-1 text-center text-[10px] font-bold text-[#5a508f] mb-2">
                 <span>Sen</span><span>Sel</span><span>Rab</span><span>Kam</span><span>Jum</span><span class="text-indigo-500 font-extrabold">Sab</span><span class="text-rose-500 font-extrabold">Min</span>
             </div>
             
@@ -59,15 +71,11 @@
                 $calendarEnd = $endOfMonth->copy()->addDays(7 - $endDayOfWeek);
                 
                 // Fetch dates with events to display dots
-                $datesWithEvents = [];
-                foreach ($agendasByDate as $dateStr => $events) {
-                    if (count($events) > 0) {
-                        $datesWithEvents[] = $dateStr;
-                    }
-                }
+                $datesWithEvents = $miniCalendarDatesWithEvents ?? [];
             @endphp
             
-            <div class="grid grid-cols-7 gap-1 text-center text-xs">
+            <!-- Days Grid view -->
+            <div x-show="!showMonthPicker" class="grid grid-cols-7 gap-1 text-center text-xs">
                 @php
                     $currentDay = $calendarStart->copy();
                 @endphp
@@ -95,6 +103,20 @@
                         $currentDay->addDay();
                     @endphp
                 @endwhile
+            </div>
+
+            <!-- Month Picker Grid view -->
+            <div x-show="showMonthPicker" x-cloak class="grid grid-cols-3 gap-2 text-center text-xs py-1">
+                <template x-for="(mName, mIdx) in ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Agu', 'Sep', 'Okt', 'Nov', 'Des']" :key="mIdx">
+                    <button type="button" 
+                            @click="window.location.href = '/calendar?date=' + pickerYear + '-' + String(mIdx + 1).padStart(2, '0') + '-01'"
+                            class="py-3 rounded-xl font-bold border transition-all duration-200"
+                            :class="pickerYear === {{ $selectedDate->year }} && mIdx === {{ $selectedDate->month - 1 }} 
+                                ? 'bg-[#2e2552] text-white border-[#2e2552] shadow-sm' 
+                                : 'border-[#d4d1f5]/60 text-[#5a508f] hover:bg-[#8e88dd]/10 hover:text-[#2e2552] bg-white'">
+                        <span x-text="mName"></span>
+                    </button>
+                </template>
             </div>
         </div>
 
@@ -169,9 +191,17 @@
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
                     </svg>
                 </a>
+                @php
+                    $startOfMonthRef = $selectedDate->copy()->startOfMonth();
+                    $startDayOfWeekRef = $startOfMonthRef->dayOfWeekIso;
+                    $calendarStartRef = $startOfMonthRef->copy()->subDays($startDayOfWeekRef - 1);
+                    $diffDays = $calendarStartRef->diffInDays($dates[0], false);
+                    $weekNum = (int) ($diffDays / 7) + 1;
+                @endphp
                 <a href="{{ route('calendar', ['date' => now()->toDateString()]) }}" 
-                   class="px-4 py-2 bg-[#f3f2fe] border border-[#d4d1f5] rounded-xl hover:bg-[#8e88dd]/20 text-xs font-semibold text-[#2e2552] transition-all duration-200">
-                    Minggu Ini
+                   class="px-4 py-2 bg-[#f3f2fe] border border-[#d4d1f5] rounded-xl hover:bg-[#8e88dd]/20 text-xs font-semibold text-[#2e2552] transition-all duration-200"
+                   title="Kembali ke Minggu Ini">
+                    Minggu ke-{{ $weekNum }}
                 </a>
                 <a href="{{ route('calendar', ['date' => $selectedDate->copy()->addWeek()->toDateString()]) }}" 
                    class="p-2.5 bg-[#f3f2fe] border border-[#d4d1f5] rounded-xl hover:bg-[#8e88dd]/20 text-[#2e2552] transition-all duration-200">
@@ -183,7 +213,7 @@
         </div>
 
         <!-- Weekly Grid Layout -->
-        <div class="flex-1 min-w-[800px] flex flex-col relative" style="height: 660px;">
+        <div class="flex-1 w-full min-w-0 flex flex-col relative" style="height: 660px;">
             <!-- Dates columns header -->
             <div class="grid grid-cols-8 border-b border-[#d4d1f5]/40 pb-3 relative z-0">
                 <!-- Time axes column -->
@@ -254,19 +284,6 @@
                     <!-- Column relative container -->
                      <div class="h-full border-r border-[#d4d1f5]/40 last:border-0 relative {{ ($isSunday || $isSaturday) ? 'bg-rose-50/40' : 'bg-[#fcfbff]' }} group/col">
                         
-                        <!-- Clickable background slots to quickly create events (Secretaries only) -->
-                        @if(Auth::user()->isSekretarisMaster() || Auth::user()->isSekretarisBidang())
-                            <div class="absolute inset-0 z-0 opacity-0 group-hover/col:opacity-100 transition-opacity duration-150 pointer-events-none">
-                                @foreach($timeSlotsData as $slot)
-                                    <button @click="openAddModal = true; selectedDate = '{{ $dateStr }}'; selectedTime = '{{ $slot['start'] }}'" 
-                                            class="absolute w-full text-[9px] text-[#1b3bbb] hover:bg-[#1b3bbb]/5 pointer-events-auto flex items-center justify-center border-t border-dashed border-[#d4d1f5]/30 transition-colors"
-                                            style="top: {{ number_format($slot['top'], 2, '.', '') }}%; height: {{ number_format($slot['height'], 2, '.', '') }}%;">
-                                        <span class="bg-white/95 px-2 py-0.5 rounded-md shadow-sm border border-slate-100/50 text-[8px] font-bold text-[#1b3bbb]">+ Tambah {{ $slot['start'] }}</span>
-                                    </button>
-                                @endforeach
-                            </div>
-                        @endif
-
                         <!-- Render Events inside this day's column -->
                         @foreach($events as $event)
                             @php
@@ -298,10 +315,10 @@
                                 // Beautiful Lavender-Theme Category Colors
                                 // Rapat: Amethyst Purple, Sosialisasi: Periwinkle Blue, Pelatihan: Lime Green, Kegiatan Lainnya: Lavender Gray
                                 $categoryColorClasses = [
-                                    'rapat' => 'bg-[#bc8bf2]/95 border-[#9a5fd9] text-white',
-                                    'sosialisasi' => 'bg-[#8ba0f2]/95 border-[#5b73d9] text-white',
-                                    'pelatihan' => 'bg-[#c2f73b]/95 border-[#9dd413] text-[#2e2552]',
-                                    'kegiatan_lainnya' => 'bg-[#9f95d9]/95 border-[#786eb8] text-white',
+                                    'rapat' => 'bg-[#ef4444]/95 border-[#dc2626] text-white',
+                                    'sosialisasi' => 'bg-[#3b82f6]/95 border-[#2563eb] text-white',
+                                    'pelatihan' => 'bg-[#10b981]/95 border-[#059669] text-white',
+                                    'kegiatan_lainnya' => 'bg-[#94a3b8]/95 border-[#475569] text-white',
                                 ];
                                 
                                 $cardColorClass = $event->has_access 
@@ -311,23 +328,80 @@
                             
                             <!-- Event Card Container -->
                             @if($event->has_access)
-                                <a href="{{ route('agenda.show', $event->id) }}" 
-                                   class="absolute p-2 border rounded-2xl text-left shadow-sm z-10 transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md flex flex-col justify-between overflow-hidden {{ $cardColorClass }}"
-                                   style="top: {{ number_format($topPct, 2, '.', '') }}%; height: {{ number_format($heightPct, 2, '.', '') }}%; left: {{ number_format($leftPos, 2, '.', '') }}%; width: {{ number_format($colWidth, 2, '.', '') }}%;">
-                                    <div class="min-w-0">
-                                        <div class="flex items-center justify-between text-[8px] font-bold opacity-80 gap-1 uppercase truncate">
-                                            <span>{{ substr($event->jam_mulai, 0, 5) }} - {{ substr($event->jam_selesai, 0, 5) }}</span>
-                                            <span class="px-1 py-0.5 rounded bg-black/10 text-[8px] font-semibold">{{ $event->singkatan_bidang }}</span>
-                                        </div>
-                                        <h4 class="text-[10px] font-bold mt-0.5 leading-tight line-clamp-2">{{ $event->judul }}</h4>
-                                    </div>
-                                    <div class="text-[8px] opacity-80 truncate flex items-center gap-0.5 font-medium">
-                                        <svg class="w-2.5 h-2.5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path>
-                                        </svg>
-                                        <span>{{ $event->lokasi }}</span>
-                                    </div>
-                                </a>
+                                 @php
+                                     $tooltipPosition = $topPct < 15 ? 'top-full mt-2' : 'bottom-full mb-2';
+                                     
+                                     $arrowClass = $topPct < 15 
+                                         ? 'after:bottom-full after:border-b-' . ($event->kategori === 'rapat' ? '[#ffe4e6]' : ($event->kategori === 'sosialisasi' ? '[#dbeafe]' : ($event->kategori === 'pelatihan' ? '[#d1fae5]' : '[#f1f5f9]')))
+                                         : 'after:top-full after:border-t-' . ($event->kategori === 'rapat' ? '[#ffe4e6]' : ($event->kategori === 'sosialisasi' ? '[#dbeafe]' : ($event->kategori === 'pelatihan' ? '[#d1fae5]' : '[#f1f5f9]')));
+
+                                     $tooltipStyles = [
+                                         'rapat' => [
+                                             'bg' => 'bg-[#ffe4e6]',
+                                             'border' => 'border-[#fda4af]',
+                                             'text' => 'text-[#881337]',
+                                             'subtext' => 'text-[#b91c1c]',
+                                             'header_text' => 'text-[#be123c]',
+                                         ],
+                                         'sosialisasi' => [
+                                             'bg' => 'bg-[#dbeafe]',
+                                             'border' => 'border-[#bfdbfe]',
+                                             'text' => 'text-[#1e3a8a]',
+                                             'subtext' => 'text-[#1d4ed8]',
+                                             'header_text' => 'text-[#1d4ed8]',
+                                         ],
+                                         'pelatihan' => [
+                                             'bg' => 'bg-[#d1fae5]',
+                                             'border' => 'border-[#a7f3d0]',
+                                             'text' => 'text-[#064e3b]',
+                                             'subtext' => 'text-[#047857]',
+                                             'header_text' => 'text-[#047857]',
+                                         ],
+                                         'kegiatan_lainnya' => [
+                                             'bg' => 'bg-[#f1f5f9]',
+                                             'border' => 'border-[#cbd5e1]',
+                                             'text' => 'text-[#0f172a]',
+                                             'subtext' => 'text-[#475569]',
+                                             'header_text' => 'text-[#475569]',
+                                         ],
+                                     ];
+                                     $tStyle = $tooltipStyles[$event->kategori] ?? $tooltipStyles['kegiatan_lainnya'];
+                                 @endphp
+                                 <a href="{{ route('agenda.show', $event->id) }}" 
+                                    class="absolute p-2 border rounded-2xl text-left shadow-sm z-10 transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md hover:z-30 flex flex-col justify-between group {{ $cardColorClass }}"
+                                    style="top: {{ number_format($topPct, 2, '.', '') }}%; height: {{ number_format($heightPct, 2, '.', '') }}%; left: {{ number_format($leftPos, 2, '.', '') }}%; width: {{ number_format($colWidth, 2, '.', '') }}%;">
+                                     <div class="min-w-0">
+                                         <div class="flex items-center justify-between text-[8px] font-bold opacity-80 gap-1 uppercase truncate">
+                                             <span>{{ substr($event->jam_mulai, 0, 5) }} - {{ substr($event->jam_selesai, 0, 5) }}</span>
+                                             <span class="px-1 py-0.5 rounded bg-black/10 text-[8px] font-semibold">{{ $event->singkatan_bidang }}</span>
+                                         </div>
+                                         <h4 class="text-[10px] font-bold mt-0.5 leading-tight line-clamp-2">{{ $event->judul }}</h4>
+                                     </div>
+                                     <div class="text-[8px] opacity-80 truncate flex items-center gap-0.5 font-medium">
+                                         <svg class="w-2.5 h-2.5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path>
+                                         </svg>
+                                         <span>{{ $event->lokasi }}</span>
+                                     </div>
+
+                                     <!-- Floating Tooltip on Hover -->
+                                     <div class="absolute {{ $tooltipPosition }} {{ $arrowClass }} {{ $tStyle['bg'] }} {{ $tStyle['border'] }} {{ $tStyle['text'] }} left-1/2 -translate-x-1/2 w-60 p-3 rounded-2xl shadow-2xl z-50 text-[10px] pointer-events-none opacity-0 group-hover:opacity-100 transition-all duration-200 border after:content-[''] after:absolute after:left-1/2 after:-translate-x-1/2 after:border-4 after:border-transparent">
+                                         <div class="font-bold border-b border-black/10 pb-1 flex justify-between gap-2">
+                                             <span class="{{ $tStyle['header_text'] }} font-extrabold uppercase">{{ $event->singkatan_bidang }}</span>
+                                             <span class="{{ $tStyle['subtext'] }}">{{ substr($event->jam_mulai, 0, 5) }} - {{ substr($event->jam_selesai, 0, 5) }}</span>
+                                         </div>
+                                         <div class="mt-1.5 font-bold leading-tight">
+                                             {{ $event->judul }}
+                                         </div>
+                                         <div class="mt-1.5 text-[9px] {{ $tStyle['subtext'] }} flex items-center gap-1">
+                                             <svg class="w-3.5 h-3.5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path>
+                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                                             </svg>
+                                             <span class="truncate font-semibold">{{ $event->lokasi }}</span>
+                                         </div>
+                                     </div>
+                                 </a>
                              @else
                                 <div class="absolute p-2 border rounded-2xl text-left shadow-sm z-10 overflow-hidden {{ $cardColorClass }}"
                                      title="Agenda ini terbatas untuk bidang {{ $event->singkatan_bidang }}"

@@ -3,7 +3,146 @@
 @section('title', 'Kelola Pegawai')
 
 @section('content')
-<div x-data="{ openAddModal: false, openEditModal: false, editUser: {} }" class="space-y-6">
+<div x-data="{ 
+    openAddModal: false, 
+    openEditModal: false, 
+    editUser: {},
+    searchQuery: '',
+    filterBidang: '',
+    filterRole: '',
+    filterStatus: '',
+    currentPage: 1,
+    itemsPerPage: 10,
+    users: [
+        @foreach($users as $user)
+        {
+            id: {{ $user->id }},
+            name: '{{ addslashes($user->name) }}',
+            nip: '{{ $user->nip }}',
+            bidang_id: '{{ $user->bidang_id }}',
+            role: '{{ $user->role }}',
+            active: {{ $user->active ? 'true' : 'false' }}
+        },
+        @endforeach
+    ],
+    matchesFilter(name, nip, bidangId, role, active) {
+        const matchesSearch = !this.searchQuery || 
+            name.toLowerCase().includes(this.searchQuery.toLowerCase()) || 
+            nip.toLowerCase().includes(this.searchQuery.toLowerCase());
+            
+        let matchesBidang = true;
+        if (this.filterBidang) {
+            if (this.filterBidang === 'master') {
+                matchesBidang = !bidangId;
+            } else {
+                matchesBidang = bidangId == this.filterBidang;
+            }
+        }
+        
+        let matchesRole = true;
+        if (this.filterRole) {
+            if (this.filterRole === 'sekretaris') {
+                matchesRole = role === 'sekretaris_master' || role === 'sekretaris_bidang';
+            } else if (this.filterRole === 'ketua') {
+                matchesRole = role === 'ketua_master' || role === 'ketua_bidang';
+            } else {
+                matchesRole = role === this.filterRole;
+            }
+        }
+        
+        const matchesStatus = !this.filterStatus || 
+            (this.filterStatus === 'aktif' && active) || 
+            (this.filterStatus === 'nonaktif' && !active);
+            
+        return matchesSearch && matchesBidang && matchesRole && matchesStatus;
+    },
+    get filteredUsers() {
+        return this.users.filter(u => {
+            const matchesSearch = !this.searchQuery || 
+                u.name.toLowerCase().includes(this.searchQuery.toLowerCase()) || 
+                u.nip.toLowerCase().includes(this.searchQuery.toLowerCase());
+                
+            let matchesBidang = true;
+            if (this.filterBidang) {
+                if (this.filterBidang === 'master') {
+                    matchesBidang = !u.bidang_id;
+                } else {
+                    matchesBidang = u.bidang_id == this.filterBidang;
+                }
+            }
+            
+            let matchesRole = true;
+            if (this.filterRole) {
+                if (this.filterRole === 'sekretaris') {
+                    matchesRole = u.role === 'sekretaris_master' || u.role === 'sekretaris_bidang';
+                } else if (this.filterRole === 'ketua') {
+                    matchesRole = u.role === 'ketua_master' || u.role === 'ketua_bidang';
+                } else {
+                    matchesRole = u.role === this.filterRole;
+                }
+            }
+            
+            const matchesStatus = !this.filterStatus || 
+                (this.filterStatus === 'aktif' && u.active) || 
+                (this.filterStatus === 'nonaktif' && !u.active);
+                
+            return matchesSearch && matchesBidang && matchesRole && matchesStatus;
+        });
+    },
+    get totalPages() {
+        return Math.ceil(this.filteredUsers.length / this.itemsPerPage) || 1;
+    },
+    isUserVisible(userId) {
+        const index = this.filteredUsers.findIndex(u => u.id === userId);
+        if (index === -1) return false;
+        const start = (this.currentPage - 1) * this.itemsPerPage;
+        const end = start + this.itemsPerPage;
+        return index >= start && index < end;
+    },
+    nextPage() {
+        if (this.currentPage < this.totalPages) {
+            this.currentPage++;
+            this.stripeRows();
+        }
+    },
+    prevPage() {
+        if (this.currentPage > 1) {
+            this.currentPage--;
+            this.stripeRows();
+        }
+    },
+    setPage(page) {
+        this.currentPage = page;
+        this.stripeRows();
+    },
+    resetPagination() {
+        this.currentPage = 1;
+        this.stripeRows();
+    },
+    stripeRows() {
+        this.$nextTick(() => {
+            let visibleIndex = 0;
+            document.querySelectorAll('.user-row').forEach(row => {
+                if (row.style.display !== 'none') {
+                    if (visibleIndex % 2 === 0) {
+                        row.classList.remove('bg-[#fcfbff]');
+                    } else {
+                        row.classList.add('bg-[#fcfbff]');
+                    }
+                    visibleIndex++;
+                }
+            });
+        });
+    }
+}" 
+x-init="
+    $watch('searchQuery', () => resetPagination());
+    $watch('filterBidang', () => resetPagination());
+    $watch('filterRole', () => resetPagination());
+    $watch('filterStatus', () => resetPagination());
+    stripeRows();
+"
+class="space-y-6">
     
     <!-- Title & Add Trigger -->
     <div class="flex items-center justify-between">
@@ -22,6 +161,55 @@
 
     <!-- Users Table Card -->
     <div class="bg-white border border-[#d4d1f5]/60 rounded-[32px] p-6 shadow-sm overflow-hidden text-[#2e2552]">
+        
+        <!-- Filter Bar -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+            <!-- Search Input -->
+            <div class="relative">
+                <input type="text" x-model="searchQuery" placeholder="Cari nama atau NIP..."
+                       class="w-full pl-10 pr-4 py-2.5 bg-[#f3f2fe] border border-[#d4d1f5] rounded-2xl text-xs text-[#2e2552] focus:outline-none focus:ring-2 focus:ring-[#8e88dd]">
+                <div class="absolute left-3.5 top-1/2 -translate-y-1/2 text-[#5a508f]/60">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+                    </svg>
+                </div>
+            </div>
+            
+            <!-- Bidang Filter -->
+            <div>
+                <select x-model="filterBidang" 
+                        class="w-full px-4 py-2.5 bg-[#f3f2fe] border border-[#d4d1f5] rounded-2xl text-xs text-[#2e2552] focus:outline-none">
+                    <option value="">Semua Bidang</option>
+                    <option value="master">Dinkominfo (Master)</option>
+                    @foreach($bidangs as $bid)
+                        <option value="{{ $bid->id }}">{{ $bid->singkatan }}</option>
+                    @endforeach
+                </select>
+            </div>
+            
+            <!-- Role Filter -->
+            <div>
+                <select x-model="filterRole" 
+                        class="w-full px-4 py-2.5 bg-[#f3f2fe] border border-[#d4d1f5] rounded-2xl text-xs text-[#2e2552] focus:outline-none">
+                    <option value="">Semua Role</option>
+                    <option value="admin">Admin</option>
+                    <option value="ketua">Ketua / Kadin</option>
+                    <option value="sekretaris">Sekretaris</option>
+                    <option value="staff">Staff</option>
+                </select>
+            </div>
+            
+            <!-- Status Filter -->
+            <div>
+                <select x-model="filterStatus" 
+                        class="w-full px-4 py-2.5 bg-[#f3f2fe] border border-[#d4d1f5] rounded-2xl text-xs text-[#2e2552] focus:outline-none">
+                    <option value="">Semua Status</option>
+                    <option value="aktif">Aktif</option>
+                    <option value="nonaktif">Nonaktif</option>
+                </select>
+            </div>
+        </div>
+
         <div class="overflow-x-auto">
             <table class="w-full text-left text-sm text-[#2e2552]">
                 <thead class="text-xs font-bold uppercase tracking-wider text-[#5a508f] border-b border-[#d4d1f5]/40">
@@ -36,11 +224,26 @@
                     </tr>
                 </thead>
                 <tbody class="divide-y divide-[#d4d1f5]/30">
+                    <!-- Client-side Empty State for filters -->
+                    <tr x-show="filteredUsers.length === 0" class="hover:bg-transparent">
+                        <td colspan="7" class="py-8 px-4 text-center text-[#8e88dd] italic font-medium">Tidak ada data pegawai yang cocok dengan kriteria filter.</td>
+                    </tr>
                     @forelse($users as $user)
-                        <tr class="hover:bg-[#f8f7ff] transition-colors">
+                        <tr class="user-row hover:bg-[#f8f7ff] transition-colors"
+                            x-show="matchesFilter('{{ addslashes($user->name) }}', '{{ $user->nip }}', '{{ $user->bidang_id }}', '{{ $user->role }}', {{ $user->active ? 'true' : 'false' }}) && isUserVisible({{ $user->id }})">
                             <td class="py-4 px-4 font-bold truncate max-w-[150px]">{{ $user->name }}</td>
                             <td class="py-4 px-4 font-mono text-xs text-[#5a508f]">{{ $user->nip }}</td>
-                            <td class="py-4 px-4 text-xs font-semibold text-slate-700">{{ $user->jabatan }}</td>
+                            <td class="py-4 px-4 text-xs font-semibold text-slate-700">
+                                @php
+                                    $jabatanSingkat = $user->jabatan;
+                                    foreach($bidangs as $bid) {
+                                        if ($bid->nama && str_contains($jabatanSingkat, $bid->nama)) {
+                                            $jabatanSingkat = str_replace($bid->nama, 'Bidang ' . $bid->singkatan, $jabatanSingkat);
+                                        }
+                                    }
+                                @endphp
+                                {{ $jabatanSingkat }}
+                            </td>
                             <td class="py-4 px-4 text-xs font-semibold text-[#5a508f]">{{ $user->bidang->singkatan ?? 'Dinkominfo (Master)' }}</td>
                             <td class="py-4 px-4 text-xs">
                                 @php
@@ -85,7 +288,8 @@
                                     </form>
                                     <span class="text-[#d4d1f5]">|</span>
                                     <!-- Toggle status -->
-                                    <form action="{{ route('admin.users.toggle-status', $user->id) }}" method="POST">
+                                    <form action="{{ route('admin.users.toggle-status', $user->id) }}" method="POST"
+                                          onsubmit="return confirm('{{ $user->active ? 'Apakah Anda yakin ingin menonaktifkan akun pegawai ini? Pegawai tersebut tidak akan bisa masuk ke sistem.' : 'Apakah Anda yakin ingin mengaktifkan kembali akun pegawai ini?' }}')">
                                         @csrf
                                         @if($user->active)
                                             <button type="submit" class="text-rose-600 hover:text-rose-500 transition-colors">Nonaktifkan</button>
@@ -103,6 +307,48 @@
                     @endforelse
                 </tbody>
             </table>
+        </div>
+
+        <!-- Pagination controls -->
+        <div x-show="totalPages > 1" class="flex flex-col sm:flex-row items-center justify-between border-t border-[#d4d1f5]/40 pt-4 mt-4 text-xs font-bold text-[#5a508f] gap-4">
+            <!-- Showing x to y of z entries -->
+            <div>
+                Menampilkan 
+                <span x-text="Math.min((currentPage - 1) * itemsPerPage + 1, filteredUsers.length)"></span>
+                sampai
+                <span x-text="Math.min(currentPage * itemsPerPage, filteredUsers.length)"></span>
+                dari
+                <span x-text="filteredUsers.length"></span>
+                pegawai
+            </div>
+            
+            <!-- Page buttons -->
+            <div class="flex items-center gap-1.5 flex-wrap">
+                <!-- Previous Button -->
+                <button @click="prevPage()" :disabled="currentPage === 1"
+                        class="p-2 rounded-xl border border-[#d4d1f5] hover:bg-[#8e88dd]/10 disabled:opacity-40 disabled:hover:bg-transparent transition-colors">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
+                    </svg>
+                </button>
+                
+                <!-- Page numbers -->
+                <template x-for="p in totalPages" :key="p">
+                    <button @click="setPage(p)"
+                            x-text="p"
+                            class="px-3.5 py-2 rounded-xl border transition-all duration-200"
+                            :class="currentPage === p ? 'bg-[#2e2552] text-white border-[#2e2552] shadow-sm' : 'border-[#d4d1f5] hover:bg-[#8e88dd]/10'">
+                    </button>
+                </template>
+                
+                <!-- Next Button -->
+                <button @click="nextPage()" :disabled="currentPage === totalPages"
+                        class="p-2 rounded-xl border border-[#d4d1f5] hover:bg-[#8e88dd]/10 disabled:opacity-40 disabled:hover:bg-transparent transition-colors">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+                    </svg>
+                </button>
+            </div>
         </div>
     </div>
 

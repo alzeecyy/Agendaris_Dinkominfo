@@ -21,7 +21,7 @@
     </div>
 
     <!-- Bidang Table Card -->
-    <div class="bg-white border border-[#d4d1f5]/60 rounded-[32px] p-6 shadow-sm overflow-hidden max-w-2xl text-[#2e2552]">
+    <div class="bg-white border border-[#d4d1f5]/60 rounded-[32px] p-6 shadow-sm overflow-hidden text-[#2e2552]">
         <div class="overflow-x-auto">
             <table class="w-full text-left text-sm text-[#2e2552]">
                 <thead class="text-xs font-bold uppercase tracking-wider text-[#5a508f] border-b border-[#d4d1f5]/40">

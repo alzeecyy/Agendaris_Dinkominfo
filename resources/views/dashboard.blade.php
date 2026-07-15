@@ -254,10 +254,10 @@
                                     // Categories colors:
                                     // Rapat: Amethyst Purple, Sosialisasi: Periwinkle Blue, Pelatihan: Lime Green, Kegiatan Lainnya: Lavender Gray
                                     $dotColors = [
-                                        'rapat' => 'bg-[#bc8bf2]',
-                                        'sosialisasi' => 'bg-[#8ba0f2]',
-                                        'pelatihan' => 'bg-[#c2f73b]',
-                                        'kegiatan_lainnya' => 'bg-[#9f95d9]',
+                                        'rapat' => 'bg-[#ef4444]',
+                                        'sosialisasi' => 'bg-[#3b82f6]',
+                                        'pelatihan' => 'bg-[#10b981]',
+                                        'kegiatan_lainnya' => 'bg-[#94a3b8]',
                                     ];
                                     $dotColor = $dotColors[$evt->kategori ?? ''] ?? 'bg-[#9f95d9]';
                                 @endphp
@@ -273,16 +273,29 @@
                             <div x-show="open" 
                                  x-cloak 
                                  x-transition
-                                 class="absolute bottom-full {{ $tooltipClass }} mb-2.5 w-60 bg-[#2e2552] text-white p-3 rounded-2xl shadow-2xl z-30 text-[10px] space-y-2 pointer-events-none border border-white/10">
-                                <div class="font-bold border-b border-white/10 pb-1 flex justify-between">
-                                    <span>Agenda Rapat</span>
-                                    <span>{{ $date->translatedFormat('d M Y') }}</span>
+                                 class="absolute bottom-full {{ $tooltipClass }} mb-2.5 w-64 bg-white text-[#2e2552] p-4 rounded-2xl shadow-2xl z-30 text-[10px] space-y-3 pointer-events-none border border-[#d4d1f5]/60">
+                                <div class="font-bold border-b border-[#d4d1f5]/40 pb-1.5 flex justify-between text-xs">
+                                    <span class="text-[#2e2552]">Agenda Kegiatan</span>
+                                    <span class="text-[#8e88dd]">{{ $date->translatedFormat('d M Y') }}</span>
                                 </div>
-                                <div class="space-y-1.5 max-h-40 overflow-y-auto pr-1">
+                                <div class="space-y-2 max-h-48 overflow-y-auto pr-1">
                                     @foreach($dayEvents as $evt)
-                                        <div class="leading-tight">
-                                            <span class="text-[#bda6ff] font-bold">[{{ $evt->jam_mulai }}]</span>
-                                            <span class="font-semibold ml-0.5">{{ $evt->judul }}</span>
+                                        @php
+                                            $badgeColors = [
+                                                'rapat' => 'bg-rose-500',
+                                                'sosialisasi' => 'bg-blue-500',
+                                                'pelatihan' => 'bg-emerald-500',
+                                                'kegiatan_lainnya' => 'bg-slate-400',
+                                            ];
+                                            $badgeColor = $badgeColors[$evt->kategori ?? ''] ?? 'bg-[#8e88dd]';
+                                        @endphp
+                                        <div class="flex items-start gap-2 pb-2 border-b border-dashed border-[#d4d1f5]/20 last:border-0 last:pb-0">
+                                            <span class="inline-block text-[9px] font-black text-white {{ $badgeColor }} px-1.5 py-0.5 rounded-md shrink-0">
+                                                {{ $evt->jam_mulai }}
+                                            </span>
+                                            <span class="font-semibold text-[10px] leading-tight text-[#2e2552]">
+                                                {{ $evt->judul }}
+                                            </span>
                                         </div>
                                     @endforeach
                                 </div>
@@ -295,10 +308,10 @@
 
             <!-- Color code legend -->
             <div class="flex flex-wrap items-center gap-4 mt-6 border-t border-[#d4d1f5]/40 pt-4 text-[10px] font-bold uppercase tracking-wider text-[#5a508f]">
-                <span class="flex items-center gap-1.5"><span class="w-2.5 h-2.5 rounded-full bg-[#bc8bf2]"></span> Rapat</span>
-                <span class="flex items-center gap-1.5"><span class="w-2.5 h-2.5 rounded-full bg-[#8ba0f2]"></span> Sosialisasi</span>
-                <span class="flex items-center gap-1.5"><span class="w-2.5 h-2.5 rounded-full bg-[#c2f73b]"></span> Pelatihan</span>
-                <span class="flex items-center gap-1.5"><span class="w-2.5 h-2.5 rounded-full bg-[#9f95d9]"></span> Kegiatan Lainnya</span>
+                <span class="flex items-center gap-1.5"><span class="w-2.5 h-2.5 rounded-full bg-[#ef4444]"></span> Rapat</span>
+                <span class="flex items-center gap-1.5"><span class="w-2.5 h-2.5 rounded-full bg-[#3b82f6]"></span> Sosialisasi</span>
+                <span class="flex items-center gap-1.5"><span class="w-2.5 h-2.5 rounded-full bg-[#10b981]"></span> Pelatihan</span>
+                <span class="flex items-center gap-1.5"><span class="w-2.5 h-2.5 rounded-full bg-[#94a3b8]"></span> Kegiatan Lainnya</span>
             </div>
 
         </div>
