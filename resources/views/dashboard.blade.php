@@ -204,29 +204,42 @@
 
             <!-- Month grid header -->
             <div class="grid grid-cols-7 gap-2 text-center text-[10px] font-bold text-[#8e88dd] uppercase tracking-wider mb-2">
-                <span>Sen</span><span>Sel</span><span>Rab</span><span>Kam</span><span>Jum</span><span>Sab</span><span>Min</span>
+                <span>Sen</span><span>Sel</span><span>Rab</span><span>Kam</span><span>Jum</span><span class="text-indigo-500 font-extrabold">Sab</span><span class="text-rose-500 font-extrabold">Min</span>
             </div>
 
             <!-- Month grid days -->
             <div class="grid grid-cols-7 gap-2 text-xs">
-                @foreach($gridDates as $date)
+                @foreach($gridDates as $idx => $date)
                     @php
                         $dateStr = $date->toDateString();
                         $isCurrentMonth = $date->month === $selectedMonth->month;
                         $isToday = $date->isToday();
                         $dayEvents = $agendasByDate[$dateStr] ?? [];
+                        
+                        // Tooltip positioning based on column index
+                        $colPosition = $idx % 7;
+                        if ($colPosition === 0) {
+                            $tooltipClass = "left-0 translate-x-0";
+                        } elseif ($colPosition === 6) {
+                            $tooltipClass = "right-0 left-auto translate-x-0";
+                        } else {
+                            $tooltipClass = "left-1/2 -translate-x-1/2";
+                        }
+                        
+                        $isSunday = $date->isSunday();
+                        $isSaturday = $date->isSaturday();
                     @endphp
                     
                     <!-- Calendar Day Cell with AlpineJS hover popover -->
                     <div x-data="{ open: false }" 
                          @mouseenter="open = true" 
                          @mouseleave="open = false"
-                         class="relative min-h-[75px] p-2 bg-[#fcfbff] border border-[#d4d1f5]/30 rounded-2xl flex flex-col justify-between transition-all duration-200 hover:border-[#8e88dd]/50 hover:bg-[#f8f7ff]">
+                         class="relative min-h-[75px] p-2 {{ ($isSunday || $isSaturday) ? 'bg-rose-50' : 'bg-[#fcfbff]' }} border border-[#d4d1f5]/30 rounded-2xl flex flex-col justify-between transition-all duration-200 hover:border-[#8e88dd]/50 hover:bg-[#f8f7ff]">
                         
                         <!-- Day Number Header -->
                         <div class="flex items-center justify-between">
                             <span class="font-bold text-[11px] 
-                                {{ $isToday ? 'bg-[#2e2552] text-white px-2 py-0.5 rounded-lg shadow-sm' : ($isCurrentMonth ? 'text-[#2e2552]' : 'text-[#d4d1f5]') }}">
+                                {{ $isToday ? 'bg-[#2e2552] text-white px-2 py-0.5 rounded-lg shadow-sm' : ($isCurrentMonth ? ($isSunday ? 'text-rose-500 font-black' : ($isSaturday ? 'text-indigo-500 font-black' : 'text-[#2e2552]')) : ($isSunday ? 'text-rose-300' : ($isSaturday ? 'text-indigo-300' : 'text-[#d4d1f5]'))) }}">
                                 {{ $date->day }}
                             </span>
                             @if(count($dayEvents) > 0)
@@ -260,7 +273,7 @@
                             <div x-show="open" 
                                  x-cloak 
                                  x-transition
-                                 class="absolute bottom-full left-1/2 -translate-x-1/2 mb-2.5 w-60 bg-[#2e2552] text-white p-3 rounded-2xl shadow-2xl z-30 text-[10px] space-y-2 pointer-events-none border border-white/10">
+                                 class="absolute bottom-full {{ $tooltipClass }} mb-2.5 w-60 bg-[#2e2552] text-white p-3 rounded-2xl shadow-2xl z-30 text-[10px] space-y-2 pointer-events-none border border-white/10">
                                 <div class="font-bold border-b border-white/10 pb-1 flex justify-between">
                                     <span>Agenda Rapat</span>
                                     <span>{{ $date->translatedFormat('d M Y') }}</span>
