@@ -61,10 +61,10 @@
 <body class="h-screen flex flex-col text-[#2e2552] overflow-hidden antialiased">
 
     <!-- Outer Page App Window -->
-    <div class="h-full flex flex-col p-4 md:p-6 gap-6 max-w-[1600px] w-full mx-auto overflow-hidden">
+    <div class="h-full flex flex-col p-4 md:p-6 gap-6 max-w-[1600px] w-full mx-auto">
         
         <!-- TOP NAVBAR (Header) -->
-        <header class="w-full bg-white/80 backdrop-blur-md rounded-3xl border border-slate-200/60 px-6 py-4 flex items-center justify-between shadow-md z-30 text-[#09103c]">
+        <header class="w-full bg-white/80 backdrop-blur-md rounded-3xl border border-slate-200/60 px-6 py-4 flex items-center justify-between shadow-md relative z-50 text-[#09103c]">
             <!-- Left Logo -->
             <div class="flex items-center gap-3 select-none">
                 <img src="{{ asset('images/logo-banyumas-crest.png') }}" alt="Logo Banyumas" class="h-9 w-auto hover:scale-105 transition-transform duration-300">
@@ -149,7 +149,7 @@
         </header>
 
         <!-- MAIN LAYOUT WRAPPER (Sidebar + Content Panel) -->
-        <div class="flex-1 flex flex-col md:flex-row gap-6 items-stretch overflow-hidden">
+        <div class="flex-1 flex flex-col md:flex-row gap-6 items-stretch overflow-hidden min-h-0">
             
             <!-- LEFT NAVBAR (Sidebar) -->
             <aside class="w-full md:w-60 bg-white/80 backdrop-blur-md rounded-3xl border border-slate-200/60 flex flex-col py-6 shrink-0 z-20 shadow-md text-[#09103c]">
