@@ -70,7 +70,6 @@ class ProcessMeetingAudio implements ShouldQueue
                                         ]
                                     ]
                                 ]
-                            ]
                         ],
                         'generationConfig' => [
                             'responseMimeType' => 'application/json'

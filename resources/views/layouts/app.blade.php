@@ -58,10 +58,10 @@
     <!-- AlpineJS for interactive elements -->
     <script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
 </head>
-<body class="h-screen flex flex-col text-[#2e2552] overflow-hidden antialiased">
+<body class="h-screen text-[#2e2552] overflow-hidden antialiased">
 
     <!-- Outer Page App Window -->
-    <div class="h-full flex flex-col p-4 md:p-6 gap-6 max-w-[1600px] w-full mx-auto overflow-hidden">
+    <div class="h-screen flex flex-col p-4 md:p-6 gap-6 max-w-[1600px] w-full mx-auto overflow-hidden">
         
         <!-- TOP NAVBAR (Header) -->
         <header class="w-full bg-white/80 backdrop-blur-md rounded-3xl border border-slate-200/60 px-6 py-4 flex items-center justify-between shadow-md z-30 text-[#09103c]">
@@ -151,7 +151,7 @@
         </header>
 
         <!-- MAIN LAYOUT WRAPPER (Sidebar + Content Panel) -->
-        <div class="flex-1 flex flex-col md:flex-row gap-6 items-stretch overflow-hidden">
+        <div class="flex-1 min-h-0 min-w-0 flex flex-col md:flex-row gap-6 items-stretch">
             
             <!-- LEFT NAVBAR (Sidebar) -->
             <aside class="w-full md:w-60 bg-white/80 backdrop-blur-md rounded-3xl border border-slate-200/60 flex flex-col py-6 shrink-0 z-20 shadow-md text-[#09103c]">
@@ -234,7 +234,7 @@
             </aside>
 
             <!-- MAIN CONTENT AREA CONTAINER -->
-            <main class="flex-1 bg-slate-50 rounded-[32px] p-6 md:p-8 flex flex-col gap-6 shadow-2xl relative overflow-y-auto text-[#090c24] border border-white/10">
+            <main class="flex-1 min-w-0 bg-slate-50 rounded-[32px] p-6 md:p-8 flex flex-col gap-6 shadow-2xl relative overflow-auto text-[#090c24] border border-white/10">
                 
                 <!-- Floating Toast Notifications -->
                 @if(session('success') || session('error') || session('warning'))
@@ -278,7 +278,7 @@
                 @endif
 
                 <!-- Dynamic Page Content -->
-                <div id="pjax-container" class="flex-1">
+                <div id="pjax-container" class="flex-1 min-w-0 w-full">
                     @yield('content')
                 </div>
 
