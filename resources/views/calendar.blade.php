@@ -42,7 +42,7 @@
             
             <!-- Calendar Days Header -->
             <div class="grid grid-cols-7 gap-1 text-center text-[10px] font-bold text-[#5a508f] mb-2">
-                <span>Sen</span><span>Sel</span><span>Rab</span><span>Kam</span><span>Jum</span><span>Sab</span><span>Min</span>
+                <span>Sen</span><span>Sel</span><span>Rab</span><span>Kam</span><span>Jum</span><span class="text-indigo-500 font-extrabold">Sab</span><span class="text-rose-500 font-extrabold">Min</span>
             </div>
             
             <!-- Calendar Grid Calculations -->
@@ -77,13 +77,15 @@
                         $isToday = $currentDay->isToday();
                         $isSelected = $currentDay->isSameDay($selectedDate);
                         $hasEvent = in_array($currentDay->toDateString(), $datesWithEvents);
+                        $isSunday = $currentDay->isSunday();
+                        $isSaturday = $currentDay->isSaturday();
                     @endphp
                     <a href="{{ route('calendar', ['date' => $currentDay->toDateString()]) }}" 
                        class="relative p-2 rounded-xl flex items-center justify-center font-medium transition-all duration-150 hover:bg-[#8e88dd]/20
                        {{ $isSelected ? 'bg-[#2e2552] text-white font-bold shadow-md shadow-[#2e2552]/20' : '' }}
                        {{ !$isSelected && $isToday ? 'border border-[#8e88dd]/50 text-[#2e2552] font-semibold' : '' }}
-                       {{ !$isSelected && !$isToday && $isCurrentMonth ? 'text-[#5a508f]' : '' }}
-                       {{ !$isCurrentMonth ? 'text-[#d4d1f5]' : '' }}">
+                       {{ !$isSelected && !$isToday && $isCurrentMonth ? ($isSunday ? 'text-rose-600 font-bold' : ($isSaturday ? 'text-indigo-600 font-bold' : 'text-[#5a508f]')) : '' }}
+                       {{ !$isSelected && !$isToday && !$isCurrentMonth ? ($isSunday ? 'text-rose-300' : ($isSaturday ? 'text-indigo-300' : 'text-[#d4d1f5]')) : '' }}">
                         <span>{{ $currentDay->day }}</span>
                         @if($hasEvent && !$isSelected)
                             <span class="absolute bottom-1 w-1 h-1 bg-[#8e88dd] rounded-full"></span>
@@ -181,7 +183,7 @@
         </div>
 
         <!-- Weekly Grid Layout -->
-        <div class="flex-1 min-w-[800px] flex flex-col relative" style="height: 540px;">
+        <div class="flex-1 min-w-[800px] flex flex-col relative" style="height: 660px;">
             <!-- Dates columns header -->
             <div class="grid grid-cols-8 border-b border-[#d4d1f5]/40 pb-3 relative z-0">
                 <!-- Time axes column -->
@@ -191,11 +193,13 @@
                     @php
                         $isDateSelected = $date->isSameDay($selectedDate);
                         $isDateToday = $date->isToday();
+                        $isSunday = $date->isSunday();
+                        $isSaturday = $date->isSaturday();
                     @endphp
                     <div class="text-center flex flex-col items-center justify-center">
-                        <span class="text-[9px] uppercase font-bold text-[#8e88dd]">{{ $date->translatedFormat('D') }}</span>
+                        <span class="text-[9px] uppercase font-bold {{ $isSunday ? 'text-rose-500 font-extrabold' : ($isSaturday ? 'text-indigo-500 font-extrabold' : 'text-[#8e88dd]') }}">{{ $date->translatedFormat('D') }}</span>
                         <span class="text-xs font-bold mt-0.5 px-3 py-1 rounded-xl transition-all duration-200 
-                            {{ $isDateToday ? 'bg-[#2e2552] text-white shadow-sm' : ($isDateSelected ? 'bg-[#8e88dd]/20 text-[#2e2552]' : 'text-[#5a508f]') }}">
+                            {{ $isDateToday ? 'bg-[#2e2552] text-white shadow-sm' : ($isDateSelected ? 'bg-[#8e88dd]/20 text-[#2e2552]' : ($isSunday ? 'text-rose-600 font-black' : ($isSaturday ? 'text-indigo-600 font-black' : 'text-[#5a508f]'))) }}">
                             {{ $date->day }}
                         </span>
                     </div>
@@ -203,10 +207,10 @@
             </div>
 
             <!-- Grid container with time axes rows & events overlay -->
-            <div class="h-[480px] grid grid-cols-8 relative z-10 select-none">
+            <div class="h-[600px] grid grid-cols-8 relative z-10 select-none pb-3">
                 @php
                     $labelTimes = [
-                        '07:15' => 0,
+                        '07:15' => 0.0,
                         '08:00' => 9.09,
                         '09:00' => 21.21,
                         '10:00' => 33.33,
@@ -215,10 +219,10 @@
                         '13:00' => 69.69,
                         '14:00' => 81.81,
                         '15:00' => 93.93,
-                        '15:30' => 100
+                        '15:30' => 100.0
                     ];
                     $timeSlotsData = [
-                        ['start' => '07:15', 'top' => 0, 'height' => 9.09],
+                        ['start' => '07:15', 'top' => 0.0, 'height' => 9.09],
                         ['start' => '08:00', 'top' => 9.09, 'height' => 12.12],
                         ['start' => '09:00', 'top' => 21.21, 'height' => 12.12],
                         ['start' => '10:00', 'top' => 33.33, 'height' => 12.12],
@@ -233,7 +237,7 @@
                 <!-- 1. Y-Axis Time Labels Column -->
                 <div class="border-r border-[#d4d1f5]/40 h-full relative z-10 select-none pointer-events-none">
                     @foreach($labelTimes as $timeStr => $topPct)
-                        <span class="absolute left-1/2 -translate-x-1/2 -translate-y-1/2 flex items-center justify-center bg-white px-1.5 z-20 text-[10px] font-extrabold text-[#5a508f] pointer-events-none" style="top: {{ number_format($topPct, 2, '.', '') }}%;">
+                        <span class="absolute left-1/2 flex items-center justify-center bg-white px-1.5 z-20 text-[10px] font-extrabold text-[#5a508f] pointer-events-none" style="top: {{ number_format($topPct, 2, '.', '') }}%; transform: translate(-50%, {{ $topPct == 0 ? '10px' : ($topPct == 100 ? '-100%' : '-50%') }});">
                             {{ $timeStr }}
                         </span>
                     @endforeach
@@ -244,9 +248,11 @@
                     @php
                         $dateStr = $date->toDateString();
                         $events = $agendasByDate[$dateStr] ?? [];
+                        $isSunday = $date->isSunday();
+                        $isSaturday = $date->isSaturday();
                     @endphp
                     <!-- Column relative container -->
-                    <div class="h-full border-r border-[#d4d1f5]/40 last:border-0 relative bg-[#fcfbff] group/col">
+                     <div class="h-full border-r border-[#d4d1f5]/40 last:border-0 relative {{ ($isSunday || $isSaturday) ? 'bg-rose-50/40' : 'bg-[#fcfbff]' }} group/col">
                         
                         <!-- Clickable background slots to quickly create events (Secretaries only) -->
                         @if(Auth::user()->isSekretarisMaster() || Auth::user()->isSekretarisBidang())

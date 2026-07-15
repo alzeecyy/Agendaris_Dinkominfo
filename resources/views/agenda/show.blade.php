@@ -508,6 +508,8 @@
                     </div>
                 @endif
             @endif
+        </div>
+    </div>
 
     <!-- DETAIL MODAL FOR ATTENDEES TABLE -->
     <div x-show="openDetailModal" x-cloak class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/50 backdrop-blur-sm">
