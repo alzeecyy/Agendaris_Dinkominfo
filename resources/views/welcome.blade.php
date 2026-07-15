@@ -36,10 +36,10 @@
     <div class="absolute bottom-0 left-10 w-[300px] h-[300px] bg-[#1b3bbb]/5 rounded-full filter blur-[80px] pointer-events-none"></div>
 
     <!-- Outer Portal Container -->
-    <div class="h-full w-full max-w-[1100px] mx-auto p-4 md:p-6 flex flex-col gap-4 md:gap-5 z-10 overflow-hidden">
+    <div class="h-full w-full max-w-[1100px] mx-auto p-4 md:p-6 flex flex-col gap-4 md:gap-5 z-10">
         
         <!-- Header / Top Bar -->
-        <header class="flex items-center justify-between relative bg-white/60 backdrop-blur-md rounded-2xl border border-slate-200/60 px-5 py-3 shadow-sm text-[#09103c]">
+        <header class="flex items-center justify-between relative bg-white/60 backdrop-blur-md rounded-2xl border border-slate-200/60 px-5 py-3 shadow-sm text-[#09103c] z-50">
             <!-- Brand Logo -->
             <div class="flex items-center gap-3 select-none z-10">
                 <img src="{{ asset('images/logo-banyumas-crest.png') }}" alt="Logo Banyumas" class="h-9 w-auto hover:scale-105 transition-transform duration-300">
@@ -119,7 +119,7 @@
         </header>
 
         <!-- Main Content Portal -->
-        <main class="flex-1 flex flex-col justify-center items-center gap-5 py-2 overflow-hidden">
+        <main class="flex-1 flex flex-col justify-center items-center gap-5 py-2 min-h-0 overflow-auto">
             <!-- Hero Welcome Card -->
             <div class="w-full bg-white/60 backdrop-blur-md rounded-[24px] border border-slate-200/60 p-6 md:p-8 shadow-xl text-center space-y-3 max-w-3xl animate-fade-in shrink-0">
                 <div class="flex justify-center">
