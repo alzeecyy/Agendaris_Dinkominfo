@@ -19,9 +19,32 @@ class DashboardController extends Controller
     {
         $user = Auth::user();
 
-        // Admin does not have access to agenda content, redirect to admin user panel
+        // Admin dashboard statistics and lists
         if ($user->isAdmin()) {
-            return redirect()->route('admin.users.index');
+            $stats = [
+                'total_users' => \App\Models\User::where('role', '!=', 'admin')->count(),
+                'active_users' => \App\Models\User::where('role', '!=', 'admin')->where('active', true)->count(),
+                'inactive_users' => \App\Models\User::where('role', '!=', 'admin')->where('active', false)->count(),
+                'total_bidang' => \App\Models\Bidang::count(),
+                'total_agenda' => \App\Models\Agenda::count(),
+                'total_notulensi' => \App\Models\Notulensi::count(),
+                'approved_notulensi' => \App\Models\Notulensi::where('status', 'disetujui')->count(),
+                'pending_notulensi' => \App\Models\Notulensi::where('status', 'menunggu_review')->count(),
+            ];
+            
+            $recentUsers = \App\Models\User::where('role', '!=', 'admin')
+                ->with('bidang')
+                ->orderBy('created_at', 'desc')
+                ->take(5)
+                ->get();
+                
+            $recentAgendas = \App\Models\Agenda::with('sekretaris.bidang')
+                ->orderBy('tanggal', 'desc')
+                ->orderBy('jam_mulai', 'desc')
+                ->take(5)
+                ->get();
+
+            return view('admin.dashboard', compact('stats', 'recentUsers', 'recentAgendas'));
         }
 
         // Get the selected month from request (default is current month)
@@ -302,6 +325,20 @@ class DashboardController extends Controller
             ->orderBy('jam_mulai')
             ->get();
 
+        // Fetch all agendas for the whole month grid of the mini-calendar to display dots
+        $startOfMiniCalendar = $selectedDate->copy()->startOfMonth()->startOfWeek(Carbon::MONDAY);
+        $endOfMiniCalendar = $selectedDate->copy()->endOfMonth()->endOfWeek(Carbon::SUNDAY);
+        
+        $rawMiniCalendarAgendas = Agenda::whereBetween('tanggal', [$startOfMiniCalendar->toDateString(), $endOfMiniCalendar->toDateString()])
+            ->get();
+            
+        $miniCalendarDatesWithEvents = $rawMiniCalendarAgendas
+            ->filter(fn($agenda) => $user->hasAccessToAgenda($agenda))
+            ->pluck('tanggal')
+            ->map(fn($t) => $t->toDateString())
+            ->unique()
+            ->toArray();
+
         // Mask/Filter agendas based on user access
         $agendas = $rawAgendas->map(function ($agenda) use ($user) {
             $hasAccess = $user->hasAccessToAgenda($agenda);
@@ -363,7 +400,7 @@ class DashboardController extends Controller
             return true;
         });
 
-        return view('calendar', compact('dates', 'selectedDate', 'agendasByDate', 'bidangs', 'todayAgendas'));
+        return view('calendar', compact('dates', 'selectedDate', 'agendasByDate', 'bidangs', 'todayAgendas', 'miniCalendarDatesWithEvents'));
     }
 
     /**
