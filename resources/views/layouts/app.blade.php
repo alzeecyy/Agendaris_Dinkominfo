@@ -64,7 +64,7 @@
     <div class="h-screen flex flex-col p-4 md:p-6 gap-6 max-w-[1600px] w-full mx-auto overflow-hidden">
         
         <!-- TOP NAVBAR (Header) -->
-        <header class="w-full bg-white/80 backdrop-blur-md rounded-3xl border border-slate-200/60 px-6 py-4 flex items-center justify-between shadow-md z-30 text-[#09103c]">
+        <header class="w-full bg-white/80 backdrop-blur-md rounded-3xl border border-slate-200/60 px-6 py-4 flex items-center justify-between shadow-md relative z-50 text-[#09103c]">
             <!-- Left Logo -->
             <div class="flex items-center gap-3 select-none">
                 <img src="{{ asset('images/logo-banyumas-crest.png') }}" alt="Logo Banyumas" class="h-9 w-auto hover:scale-105 transition-transform duration-300">
