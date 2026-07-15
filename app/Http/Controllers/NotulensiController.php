@@ -72,28 +72,97 @@ class NotulensiController extends Controller
             $notulensi = Notulensi::create([
                 'agenda_id' => $agenda->id,
                 'status' => 'draft',
+                'audio_files' => [],
             ]);
         }
 
-        // Delete old audio if exists
-        if ($notulensi->audio_path) {
-            Storage::disk('public')->delete($notulensi->audio_path);
+        $audioFiles = $notulensi->audio_files ?? [];
+        if (count($audioFiles) >= 3) {
+            return back()->with('error', 'Gagal mengunggah. Maksimal 3 berkas audio rapat tercapai.');
         }
 
         // Save new audio file
         $file = $request->file('audio');
         $path = $file->store('audio', 'public');
 
+        // Add to array
+        $audioFiles[] = [
+            'name' => $file->getClientOriginalName(),
+            'path' => $path,
+        ];
+
+        // Also set legacy fields to the most recent one for compatibility
         $notulensi->update([
             'audio_path' => $path,
             'audio_name' => $file->getClientOriginalName(),
-            'status' => 'draft', // reset to draft or show processing
+            'audio_files' => $audioFiles,
+            'status' => 'draft',
+            'is_transcribing' => true,
+            'transkrip_error' => null, // Reset any previous error
         ]);
 
-        // Dispatch background job for AI transcription
-        ProcessMeetingAudio::dispatch($notulensi, $user->id);
+        // Dispatch background job for AI transcription for the specific file
+        ProcessMeetingAudio::dispatch($notulensi, $user->id, $path);
 
-        return back()->with('success', 'File audio berhasil diunggah. AI sedang melakukan transkripsi dan analisis rapat di latar belakang.');
+        return back()->with('success', 'Berkas audio berhasil diunggah. AI sedang melakukan analisis transkripsi rapat di latar belakang.');
+    }
+
+    /**
+     * Delete a specific meeting audio recording.
+     */
+    public function deleteAudio(Agenda $agenda, $index)
+    {
+        $user = Auth::user();
+        $hakAkses = $agenda->hak_akses;
+
+        $isSecretaryOfAgenda = $user->isSekretarisMaster() || 
+            ($user->isSekretarisBidang() && in_array((string)$user->bidang_id, array_map('strval', $hakAkses)));
+
+        if (!$isSecretaryOfAgenda) {
+            return back()->with('error', 'Anda tidak memiliki wewenang untuk menghapus berkas.');
+        }
+
+        $notulensi = $agenda->notulensi;
+        if (!$notulensi) {
+            return back()->with('error', 'Notulensi tidak ditemukan.');
+        }
+
+        $audioFiles = $notulensi->audio_files ?? [];
+        if (!isset($audioFiles[$index])) {
+            return back()->with('error', 'Berkas audio tidak ditemukan.');
+        }
+
+        // Delete from storage
+        $deletedFile = $audioFiles[$index];
+        Storage::disk('public')->delete($deletedFile['path']);
+
+        // Remove from array and rekey
+        unset($audioFiles[$index]);
+        $audioFiles = array_values($audioFiles);
+
+        // Update model (and clear legacy fields if list is empty)
+        $updateData = [
+            'audio_files' => $audioFiles,
+        ];
+
+        if (empty($audioFiles)) {
+            $updateData['audio_path'] = null;
+            $updateData['audio_name'] = null;
+            $updateData['transkrip_raw'] = null;
+            $updateData['ringkasan'] = null;
+            $updateData['pembahasan'] = null;
+            $updateData['keputusan'] = null;
+            $updateData['kesimpulan'] = null;
+        } else {
+            // Point legacy fields to the last remaining file
+            $lastFile = end($audioFiles);
+            $updateData['audio_path'] = $lastFile['path'];
+            $updateData['audio_name'] = $lastFile['name'];
+        }
+
+        $notulensi->update($updateData);
+
+        return back()->with('success', 'Berkas audio berhasil dihapus.');
     }
 
     /**
@@ -122,6 +191,8 @@ class NotulensiController extends Controller
             'pembahasan' => 'nullable|string',
             'keputusan' => 'nullable|string',
             'kesimpulan' => 'nullable|string',
+            'pembahasan_title' => 'nullable|string',
+            'keputusan_title' => 'nullable|string',
         ]);
 
         $notulensi->update([
@@ -130,6 +201,8 @@ class NotulensiController extends Controller
             'pembahasan' => $validated['pembahasan'] ?? null,
             'keputusan' => $validated['keputusan'] ?? null,
             'kesimpulan' => $validated['kesimpulan'] ?? null,
+            'pembahasan_title' => $validated['pembahasan_title'] ?? null,
+            'keputusan_title' => $validated['keputusan_title'] ?? null,
             'last_edited_by_id' => $user->id,
         ]);
 
@@ -169,6 +242,8 @@ class NotulensiController extends Controller
             'pembahasan' => 'nullable|string',
             'keputusan' => 'nullable|string',
             'kesimpulan' => 'nullable|string',
+            'pembahasan_title' => 'nullable|string',
+            'keputusan_title' => 'nullable|string',
         ]);
 
         $notulensi->update([
@@ -177,6 +252,8 @@ class NotulensiController extends Controller
             'pembahasan' => $validated['pembahasan'] ?? null,
             'keputusan' => $validated['keputusan'] ?? null,
             'kesimpulan' => $validated['kesimpulan'] ?? null,
+            'pembahasan_title' => $validated['pembahasan_title'] ?? null,
+            'keputusan_title' => $validated['keputusan_title'] ?? null,
             'status' => 'menunggu_review',
             'last_edited_by_id' => $user->id,
         ]);
@@ -193,6 +270,10 @@ class NotulensiController extends Controller
         $user = Auth::user();
         $hakAkses = $agenda->hak_akses;
 
+        // Verify if user is the authorized secretary
+        $isSecretaryOfAgenda = $user->isSekretarisMaster() || 
+            ($user->isSekretarisBidang() && in_array((string)$user->bidang_id, array_map('strval', $hakAkses)));
+
         // Verify that user is the authorized Ketua (Master or Bidang)
         $isApprover = false;
         if (count($hakAkses) === 1 && !in_array('semua_orang', $hakAkses)) {
@@ -201,7 +282,7 @@ class NotulensiController extends Controller
             $isApprover = $user->isKetuaMaster();
         }
 
-        if (!$isApprover) {
+        if (!$isApprover && !$isSecretaryOfAgenda) {
             abort(403, 'Akses ditolak. Anda tidak memiliki wewenang untuk meninjau notulensi ini.');
         }
 
@@ -211,7 +292,7 @@ class NotulensiController extends Controller
                 ->with('error', 'Notulensi tidak dalam status menunggu review.');
         }
 
-        return view('notulensi.review', compact('agenda', 'notulensi'));
+        return view('notulensi.review', compact('agenda', 'notulensi', 'isApprover'));
     }
 
     /**
@@ -364,7 +445,8 @@ class NotulensiController extends Controller
         
         // Add internal users
         foreach ($internalUsers as $emp) {
-            $status = $attendanceRecords->has($emp->id) ? $attendanceRecords[$emp->id]->status : 'Belum Absen';
+            $record = $attendanceRecords->get($emp->id);
+            $status = $record ? $record->status : 'Belum Absen';
             
             $statusLabel = 'Belum Absen';
             if ($status === 'hadir') $statusLabel = 'Hadir';
@@ -377,6 +459,8 @@ class NotulensiController extends Controller
                 'jabatan' => $emp->jabatan,
                 'bidang' => $emp->bidang->singkatan ?? 'Dinas',
                 'status' => $statusLabel,
+                'tanda_tangan' => $record ? $record->tanda_tangan : null,
+                'keterangan' => $record ? $record->keterangan : null,
             ];
         }
 
@@ -388,6 +472,8 @@ class NotulensiController extends Controller
                 'jabatan' => $ext->jabatan,
                 'bidang' => $ext->instansi . ' (Eksternal)',
                 'status' => 'Hadir',
+                'tanda_tangan' => null,
+                'keterangan' => null,
             ];
         }
 
@@ -454,7 +540,8 @@ class NotulensiController extends Controller
         $attendees = [];
         
         foreach ($internalUsers as $emp) {
-            $status = $attendanceRecords->has($emp->id) ? $attendanceRecords[$emp->id]->status : 'Belum Absen';
+            $record = $attendanceRecords->get($emp->id);
+            $status = $record ? $record->status : 'Belum Absen';
             $statusLabel = $status === 'hadir' ? 'Hadir' : ($status === 'izin' ? 'Izin' : ($status === 'sakit' ? 'Sakit' : 'Belum Absen'));
             
             $attendees[] = (object) [
@@ -463,6 +550,8 @@ class NotulensiController extends Controller
                 'jabatan' => $emp->jabatan,
                 'bidang' => $emp->bidang->singkatan ?? 'Dinas',
                 'status' => $statusLabel,
+                'tanda_tangan' => $record ? $record->tanda_tangan : null,
+                'keterangan' => $record ? $record->keterangan : null,
             ];
         }
 
@@ -473,6 +562,8 @@ class NotulensiController extends Controller
                 'jabatan' => $ext->jabatan,
                 'bidang' => $ext->instansi . ' (Eksternal)',
                 'status' => 'Hadir',
+                'tanda_tangan' => null,
+                'keterangan' => null,
             ];
         }
 
@@ -484,5 +575,130 @@ class NotulensiController extends Controller
         return response($viewContent)
             ->header('Content-Type', 'application/msword')
             ->header('Content-Disposition', 'attachment; filename="' . $filename . '"');
+    }
+
+    /**
+     * Regenerate ringkasan and points from raw transcript text via Gemini AI.
+     */
+    public function regenerate(Request $request, Agenda $agenda)
+    {
+        $user = Auth::user();
+        $hakAkses = $agenda->hak_akses;
+
+        $isSecretaryOfAgenda = $user->isSekretarisMaster() || 
+            ($user->isSekretarisBidang() && in_array((string)$user->bidang_id, array_map('strval', $hakAkses)));
+
+        if (!$isSecretaryOfAgenda) {
+            return response()->json(['status' => 'error', 'message' => 'Akses ditolak.'], 403);
+        }
+
+        $request->validate([
+            'transkrip_raw' => 'required|string',
+        ]);
+
+        $transcript = $request->input('transkrip_raw');
+        $apiKey = env('GEMINI_API_KEY');
+
+        if ($apiKey) {
+            try {
+                $response = \Illuminate\Support\Facades\Http::timeout(45)->post("https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=" . $apiKey, [
+                    'contents' => [
+                        [
+                            'parts' => [
+                                [
+                                     'text' => "Anda adalah notulis profesional rapat pemerintahan Dinkominfo Banyumas.\n\n" .
+                                               "Berikut adalah transkrip rapat:\n\n{$transcript}\n\n" .
+                                               "Berdasarkan transkrip di atas, buat 4 elemen notulensi:\n\n" .
+                                               "1. RINGKASAN (ringkasan): Tulis 2-4 paragraf executive summary. Berisi tujuan/latar belakang rapat, topik utama, dan hasil akhir. JANGAN menyalin ulang percakapan. Maksimal 10% dari panjang transkrip.\n" .
+                                               "2. POIN PEMBAHASAN (pembahasan): Daftar topik yang dibahas, pisahkan tiap poin dengan baris baru, tanpa nomor.\n" .
+                                               "3. KEPUTUSAN (keputusan): Daftar keputusan/tindak lanjut yang disepakati, pisahkan dengan baris baru, tanpa nomor.\n" .
+                                               "4. KESIMPULAN (kesimpulan): Satu paragraf singkat tentang hasil dan langkah selanjutnya.\n\n" .
+                                               "Output HARUS berupa JSON murni tanpa markdown: " .
+                                               '{"ringkasan": "...", "pembahasan": "poin 1\npoin 2", "keputusan": "keputusan 1\nkeputusan 2", "kesimpulan": "..."}'
+                                ]
+                            ]
+                        ]
+                    ],
+                    'generationConfig' => [
+                        'responseMimeType' => 'application/json'
+                    ]
+                ]);
+
+                if ($response->successful()) {
+                    $result = $response->json();
+                    $text = $result['candidates'][0]['content']['parts'][0]['text'] ?? null;
+                    if ($text) {
+                        $data = json_decode($text, true);
+                        if (json_last_error() === JSON_ERROR_NONE) {
+                            return response()->json([
+                                'status' => 'success',
+                                'data' => $data
+                            ]);
+                        }
+                    }
+                }
+            } catch (\Exception $e) {
+                // fall through to mock on exception
+            }
+        }
+
+        // Fallback: try local Ollama/OpenAI-compatible LLM API
+        $llmApiBase = env('LLM_API_BASE');
+        $llmModel = env('LLM_MODEL', 'qwen2.5:1.5b');
+        $llmApiKey = env('LLM_API_KEY', 'none');
+
+        if ($llmApiBase) {
+            try {
+                $url = rtrim($llmApiBase, '/') . '/chat/completions';
+                $llmResponse = \Illuminate\Support\Facades\Http::timeout(90)->withHeaders([
+                    'Authorization' => 'Bearer ' . $llmApiKey,
+                    'Content-Type' => 'application/json',
+                ])->post($url, [
+                    'model' => $llmModel,
+                    'messages' => [
+                        [
+                            'role' => 'user',
+                            'content' => "Anda adalah notulis profesional rapat pemerintahan Dinkominfo Banyumas.\n\n" .
+                                         "Berikut adalah transkrip rapat:\n\n{$transcript}\n\n" .
+                                         "Berdasarkan transkrip di atas, buat 4 elemen notulensi:\n\n" .
+                                         "1. RINGKASAN (ringkasan): Tulis 2-4 paragraf executive summary. Berisi tujuan/latar belakang rapat, topik utama, dan hasil akhir. JANGAN menyalin ulang percakapan. Maksimal 10% dari panjang transkrip.\n" .
+                                         "2. POIN PEMBAHASAN (pembahasan): Daftar topik yang dibahas, pisahkan tiap poin dengan baris baru, tanpa nomor.\n" .
+                                         "3. KEPUTUSAN (keputusan): Daftar keputusan/tindak lanjut yang disepakati, pisahkan dengan baris baru, tanpa nomor.\n" .
+                                         "4. KESIMPULAN (kesimpulan): Satu paragraf singkat tentang hasil dan langkah selanjutnya.\n\n" .
+                                         "Output HARUS berupa JSON murni tanpa markdown: " .
+                                         '{"ringkasan": "...", "pembahasan": "poin 1\npoin 2", "keputusan": "keputusan 1\nkeputusan 2", "kesimpulan": "..."}'
+                        ]
+                    ],
+                ]);
+
+                if ($llmResponse->successful()) {
+                    $resJson = $llmResponse->json();
+                    $text = $resJson['choices'][0]['message']['content'] ?? null;
+                    if ($text) {
+                        $text = trim($text);
+                        // Strip markdown code fences if present
+                        if (str_starts_with($text, '```')) {
+                            $text = preg_replace('/^```(?:json)?\s*/i', '', $text);
+                            $text = preg_replace('/\s*```$/', '', $text);
+                            $text = trim($text);
+                        }
+                        $data = json_decode($text, true);
+                        if (json_last_error() === JSON_ERROR_NONE) {
+                            return response()->json([
+                                'status' => 'success',
+                                'data' => $data
+                            ]);
+                        }
+                    }
+                }
+            } catch (\Exception $e) {
+                // fall through to error
+            }
+        }
+
+        return response()->json([
+            'status' => 'error',
+            'message' => 'Analisis AI gagal. Tidak ada API key yang dikonfigurasi (GEMINI_API_KEY) dan server Ollama lokal tidak dapat dijangkau atau tidak merespons. Pastikan Ollama berjalan di ' . ($llmApiBase ?? 'localhost:11434') . '.'
+        ], 503);
     }
 }

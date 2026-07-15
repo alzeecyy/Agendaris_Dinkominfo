@@ -36,12 +36,12 @@
                 </div>
                 
                 <div class="space-y-1.5">
-                    <h4 class="text-xs font-bold uppercase tracking-wider text-[#5a508f]">Poin Pembahasan</h4>
+                    <h4 class="text-xs font-bold uppercase tracking-wider text-[#5a508f]">{{ $notulensi->pembahasan_title }}</h4>
                     <div class="bg-[#f8f7ff] p-4 border border-[#d4d1f5]/40 rounded-2xl leading-relaxed whitespace-pre-line font-medium text-slate-700">{{ $notulensi->pembahasan }}</div>
                 </div>
 
                 <div class="space-y-1.5">
-                    <h4 class="text-xs font-bold uppercase tracking-wider text-[#5a508f]">Daftar Keputusan</h4>
+                    <h4 class="text-xs font-bold uppercase tracking-wider text-[#5a508f]">{{ $notulensi->keputusan_title }}</h4>
                     <div class="bg-[#f8f7ff] p-4 border border-[#d4d1f5]/40 text-emerald-600 font-bold rounded-2xl leading-relaxed whitespace-pre-line">{{ $notulensi->keputusan }}</div>
                 </div>
 
@@ -67,52 +67,68 @@
         <!-- RIGHT PANEL: DECISION ACTIONS -->
         <div class="space-y-6">
             
-            <!-- Approval Control Card -->
-            <div class="bg-white border border-[#d4d1f5]/60 rounded-[32px] p-6 shadow-sm space-y-6">
-                <div>
-                    <h3 class="text-xs font-bold uppercase tracking-wider text-[#2e2552]">Persetujuan Dokumen</h3>
-                    <p class="text-[10px] text-[#5a508f] mt-1.5 leading-relaxed font-medium">Harap tinjau draf di sebelah kiri secara saksama sebelum mengambil keputusan.</p>
-                </div>
+            @if($isApprover)
+                <!-- Approval Control Card -->
+                <div class="bg-white border border-[#d4d1f5]/60 rounded-[32px] p-6 shadow-sm space-y-6">
+                    <div>
+                        <h3 class="text-xs font-bold uppercase tracking-wider text-[#2e2552]">Persetujuan Dokumen</h3>
+                        <p class="text-[10px] text-[#5a508f] mt-1.5 leading-relaxed font-medium">Harap tinjau draf di sebelah kiri secara saksama sebelum mengambil keputusan.</p>
+                    </div>
 
-                <div class="space-y-3">
-                    <!-- 1. APPROVE ACTION -->
-                    <form action="{{ route('notulensi.review.approve', $agenda->id) }}" method="POST" onsubmit="return confirm('Apakah Anda yakin ingin mengesahkan notulensi rapat ini?')">
-                        @csrf
-                        <button type="submit" 
-                                class="w-full py-3 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 active:scale-[0.98] text-white font-bold text-xs uppercase tracking-wider rounded-xl shadow-md shadow-emerald-600/10 transition-all flex items-center justify-center gap-2">
-                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                    <div class="space-y-3">
+                        <!-- 1. APPROVE ACTION -->
+                        <form action="{{ route('notulensi.review.approve', $agenda->id) }}" method="POST" onsubmit="return confirm('Apakah Anda yakin ingin mengesahkan notulensi rapat ini?')">
+                            @csrf
+                            <button type="submit" 
+                                    class="w-full py-3 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 active:scale-[0.98] text-white font-bold text-xs uppercase tracking-wider rounded-xl shadow-md shadow-emerald-600/10 transition-all flex items-center justify-center gap-2">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                </svg>
+                                <span>Sahkan & Setujui Dokumen</span>
+                            </button>
+                        </form>
+
+                        <!-- 2. REVISE SWITCH BUTTON -->
+                        <button @click="openRevisiPanel = !openRevisiPanel" 
+                                class="w-full py-3 bg-slate-100 hover:bg-slate-200 text-[#5a508f] font-bold text-xs rounded-xl border border-[#d4d1f5] transition-all flex items-center justify-center gap-2">
+                            <svg class="w-4 h-4 text-rose-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path>
                             </svg>
-                            <span>Sahkan & Setujui Dokumen</span>
+                            <span>Tolak & Minta Perbaikan</span>
                         </button>
-                    </form>
+                    </div>
 
-                    <!-- 2. REVISE SWITCH BUTTON -->
-                    <button @click="openRevisiPanel = !openRevisiPanel" 
-                            class="w-full py-3 bg-slate-100 hover:bg-slate-200 text-[#5a508f] font-bold text-xs rounded-xl border border-[#d4d1f5] transition-all flex items-center justify-center gap-2">
-                        <svg class="w-4 h-4 text-rose-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path>
-                        </svg>
-                        <span>Tolak & Minta Perbaikan</span>
-                    </button>
+                    <!-- 3. REVISION INPUT PANEL -->
+                    <div x-show="openRevisiPanel" x-cloak x-transition
+                         class="p-4 bg-rose-50/50 border border-rose-200 rounded-2xl space-y-3">
+                        <form action="{{ route('notulensi.review.revision', $agenda->id) }}" method="POST">
+                            @csrf
+                            <label for="catatan_revisi" class="block text-[10px] font-bold text-rose-600 uppercase">Catatan Revisi untuk Sekretaris</label>
+                            <textarea name="catatan_revisi" id="catatan_revisi" rows="4" required placeholder="Tuliskan bagian mana yang perlu diperbaiki (misal: koreksi redaksi keputusan rapat poin kedua)..."
+                                      class="w-full mt-1.5 px-3 py-2 bg-white border border-[#d4d1f5] rounded-xl text-xs text-[#2e2552] placeholder-slate-400 focus:outline-none"></textarea>
+                            
+                            <button type="submit" 
+                                    class="w-full mt-3 py-2.5 bg-rose-600 hover:bg-rose-500 active:scale-[0.98] text-white font-bold text-xs uppercase tracking-wider rounded-xl shadow-md shadow-rose-600/20 transition-all">
+                                Kirim Catatan Perbaikan
+                            </button>
+                        </form>
+                    </div>
                 </div>
-
-                <!-- 3. REVISION INPUT PANEL -->
-                <div x-show="openRevisiPanel" x-cloak x-transition
-                     class="p-4 bg-rose-50/50 border border-rose-200 rounded-2xl space-y-3">
-                    <form action="{{ route('notulensi.review.revision', $agenda->id) }}" method="POST">
-                        @csrf
-                        <label for="catatan_revisi" class="block text-[10px] font-bold text-rose-600 uppercase">Catatan Revisi untuk Sekretaris</label>
-                        <textarea name="catatan_revisi" id="catatan_revisi" rows="4" required placeholder="Tuliskan bagian mana yang perlu diperbaiki (misal: koreksi redaksi keputusan rapat poin kedua)..."
-                                  class="w-full mt-1.5 px-3 py-2 bg-white border border-[#d4d1f5] rounded-xl text-xs text-[#2e2552] placeholder-slate-400 focus:outline-none"></textarea>
-                        
-                        <button type="submit" 
-                                class="w-full mt-3 py-2.5 bg-rose-600 hover:bg-rose-500 active:scale-[0.98] text-white font-bold text-xs uppercase tracking-wider rounded-xl shadow-md shadow-rose-600/20 transition-all">
-                            Kirim Catatan Perbaikan
-                        </button>
-                    </form>
+            @else
+                <!-- Read Only Info Card for Secretary -->
+                <div class="bg-white border border-[#d4d1f5]/60 rounded-[32px] p-6 shadow-sm space-y-4">
+                    <h3 class="text-xs font-bold uppercase tracking-wider text-[#2e2552]">Status Dokumen</h3>
+                    <div class="p-4 bg-amber-50/50 border border-amber-200 text-amber-800 rounded-2xl text-xs space-y-2 leading-relaxed">
+                        <p class="font-bold flex items-center gap-1">
+                            <svg class="w-4 h-4 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path>
+                            </svg>
+                            <span>Mode Pratinjau (Mode Baca)</span>
+                        </p>
+                        <p>Anda sedang meninjau draf notulensi ini. Pengesahan hanya dapat dilakukan oleh Pimpinan/Ketua Rapat yang berwenang.</p>
+                    </div>
                 </div>
-            </div>
+            @endif
         </div>
 
     </div>

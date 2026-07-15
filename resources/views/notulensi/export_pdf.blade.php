@@ -188,21 +188,9 @@
         </tr>
     </table>
 
-    <!-- RINGKASAN -->
-    <div class="section-title">I. Ringkasan Rapat</div>
-    <div class="section-content">{{ $notulensi->ringkasan }}</div>
-
-    <!-- PEMBAHASAN -->
-    <div class="section-title">II. Poin Pembahasan</div>
-    <div class="section-content">{{ $notulensi->pembahasan }}</div>
-
-    <!-- KEPUTUSAN -->
-    <div class="section-title">III. Daftar Keputusan Rapat</div>
-    <div class="section-content" style="font-weight: bold; color: #111111;">{{ $notulensi->keputusan }}</div>
-
-    <!-- KESIMPULAN -->
-    <div class="section-title">IV. Kesimpulan</div>
-    <div class="section-content">{{ $notulensi->kesimpulan }}</div>
+    <!-- NOTULENSI RAPAT -->
+    <div class="section-title">I. Notulensi Rapat</div>
+    <div class="section-content" style="white-space: pre-wrap;">{!! nl2br(e($notulensi->ringkasan)) !!}</div>
 
     <div class="page-break"></div>
 
@@ -211,24 +199,44 @@
     <table class="data-table">
         <thead>
             <tr>
-                <th style="width: 40px; text-align: center;">No</th>
-                <th>Nama Peserta</th>
-                <th>NIP</th>
+                <th style="width: 30px; text-align: center;">No</th>
+                <th>Nama Peserta / NIP</th>
                 <th>Jabatan</th>
                 <th>Bidang / Instansi</th>
-                <th style="width: 100px; text-align: center;">Kehadiran</th>
+                <th style="width: 70px; text-align: center;">Status</th>
+                <th style="width: 140px; text-align: center;">Tanda Tangan / Keterangan</th>
             </tr>
         </thead>
         <tbody>
             @php $no = 1; @endphp
             @foreach($attendees as $att)
                 <tr>
-                    <td style="text-align: center;">{{ $no++ }}</td>
-                    <td><strong>{{ $att->nama }}</strong></td>
-                    <td>{{ $att->nip }}</td>
-                    <td>{{ $att->jabatan }}</td>
-                    <td>{{ $att->bidang }}</td>
-                    <td style="text-align: center; font-weight: bold;">{{ $att->status }}</td>
+                    <td style="text-align: center; vertical-align: middle;">{{ $no++ }}</td>
+                    <td style="vertical-align: middle;">
+                        <strong>{{ $att->nama }}</strong>
+                        @if($att->nip && $att->nip !== '-')
+                            <br><span style="font-size: 8pt; color: #555555; font-family: monospace;">NIP. {{ $att->nip }}</span>
+                        @endif
+                    </td>
+                    <td style="vertical-align: middle;">{{ $att->jabatan }}</td>
+                    <td style="vertical-align: middle;">{{ $att->bidang }}</td>
+                    <td style="text-align: center; font-weight: bold; vertical-align: middle;">{{ $att->status }}</td>
+                    <td style="text-align: center; vertical-align: middle;">
+                        @if($att->status === 'Hadir' && $att->tanda_tangan)
+                            @php
+                                $sigPath = public_path('storage/' . $att->tanda_tangan);
+                            @endphp
+                            @if(file_exists($sigPath))
+                                <img src="{{ $sigPath }}" alt="TTD" style="max-height: 30px; max-width: 100px; display: block; margin: 0 auto;">
+                            @else
+                                <span style="color: #999999; font-size: 8pt;">[File TTD Hilang]</span>
+                            @endif
+                        @elseif($att->status === 'Izin' && $att->keterangan)
+                            <span style="font-size: 8pt; font-style: italic; color: #555555; line-height: 1.2; display: block;">{{ $att->keterangan }}</span>
+                        @else
+                            <span style="color: #999999;">-</span>
+                        @endif
+                    </td>
                 </tr>
             @endforeach
         </tbody>

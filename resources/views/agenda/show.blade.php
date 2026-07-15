@@ -317,11 +317,11 @@
                             <p class="bg-[#f8f7ff] p-4 border border-[#d4d1f5]/40 rounded-2xl leading-relaxed">{{ $agenda->notulensi->ringkasan }}</p>
                         </div>
                         <div class="space-y-1.5">
-                            <h4 class="text-xs font-bold uppercase tracking-wider text-[#5a508f]">Poin Pembahasan</h4>
+                            <h4 class="text-xs font-bold uppercase tracking-wider text-[#5a508f]">{{ $agenda->notulensi->pembahasan_title }}</h4>
                             <div class="bg-[#f8f7ff] p-4 border border-[#d4d1f5]/40 rounded-2xl leading-relaxed whitespace-pre-line">{{ $agenda->notulensi->pembahasan }}</div>
                         </div>
                         <div class="space-y-1.5">
-                            <h4 class="text-xs font-bold uppercase tracking-wider text-[#5a508f]">Daftar Keputusan</h4>
+                            <h4 class="text-xs font-bold uppercase tracking-wider text-[#5a508f]">{{ $agenda->notulensi->keputusan_title }}</h4>
                             <div class="bg-[#f8f7ff] p-4 border border-[#d4d1f5]/40 rounded-2xl leading-relaxed whitespace-pre-line text-emerald-600 font-bold">{{ $agenda->notulensi->keputusan }}</div>
                         </div>
                         <div class="space-y-1.5">
@@ -344,9 +344,9 @@
                     @if($ownPresensi)
                         @php
                             $statusColors = [
-                                'hadir' => 'bg-emerald-50 text-emerald-600 border-emerald-200',
-                                'izin' => 'bg-amber-50 text-amber-600 border-amber-200',
-                                'sakit' => 'bg-rose-50 text-rose-600 border-rose-200'
+                                'hadir' => 'bg-emerald-50 text-emerald-700 border-emerald-200',
+                                'izin' => 'bg-amber-50 text-amber-700 border-amber-200',
+                                'sakit' => 'bg-rose-50 text-rose-700 border-rose-200'
                             ];
                             $statusLabels = [
                                 'hadir' => 'Hadir ✓',
@@ -354,35 +354,34 @@
                                 'sakit' => 'Sakit Terdaftar ✓'
                             ];
                         @endphp
-                        <div class="w-full text-center py-3 border rounded-xl text-xs font-bold {{ $statusColors[$ownPresensi->status] }}">
-                            Kehadiran Anda: {{ $statusLabels[$ownPresensi->status] }}
+                        <div class="space-y-3">
+                            <div class="w-full text-center py-3 border rounded-xl text-xs font-bold {{ $statusColors[$ownPresensi->status] }}">
+                                Kehadiran Anda: {{ $statusLabels[$ownPresensi->status] }}
+                            </div>
+                            @if($ownPresensi->keterangan)
+                                <div class="bg-slate-50 border border-slate-200/60 rounded-xl p-3 text-xs">
+                                    <span class="block font-bold text-[#2e2552] uppercase text-[9px] tracking-wider mb-1">Catatan Keterangan:</span>
+                                    <p class="text-slate-700 leading-relaxed">{{ $ownPresensi->keterangan }}</p>
+                                </div>
+                            @endif
+                            @if($ownPresensi->tanda_tangan)
+                                <div class="bg-[#fcfbff] border border-slate-200/60 rounded-xl p-3 text-xs flex flex-col items-center">
+                                    <span class="w-full block font-bold text-[#2e2552] uppercase text-[9px] tracking-wider mb-1 text-left">Tanda Tangan Digital:</span>
+                                    <div class="border border-slate-100 rounded-lg p-2 bg-white mt-1 flex items-center justify-center h-16 w-36 overflow-hidden shadow-inner">
+                                        <img src="{{ asset('storage/' . $ownPresensi->tanda_tangan) }}" alt="Tanda Tangan" class="max-h-full max-w-full object-contain">
+                                    </div>
+                                </div>
+                            @endif
                         </div>
                     @else
-                        <div x-data="{ openOptions: false }" class="relative w-full">
-                            <button @click="openOptions = !openOptions" 
-                                    class="w-full py-3 bg-[#2e2552] hover:bg-[#3d326a] text-white font-bold text-xs rounded-xl shadow-lg transition-all flex items-center justify-center gap-2">
-                                <span>Klik Presensi Kehadiran</span>
-                                <svg class="w-4 h-4 transition-transform duration-200" :class="{'rotate-180': openOptions}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
-                                </svg>
-                            </button>
-
-                            <div x-show="openOptions" @click.away="openOptions = false" x-cloak 
-                                 class="absolute top-full left-0 w-full mt-2 bg-white border border-[#d4d1f5] rounded-2xl shadow-2xl overflow-hidden z-20">
-                                <form action="{{ route('agenda.absen', $agenda->id) }}" method="POST">
-                                    @csrf
-                                    <button type="submit" name="status" value="hadir" class="w-full px-4 py-3 text-left text-xs font-bold text-emerald-600 hover:bg-[#f8f7ff] transition-colors border-b border-[#d4d1f5]/40">
-                                        Hadir (Masuk Rapat)
-                                    </button>
-                                    <button type="submit" name="status" value="izin" class="w-full px-4 py-3 text-left text-xs font-bold text-amber-600 hover:bg-[#f8f7ff] transition-colors border-b border-[#d4d1f5]/40">
-                                        Izin (Kegiatan Dinas Lain)
-                                    </button>
-                                    <button type="submit" name="status" value="sakit" class="w-full px-4 py-3 text-left text-xs font-bold text-rose-600 hover:bg-[#f8f7ff] transition-colors">
-                                        Sakit
-                                    </button>
-                                </form>
-                            </div>
-                        </div>
+                        <!-- Button to open structured presence modal -->
+                        <button @click="openAbsenModal = true; initSignaturePad()" 
+                                class="w-full py-3 bg-[#2e2552] hover:bg-[#3d326a] text-white font-bold text-xs rounded-xl shadow-lg transition-all flex items-center justify-center gap-2">
+                            <span>Isi Presensi Kehadiran</span>
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
+                            </svg>
+                        </button>
                     @endif
                 </div>
             @endif
@@ -433,7 +432,22 @@
                                class="w-full py-3.5 bg-gradient-to-r from-amber-600 to-orange-600 hover:from-amber-500 hover:to-orange-500 text-white font-bold text-xs rounded-xl shadow-lg transition-all flex items-center justify-center gap-2">
                                 <span>Tinjau & Sahkan Notulensi</span>
                             </a>
-                        @else
+                        @endif
+
+                        @if($isSecretaryOfAgenda)
+                            <div class="space-y-2">
+                                <a href="{{ route('notulensi.edit', $agenda->id) }}" 
+                                   class="w-full py-3 bg-[#2e2552] hover:bg-[#3d326a] text-white font-bold text-xs rounded-xl shadow-md transition-all flex items-center justify-center gap-2">
+                                    <span>Kelola & Edit Notulensi</span>
+                                </a>
+                                <a href="{{ route('notulensi.review', $agenda->id) }}" 
+                                   class="w-full py-2.5 bg-slate-100 hover:bg-slate-200 text-[#5a508f] font-bold text-xs rounded-xl border border-[#d4d1f5] transition-all flex items-center justify-center gap-2">
+                                    <span>Pratinjau Mode Baca</span>
+                                </a>
+                            </div>
+                        @endif
+
+                        @if(!$isApproverOfAgenda && !$isSecretaryOfAgenda)
                             <p class="text-xs text-[#5a508f] text-center py-3 bg-[#f8f7ff] border border-[#d4d1f5]/40 rounded-2xl font-medium">
                                 Menunggu verifikasi dari pimpinan berwenang.
                             </p>
@@ -533,32 +547,46 @@
                     <thead class="text-[10px] font-bold uppercase tracking-wider text-[#5a508f] border-b border-[#d4d1f5]/40">
                         <tr>
                             <th class="py-3 px-3">Nama Pegawai</th>
-                            <th class="py-3 px-3">NIP</th>
                             <th class="py-3 px-3">Jabatan</th>
-                            <th class="py-3 px-3 text-center">Status Kehadiran</th>
+                            <th class="py-3 px-3 text-center">Status</th>
+                            <th class="py-3 px-3">Keterangan</th>
+                            <th class="py-3 px-3 text-center">TTD</th>
                         </tr>
                     </thead>
                     <tbody class="divide-y divide-[#d4d1f5]/20">
                         <template x-for="p in detailParticipants" :key="p.id">
                             <tr class="hover:bg-[#f8f7ff] transition-colors">
-                                <td class="py-3 px-3 font-bold" x-text="p.name"></td>
-                                <td class="py-3 px-3 font-mono text-[10px] text-[#5a508f]" x-text="p.nip"></td>
+                                <td class="py-3 px-3 font-bold">
+                                    <div x-text="p.name"></div>
+                                    <div class="font-mono text-[9px] text-[#5a508f] mt-0.5" x-text="p.nip"></div>
+                                </td>
                                 <td class="py-3 px-3 text-slate-700" x-text="p.jabatan"></td>
                                 <td class="py-3 px-3 text-center font-bold">
-                                    <span class="inline-block px-2.5 py-0.5 rounded-lg border text-[9px] uppercase tracking-wider"
+                                    <span class="inline-block px-2 py-0.5 rounded-lg border text-[9px] uppercase tracking-wider"
                                           :class="{
-                                              'bg-emerald-55 text-emerald-600 border-emerald-200': p.status_presensi === 'hadir',
+                                              'bg-emerald-50 text-emerald-600 border-emerald-200': p.status_presensi === 'hadir',
                                               'bg-amber-50 text-amber-600 border-amber-200': p.status_presensi === 'izin',
-                                              'bg-rose-55 text-rose-600 border-rose-200': p.status_presensi === 'sakit',
+                                              'bg-rose-50 text-rose-600 border-rose-200': p.status_presensi === 'sakit',
                                               'bg-slate-100 text-slate-400 border-slate-200': p.status_presensi === 'Belum Absen'
                                           }"
                                           x-text="p.status_presensi === 'Belum Absen' ? 'Belum Absen' : p.status_presensi">
                                     </span>
                                 </td>
+                                <td class="py-3 px-3 text-slate-500 italic text-[11px]" x-text="p.keterangan || '-'"></td>
+                                <td class="py-2 px-3 text-center">
+                                    <template x-if="p.tanda_tangan">
+                                        <div class="inline-flex items-center justify-center p-1 bg-white border border-slate-200 rounded-lg h-9 w-14 overflow-hidden shadow-sm">
+                                            <img :src="'/storage/' + p.tanda_tangan" alt="TTD" class="max-h-full max-w-full object-contain">
+                                        </div>
+                                    </template>
+                                    <template x-if="!p.tanda_tangan">
+                                        <span class="text-slate-400">-</span>
+                                    </template>
+                                </td>
                             </tr>
                         </template>
                         <tr x-show="detailParticipants.length === 0">
-                            <td colspan="4" class="py-6 text-center text-[#8e88dd] italic font-medium">Tidak ada pegawai terdaftar di bidang ini.</td>
+                            <td colspan="5" class="py-6 text-center text-[#8e88dd] italic font-medium">Tidak ada pegawai terdaftar di bidang ini.</td>
                         </tr>
                     </tbody>
                 </table>
@@ -569,28 +597,217 @@
             </div>
         </div>
     </div>
-</div>
 
-@section('scripts')
-<script>
-document.addEventListener('alpine:init', () => {
-    Alpine.data('agendaDetail', () => ({
-        openDetailModal: false,
-        selectedBidangName: '',
-        detailParticipants: [],
-        allParticipants: @json($participants),
-        tempat: '{{ $initialTempat }}',
-        tempatLainnya: '{{ $initialTempatLainnya }}',
-        get combinedLokasi() {
-            return this.tempat === 'Lainnya' ? this.tempatLainnya : this.tempat;
-        },
-        showBidangDetails(bidId, bidName) {
-            this.selectedBidangName = bidName;
-            this.detailParticipants = this.allParticipants.filter(p => p.bidang_id == bidId);
-            this.openDetailModal = true;
+    <!-- MODAL: ISI PRESENSI MANDIRI DENGAN TTD -->
+    <div x-show="openAbsenModal" x-cloak class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/50 backdrop-blur-sm">
+        <div @click.away="openAbsenModal = false" 
+             class="bg-white border border-[#d4d1f5]/60 rounded-3xl w-full max-w-lg shadow-2xl overflow-hidden relative text-[#2e2552]"
+             x-transition:enter="transition ease-out duration-300 transform"
+             x-transition:enter-start="opacity-0 scale-95"
+             x-transition:enter-end="opacity-100 scale-100">
+            
+            <div class="absolute top-0 left-0 w-full h-[2px] bg-gradient-to-r from-[#2e2552] to-[#8e88dd]"></div>
+
+            <div class="p-6 border-b border-[#d4d1f5]/40 flex items-center justify-between">
+                <div>
+                    <h3 class="text-base font-bold text-[#2e2552]">Isi Formulir Presensi Kehadiran</h3>
+                    <p class="text-xs text-[#5a508f]">Konfirmasi kehadiran Anda pada agenda ini</p>
+                </div>
+                <button @click="openAbsenModal = false" class="text-[#5a508f] hover:text-[#2e2552] transition-colors">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                    </svg>
+                </button>
+            </div>
+
+            <form action="{{ route('agenda.absen', $agenda->id) }}" method="POST" @submit="submitAbsen($event)" class="p-6 space-y-4">
+                @csrf
+                
+                <!-- 1. Identitas Pegawai (Read-Only) -->
+                <div class="bg-slate-50 border border-slate-200/60 rounded-2xl p-4 space-y-2.5">
+                    <span class="block text-[9px] font-bold text-[#5a508f] uppercase tracking-wider">Identitas Pegawai Terautentikasi</span>
+                    <div class="grid grid-cols-2 gap-x-4 gap-y-2 text-xs">
+                        <div>
+                            <span class="text-[#5a508f] block text-[10px]">Nama Pegawai</span>
+                            <span class="font-bold text-[#2e2552]">{{ Auth::user()->name }}</span>
+                        </div>
+                        <div>
+                            <span class="text-[#5a508f] block text-[10px]">NIP</span>
+                            <span class="font-bold text-[#2e2552] font-mono">{{ Auth::user()->nip }}</span>
+                        </div>
+                        <div>
+                            <span class="text-[#5a508f] block text-[10px]">Jabatan</span>
+                            <span class="font-bold text-[#2e2552] truncate block" title="{{ Auth::user()->jabatan }}">{{ Auth::user()->jabatan }}</span>
+                        </div>
+                        <div>
+                            <span class="text-[#5a508f] block text-[10px]">Bidang</span>
+                            <span class="font-bold text-[#2e2552]">{{ Auth::user()->bidang->nama ?? 'Sekretariat / Lintas Bidang' }}</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 2. Pilihan Kehadiran -->
+                <div class="space-y-1.5">
+                    <label class="block text-xs font-bold text-[#5a508f] uppercase">Status Kehadiran <span class="text-rose-500">*</span></label>
+                    <div class="grid grid-cols-3 gap-3">
+                        <label class="flex items-center gap-2 p-3 border border-[#cbd5e1] rounded-2xl cursor-pointer hover:bg-emerald-50/50 hover:border-emerald-200 transition-colors"
+                               :class="{'bg-emerald-55/10 border-emerald-300 text-emerald-700': status === 'hadir'}">
+                            <input type="radio" name="status" value="hadir" x-model="status" required class="hidden">
+                            <span class="w-4 h-4 rounded-full border border-slate-300 flex items-center justify-center" :class="{'border-emerald-500': status === 'hadir'}">
+                                <span class="w-2.5 h-2.5 rounded-full bg-emerald-500" x-show="status === 'hadir'"></span>
+                            </span>
+                            <span class="text-xs font-bold">Hadir</span>
+                        </label>
+                        
+                        <label class="flex items-center gap-2 p-3 border border-[#cbd5e1] rounded-2xl cursor-pointer hover:bg-amber-50/50 hover:border-amber-200 transition-colors"
+                               :class="{'bg-amber-50 border-amber-300 text-amber-700': status === 'izin'}">
+                            <input type="radio" name="status" value="izin" x-model="status" required class="hidden">
+                            <span class="w-4 h-4 rounded-full border border-slate-300 flex items-center justify-center" :class="{'border-amber-500': status === 'izin'}">
+                                <span class="w-2.5 h-2.5 rounded-full bg-amber-500" x-show="status === 'izin'"></span>
+                            </span>
+                            <span class="text-xs font-bold">Izin</span>
+                        </label>
+
+                        <label class="flex items-center gap-2 p-3 border border-[#cbd5e1] rounded-2xl cursor-pointer hover:bg-rose-50/50 hover:border-rose-200 transition-colors"
+                               :class="{'bg-rose-55/10 border-rose-300 text-rose-700': status === 'sakit'}">
+                            <input type="radio" name="status" value="sakit" x-model="status" required class="hidden">
+                            <span class="w-4 h-4 rounded-full border border-slate-300 flex items-center justify-center" :class="{'border-rose-500': status === 'sakit'}">
+                                <span class="w-2.5 h-2.5 rounded-full bg-rose-500" x-show="status === 'sakit'"></span>
+                            </span>
+                            <span class="text-xs font-bold">Sakit</span>
+                        </label>
+                    </div>
+                </div>
+
+                <!-- 3. Keterangan Catatan (Hanya untuk Izin) -->
+                <div class="space-y-1" x-show="status === 'izin'" x-transition>
+                    <label for="keterangan" class="block text-xs font-bold text-[#5a508f] uppercase">
+                        Alasan / Keterangan Izin <span class="text-rose-500">*</span>
+                    </label>
+                    <textarea id="keterangan" name="keterangan" rows="2" x-model="keterangan" :required="status === 'izin'"
+                              placeholder="Masukkan alasan atau keterangan Anda mengambil izin..."
+                              class="w-full px-4 py-2 bg-[#f3f2fe] border border-[#d4d1f5] rounded-2xl text-[#2e2552] text-sm focus:outline-none focus:ring-2 focus:ring-[#8e88dd]"></textarea>
+                </div>
+
+                <!-- 4. Canvas TTD Digital (Hanya untuk Hadir) -->
+                <div class="space-y-1" x-show="status === 'hadir'" x-transition>
+                    <div class="flex items-center justify-between">
+                        <label class="block text-xs font-bold text-[#5a508f] uppercase">Tanda Tangan Digital <span class="text-rose-500">*</span></label>
+                        <button type="button" @click="clearSignature" class="text-[10px] font-bold text-rose-600 hover:text-rose-800 transition-colors">
+                            Bersihkan / Hapus
+                        </button>
+                    </div>
+                    <div class="border border-[#d4d1f5] rounded-2xl overflow-hidden bg-slate-50 relative">
+                        <canvas id="signature-canvas" class="w-full h-32 cursor-crosshair block bg-slate-50"></canvas>
+                        <div x-show="isSignatureEmpty" class="absolute inset-0 pointer-events-none flex items-center justify-center text-[10px] text-slate-400 font-bold select-none uppercase tracking-wider">
+                            Goreskan Tanda Tangan Anda di Sini
+                        </div>
+                    </div>
+                    <input type="hidden" name="signature" id="signature-input" x-model="signatureData">
+                </div>
+
+                <!-- Footer / Action Buttons -->
+                <div class="flex gap-3 justify-end pt-2">
+                    <button type="button" @click="openAbsenModal = false" class="px-4 py-2.5 border border-[#cbd5e1] hover:bg-slate-50 text-[#2e2552] text-xs font-bold rounded-2xl">
+                        Batal
+                    </button>
+                    <button type="submit" class="px-5 py-2.5 bg-[#2e2552] hover:bg-[#3d326a] text-white text-xs font-bold rounded-2xl shadow-sm">
+                        Kirim Presensi
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+    <script>
+    function registerAgendaDetail() {
+        if (typeof Alpine !== 'undefined') {
+            Alpine.data('agendaDetail', () => ({
+                openDetailModal: false,
+                openAbsenModal: false,
+                status: 'hadir',
+                keterangan: '',
+                signatureData: '',
+                isSignatureEmpty: true,
+                signaturePad: null,
+                selectedBidangName: '',
+                detailParticipants: [],
+                allParticipants: @json($participants),
+                tempat: '{{ $initialTempat }}',
+                tempatLainnya: '{{ $initialTempatLainnya }}',
+                init() {
+                    this.$watch('status', value => {
+                        if (value === 'hadir') {
+                            this.initSignaturePad();
+                        }
+                    });
+                    this.$watch('openAbsenModal', value => {
+                        if (value && this.status === 'hadir') {
+                            this.initSignaturePad();
+                        }
+                    });
+                },
+                get combinedLokasi() {
+                    return this.tempat === 'Lainnya' ? this.tempatLainnya : this.tempat;
+                },
+                showBidangDetails(bidId, bidName) {
+                    this.selectedBidangName = bidName;
+                    this.detailParticipants = this.allParticipants.filter(p => p.bidang_id == bidId);
+                    this.openDetailModal = true;
+                },
+                initSignaturePad() {
+                    this.$nextTick(() => {
+                        const canvas = document.getElementById('signature-canvas');
+                        if (!canvas) return;
+
+                        const ratio = Math.max(window.devicePixelRatio || 1, 1);
+                        canvas.width = canvas.offsetWidth * ratio;
+                        canvas.height = canvas.offsetHeight * ratio;
+                        canvas.getContext("2d").scale(ratio, ratio);
+
+                        if (this.signaturePad) {
+                            this.signaturePad.off();
+                        }
+
+                        this.signaturePad = new SignaturePad(canvas, {
+                            backgroundColor: 'rgba(255, 255, 255, 0)',
+                            penColor: '#09103c'
+                        });
+
+                        this.signaturePad.addEventListener("beginStroke", () => {
+                            this.isSignatureEmpty = false;
+                        });
+
+                        this.clearSignature();
+                    });
+                },
+                clearSignature() {
+                    if (this.signaturePad) {
+                        this.signaturePad.clear();
+                    }
+                    this.signatureData = '';
+                    this.isSignatureEmpty = true;
+                },
+                submitAbsen(e) {
+                    if (this.status === 'hadir') {
+                        if (this.isSignatureEmpty || !this.signaturePad || this.signaturePad.isEmpty()) {
+                            e.preventDefault();
+                            alert('Tanda tangan digital wajib diisi sebelum mengirim presensi.');
+                            return;
+                        }
+                        this.signatureData = this.signaturePad.toDataURL('image/png');
+                    } else {
+                        this.signatureData = '';
+                    }
+                }
+            }));
         }
-    }));
-});
-</script>
-@endsection
+    }
+
+    if (typeof Alpine !== 'undefined') {
+        registerAgendaDetail();
+    } else {
+        document.addEventListener('alpine:init', registerAgendaDetail);
+    }
+    </script>
+</div>
 @endsection

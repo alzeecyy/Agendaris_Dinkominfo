@@ -27,6 +27,8 @@ class PresensiController extends Controller
 
         $validated = $request->validate([
             'status' => 'required|in:hadir,izin,sakit',
+            'keterangan' => 'nullable|string|max:500',
+            'signature' => 'required_if:status,hadir|nullable|string',
         ]);
 
         // Check if already checked in
@@ -38,11 +40,40 @@ class PresensiController extends Controller
             return back()->with('error', 'Presensi Anda sudah tercatat dan tidak dapat diubah secara mandiri.');
         }
 
+        // Decode and save signature image (only for hadir status)
+        $signaturePath = null;
+        if ($validated['status'] === 'hadir') {
+            $dataUrl = $validated['signature'] ?? null;
+            if ($dataUrl && preg_match('/^data:image\/(\w+);base64,/', $dataUrl, $type)) {
+                $base64Data = substr($dataUrl, strpos($dataUrl, ',') + 1);
+                $ext = strtolower($type[1]); // png, jpg, etc.
+
+                if (in_array($ext, ['png', 'jpg', 'jpeg'])) {
+                    $decoded = base64_decode($base64Data);
+
+                    if ($decoded !== false) {
+                        $filename = 'sig_' . $agenda->id . '_' . $user->id . '_' . time() . '.' . $ext;
+                        $path = 'presensi/signatures/' . $filename;
+
+                        // Save to public storage disk
+                        \Illuminate\Support\Facades\Storage::disk('public')->put($path, $decoded);
+                        $signaturePath = $path;
+                    }
+                }
+            }
+
+            if (!$signaturePath) {
+                return back()->withErrors(['signature' => 'Tanda tangan digital wajib diisi dengan benar.'])->withInput();
+            }
+        }
+
         // Save presence
         Presensi::create([
             'agenda_id' => $agenda->id,
             'user_id' => $user->id,
             'status' => $validated['status'],
+            'tanda_tangan' => $signaturePath,
+            'keterangan' => $validated['keterangan'] ?? null,
         ]);
 
         $statusLabels = [

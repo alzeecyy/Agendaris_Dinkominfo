@@ -136,9 +136,10 @@ class AgendaController extends Controller
 
         // Combine user list with their attendance records
         $participants = $internalUsers->map(function ($employee) use ($attendanceRecords) {
-            $employee->status_presensi = $attendanceRecords->has($employee->id) 
-                ? $attendanceRecords[$employee->id]->status 
-                : 'Belum Absen';
+            $record = $attendanceRecords->get($employee->id);
+            $employee->status_presensi = $record ? $record->status : 'Belum Absen';
+            $employee->tanda_tangan = $record ? $record->tanda_tangan : null;
+            $employee->keterangan = $record ? $record->keterangan : null;
             return $employee;
         });
 

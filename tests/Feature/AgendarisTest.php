@@ -271,7 +271,8 @@ class AgendarisTest extends TestCase
 
         // Submit presence as hadir
         $response = $this->post("/agenda/{$agenda->id}/absen", [
-            'status' => 'hadir'
+            'status' => 'hadir',
+            'signature' => 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==',
         ]);
 
         $response->assertRedirect();
@@ -279,7 +280,8 @@ class AgendarisTest extends TestCase
 
         // Try to submit again as izin
         $response = $this->post("/agenda/{$agenda->id}/absen", [
-            'status' => 'izin'
+            'status' => 'izin',
+            'signature' => 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==',
         ]);
 
         $response->assertSessionHas('error');

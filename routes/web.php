@@ -73,16 +73,20 @@ Route::middleware(['auth'])->group(function () {
         // Notulensi Editing
         Route::get('/agenda/{agenda}/notulensi/edit', [NotulensiController::class, 'edit'])->name('notulensi.edit');
         Route::post('/agenda/{agenda}/notulensi/upload', [NotulensiController::class, 'uploadAudio'])->name('notulensi.upload');
+        Route::delete('/agenda/{agenda}/notulensi/audio/{index}', [NotulensiController::class, 'deleteAudio'])->name('notulensi.audio.delete');
         Route::post('/agenda/{agenda}/notulensi/save', [NotulensiController::class, 'saveDraft'])->name('notulensi.save');
         Route::post('/agenda/{agenda}/notulensi/submit', [NotulensiController::class, 'submitForReview'])->name('notulensi.submit');
+        Route::post('/agenda/{agenda}/notulensi/regenerate', [NotulensiController::class, 'regenerate'])->name('notulensi.regenerate');
         Route::post('/agenda/{agenda}/notulensi/external', [NotulensiController::class, 'addExternal'])->name('notulensi.external.add');
         Route::delete('/notulensi/external/{participant}', [NotulensiController::class, 'deleteExternal'])->name('notulensi.external.delete');
     });
 
+    // Notulensi Review (Accessible by Ketua and Secretary for preview)
+    Route::get('/agenda/{agenda}/notulensi/review', [NotulensiController::class, 'review'])->name('notulensi.review');
+
     // Roles: Ketua Only (Master & Bidang)
     Route::middleware(['role:ketua_master,ketua_bidang'])->group(function () {
-        // Notulensi Review
-        Route::get('/agenda/{agenda}/notulensi/review', [NotulensiController::class, 'review'])->name('notulensi.review');
+        // Notulensi Review Actions
         Route::post('/agenda/{agenda}/notulensi/review/approve', [NotulensiController::class, 'approve'])->name('notulensi.review.approve');
         Route::post('/agenda/{agenda}/notulensi/review/revision', [NotulensiController::class, 'requestRevision'])->name('notulensi.review.revision');
     });

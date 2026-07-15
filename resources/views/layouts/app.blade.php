@@ -55,6 +55,8 @@
         .hover\:bg-\[\#3d326a\]:hover { background-color: #0d228c !important; }
     </style>
     @yield('styles')
+    <!-- Signature Pad library for digital signatures -->
+    <script src="https://cdn.jsdelivr.net/npm/signature_pad@4.1.7/dist/signature_pad.umd.min.js"></script>
     <!-- AlpineJS for interactive elements -->
     <script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
 </head>
@@ -347,6 +349,17 @@
                         
                         if (currentContainer && newContainer) {
                             currentContainer.innerHTML = newContainer.innerHTML;
+
+                            // Execute script tags inside the new container for PJAX compatibility
+                            const scripts = currentContainer.querySelectorAll('script');
+                            scripts.forEach(oldScript => {
+                                const newScript = document.createElement('script');
+                                Array.from(oldScript.attributes).forEach(attr => newScript.setAttribute(attr.name, attr.value));
+                                newScript.appendChild(document.createTextNode(oldScript.innerHTML));
+                                document.body.appendChild(newScript);
+                                newScript.remove();
+                            });
+
                             document.title = doc.title;
                             history.pushState({ url: url }, doc.title, url);
                             

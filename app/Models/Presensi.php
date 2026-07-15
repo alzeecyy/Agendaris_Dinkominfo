@@ -16,6 +16,8 @@ class Presensi extends Model
         'agenda_id',
         'user_id',
         'status',
+        'tanda_tangan',
+        'keterangan',
     ];
 
     public function agenda(): BelongsTo

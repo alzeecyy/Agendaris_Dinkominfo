@@ -16,6 +16,7 @@ class Notulensi extends Model
         'agenda_id',
         'audio_path',
         'audio_name',
+        'audio_files',
         'transkrip_raw',
         'ringkasan',
         'pembahasan',
@@ -25,6 +26,15 @@ class Notulensi extends Model
         'catatan_revisi',
         'approver_id',
         'last_edited_by_id',
+        'pembahasan_title',
+        'keputusan_title',
+        'is_transcribing',
+        'transkrip_error',
+    ];
+
+    protected $casts = [
+        'audio_files' => 'array',
+        'is_transcribing' => 'boolean',
     ];
 
     public function agenda(): BelongsTo
@@ -40,5 +50,15 @@ class Notulensi extends Model
     public function lastEditedBy(): BelongsTo
     {
         return $this->belongsTo(User::class, 'last_edited_by_id');
+    }
+
+    public function getPembahasanTitleAttribute($value)
+    {
+        return $value ?: 'Poin Pembahasan Rapat';
+    }
+
+    public function getKeputusanTitleAttribute($value)
+    {
+        return $value ?: 'Daftar Keputusan Rapat';
     }
 }
