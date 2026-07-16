@@ -25,6 +25,10 @@ class PresensiController extends Controller
             return back()->with('error', 'Anda tidak memiliki akses ke agenda ini.');
         }
 
+        if ($agenda->isPresensiExpired()) {
+            return back()->with('error', 'Batas waktu presensi mandiri telah berakhir (Maksimal 1 jam setelah rapat selesai).');
+        }
+
         $validated = $request->validate([
             'status' => 'required|in:hadir,izin,sakit',
             'keterangan' => 'nullable|string|max:500',
@@ -103,7 +107,7 @@ class PresensiController extends Controller
 
         $validated = $request->validate([
             'user_id' => 'required|exists:users,id',
-            'status' => 'required|in:hadir,izin,sakit,Belum Absen',
+            'status' => 'required|in:hadir,izin,sakit,alfa,Belum Absen',
         ]);
 
         $employee = \App\Models\User::find($validated['user_id']);
@@ -122,17 +126,23 @@ class PresensiController extends Controller
             return back()->with('success', 'Status presensi ' . $employee->name . ' berhasil direset.');
         } else {
             // Save or update presence
+            $dataToUpdate = [
+                'status' => $validated['status'],
+            ];
+            if ($validated['status'] !== 'hadir') {
+                $dataToUpdate['tanda_tangan'] = null;
+            }
+
             Presensi::updateOrCreate([
                 'agenda_id' => $agenda->id,
                 'user_id' => $employee->id,
-            ], [
-                'status' => $validated['status'],
-            ]);
+            ], $dataToUpdate);
 
             $statusLabels = [
                 'hadir' => 'Hadir',
                 'izin' => 'Izin',
                 'sakit' => 'Sakit',
+                'alfa' => 'Alfa',
             ];
 
             return back()->with('success', 'Status presensi ' . $employee->name . ' diubah menjadi: ' . $statusLabels[$validated['status']] . '.');

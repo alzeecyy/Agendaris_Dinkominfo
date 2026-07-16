@@ -80,4 +80,9 @@ class AuthController extends Controller
 
         return redirect()->route('dashboard')->with('success', 'Password Anda berhasil diperbarui. Selamat bekerja!');
     }
+
+    public function showProfile()
+    {
+        return view('auth.profile');
+    }
 }

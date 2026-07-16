@@ -54,4 +54,19 @@ class Agenda extends Model
     {
         return $this->hasOne(Notulensi::class, 'agenda_id');
     }
+
+    /**
+     * Check if the self-attendance filling period has expired (1 hour after jam_selesai).
+     */
+    public function isPresensiExpired(): bool
+    {
+        if (!$this->tanggal || !$this->jam_selesai) {
+            return false;
+        }
+
+        $endDateTime = \Carbon\Carbon::parse($this->tanggal->toDateString() . ' ' . $this->jam_selesai);
+        $limitDateTime = $endDateTime->addHour();
+
+        return now()->greaterThan($limitDateTime);
+    }
 }

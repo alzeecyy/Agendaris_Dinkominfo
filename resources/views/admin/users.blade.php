@@ -25,37 +25,6 @@
         },
         @endforeach
     ],
-    matchesFilter(name, nip, bidangId, role, active) {
-        const matchesSearch = !this.searchQuery || 
-            name.toLowerCase().includes(this.searchQuery.toLowerCase()) || 
-            nip.toLowerCase().includes(this.searchQuery.toLowerCase());
-            
-        let matchesBidang = true;
-        if (this.filterBidang) {
-            if (this.filterBidang === 'master') {
-                matchesBidang = !bidangId;
-            } else {
-                matchesBidang = bidangId == this.filterBidang;
-            }
-        }
-        
-        let matchesRole = true;
-        if (this.filterRole) {
-            if (this.filterRole === 'sekretaris') {
-                matchesRole = role === 'sekretaris_master' || role === 'sekretaris_bidang';
-            } else if (this.filterRole === 'ketua') {
-                matchesRole = role === 'ketua_master' || role === 'ketua_bidang';
-            } else {
-                matchesRole = role === this.filterRole;
-            }
-        }
-        
-        const matchesStatus = !this.filterStatus || 
-            (this.filterStatus === 'aktif' && active) || 
-            (this.filterStatus === 'nonaktif' && !active);
-            
-        return matchesSearch && matchesBidang && matchesRole && matchesStatus;
-    },
     get filteredUsers() {
         return this.users.filter(u => {
             const matchesSearch = !this.searchQuery || 
@@ -89,15 +58,16 @@
             return matchesSearch && matchesBidang && matchesRole && matchesStatus;
         });
     },
+    get visibleUserIds() {
+        const start = (this.currentPage - 1) * this.itemsPerPage;
+        const end = start + this.itemsPerPage;
+        return new Set(this.filteredUsers.slice(start, end).map(u => u.id));
+    },
     get totalPages() {
         return Math.ceil(this.filteredUsers.length / this.itemsPerPage) || 1;
     },
     isUserVisible(userId) {
-        const index = this.filteredUsers.findIndex(u => u.id === userId);
-        if (index === -1) return false;
-        const start = (this.currentPage - 1) * this.itemsPerPage;
-        const end = start + this.itemsPerPage;
-        return index >= start && index < end;
+        return this.visibleUserIds.has(userId);
     },
     nextPage() {
         if (this.currentPage < this.totalPages) {
@@ -192,7 +162,6 @@ class="space-y-6">
                 <select x-model="filterRole" 
                         class="w-full px-4 py-2.5 bg-[#f3f2fe] border border-[#d4d1f5] rounded-2xl text-xs text-[#2e2552] focus:outline-none">
                     <option value="">Semua Role</option>
-                    <option value="admin">Admin</option>
                     <option value="ketua">Ketua / Kadin</option>
                     <option value="sekretaris">Sekretaris</option>
                     <option value="staff">Staff</option>
@@ -214,38 +183,29 @@ class="space-y-6">
             <table class="w-full text-left text-sm text-[#2e2552]">
                 <thead class="text-xs font-bold uppercase tracking-wider text-[#5a508f] border-b border-[#d4d1f5]/40">
                     <tr>
-                        <th class="py-4 px-4">Nama Pegawai</th>
-                        <th class="py-4 px-4">NIP</th>
-                        <th class="py-4 px-4">Jabatan</th>
-                        <th class="py-4 px-4">Bidang</th>
-                        <th class="py-4 px-4">Role Sistem</th>
-                        <th class="py-4 px-4 text-center">Status</th>
-                        <th class="py-4 px-4 text-right">Aksi</th>
+                        <th class="py-4 px-4 whitespace-nowrap" style="min-width: 200px;">Nama Pegawai</th>
+                        <th class="py-4 px-4 text-center whitespace-nowrap">NIP</th>
+                        <th class="py-4 px-4 whitespace-nowrap">Bidang</th>
+                        <th class="py-4 px-4 text-center whitespace-nowrap" style="min-width: 150px; white-space: nowrap;">Role Sistem</th>
+                        <th class="py-4 px-4 text-center whitespace-nowrap">Status</th>
+                        <th class="py-4 px-4 text-center whitespace-nowrap">Aksi</th>
                     </tr>
                 </thead>
                 <tbody class="divide-y divide-[#d4d1f5]/30">
                     <!-- Client-side Empty State for filters -->
                     <tr x-show="filteredUsers.length === 0" class="hover:bg-transparent">
-                        <td colspan="7" class="py-8 px-4 text-center text-[#8e88dd] italic font-medium">Tidak ada data pegawai yang cocok dengan kriteria filter.</td>
+                        <td colspan="6" class="py-8 px-4 text-center text-[#8e88dd] italic font-medium">Tidak ada data pegawai yang cocok dengan kriteria filter.</td>
                     </tr>
                     @forelse($users as $user)
                         <tr class="user-row hover:bg-[#f8f7ff] transition-colors"
-                            x-show="matchesFilter('{{ addslashes($user->name) }}', '{{ $user->nip }}', '{{ $user->bidang_id }}', '{{ $user->role }}', {{ $user->active ? 'true' : 'false' }}) && isUserVisible({{ $user->id }})">
-                            <td class="py-4 px-4 font-bold truncate max-w-[150px]">{{ $user->name }}</td>
-                            <td class="py-4 px-4 font-mono text-xs text-[#5a508f]">{{ $user->nip }}</td>
-                            <td class="py-4 px-4 text-xs font-semibold text-slate-700">
-                                @php
-                                    $jabatanSingkat = $user->jabatan;
-                                    foreach($bidangs as $bid) {
-                                        if ($bid->nama && str_contains($jabatanSingkat, $bid->nama)) {
-                                            $jabatanSingkat = str_replace($bid->nama, 'Bidang ' . $bid->singkatan, $jabatanSingkat);
-                                        }
-                                    }
-                                @endphp
-                                {{ $jabatanSingkat }}
-                            </td>
+                            x-show="isUserVisible({{ $user->id }})"
+                            x-transition:enter="transition ease-out duration-150"
+                            x-transition:enter-start="opacity-0"
+                            x-transition:enter-end="opacity-100">
+                            <td class="py-4 px-4 font-bold whitespace-nowrap">{{ $user->name }}</td>
+                            <td class="py-4 px-4 text-center font-mono text-xs text-[#5a508f]">{{ $user->nip }}</td>
                             <td class="py-4 px-4 text-xs font-semibold text-[#5a508f]">{{ $user->bidang->singkatan ?? 'Dinkominfo (Master)' }}</td>
-                            <td class="py-4 px-4 text-xs">
+                            <td class="py-4 px-4 text-center text-xs" style="white-space: nowrap;">
                                 @php
                                     $roleBadge = [
                                         'sekretaris_master' => 'bg-emerald-50 text-emerald-700 border-emerald-200',
@@ -262,7 +222,7 @@ class="space-y-6">
                                         'staff' => 'Staff',
                                     ];
                                 @endphp
-                                <span class="inline-block text-[10px] px-2.5 py-0.5 rounded-full border font-bold {{ $roleBadge[$user->role] ?? 'bg-slate-100 text-slate-500' }}">
+                                <span class="inline-block whitespace-nowrap text-[10px] px-2.5 py-0.5 rounded-full border font-bold {{ $roleBadge[$user->role] ?? 'bg-slate-100 text-slate-500' }}">
                                     {{ $roleLabel[$user->role] ?? $user->role }}
                                 </span>
                             </td>
@@ -273,8 +233,8 @@ class="space-y-6">
                                     <span class="inline-block text-[10px] px-2.5 py-0.5 font-bold uppercase rounded-lg bg-slate-100 text-slate-400 border border-slate-200">Nonaktif</span>
                                 @endif
                             </td>
-                            <td class="py-4 px-4 text-right text-xs">
-                                <div class="flex items-center justify-end gap-3 font-bold">
+                            <td class="py-4 px-4 text-center text-xs align-middle">
+                                <div class="flex items-center justify-center gap-3 font-bold">
                                     <!-- Edit Trigger -->
                                     <button @click="openEditModal = true; editUser = { id: {{ $user->id }}, name: '{{ addslashes($user->name) }}', nip: '{{ $user->nip }}', jabatan: '{{ addslashes($user->jabatan) }}', bidang_id: '{{ $user->bidang_id }}', role: '{{ $user->role }}' }" 
                                             class="text-[#8e88dd] hover:text-[#2e2552] transition-colors">
@@ -302,7 +262,7 @@ class="space-y-6">
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="7" class="py-8 px-4 text-center text-[#8e88dd] italic font-medium">Tidak terdapat data pegawai yang terdaftar.</td>
+                        <td colspan="6" class="py-8 px-4 text-center text-[#8e88dd] italic font-medium">Tidak terdapat data pegawai yang terdaftar.</td>
                         </tr>
                     @endforelse
                 </tbody>
@@ -324,9 +284,19 @@ class="space-y-6">
             
             <!-- Page buttons -->
             <div class="flex items-center gap-1.5 flex-wrap">
+                <!-- First Page Button -->
+                <button @click="setPage(1)" :disabled="currentPage === 1"
+                        class="p-2 rounded-xl border border-[#d4d1f5] hover:bg-[#8e88dd]/10 disabled:opacity-40 disabled:hover:bg-transparent transition-colors"
+                        title="Halaman Pertama">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 19l-7-7 7-7M20 19l-7-7 7-7"></path>
+                    </svg>
+                </button>
+
                 <!-- Previous Button -->
                 <button @click="prevPage()" :disabled="currentPage === 1"
-                        class="p-2 rounded-xl border border-[#d4d1f5] hover:bg-[#8e88dd]/10 disabled:opacity-40 disabled:hover:bg-transparent transition-colors">
+                        class="p-2 rounded-xl border border-[#d4d1f5] hover:bg-[#8e88dd]/10 disabled:opacity-40 disabled:hover:bg-transparent transition-colors"
+                        title="Halaman Sebelumnya">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
                     </svg>
@@ -343,9 +313,19 @@ class="space-y-6">
                 
                 <!-- Next Button -->
                 <button @click="nextPage()" :disabled="currentPage === totalPages"
-                        class="p-2 rounded-xl border border-[#d4d1f5] hover:bg-[#8e88dd]/10 disabled:opacity-40 disabled:hover:bg-transparent transition-colors">
+                        class="p-2 rounded-xl border border-[#d4d1f5] hover:bg-[#8e88dd]/10 disabled:opacity-40 disabled:hover:bg-transparent transition-colors"
+                        title="Halaman Berikutnya">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+                    </svg>
+                </button>
+
+                <!-- Last Page Button -->
+                <button @click="setPage(totalPages)" :disabled="currentPage === totalPages"
+                        class="p-2 rounded-xl border border-[#d4d1f5] hover:bg-[#8e88dd]/10 disabled:opacity-40 disabled:hover:bg-transparent transition-colors"
+                        title="Halaman Terakhir">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 5l7 7-7 7M4 5l7 7-7 7"></path>
                     </svg>
                 </button>
             </div>

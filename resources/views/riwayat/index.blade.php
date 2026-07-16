@@ -22,9 +22,14 @@
         },
         @endforeach
     ],
+    checkSearch(title, query) {
+        if (!query) return true;
+        const q = query.toLowerCase().trim();
+        const t = title.toLowerCase();
+        return t.startsWith(q);
+    },
     matchesFilter(judul, kategori, tanggalStr, statusKehadiran) {
-        const matchesSearch = !this.searchQuery || 
-            judul.toLowerCase().includes(this.searchQuery.toLowerCase());
+        const matchesSearch = this.checkSearch(judul, this.searchQuery);
             
         const matchesKategori = !this.filterKategori || kategori === this.filterKategori;
         
@@ -43,8 +48,7 @@
     },
     get filteredAgendas() {
         return this.agendas.filter(a => {
-            const matchesSearch = !this.searchQuery || 
-                a.judul.toLowerCase().includes(this.searchQuery.toLowerCase());
+            const matchesSearch = this.checkSearch(a.judul, this.searchQuery);
                 
             const matchesKategori = !this.filterKategori || a.kategori === this.filterKategori;
             
@@ -163,6 +167,7 @@ class="space-y-6">
                     <option value="hadir">Hadir</option>
                     <option value="izin">Izin</option>
                     <option value="sakit">Sakit</option>
+                    <option value="alfa">Alfa</option>
                     <option value="none">Belum Absen (-)</option>
                 </select>
             </div>
@@ -186,7 +191,8 @@ class="space-y-6">
                         <td colspan="6" class="py-8 px-4 text-center text-[#8e88dd] italic font-medium">Tidak ada riwayat kegiatan yang cocok dengan kriteria filter.</td>
                     </tr>
                     @forelse($riwayatData as $item)
-                        <tr class="agenda-row hover:bg-[#f8f7ff] transition-colors"
+                        <tr class="agenda-row hover:bg-[#f8f7ff] cursor-pointer transition-colors"
+                            onclick="if (!event.target.closest('a')) { window.location.href='{{ route('agenda.show', $item->id) }}' }"
                             x-show="matchesFilter('{{ addslashes($item->judul) }}', '{{ $item->kategori }}', '{{ $item->tanggal->toDateString() }}', '{{ $item->status_kehadiran }}') && isAgendaVisible({{ $item->id }})">
                             <td class="py-4 px-4 font-bold text-[#2e2552]">
                                 <a href="{{ route('agenda.show', $item->id) }}" class="hover:text-[#8e88dd] transition-colors">
@@ -227,6 +233,8 @@ class="space-y-6">
                                     <span class="inline-block px-2.5 py-1 rounded-lg bg-amber-50 text-amber-600 border border-amber-200 font-bold">Izin</span>
                                 @elseif($item->status_kehadiran === 'sakit')
                                     <span class="inline-block px-2.5 py-1 rounded-lg bg-rose-50 text-rose-600 border border-rose-200 font-bold">Sakit</span>
+                                @elseif($item->status_kehadiran === 'alfa')
+                                    <span class="inline-block px-2.5 py-1 rounded-lg bg-red-50 text-red-600 border border-red-200 font-extrabold">Alfa</span>
                                 @else
                                     <span class="inline-block px-2.5 py-1 rounded-lg bg-slate-100 text-slate-400 border border-slate-200 font-semibold">-</span>
                                 @endif

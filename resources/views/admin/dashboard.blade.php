@@ -87,7 +87,7 @@
     </div>
 
     <!-- Tables Grid (Recent Users & Recent Agendas) -->
-    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+    <div class="flex flex-col gap-6">
 
         <!-- Card: Recent Registered Users -->
         <div class="bg-white border border-[#d4d1f5]/60 rounded-[32px] p-6 shadow-sm flex flex-col justify-between text-[#2e2552]">
@@ -97,23 +97,26 @@
                         <h3 class="text-sm font-black text-[#2e2552] uppercase tracking-wider">Pegawai Terdaftar Terbaru</h3>
                         <p class="text-[10px] text-[#5a508f] mt-0.5">5 akun pegawai yang terakhir kali ditambahkan ke sistem</p>
                     </div>
-                    <a href="{{ route('admin.users.index') }}" class="text-xs font-bold text-[#8e88dd] hover:text-[#2e2552] transition-colors">Semua Pegawai &rarr;</a>
+                    <a href="{{ route('admin.users.index') }}" class="text-xs font-bold text-[#8e88dd] hover:text-[#2e2552] transition-colors inline-flex items-center gap-1.5">
+                        <span>Semua Pegawai</span>
+                        <span>&rarr;</span>
+                    </a>
                 </div>
                 
                 <div class="overflow-x-auto">
-                    <table class="w-full text-left text-xs text-[#2e2552]">
+                    <table class="w-full text-left text-xs text-[#2e2552]" style="table-layout: fixed">
                         <thead class="text-[10px] font-bold uppercase tracking-wider text-[#5a508f] border-b border-[#d4d1f5]/30">
                             <tr>
-                                <th class="py-3 px-2">Nama</th>
-                                <th class="py-3 px-2">Bidang</th>
-                                <th class="py-3 px-2">Role</th>
-                                <th class="py-3 px-2 text-center">Status</th>
+                                <th class="py-3 px-2" style="width: 35%;">Nama</th>
+                                <th class="py-3 px-2" style="width: 25%;">Bidang</th>
+                                <th class="py-3 px-2" style="width: 25%;">Role</th>
+                                <th class="py-3 px-2 text-center" style="width: 15%;">Status</th>
                             </tr>
                         </thead>
                         <tbody class="divide-y divide-[#d4d1f5]/20">
                             @forelse($recentUsers as $user)
                                 <tr class="hover:bg-[#f8f7ff] transition-colors">
-                                    <td class="py-3 px-2 font-bold max-w-[120px] truncate">
+                                    <td class="py-3 px-2 font-bold">
                                         <div class="font-bold text-[#2e2552]">{{ $user->name }}</div>
                                         <div class="text-[10px] text-[#5a508f] font-mono mt-0.5">{{ $user->nip }}</div>
                                     </td>
@@ -146,23 +149,22 @@
                         <h3 class="text-sm font-black text-[#2e2552] uppercase tracking-wider">Agenda Rapat Terkini</h3>
                         <p class="text-[10px] text-[#5a508f] mt-0.5">5 agenda rapat dinas terbaru yang terjadwal di sistem</p>
                     </div>
-                    <span class="text-[10px] font-black text-slate-400 uppercase tracking-widest">Sistem Utama</span>
                 </div>
                 
                 <div class="overflow-x-auto">
-                    <table class="w-full text-left text-xs text-[#2e2552]">
+                    <table class="w-full text-left text-xs text-[#2e2552]" style="table-layout: fixed">
                         <thead class="text-[10px] font-bold uppercase tracking-wider text-[#5a508f] border-b border-[#d4d1f5]/30">
                             <tr>
-                                <th class="py-3 px-2">Judul Rapat</th>
-                                <th class="py-3 px-2">Tanggal / Waktu</th>
-                                <th class="py-3 px-2">Penyelenggara</th>
-                                <th class="py-3 px-2 text-center">Kategori</th>
+                                <th class="py-3 px-2" style="width: 40%;">Judul Rapat</th>
+                                <th class="py-3 px-2" style="width: 25%;">Tanggal / Waktu</th>
+                                <th class="py-3 px-2" style="width: 20%;">Penyelenggara</th>
+                                <th class="py-3 px-2 text-center" style="width: 15%;">Kategori</th>
                             </tr>
                         </thead>
                         <tbody class="divide-y divide-[#d4d1f5]/20">
                             @forelse($recentAgendas as $agenda)
                                 <tr class="hover:bg-[#f8f7ff] transition-colors">
-                                    <td class="py-3 px-2 font-bold max-w-[150px] truncate text-[#2e2552]">{{ $agenda->judul }}</td>
+                                    <td class="py-3 px-2 font-bold text-[#2e2552]">{{ $agenda->judul }}</td>
                                     <td class="py-3 px-2">
                                         <div class="font-semibold text-slate-700">{{ $agenda->tanggal->format('d M Y') }}</div>
                                         <div class="text-[10px] text-[#5a508f] mt-0.5">{{ substr($agenda->jam_mulai, 0, 5) }} - {{ substr($agenda->jam_selesai, 0, 5) }} WIB</div>

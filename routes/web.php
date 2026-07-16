@@ -37,6 +37,7 @@ Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 Route::middleware(['auth'])->group(function () {
     Route::get('/change-password', [AuthController::class, 'showChangePassword'])->name('password.change');
     Route::post('/change-password', [AuthController::class, 'updatePassword'])->name('password.update');
+    Route::get('/profile', [AuthController::class, 'showProfile'])->name('profile');
 });
 
 // Main Protected Application Routes
