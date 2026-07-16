@@ -87,7 +87,7 @@
     </div>
 
     <!-- Tables Grid (Recent Users & Recent Agendas) -->
-    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+    <div class="flex flex-col gap-6">
 
         <!-- Card: Recent Registered Users -->
         <div class="bg-white border border-[#d4d1f5]/60 rounded-[32px] p-6 shadow-sm flex flex-col justify-between text-[#2e2552]">
@@ -113,7 +113,7 @@
                         <tbody class="divide-y divide-[#d4d1f5]/20">
                             @forelse($recentUsers as $user)
                                 <tr class="hover:bg-[#f8f7ff] transition-colors">
-                                    <td class="py-3 px-2 font-bold max-w-[120px] truncate">
+                                    <td class="py-3 px-2 font-bold">
                                         <div class="font-bold text-[#2e2552]">{{ $user->name }}</div>
                                         <div class="text-[10px] text-[#5a508f] font-mono mt-0.5">{{ $user->nip }}</div>
                                     </td>
@@ -162,7 +162,7 @@
                         <tbody class="divide-y divide-[#d4d1f5]/20">
                             @forelse($recentAgendas as $agenda)
                                 <tr class="hover:bg-[#f8f7ff] transition-colors">
-                                    <td class="py-3 px-2 font-bold max-w-[150px] truncate text-[#2e2552]">{{ $agenda->judul }}</td>
+                                    <td class="py-3 px-2 font-bold text-[#2e2552]">{{ $agenda->judul }}</td>
                                     <td class="py-3 px-2">
                                         <div class="font-semibold text-slate-700">{{ $agenda->tanggal->format('d M Y') }}</div>
                                         <div class="text-[10px] text-[#5a508f] mt-0.5">{{ substr($agenda->jam_mulai, 0, 5) }} - {{ substr($agenda->jam_selesai, 0, 5) }} WIB</div>
