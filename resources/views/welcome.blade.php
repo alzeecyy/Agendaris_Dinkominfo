@@ -71,49 +71,21 @@
                         'staff' => 'bg-blue-50 text-blue-700 border-blue-100',
                     ];
                 @endphp
-                <div x-data="{ openProfile: false }" class="relative select-none text-[#09103c] z-10">
-                    <div @click="openProfile = !openProfile" class="flex items-center gap-2.5 cursor-pointer hover:bg-slate-100/55 p-1 rounded-xl transition-all duration-200">
-                        <div class="hidden sm:block text-right">
-                            <span class="inline-block text-[8px] font-bold px-2 py-0.5 rounded-full border {{ $roleColors[Auth::user()->role] ?? 'bg-slate-100 border-slate-200 text-slate-700' }} uppercase tracking-wider">
-                                {{ $roleLabels[Auth::user()->role] ?? 'User' }}
-                            </span>
-                            <div class="text-[7.5px] text-slate-500 font-mono">NIP. {{ Auth::user()->nip }}</div>
+                <div class="relative select-none text-[#09103c] z-10">
+                    <a href="{{ route('profile') }}" class="flex items-center gap-2.5 hover:bg-slate-100/55 p-1 rounded-xl transition-all duration-200">
+                        <div class="hidden sm:block text-right" style="margin: 0; padding: 0; display: flex; flex-direction: column; justify-content: center; gap: 3px;">
+                            <div class="text-[11px] font-black text-[#09103c]" style="line-height: 1; margin: 0; padding: 0;">{{ Auth::user()->name }}</div>
+                            <div style="line-height: 1; margin: 0; padding: 0;">
+                                <span class="inline-block text-[7.5px] font-extrabold px-1.5 py-0.5 rounded-full border {{ $roleColors[Auth::user()->role] ?? 'bg-slate-100 border-slate-200 text-slate-700' }} uppercase tracking-wider" style="line-height: 1; vertical-align: middle;">
+                                    {{ $roleLabels[Auth::user()->role] ?? 'User' }}
+                                </span>
+                            </div>
+                            <div class="text-[8px] text-slate-500 font-bold font-mono" style="line-height: 1; margin: 0; padding: 0;">NIP. {{ Auth::user()->nip }}</div>
                         </div>
                         <div class="w-8.5 h-8.5 bg-[#1b3bbb]/10 rounded-xl flex items-center justify-center font-extrabold text-xs text-[#1b3bbb] border border-[#1b3bbb]/20 shadow-sm hover:bg-[#1b3bbb]/20 transition-colors">
                             {{ substr(Auth::user()->name, 0, 2) }}
                         </div>
-                    </div>
-
-                    <!-- Dropdown floating menu -->
-                    <div x-show="openProfile" 
-                         @click.away="openProfile = false" 
-                         x-cloak
-                         x-transition
-                         class="absolute right-0 top-full mt-1.5 w-60 bg-white border border-slate-200 rounded-xl shadow-2xl z-50 p-3.5 space-y-2.5 text-[#09103c]">
-                        <div class="border-b border-slate-200 pb-2">
-                            <h4 class="text-xs font-bold text-[#09103c]">{{ Auth::user()->name }}</h4>
-                            <p class="text-[9px] text-slate-500 mt-0.5 leading-tight">{{ Auth::user()->jabatan }}</p>
-                        </div>
-                        <div class="space-y-1">
-                            <a href="{{ route('password.change') }}" 
-                               class="flex items-center gap-2 px-2.5 py-1.5 text-xs font-bold rounded-lg text-slate-600 hover:bg-[#1b3bbb]/5 hover:text-[#1b3bbb] transition-colors">
-                                <svg class="w-3.5 h-3.5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path>
-                                </svg>
-                                <span>Ubah Kata Sandi</span>
-                            </a>
-                            <form action="{{ route('logout') }}" method="POST" class="w-full">
-                                @csrf
-                                <button type="submit" 
-                                        class="w-full flex items-center gap-2 px-2.5 py-1.5 text-xs font-bold rounded-lg text-rose-600 hover:bg-rose-50 transition-colors">
-                                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"></path>
-                                    </svg>
-                                    <span>Keluar</span>
-                                </button>
-                            </form>
-                        </div>
-                    </div>
+                    </a>
                 </div>
             @endauth
         </header>
