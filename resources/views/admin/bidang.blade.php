@@ -27,18 +27,18 @@
                 <thead class="text-xs font-bold uppercase tracking-wider text-[#5a508f] border-b border-[#d4d1f5]/40">
                     <tr>
                         <th class="py-4 px-4">Nama Bidang</th>
-                        <th class="py-4 px-4">Singkatan</th>
+                        <th class="py-4 px-4 text-center">Singkatan</th>
                         <th class="py-4 px-4 text-center">Jumlah Pegawai</th>
-                        <th class="py-4 px-4 text-right">Aksi</th>
+                        <th class="py-4 px-4 text-center">Aksi</th>
                     </tr>
                 </thead>
                 <tbody class="divide-y divide-[#d4d1f5]/30">
                     @forelse($bidangs as $bid)
                         <tr class="hover:bg-[#f8f7ff] transition-colors">
                             <td class="py-4 px-4 font-bold text-[#2e2552]">{{ $bid->nama }}</td>
-                            <td class="py-4 px-4 font-black text-[#8e88dd]">{{ $bid->singkatan }}</td>
+                            <td class="py-4 px-4 text-center font-black text-[#8e88dd]">{{ $bid->singkatan }}</td>
                             <td class="py-4 px-4 text-center font-bold text-slate-700">{{ $bid->users_count }}</td>
-                            <td class="py-4 px-4 text-right text-xs">
+                            <td class="py-4 px-4 text-center text-xs">
                                 <!-- Edit Trigger -->
                                 <button @click="openEditModal = true; editBidang = { id: {{ $bid->id }}, nama: '{{ addslashes($bid->nama) }}', singkatan: '{{ addslashes($bid->singkatan) }}' }" 
                                         class="text-[#8e88dd] hover:text-[#2e2552] font-bold transition-colors">
