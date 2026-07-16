@@ -13,21 +13,21 @@
         }
     </style>
 </head>
-<body class="min-h-screen flex items-center justify-center p-4 relative overflow-hidden">
+<body class="min-h-screen flex items-center justify-center py-8 px-4 relative overflow-hidden">
     <!-- Decorative background blurred shapes -->
     <div class="absolute top-10 left-10 w-72 h-72 bg-blue-300/20 rounded-full filter blur-3xl"></div>
     <div class="absolute bottom-10 right-10 w-80 h-80 bg-indigo-300/10 rounded-full filter blur-3xl"></div>
 
-    <div class="w-full max-w-md z-10 space-y-6">
+    <div class="w-full max-w-md z-10 space-y-4">
         <!-- Logo & Header -->
         <div class="text-center flex flex-col items-center justify-center">
-            <img src="{{ asset('images/logo-banyumas-crest.png') }}" alt="Logo Kabupaten Banyumas" class="w-20 h-20 object-contain hover:scale-105 transition-transform duration-300">
-            <h1 class="text-2xl font-black text-[#09103c] tracking-widest mt-4">PENGAMANAN AKUN</h1>
+            <img src="{{ asset('images/logo-banyumas-crest.png') }}" alt="Logo Kabupaten Banyumas" class="w-16 h-16 object-contain hover:scale-105 transition-transform duration-300">
+            <h1 class="text-xl font-black text-[#09103c] tracking-widest mt-3">PENGAMANAN AKUN</h1>
             <p class="text-slate-500 text-xs font-semibold mt-1">Pembaruan Kata Sandi Akun Anda</p>
         </div>
 
         <!-- Premium White Card -->
-        <div class="bg-white rounded-[32px] p-8 shadow-2xl relative border border-slate-100">
+        <div class="bg-white rounded-[32px] p-6 shadow-2xl relative border border-slate-100">
             
             @if(Auth::check() && Auth::user()->must_change_password)
                 <div class="mb-5 p-4 bg-amber-50 border border-amber-200 text-amber-800 rounded-2xl text-xs space-y-1">
@@ -38,16 +38,6 @@
                         Pemberitahuan Wajib!
                     </p>
                     <p class="leading-relaxed">Ini adalah login pertama Anda. Demi keamanan akun, Anda diwajibkan mengganti kata sandi bawaan administrator dengan kata sandi pribadi sebelum mengakses menu.</p>
-                </div>
-            @else
-                <div class="mb-5 p-4 bg-blue-50 border border-blue-100 text-[#09103c] rounded-2xl text-xs space-y-1">
-                    <p class="font-bold flex items-center gap-1.5 text-[#09103c]">
-                        <svg class="w-4 h-4 text-[#1b3bbb]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                        </svg>
-                        Ubah Kata Sandi Akun
-                    </p>
-                    <p class="leading-relaxed">Silakan masukkan kata sandi baru Anda pada kolom di bawah ini demi keamanan akses akun Anda.</p>
                 </div>
             @endif
 
@@ -98,13 +88,21 @@
 
                 <!-- Submit Button -->
                 <button type="submit"
-                    class="w-full py-3.5 bg-[#1b3bbb] hover:bg-[#0d228c] active:scale-[0.98] text-white font-bold text-xs uppercase tracking-wider rounded-2xl transition-all duration-200 shadow-lg shadow-[#1b3bbb]/20 flex items-center justify-center gap-2">
-                    <span>Ubah Kata Sandi Sekarang</span>
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path>
-                    </svg>
+                    class="w-full py-3.5 bg-[#1b3bbb] hover:bg-[#0d228c] active:scale-[0.98] text-white font-bold text-xs uppercase tracking-wider rounded-2xl transition-all duration-200 shadow-lg shadow-[#1b3bbb]/20 flex items-center justify-center">
+                    Ubah Kata Sandi Sekarang
                 </button>
             </form>
+
+            @if(Auth::check() && !Auth::user()->must_change_password)
+                <div class="text-center mt-5">
+                    <a href="{{ route('profile') }}" class="text-xs font-bold text-slate-500 hover:text-[#1b3bbb] transition-colors inline-flex items-center gap-1.5">
+                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
+                        </svg>
+                        Batal & Kembali ke Profil
+                    </a>
+                </div>
+            @endif
         </div>
 
         <!-- Footer copyright -->

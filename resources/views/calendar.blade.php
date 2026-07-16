@@ -369,26 +369,26 @@
                                  @endphp
                                  <a href="{{ route('agenda.show', $event->id) }}" 
                                     class="absolute p-2 border rounded-2xl text-left shadow-sm z-10 transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md hover:z-30 flex flex-col justify-between group {{ $cardColorClass }}"
-                                    style="top: {{ number_format($topPct, 2, '.', '') }}%; height: {{ number_format($heightPct, 2, '.', '') }}%; left: {{ number_format($leftPos, 2, '.', '') }}%; width: {{ number_format($colWidth, 2, '.', '') }}%;">
-                                     <div class="min-w-0">
-                                         <div class="flex items-center justify-between text-[8px] font-bold opacity-80 gap-1 uppercase truncate">
-                                             <span>{{ substr($event->jam_mulai, 0, 5) }} - {{ substr($event->jam_selesai, 0, 5) }}</span>
-                                             <span class="px-1 py-0.5 rounded bg-black/10 text-[8px] font-semibold">{{ $event->singkatan_bidang }}</span>
-                                         </div>
-                                         <h4 class="text-[10px] font-bold mt-0.5 leading-tight line-clamp-2">{{ $event->judul }}</h4>
-                                     </div>
-                                     <div class="text-[8px] opacity-80 truncate flex items-center gap-0.5 font-medium">
-                                         <svg class="w-2.5 h-2.5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path>
-                                         </svg>
-                                         <span>{{ $event->lokasi }}</span>
-                                     </div>
+                                    style="top: calc({{ number_format($topPct, 2, '.', '') }}% + 2px); height: calc({{ number_format($heightPct, 2, '.', '') }}% - 4px); left: calc({{ number_format($leftPos, 2, '.', '') }}% + 2px); width: calc({{ number_format($colWidth, 2, '.', '') }}% - 4px);">
+                                      <div class="min-w-0 w-full overflow-hidden">
+                                          <div class="flex items-center justify-between text-[8px] font-bold opacity-80 gap-1 uppercase min-w-0">
+                                              <span class="whitespace-nowrap shrink-0">{{ substr($event->jam_mulai, 0, 5) }} - {{ substr($event->jam_selesai, 0, 5) }}</span>
+                                              <span class="px-1 py-0.5 rounded bg-black/10 text-[8px] font-semibold truncate">{{ $event->singkatan_bidang }}</span>
+                                          </div>
+                                          <h4 class="text-[10px] font-bold mt-0.5 leading-tight line-clamp-2 break-all">{{ $event->judul }}</h4>
+                                      </div>
+                                      <div class="text-[8px] opacity-80 truncate flex items-center gap-0.5 font-medium w-full overflow-hidden">
+                                          <svg class="w-2.5 h-2.5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path>
+                                          </svg>
+                                          <span class="truncate">{{ $event->lokasi }}</span>
+                                      </div>
 
                                      <!-- Floating Tooltip on Hover -->
                                      <div class="absolute {{ $tooltipPosition }} {{ $arrowClass }} {{ $tStyle['bg'] }} {{ $tStyle['border'] }} {{ $tStyle['text'] }} left-1/2 -translate-x-1/2 w-60 p-3 rounded-2xl shadow-2xl z-50 text-[10px] pointer-events-none opacity-0 group-hover:opacity-100 transition-all duration-200 border after:content-[''] after:absolute after:left-1/2 after:-translate-x-1/2 after:border-4 after:border-transparent">
-                                         <div class="font-bold border-b border-black/10 pb-1 flex justify-between gap-2">
-                                             <span class="{{ $tStyle['header_text'] }} font-extrabold uppercase">{{ $event->singkatan_bidang }}</span>
-                                             <span class="{{ $tStyle['subtext'] }}">{{ substr($event->jam_mulai, 0, 5) }} - {{ substr($event->jam_selesai, 0, 5) }}</span>
+                                         <div class="font-bold border-b border-black/10 pb-1 flex justify-between items-start gap-2">
+                                             <span class="{{ $tStyle['header_text'] }} font-extrabold uppercase leading-tight mr-2">{{ $event->singkatan_bidang }}</span>
+                                             <span class="{{ $tStyle['subtext'] }} whitespace-nowrap shrink-0 text-right mt-0.5">{{ substr($event->jam_mulai, 0, 5) }} - {{ substr($event->jam_selesai, 0, 5) }}</span>
                                          </div>
                                          <div class="mt-1.5 font-bold leading-tight">
                                              {{ $event->judul }}
@@ -405,16 +405,16 @@
                              @else
                                 <div class="absolute p-2 border rounded-2xl text-left shadow-sm z-10 overflow-hidden {{ $cardColorClass }}"
                                      title="Agenda ini terbatas untuk bidang {{ $event->singkatan_bidang }}"
-                                     style="top: {{ number_format($topPct, 2, '.', '') }}%; height: {{ number_format($heightPct, 2, '.', '') }}%; left: {{ number_format($leftPos, 2, '.', '') }}%; width: {{ number_format($colWidth, 2, '.', '') }}%;">
-                                    <div class="flex items-center justify-between text-[8px] font-bold opacity-60 gap-1 uppercase">
-                                        <span>{{ substr($event->jam_mulai, 0, 5) }} - {{ substr($event->jam_selesai, 0, 5) }}</span>
-                                        <span class="px-1 py-0.5 rounded bg-black/5">{{ $event->singkatan_bidang }}</span>
+                                     style="top: calc({{ number_format($topPct, 2, '.', '') }}% + 2px); height: calc({{ number_format($heightPct, 2, '.', '') }}% - 4px); left: calc({{ number_format($leftPos, 2, '.', '') }}% + 2px); width: calc({{ number_format($colWidth, 2, '.', '') }}% - 4px);">
+                                    <div class="flex items-center justify-between text-[8px] font-bold opacity-60 gap-1 uppercase min-w-0">
+                                        <span class="whitespace-nowrap shrink-0">{{ substr($event->jam_mulai, 0, 5) }} - {{ substr($event->jam_selesai, 0, 5) }}</span>
+                                        <span class="px-1 py-0.5 rounded bg-black/5 truncate">{{ $event->singkatan_bidang }}</span>
                                     </div>
-                                    <h4 class="text-[10px] font-bold text-slate-500 mt-1 italic flex items-center gap-1">
+                                    <h4 class="text-[10px] font-bold text-slate-500 mt-1 italic flex items-center gap-1 min-w-0 overflow-hidden">
                                         <svg class="w-3.5 h-3.5 shrink-0 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path>
                                         </svg>
-                                        <span>Rapat Terbatas</span>
+                                        <span class="truncate">Rapat Terbatas</span>
                                     </h4>
                                 </div>
                             @endif

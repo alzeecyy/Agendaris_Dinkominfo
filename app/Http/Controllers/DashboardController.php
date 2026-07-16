@@ -75,6 +75,12 @@ class DashboardController extends Controller
 
         foreach ($rawAgendas as $agenda) {
             $hasAccess = $user->hasAccessToAgenda($agenda);
+
+            // Hide non-accessible agendas completely for staff/pegawai role
+            if ($user->role === 'staff' && !$hasAccess) {
+                continue;
+            }
+
             $dateStr = $agenda->tanggal->toDateString();
 
             if (isset($agendasByDate[$dateStr])) {
@@ -280,6 +286,9 @@ class DashboardController extends Controller
 
         $riwayatRingkas = $pastAgendas->take(4)->map(function ($agenda) use ($presensis) {
             $status = $presensis->has($agenda->id) ? $presensis[$agenda->id]->status : null;
+            if ($agenda->butuh_presensi && !$status && $agenda->isPresensiExpired()) {
+                $status = 'alfa';
+            }
             return (object) [
                 'id' => $agenda->id,
                 'judul' => $agenda->judul,
@@ -339,8 +348,10 @@ class DashboardController extends Controller
             ->unique()
             ->toArray();
 
+        $allBidangs = Bidang::all()->keyBy('id');
+
         // Mask/Filter agendas based on user access
-        $agendas = $rawAgendas->map(function ($agenda) use ($user) {
+        $agendas = $rawAgendas->map(function ($agenda) use ($user, $allBidangs) {
             $hasAccess = $user->hasAccessToAgenda($agenda);
             $hakAkses = $agenda->hak_akses ?? [];
 
@@ -350,8 +361,17 @@ class DashboardController extends Controller
             if (in_array('semua_orang', $hakAkses)) {
                 $badgeLabel = 'Semua';
             } else {
-                // Show the creator's bidang abbreviation as the primary label
-                $badgeLabel = $agenda->sekretaris->bidang->singkatan ?? 'Dinas';
+                $matchedSingkatans = [];
+                foreach ($hakAkses as $id) {
+                    if (isset($allBidangs[$id])) {
+                        $matchedSingkatans[] = $allBidangs[$id]->singkatan;
+                    }
+                }
+                if (!empty($matchedSingkatans)) {
+                    $badgeLabel = implode(', ', $matchedSingkatans);
+                } else {
+                    $badgeLabel = $agenda->sekretaris->bidang->singkatan ?? 'Dinas';
+                }
             }
 
             return (object) [
@@ -369,6 +389,11 @@ class DashboardController extends Controller
                 'hak_akses' => $hakAkses,
             ];
         });
+
+        // Hide non-accessible agendas completely for staff/pegawai role
+        if ($user->role === 'staff') {
+            $agendas = $agendas->filter(fn($a) => $a->has_access);
+        }
 
         // Group agendas by date for easier rendering in the grid
         $agendasByDate = [];
@@ -440,6 +465,7 @@ class DashboardController extends Controller
                 $groups[] = [$event];
             }
         }
+        unset($group); // Unset the reference to avoid polluting subsequent loops
 
         $processedEvents = [];
         
@@ -509,6 +535,9 @@ class DashboardController extends Controller
 
         $riwayatData = $agendas->map(function ($agenda) use ($presensis) {
             $status = $presensis->has($agenda->id) ? $presensis[$agenda->id]->status : null;
+            if (!$status && $agenda->isPresensiExpired()) {
+                $status = 'alfa';
+            }
             
             return (object) [
                 'id' => $agenda->id,
