@@ -134,10 +134,18 @@ class AgendaController extends Controller
             ->get()
             ->keyBy('user_id');
 
+        $isExpired = $agenda->isPresensiExpired();
+
         // Combine user list with their attendance records
-        $participants = $internalUsers->map(function ($employee) use ($attendanceRecords) {
+        $participants = $internalUsers->map(function ($employee) use ($attendanceRecords, $isExpired) {
             $record = $attendanceRecords->get($employee->id);
-            $employee->status_presensi = $record ? $record->status : 'Belum Absen';
+            
+            $status = $record ? $record->status : 'Belum Absen';
+            if ($isExpired && ($status === 'Belum Absen' || !$record)) {
+                $status = 'alfa';
+            }
+
+            $employee->status_presensi = $status;
             $employee->tanda_tangan = $record ? $record->tanda_tangan : null;
             $employee->keterangan = $record ? $record->keterangan : null;
             return $employee;
@@ -159,6 +167,7 @@ class AgendaController extends Controller
             $hadir = $bidangUsers->filter(fn($p) => $p->status_presensi === 'hadir')->count();
             $izin = $bidangUsers->filter(fn($p) => $p->status_presensi === 'izin')->count();
             $sakit = $bidangUsers->filter(fn($p) => $p->status_presensi === 'sakit')->count();
+            $alfa = $bidangUsers->filter(fn($p) => $p->status_presensi === 'alfa')->count();
             $belum = $bidangUsers->filter(fn($p) => $p->status_presensi === 'Belum Absen')->count();
 
             $recap[] = (object) [
@@ -168,6 +177,7 @@ class AgendaController extends Controller
                 'hadir' => $hadir,
                 'izin' => $izin,
                 'sakit' => $sakit,
+                'alfa' => $alfa,
                 'belum' => $belum,
             ];
         }

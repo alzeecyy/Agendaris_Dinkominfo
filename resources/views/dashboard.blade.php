@@ -173,42 +173,55 @@
     <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 items-start">
         
         <!-- LEFT/MID COLUMN: MONTHLY CALENDAR CARD -->
-        <div class="lg:col-span-2 bg-white border border-[#d4d1f5]/60 rounded-[32px] p-6 shadow-sm flex flex-col">
+        <div x-data="{ showMonthPicker: false, pickerYear: {{ $selectedMonth->year }} }" class="lg:col-span-2 bg-white border border-[#d4d1f5]/60 rounded-[32px] p-6 shadow-sm flex flex-col">
             
             <!-- Month selector header -->
             <div class="flex items-center justify-between border-b border-[#d4d1f5]/40 pb-4 mb-6">
-                <div>
-                    <h2 class="text-lg font-black text-[#2e2552] tracking-wide">{{ $selectedMonth->translatedFormat('F Y') }}</h2>
+                <!-- Month/Year Header (Click to Toggle Month Picker) -->
+                <div @click="showMonthPicker = !showMonthPicker" 
+                     class="cursor-pointer hover:bg-[#8e88dd]/10 px-3 py-1.5 -ml-3 rounded-2xl transition-all duration-150 inline-block select-none"
+                     title="Klik untuk memilih bulan">
+                    <h2 class="text-lg font-black text-[#2e2552] tracking-wide inline-flex items-center gap-1.5">
+                        <span x-show="!showMonthPicker">{{ $selectedMonth->translatedFormat('F Y') }}</span>
+                        <span x-show="showMonthPicker" x-text="pickerYear"></span>
+                        <!-- Dropdown Arrow Icon -->
+                        <svg class="w-4 h-4 text-[#8e88dd] transition-transform duration-200" :class="showMonthPicker ? 'rotate-180' : ''" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 9l-7 7-7-7"></path>
+                        </svg>
+                    </h2>
                     <p class="text-xs text-[#5a508f]">Agenda Kerja Bulanan Dinkominfo</p>
                 </div>
                 
                 <div class="flex items-center gap-2">
-                    <a href="{{ route('dashboard', ['month' => $selectedMonth->copy()->subMonth()->format('Y-m')]) }}" 
-                       class="p-2.5 bg-[#f3f2fe] border border-[#d4d1f5] rounded-xl hover:bg-[#8e88dd]/20 text-[#2e2552] transition-colors">
+                    <button type="button" 
+                            @click="if (showMonthPicker) { pickerYear-- } else { window.location.href = '{{ route('dashboard', ['month' => $selectedMonth->copy()->subMonth()->format('Y-m')]) }}' }"
+                            class="p-2.5 bg-[#f3f2fe] border border-[#d4d1f5] rounded-xl hover:bg-[#8e88dd]/20 text-[#2e2552] transition-colors">
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
                         </svg>
-                    </a>
+                    </button>
                     <a href="{{ route('dashboard', ['month' => now()->format('Y-m')]) }}" 
-                       class="px-3.5 py-1.5 bg-[#f3f2fe] border border-[#d4d1f5] rounded-xl hover:bg-[#8e88dd]/20 text-xs font-bold text-[#2e2552] transition-colors">
-                        Bulan Ini
+                       class="px-3.5 py-1.5 bg-[#f3f2fe] border border-[#d4d1f5] rounded-xl hover:bg-[#8e88dd]/20 text-xs font-bold text-[#2e2552] transition-colors"
+                       title="Kembali ke Bulan Ini">
+                        Bulan ke-{{ $selectedMonth->month }}
                     </a>
-                    <a href="{{ route('dashboard', ['month' => $selectedMonth->copy()->addMonth()->format('Y-m')]) }}" 
-                       class="p-2.5 bg-[#f3f2fe] border border-[#d4d1f5] rounded-xl hover:bg-[#8e88dd]/20 text-[#2e2552] transition-colors">
+                    <button type="button" 
+                            @click="if (showMonthPicker) { pickerYear++ } else { window.location.href = '{{ route('dashboard', ['month' => $selectedMonth->copy()->addMonth()->format('Y-m')]) }}' }"
+                            class="p-2.5 bg-[#f3f2fe] border border-[#d4d1f5] rounded-xl hover:bg-[#8e88dd]/20 text-[#2e2552] transition-colors">
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
                         </svg>
-                    </a>
+                    </button>
                 </div>
             </div>
 
             <!-- Month grid header -->
-            <div class="grid grid-cols-7 gap-2 text-center text-[10px] font-bold text-[#8e88dd] uppercase tracking-wider mb-2">
+            <div x-show="!showMonthPicker" class="grid grid-cols-7 gap-2 text-center text-[10px] font-bold text-[#8e88dd] uppercase tracking-wider mb-2">
                 <span>Sen</span><span>Sel</span><span>Rab</span><span>Kam</span><span>Jum</span><span class="text-indigo-500 font-extrabold">Sab</span><span class="text-rose-500 font-extrabold">Min</span>
             </div>
 
             <!-- Month grid days -->
-            <div class="grid grid-cols-7 gap-2 text-xs">
+            <div x-show="!showMonthPicker" class="grid grid-cols-7 gap-2 text-xs">
                 @foreach($gridDates as $idx => $date)
                     @php
                         $dateStr = $date->toDateString();
@@ -306,8 +319,22 @@
                 @endforeach
             </div>
 
+            <!-- Month Picker Grid view -->
+            <div x-show="showMonthPicker" x-cloak class="grid grid-cols-3 gap-3 text-center text-xs py-4">
+                <template x-for="(mName, mIdx) in ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Agu', 'Sep', 'Okt', 'Nov', 'Des']" :key="mIdx">
+                    <button type="button" 
+                            @click="window.location.href = '/dashboard?month=' + pickerYear + '-' + String(mIdx + 1).padStart(2, '0')"
+                            class="py-4 rounded-2xl font-bold border transition-all duration-200"
+                            :class="pickerYear === {{ $selectedMonth->year }} && mIdx === {{ $selectedMonth->month - 1 }} 
+                                ? 'bg-[#2e2552] text-white border-[#2e2552] shadow-md shadow-[#2e2552]/10' 
+                                : 'border-[#d4d1f5]/60 text-[#5a508f] hover:bg-[#8e88dd]/10 hover:text-[#2e2552] bg-white'">
+                        <span x-text="mName"></span>
+                    </button>
+                </template>
+            </div>
+
             <!-- Color code legend -->
-            <div class="flex flex-wrap items-center gap-4 mt-6 border-t border-[#d4d1f5]/40 pt-4 text-[10px] font-bold uppercase tracking-wider text-[#5a508f]">
+            <div x-show="!showMonthPicker" class="flex flex-wrap items-center gap-4 mt-6 border-t border-[#d4d1f5]/40 pt-4 text-[10px] font-bold uppercase tracking-wider text-[#5a508f]">
                 <span class="flex items-center gap-1.5"><span class="w-2.5 h-2.5 rounded-full bg-[#ef4444]"></span> Rapat</span>
                 <span class="flex items-center gap-1.5"><span class="w-2.5 h-2.5 rounded-full bg-[#3b82f6]"></span> Sosialisasi</span>
                 <span class="flex items-center gap-1.5"><span class="w-2.5 h-2.5 rounded-full bg-[#10b981]"></span> Pelatihan</span>
@@ -369,6 +396,8 @@
                                     <span class="text-[9px] font-bold text-amber-600 bg-amber-50 px-2 py-0.5 rounded-lg border border-amber-100 font-semibold">Izin</span>
                                 @elseif($rw->status_kehadiran === 'sakit')
                                     <span class="text-[9px] font-bold text-rose-600 bg-rose-50 px-2 py-0.5 rounded-lg border border-rose-100 font-semibold">Sakit</span>
+                                @elseif($rw->status_kehadiran === 'alfa')
+                                    <span class="text-[9px] font-bold text-red-600 bg-red-50 px-2 py-0.5 rounded-lg border border-red-100 font-semibold">Alfa</span>
                                 @else
                                     <span class="text-[9px] font-bold text-slate-400 bg-slate-50 px-2 py-0.5 rounded-lg border border-slate-100 font-semibold">-</span>
                                 @endif
