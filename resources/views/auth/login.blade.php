@@ -81,14 +81,6 @@
                     </div>
                 </div>
 
-                <!-- Remember Me & Actions -->
-                <div class="flex items-center justify-between text-xs pt-1">
-                    <label class="flex items-center text-slate-500 cursor-pointer font-medium">
-                        <input type="checkbox" name="remember" class="w-4 h-4 rounded border-slate-200 bg-slate-50 text-[#1b3bbb] focus:ring-[#1b3bbb]/30 mr-2 cursor-pointer">
-                        <span>Ingat Saya</span>
-                    </label>
-                </div>
-
                 <!-- Submit Button -->
                 <button type="submit"
                     class="w-full py-3.5 bg-[#1b3bbb] hover:bg-[#0d228c] active:scale-[0.98] text-white font-bold text-xs uppercase tracking-wider rounded-2xl transition-all duration-200 shadow-lg shadow-[#1b3bbb]/20 flex items-center justify-center gap-2">
