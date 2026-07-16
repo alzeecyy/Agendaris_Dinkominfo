@@ -97,17 +97,20 @@
                         <h3 class="text-sm font-black text-[#2e2552] uppercase tracking-wider">Pegawai Terdaftar Terbaru</h3>
                         <p class="text-[10px] text-[#5a508f] mt-0.5">5 akun pegawai yang terakhir kali ditambahkan ke sistem</p>
                     </div>
-                    <a href="{{ route('admin.users.index') }}" class="text-xs font-bold text-[#8e88dd] hover:text-[#2e2552] transition-colors">Semua Pegawai &rarr;</a>
+                    <a href="{{ route('admin.users.index') }}" class="text-xs font-bold text-[#8e88dd] hover:text-[#2e2552] transition-colors inline-flex items-center gap-1.5">
+                        <span>Semua Pegawai</span>
+                        <span>&rarr;</span>
+                    </a>
                 </div>
                 
                 <div class="overflow-x-auto">
-                    <table class="w-full text-left text-xs text-[#2e2552]">
+                    <table class="w-full text-left text-xs text-[#2e2552]" style="table-layout: fixed">
                         <thead class="text-[10px] font-bold uppercase tracking-wider text-[#5a508f] border-b border-[#d4d1f5]/30">
                             <tr>
-                                <th class="py-3 px-2">Nama</th>
-                                <th class="py-3 px-2">Bidang</th>
-                                <th class="py-3 px-2">Role</th>
-                                <th class="py-3 px-2 text-center">Status</th>
+                                <th class="py-3 px-2" style="width: 35%;">Nama</th>
+                                <th class="py-3 px-2" style="width: 25%;">Bidang</th>
+                                <th class="py-3 px-2" style="width: 25%;">Role</th>
+                                <th class="py-3 px-2 text-center" style="width: 15%;">Status</th>
                             </tr>
                         </thead>
                         <tbody class="divide-y divide-[#d4d1f5]/20">
@@ -146,17 +149,16 @@
                         <h3 class="text-sm font-black text-[#2e2552] uppercase tracking-wider">Agenda Rapat Terkini</h3>
                         <p class="text-[10px] text-[#5a508f] mt-0.5">5 agenda rapat dinas terbaru yang terjadwal di sistem</p>
                     </div>
-                    <span class="text-[10px] font-black text-slate-400 uppercase tracking-widest">Sistem Utama</span>
                 </div>
                 
                 <div class="overflow-x-auto">
-                    <table class="w-full text-left text-xs text-[#2e2552]">
+                    <table class="w-full text-left text-xs text-[#2e2552]" style="table-layout: fixed">
                         <thead class="text-[10px] font-bold uppercase tracking-wider text-[#5a508f] border-b border-[#d4d1f5]/30">
                             <tr>
-                                <th class="py-3 px-2">Judul Rapat</th>
-                                <th class="py-3 px-2">Tanggal / Waktu</th>
-                                <th class="py-3 px-2">Penyelenggara</th>
-                                <th class="py-3 px-2 text-center">Kategori</th>
+                                <th class="py-3 px-2" style="width: 40%;">Judul Rapat</th>
+                                <th class="py-3 px-2" style="width: 25%;">Tanggal / Waktu</th>
+                                <th class="py-3 px-2" style="width: 20%;">Penyelenggara</th>
+                                <th class="py-3 px-2 text-center" style="width: 15%;">Kategori</th>
                             </tr>
                         </thead>
                         <tbody class="divide-y divide-[#d4d1f5]/20">
