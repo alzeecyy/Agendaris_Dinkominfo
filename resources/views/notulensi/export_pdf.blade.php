@@ -89,8 +89,15 @@
         .section-content {
             margin-left: 10px;
             text-align: justify;
-            white-space: pre-line;
         }
+        .section-content h3, .section-content h4, .section-content h5 {
+            margin-top: 15px;
+            margin-bottom: 6px;
+            font-weight: bold;
+        }
+        .section-content h3 { font-size: 12pt; }
+        .section-content h4 { font-size: 11pt; }
+        .section-content h5 { font-size: 10pt; }
 
         /* Data Tables */
         .data-table {
@@ -190,7 +197,7 @@
 
     <!-- NOTULENSI RAPAT -->
     <div class="section-title">I. Notulensi Rapat</div>
-    <div class="section-content" style="white-space: pre-wrap;">{!! nl2br(e($notulensi->ringkasan)) !!}</div>
+    <div class="section-content">{!! $notulensi->ringkasan_html !!}</div>
 
     <div class="page-break"></div>
 

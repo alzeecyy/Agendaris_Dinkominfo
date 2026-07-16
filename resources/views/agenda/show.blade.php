@@ -32,7 +32,7 @@
                             class="px-4 py-2 bg-white border border-[#d4d1f5] hover:bg-[#8e88dd]/15 text-xs font-bold text-[#2e2552] rounded-xl transition-all shadow-sm">
                         Edit Agenda
                     </button>
-                    <form action="{{ route('agenda.destroy', $agenda->id) }}" method="POST" onsubmit="return confirm('Apakah Anda yakin ingin menghapus agenda ini beserta seluruh presensi/notulensinya?')">
+                    <form action="{{ route('agenda.destroy', $agenda->id) }}" method="POST" data-confirm="Apakah Anda yakin ingin menghapus agenda ini beserta seluruh presensi/notulensinya?">
                         @csrf
                         @method('DELETE')
                         <button type="submit" class="px-4 py-2 bg-rose-50 hover:bg-rose-100 text-rose-600 border border-rose-200 text-xs font-bold rounded-xl transition-all shadow-sm">
@@ -316,18 +316,24 @@
                             <h4 class="text-xs font-bold uppercase tracking-wider text-[#5a508f]">Ringkasan Rapat</h4>
                             <p class="bg-[#f8f7ff] p-4 border border-[#d4d1f5]/40 rounded-2xl leading-relaxed">{{ $agenda->notulensi->ringkasan }}</p>
                         </div>
+                        @if(!empty($agenda->notulensi->pembahasan))
                         <div class="space-y-1.5">
                             <h4 class="text-xs font-bold uppercase tracking-wider text-[#5a508f]">{{ $agenda->notulensi->pembahasan_title }}</h4>
                             <div class="bg-[#f8f7ff] p-4 border border-[#d4d1f5]/40 rounded-2xl leading-relaxed whitespace-pre-line">{{ $agenda->notulensi->pembahasan }}</div>
                         </div>
+                        @endif
+                        @if(!empty($agenda->notulensi->keputusan))
                         <div class="space-y-1.5">
                             <h4 class="text-xs font-bold uppercase tracking-wider text-[#5a508f]">{{ $agenda->notulensi->keputusan_title }}</h4>
                             <div class="bg-[#f8f7ff] p-4 border border-[#d4d1f5]/40 rounded-2xl leading-relaxed whitespace-pre-line text-emerald-600 font-bold">{{ $agenda->notulensi->keputusan }}</div>
                         </div>
+                        @endif
+                        @if(!empty($agenda->notulensi->kesimpulan))
                         <div class="space-y-1.5">
                             <h4 class="text-xs font-bold uppercase tracking-wider text-[#5a508f]">Kesimpulan</h4>
                             <div class="bg-[#f8f7ff] p-4 border border-[#d4d1f5]/40 rounded-2xl leading-relaxed whitespace-pre-line">{{ $agenda->notulensi->kesimpulan }}</div>
                         </div>
+                        @endif
                     </div>
                 </div>
             @endif

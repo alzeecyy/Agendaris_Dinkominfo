@@ -61,4 +61,38 @@ class Notulensi extends Model
     {
         return $value ?: 'Daftar Keputusan Rapat';
     }
+
+    public function getRingkasanHtmlAttribute()
+    {
+        return self::markdownToHtml($this->ringkasan);
+    }
+
+    public static function markdownToHtml($text)
+    {
+        if (empty($text)) {
+            return '';
+        }
+
+        $html = htmlspecialchars($text, ENT_QUOTES, 'UTF-8');
+
+        // Headers
+        $html = preg_replace('/^#\s+(.+)$/m', '<h3>$1</h3>', $html);
+        $html = preg_replace('/^##\s+(.+)$/m', '<h4>$1</h4>', $html);
+        $html = preg_replace('/^###\s+(.+)$/m', '<h5>$1</h5>', $html);
+
+        // Bold
+        $html = preg_replace('/\*\*(.*?)\*\*/', '<strong>$1</strong>', $html);
+
+        // Italic
+        $html = preg_replace('/\*([^\*]+)\*/', '<em>$1</em>', $html);
+
+        // Line breaks
+        $html = nl2br($html);
+
+        // Clean up breaks around header tags (removes one or more breaks before and after headers)
+        $html = preg_replace('/(<\/h[345]>)\s*(<br\s*\/?>\s*)+/i', '$1', $html);
+        $html = preg_replace('/(<br\s*\/?>\s*)+(<h[345]>)/i', '$2', $html);
+
+        return $html;
+    }
 }

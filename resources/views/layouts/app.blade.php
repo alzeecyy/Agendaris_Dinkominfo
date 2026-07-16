@@ -53,8 +53,102 @@
         .hover\:border-\[\#8e88dd\]\/50:hover { border-color: rgba(27, 59, 187, 0.5) !important; }
         .hover\:bg-\[\#f8f7ff\]:hover { background-color: #f1f5f9 !important; }
         .hover\:bg-\[\#3d326a\]:hover { background-color: #0d228c !important; }
+
+        /* Custom SweetAlert2 Premium Modern Glassmorphic Styling */
+        .swal2-popup {
+            border-radius: 28px !important;
+            background: rgba(255, 255, 255, 0.95) !important;
+            backdrop-filter: blur(20px) !important;
+            -webkit-backdrop-filter: blur(20px) !important;
+            border: 1px solid rgba(203, 213, 225, 0.5) !important;
+            box-shadow: 0 25px 50px -12px rgba(9, 16, 60, 0.18) !important;
+            padding: 2.25rem 2rem !important;
+            font-family: 'Plus Jakarta Sans', sans-serif !important;
+        }
+        .swal2-title {
+            color: #09103c !important;
+            font-size: 1.15rem !important;
+            font-weight: 800 !important;
+            line-height: 1.4 !important;
+            margin-bottom: 0.75rem !important;
+        }
+        .swal2-html-container {
+            color: #475569 !important;
+            font-size: 0.85rem !important;
+            font-weight: 500 !important;
+            line-height: 1.6 !important;
+            margin: 0 !important;
+        }
+        .swal2-actions {
+            margin-top: 1.75rem !important;
+            gap: 0.75rem !important;
+            width: 100% !important;
+            justify-content: center !important;
+        }
+        .swal2-confirm {
+            background: linear-gradient(135deg, #1b3bbb 0%, #3b82f6 100%) !important;
+            color: white !important;
+            border-radius: 14px !important;
+            font-weight: 700 !important;
+            font-size: 0.8rem !important;
+            padding: 0.65rem 1.75rem !important;
+            box-shadow: 0 4px 10px rgba(27, 59, 187, 0.2) !important;
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1) !important;
+            border: none !important;
+            outline: none !important;
+        }
+        .swal2-confirm:hover {
+            transform: translateY(-1px) !important;
+            box-shadow: 0 6px 14px rgba(27, 59, 187, 0.35) !important;
+        }
+        .swal2-confirm:focus {
+            box-shadow: 0 0 0 3px rgba(27, 59, 187, 0.3) !important;
+        }
+        .swal2-cancel {
+            background: #f1f5f9 !important;
+            color: #475569 !important;
+            border-radius: 14px !important;
+            font-weight: 700 !important;
+            font-size: 0.8rem !important;
+            padding: 0.65rem 1.75rem !important;
+            transition: all 0.2s ease !important;
+            border: 1px solid #cbd5e1 !important;
+            outline: none !important;
+        }
+        .swal2-cancel:hover {
+            background: #e2e8f0 !important;
+            color: #0f172a !important;
+        }
+        .swal2-icon {
+            scale: 0.85 !important;
+            margin-bottom: 0.5rem !important;
+        }
+        .swal2-icon.swal2-warning {
+            border-color: #f59e0b !important;
+            color: #f59e0b !important;
+        }
+        .swal2-icon.swal2-question {
+            border-color: #3b82f6 !important;
+            color: #3b82f6 !important;
+        }
+        .swal2-icon.swal2-error {
+            border-color: #ef4444 !important;
+            color: #ef4444 !important;
+        }
+        .swal2-icon.swal2-success {
+            border-color: #10b981 !important;
+            color: #10b981 !important;
+        }
+        .swal2-icon.swal2-success [class^='swal2-success-line'] {
+            background-color: #10b981 !important;
+        }
+        .swal2-icon.swal2-success .swal2-success-ring {
+            border: 4px solid rgba(16, 185, 129, 0.2) !important;
+        }
     </style>
     @yield('styles')
+    <!-- SweetAlert2 for beautiful custom alerts and confirms -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <!-- Signature Pad library for digital signatures -->
     <script src="https://cdn.jsdelivr.net/npm/signature_pad@4.1.7/dist/signature_pad.umd.min.js"></script>
     <!-- AlpineJS for interactive elements -->
@@ -397,6 +491,27 @@
                         window.location.href = url;
                     });
             }
+
+            // Intercept form submissions that have data-confirm attributes using SweetAlert2
+            document.addEventListener('submit', function(e) {
+                const form = e.target;
+                if (form.hasAttribute('data-confirm')) {
+                    e.preventDefault();
+                    const message = form.getAttribute('data-confirm');
+                    Swal.fire({
+                        text: message,
+                        icon: 'warning',
+                        showCancelButton: true,
+                        confirmButtonText: 'Ya, Lanjutkan',
+                        cancelButtonText: 'Batal'
+                    }).then((result) => {
+                        if (result.isConfirmed) {
+                            form.removeAttribute('data-confirm');
+                            form.submit();
+                        }
+                    });
+                }
+            });
 
             window.addEventListener('popstate', function(e) {
                 if (e.state && e.state.url) {

@@ -467,7 +467,7 @@ class NotulensiController extends Controller
         // Add external participants
         foreach ($agenda->externalParticipants as $ext) {
             $attendees[] = (object) [
-                'nama' => $ext->name,
+                'nama' => $ext->nama,
                 'nip' => '-',
                 'jabatan' => $ext->jabatan,
                 'bidang' => $ext->instansi . ' (Eksternal)',
@@ -557,7 +557,7 @@ class NotulensiController extends Controller
 
         foreach ($agenda->externalParticipants as $ext) {
             $attendees[] = (object) [
-                'nama' => $ext->name,
+                'nama' => $ext->nama,
                 'nip' => '-',
                 'jabatan' => $ext->jabatan,
                 'bidang' => $ext->instansi . ' (Eksternal)',
@@ -597,30 +597,80 @@ class NotulensiController extends Controller
         ]);
 
         $transcript = $request->input('transkrip_raw');
+
+        // Return early if the transcript is too short to analyze
+        if (strlen(trim($transcript)) < 150) {
+            return response()->json([
+                'status' => 'success',
+                'data' => "Transkripsi selesai. Rekaman audio terlalu singkat/pendek untuk dianalisis secara lengkap oleh AI."
+            ]);
+        }
+
         $apiKey = env('GEMINI_API_KEY');
 
         if ($apiKey) {
             try {
-                $response = \Illuminate\Support\Facades\Http::timeout(45)->post("https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=" . $apiKey, [
+                $response = \Illuminate\Support\Facades\Http::timeout(45)->post("https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash:generateContent?key=" . $apiKey, [
                     'contents' => [
                         [
                             'parts' => [
                                 [
-                                     'text' => "Anda adalah notulis profesional rapat pemerintahan Dinkominfo Banyumas.\n\n" .
-                                               "Berikut adalah transkrip rapat:\n\n{$transcript}\n\n" .
-                                               "Berdasarkan transkrip di atas, buat 4 elemen notulensi:\n\n" .
-                                               "1. RINGKASAN (ringkasan): Tulis 2-4 paragraf executive summary. Berisi tujuan/latar belakang rapat, topik utama, dan hasil akhir. JANGAN menyalin ulang percakapan. Maksimal 10% dari panjang transkrip.\n" .
-                                               "2. POIN PEMBAHASAN (pembahasan): Daftar topik yang dibahas, pisahkan tiap poin dengan baris baru, tanpa nomor.\n" .
-                                               "3. KEPUTUSAN (keputusan): Daftar keputusan/tindak lanjut yang disepakati, pisahkan dengan baris baru, tanpa nomor.\n" .
-                                               "4. KESIMPULAN (kesimpulan): Satu paragraf singkat tentang hasil dan langkah selanjutnya.\n\n" .
-                                               "Output HARUS berupa JSON murni tanpa markdown: " .
-                                               '{"ringkasan": "...", "pembahasan": "poin 1\npoin 2", "keputusan": "keputusan 1\nkeputusan 2", "kesimpulan": "..."}'
+                                     'text' => "Anda adalah editor profesional yang bertugas merapikan hasil transkrip rapat menjadi dokumen yang mudah dibaca.\n\n" .
+                                               "Ikuti seluruh instruksi berikut tanpa terkecuali.\n\n" .
+                                               "TUJUAN\n" .
+                                               "Menghasilkan transkrip rapat yang rapi, akurat, dan mempertahankan seluruh informasi yang disampaikan narasumber.\n\n" .
+                                               "PRIORITAS UTAMA\n" .
+                                               "Jika terjadi konflik antara \"membuat kalimat lebih natural\" dan \"akurasi terhadap isi asli\", akurasi harus selalu diutamakan. Lebih baik menandai [tidak jelas] daripada mengarang atau memaksakan kalimat yang tidak sesuai dengan apa yang sebenarnya diucapkan.\n\n" .
+                                               "ATURAN\n" .
+                                               "1. Jangan menambahkan informasi, opini, atau kesimpulan yang tidak terdapat pada transkrip.\n" .
+                                               "2. Jangan menghapus informasi penting.\n" .
+                                               "3. Hilangkan kata, frasa, atau kalimat yang berulang akibat kesalahan transkrip.\n" .
+                                               "4. Perbaiki ejaan, tata bahasa, tanda baca, serta susunan kalimat agar lebih natural.\n" .
+                                               "5. Pertahankan makna asli dari setiap pembicara.\n" .
+                                               "6. Jika terdapat bagian yang benar-benar tidak dapat dipahami, tuliskan [tidak jelas].\n" .
+                                               "7. Pertahankan nama orang, nama organisasi, nama program kerja, jabatan, lokasi, tanggal, angka, dan istilah penting.\n" .
+                                               "8. Hilangkan filler words (eee, anu, kayak, jadi gini, dsb.) yang tidak mengandung informasi.\n" .
+                                               "9. Jika kalimat pembicara terpotong/menggantung, rapikan menjadi kalimat utuh selama maknanya tidak berubah; jika maknanya tidak bisa disimpulkan, biarkan apa adanya.\n\n" .
+                                               "LARANGAN TAMBAHAN\n" .
+                                               "- Dilarang keras mengarang nama, gelar, jabatan, atau struktur field (misalnya label \"Tugas Pertama\", \"Sebelum Sekolah\", dsb.) yang tidak secara eksplisit disebutkan dalam transkrip asli.\n" .
+                                               "- Jika transkrip tidak menyebutkan nama pembicara secara eksplisit, gunakan deskripsi peran (misal \"Narasumber\", \"Pewawancara\") — jangan mengarang nama.\n" .
+                                               "- Sebelum memformat sebagai dialog berlabel banyak pembicara, identifikasi dulu apakah transkrip ini benar-benar multi-speaker atau hanya satu narasumber yang diwawancarai/ditanya beberapa pertanyaan.\n" .
+                                               "- Dilarang membuat kalimat yang secara gramatikal maupun logis tidak masuk akal hanya demi merapikan format.\n" .
+                                               "- Jika satu bagian transkrip terlalu rusak/tidak jelas untuk direkonstruksi dengan akurat, tandai bagian tersebut dengan [tidak jelas] daripada menciptakan kalimat baru.\n\n" .
+                                               "LARANGAN FORMAT\n" .
+                                               "- Dilarang mengubah transkrip naratif/monolog menjadi format tanya-jawab buatan (misal \"Apakah Anda tahu apa itu X?\") jika format tersebut tidak eksplisit ada dalam transkrip asli.\n" .
+                                               "- Ikuti struktur asli transkrip: jika berupa narasi/penjelasan mengalir dari satu narasumber, sajikan sebagai narasi terstruktur per topik (bukan Q&A buatan).\n" .
+                                               "- Jika transkrip memang berbentuk tanya-jawab (ada pewawancara bertanya secara eksplisit), gunakan Q&A HANYA untuk pertanyaan yang benar-benar diajukan, satu kali per pertanyaan — jangan mengulang entri yang sama.\n" .
+                                               "- Dilarang mengulang paragraf, poin, atau entri yang identik lebih dari satu kali dalam output akhir.\n\n" .
+                                               "PEMERIKSAAN KONSISTENSI\n" .
+                                               "Setelah seluruh transkrip selesai dirapikan, lakukan pemeriksaan ulang terhadap seluruh dokumen dari awal hingga akhir.\n\n" .
+                                               "- Identifikasi seluruh nama orang.\n" .
+                                               "- Identifikasi seluruh nama organisasi.\n" .
+                                               "- Identifikasi seluruh nama divisi.\n" .
+                                               "- Identifikasi seluruh nama program kerja.\n" .
+                                               "- Identifikasi seluruh singkatan.\n" .
+                                               "- Identifikasi seluruh istilah khusus.\n\n" .
+                                               "Apabila ditemukan beberapa penulisan berbeda yang mengacu pada entitas yang sama (typo, salah eja, hasil speech-to-text), ubah SEMUA kemunculannya menjadi SATU bentuk penulisan yang konsisten. Gunakan versi yang paling sering muncul atau versi baku/resmi jika diketahui. Jangan hanya memperbaiki kemunculan pertama — pastikan seluruh kemunculan telah diperbaiki.\n\n" .
+                                               "FORMAT PENULISAN (Markdown)\n" .
+                                               "Gunakan format markdown berikut agar struktur dokumen terbaca jelas saat dikonversi ke PDF:\n" .
+                                               "- Judul dokumen: gunakan # (contoh: # Notulensi Rapat [Nama Rapat])\n" .
+                                               "- Sub-bagian (misal: Informasi Rapat, Daftar Hadir, Pembahasan, Kesimpulan): gunakan ##\n" .
+                                               "- Nama pembicara (jika eksplisit disebutkan): tebalkan dengan **Nama:** diikuti isi ucapan\n" .
+                                               "- Poin-poin penting/daftar: gunakan bullet (-) atau angka (1.)\n" .
+                                               "- Jangan gunakan format lain di luar markdown standar (tanpa HTML, tanpa tabel kompleks kecuali diminta)\n\n" .
+                                               "OUTPUT\n" .
+                                               "Berikan hanya hasil transkrip yang sudah dirapikan dalam format markdown, tanpa penjelasan tambahan.\n\n" .
+                                               "Sebelum menghasilkan jawaban akhir, lakukan validasi akhir terhadap seluruh dokumen:\n" .
+                                               "1. Pastikan tidak ada nama, gelar, atau struktur field yang dikarang dan tidak ada di transkrip asli.\n" .
+                                               "2. Pastikan tidak ada lagi istilah yang memiliki lebih dari satu variasi penulisan apabila sebenarnya mengacu pada entitas yang sama.\n" .
+                                               "3. Pastikan struktur markdown (judul, sub-judul, bold) sudah konsisten dari awal hingga akhir dokumen.\n\n" .
+                                               "Berikut transkrip:\n\n" . $transcript
                                 ]
                             ]
                         ]
                     ],
                     'generationConfig' => [
-                        'responseMimeType' => 'application/json'
+                        'temperature' => 0.0
                     ]
                 ]);
 
@@ -628,17 +678,14 @@ class NotulensiController extends Controller
                     $result = $response->json();
                     $text = $result['candidates'][0]['content']['parts'][0]['text'] ?? null;
                     if ($text) {
-                        $data = json_decode($text, true);
-                        if (json_last_error() === JSON_ERROR_NONE) {
-                            return response()->json([
-                                'status' => 'success',
-                                'data' => $data
-                            ]);
-                        }
+                        return response()->json([
+                            'status' => 'success',
+                            'data' => trim($text)
+                        ]);
                     }
                 }
             } catch (\Exception $e) {
-                // fall through to mock on exception
+                \Illuminate\Support\Facades\Log::error('Gemini Exception: ' . $e->getMessage());
             }
         }
 
@@ -650,23 +697,66 @@ class NotulensiController extends Controller
         if ($llmApiBase) {
             try {
                 $url = rtrim($llmApiBase, '/') . '/chat/completions';
-                $llmResponse = \Illuminate\Support\Facades\Http::timeout(90)->withHeaders([
+                $llmResponse = \Illuminate\Support\Facades\Http::timeout(480)->withHeaders([
                     'Authorization' => 'Bearer ' . $llmApiKey,
                     'Content-Type' => 'application/json',
                 ])->post($url, [
                     'model' => $llmModel,
+                    'temperature' => 0.0,
+                    'max_tokens' => 3000,
                     'messages' => [
                         [
                             'role' => 'user',
-                            'content' => "Anda adalah notulis profesional rapat pemerintahan Dinkominfo Banyumas.\n\n" .
-                                         "Berikut adalah transkrip rapat:\n\n{$transcript}\n\n" .
-                                         "Berdasarkan transkrip di atas, buat 4 elemen notulensi:\n\n" .
-                                         "1. RINGKASAN (ringkasan): Tulis 2-4 paragraf executive summary. Berisi tujuan/latar belakang rapat, topik utama, dan hasil akhir. JANGAN menyalin ulang percakapan. Maksimal 10% dari panjang transkrip.\n" .
-                                         "2. POIN PEMBAHASAN (pembahasan): Daftar topik yang dibahas, pisahkan tiap poin dengan baris baru, tanpa nomor.\n" .
-                                         "3. KEPUTUSAN (keputusan): Daftar keputusan/tindak lanjut yang disepakati, pisahkan dengan baris baru, tanpa nomor.\n" .
-                                         "4. KESIMPULAN (kesimpulan): Satu paragraf singkat tentang hasil dan langkah selanjutnya.\n\n" .
-                                         "Output HARUS berupa JSON murni tanpa markdown: " .
-                                         '{"ringkasan": "...", "pembahasan": "poin 1\npoin 2", "keputusan": "keputusan 1\nkeputusan 2", "kesimpulan": "..."}'
+                            'content' => "Anda adalah editor profesional yang bertugas merapikan hasil transkrip rapat menjadi dokumen yang mudah dibaca.\n\n" .
+                                         "Ikuti seluruh instruksi berikut tanpa terkecuali.\n\n" .
+                                         "TUJUAN\n" .
+                                         "Menghasilkan transkrip rapat yang rapi, akurat, dan mempertahankan seluruh informasi yang disampaikan narasumber.\n\n" .
+                                         "PRIORITAS UTAMA\n" .
+                                         "Jika terjadi konflik antara \"membuat kalimat lebih natural\" dan \"akurasi terhadap isi asli\", akurasi harus selalu diutamakan. Lebih baik menandai [tidak jelas] daripada mengarang atau memaksakan kalimat yang tidak sesuai dengan apa yang sebenarnya diucapkan.\n\n" .
+                                         "ATURAN\n" .
+                                         "1. Jangan menambahkan informasi, opini, atau kesimpulan yang tidak terdapat pada transkrip.\n" .
+                                         "2. Jangan menghapus informasi penting.\n" .
+                                         "3. Hilangkan kata, frasa, atau kalimat yang berulang akibat kesalahan transkrip.\n" .
+                                         "4. Perbaiki ejaan, tata bahasa, tanda baca, serta susunan kalimat agar lebih natural.\n" .
+                                         "5. Pertahankan makna asli dari setiap pembicara.\n" .
+                                         "6. Jika terdapat bagian yang benar-benar tidak dapat dipahami, tuliskan [tidak jelas].\n" .
+                                         "7. Pertahankan nama orang, nama organisasi, nama program kerja, jabatan, lokasi, tanggal, angka, dan istilah penting.\n" .
+                                         "8. Hilangkan filler words (eee, anu, kayak, jadi gini, dsb.) yang tidak mengandung informasi.\n" .
+                                         "9. Jika kalimat pembicara terpotong/menggantung, rapikan menjadi kalimat utuh selama maknanya tidak berubah; jika maknanya tidak bisa disimpulkan, biarkan apa adanya.\n\n" .
+                                         "LARANGAN TAMBAHAN\n" .
+                                         "- Dilarang keras mengarang nama, gelar, jabatan, atau struktur field (misalnya label \"Tugas Pertama\", \"Sebelum Sekolah\", dsb.) yang tidak secara eksplisit disebutkan dalam transkrip asli.\n" .
+                                         "- Jika transkrip tidak menyebutkan nama pembicara secara eksplisit, gunakan deskripsi peran (misal \"Narasumber\", \"Pewawancara\") — jangan mengarang nama.\n" .
+                                         "- Sebelum memformat sebagai dialog berlabel banyak pembicara, identifikasi dulu apakah transkrip ini benar-benar multi-speaker atau hanya satu narasumber yang diwawancarai/ditanya beberapa pertanyaan.\n" .
+                                         "- Dilarang membuat kalimat yang secara gramatikal maupun logis tidak masuk akal hanya demi merapikan format.\n" .
+                                         "- Jika satu bagian transkrip terlalu rusak/tidak jelas untuk direkonstruksi dengan akurat, tandai bagian tersebut dengan [tidak jelas] daripada menciptakan kalimat baru.\n\n" .
+                                         "LARANGAN FORMAT\n" .
+                                         "- Dilarang mengubah transkrip naratif/monolog menjadi format tanya-jawab buatan (misal \"Apakah Anda tahu apa itu X?\") jika format tersebut tidak eksplisit ada dalam transkrip asli.\n" .
+                                         "- Ikuti struktur asli transkrip: jika berupa narasi/penjelasan mengalir dari satu narasumber, sajikan sebagai narasi terstruktur per topik (bukan Q&A buatan).\n" .
+                                         "- Jika transkrip memang berbentuk tanya-jawab (ada pewawancara bertanya secara eksplisit), gunakan Q&A HANYA untuk pertanyaan yang benar-benar diajukan, satu kali per pertanyaan — jangan mengulang entri yang sama.\n" .
+                                         "- Dilarang mengulang paragraf, poin, atau entri yang identik lebih dari satu kali dalam output akhir.\n\n" .
+                                         "PEMERIKSAAN KONSISTENSI\n" .
+                                         "Setelah seluruh transkrip selesai dirapikan, lakukan pemeriksaan ulang terhadap seluruh dokumen dari awal hingga akhir.\n\n" .
+                                         "- Identifikasi seluruh nama orang.\n" .
+                                         "- Identifikasi seluruh nama organisasi.\n" .
+                                         "- Identifikasi seluruh nama divisi.\n" .
+                                         "- Identifikasi seluruh nama program kerja.\n" .
+                                         "- Identifikasi seluruh singkatan.\n" .
+                                         "- Identifikasi seluruh istilah khusus.\n\n" .
+                                         "Apabila ditemukan beberapa penulisan berbeda yang mengacu pada entitas yang sama (typo, salah eja, hasil speech-to-text), ubah SEMUA kemunculannya menjadi SATU bentuk penulisan yang konsisten. Gunakan versi yang paling sering muncul atau versi baku/resmi jika diketahui. Jangan hanya memperbaiki kemunculan pertama — pastikan seluruh kemunculan telah diperbaiki.\n\n" .
+                                         "FORMAT PENULISAN (Markdown)\n" .
+                                         "Gunakan format markdown berikut agar struktur dokumen terbaca jelas saat dikonversi ke PDF:\n" .
+                                         "- Judul dokumen: gunakan # (contoh: # Notulensi Rapat [Nama Rapat])\n" .
+                                         "- Sub-bagian (misal: Informasi Rapat, Daftar Hadir, Pembahasan, Kesimpulan): gunakan ##\n" .
+                                         "- Nama pembicara (jika eksplisit disebutkan): tebalkan dengan **Nama:** diikuti isi ucapan\n" .
+                                         "- Poin-poin penting/daftar: gunakan bullet (-) atau angka (1.)\n" .
+                                         "- Jangan gunakan format lain di luar markdown standar (tanpa HTML, tanpa tabel kompleks kecuali diminta)\n\n" .
+                                         "OUTPUT\n" .
+                                         "Berikan hanya hasil transkrip yang sudah dirapikan dalam format markdown, tanpa penjelasan tambahan.\n\n" .
+                                         "Sebelum menghasilkan jawaban akhir, lakukan validasi akhir terhadap seluruh dokumen:\n" .
+                                         "1. Pastikan tidak ada nama, gelar, atau struktur field yang dikarang dan tidak ada di transkrip asli.\n" .
+                                         "2. Pastikan tidak ada lagi istilah yang memiliki lebih dari satu variasi penulisan apabila sebenarnya mengacu pada entitas yang sama.\n" .
+                                         "3. Pastikan struktur markdown (judul, sub-judul, bold) sudah konsisten dari awal hingga akhir dokumen.\n\n" .
+                                         "Berikut transkrip:\n\n" . $transcript
                         ]
                     ],
                 ]);
@@ -675,24 +765,18 @@ class NotulensiController extends Controller
                     $resJson = $llmResponse->json();
                     $text = $resJson['choices'][0]['message']['content'] ?? null;
                     if ($text) {
-                        $text = trim($text);
-                        // Strip markdown code fences if present
-                        if (str_starts_with($text, '```')) {
-                            $text = preg_replace('/^```(?:json)?\s*/i', '', $text);
-                            $text = preg_replace('/\s*```$/', '', $text);
-                            $text = trim($text);
-                        }
-                        $data = json_decode($text, true);
-                        if (json_last_error() === JSON_ERROR_NONE) {
-                            return response()->json([
-                                'status' => 'success',
-                                'data' => $data
-                            ]);
-                        }
+                        return response()->json([
+                            'status' => 'success',
+                            'data' => trim($text)
+                        ]);
+                    } else {
+                        \Illuminate\Support\Facades\Log::error('Ollama empty content in response choice.');
                     }
+                } else {
+                    \Illuminate\Support\Facades\Log::error('Ollama HTTP error: ' . $llmResponse->status() . ' - ' . $llmResponse->body());
                 }
             } catch (\Exception $e) {
-                // fall through to error
+                \Illuminate\Support\Facades\Log::error('Ollama Exception: ' . $e->getMessage());
             }
         }
 

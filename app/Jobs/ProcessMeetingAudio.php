@@ -67,7 +67,7 @@ class ProcessMeetingAudio implements ShouldQueue
                 }
             }
 
-            $pythonPath = 'python';
+            $pythonPath = env('PYTHON_PATH', 'python');
             $scriptPath = base_path('transcribe_whisper_cpp.py');
             $audioFile = Storage::disk('public')->path($audioPath);
             Log::info("ProcessMeetingAudio: absolute path: " . $audioFile);
@@ -77,7 +77,7 @@ class ProcessMeetingAudio implements ShouldQueue
             if (file_exists($audioFile)) {
                 try {
                     Log::info("ProcessMeetingAudio: Transcribing audio via local whisper.cpp...");
-                    $cmd = "python " . escapeshellarg($scriptPath) . " " . escapeshellarg($audioFile) . " 2>&1";
+                    $cmd = (str_contains($pythonPath, ' ') ? '"' . $pythonPath . '"' : $pythonPath) . " " . escapeshellarg($scriptPath) . " " . escapeshellarg($audioFile) . " 2>&1";
                     Log::info("ProcessMeetingAudio running: " . $cmd);
                     $output = shell_exec($cmd);
                     Log::info("ProcessMeetingAudio raw output: " . $output);
@@ -130,52 +130,89 @@ class ProcessMeetingAudio implements ShouldQueue
 
             $summarized = false;
 
-            $prompt = "Anda adalah notulis profesional rapat pemerintahan Dinkominfo Banyumas.\n\n" .
-                      "Anda diberikan transkrip mentah hasil speech-to-text dari rekaman audio rapat.\n\n" .
-                      "TUGAS ANDA ADA DUA BAGIAN:\n\n" .
-                      "== BAGIAN 1: RAPIKAN TRANSKRIP ==\n" .
-                      "Rapikan transkrip berikut menjadi teks yang mudah dibaca dengan aturan:\n" .
-                      "1. Hapus filler words (ah, eh, oh, ya, sih, kan, gitu, kayak, anu, dll).\n" .
-                      "2. Hapus pengulangan kata/kalimat akibat kesalahan transkrip.\n" .
-                      "3. Perbaiki ejaan, tanda baca, dan tata bahasa.\n" .
-                      "4. Pertahankan SEMUA informasi penting: nama orang, jabatan, angka, tanggal, program kerja, keputusan.\n" .
-                      "5. Jika ada bagian tidak jelas, tulis [tidak jelas].\n" .
-                      "6. Standarkan penulisan nama/istilah yang sama di seluruh dokumen.\n\n" .
-                      "== BAGIAN 2: BUAT DOKUMEN NOTULENSI ==\n" .
-                      "Berdasarkan transkrip yang sudah dirapikan, buat 4 elemen notulensi:\n\n" .
-                      "A. RINGKASAN (ringkasan):\n" .
-                      "   - Tulis dalam 2-4 paragraf singkat dan padat.\n" .
-                      "   - Berisi: latar belakang/tujuan rapat, topik utama yang dibahas, dan hasil akhir.\n" .
-                      "   - JANGAN menyalin ulang percakapan. Ini adalah EXECUTIVE SUMMARY, bukan transkrip.\n" .
-                      "   - Gunakan kalimat aktif dan bahasa formal.\n\n" .
-                      "B. POIN PEMBAHASAN (pembahasan):\n" .
-                      "   - Daftar topik/agenda yang dibahas dalam rapat (bukan kalimat panjang).\n" .
-                      "   - Pisahkan tiap poin dengan baris baru. Tanpa angka/nomor.\n\n" .
-                      "C. KEPUTUSAN (keputusan):\n" .
-                      "   - Daftar keputusan, kesepakatan, atau tindak lanjut yang disetujui dalam rapat.\n" .
-                      "   - Pisahkan tiap poin dengan baris baru. Tanpa angka/nomor.\n\n" .
-                      "D. KESIMPULAN (kesimpulan):\n" .
-                      "   - Satu paragraf singkat yang merangkum hasil dan langkah selanjutnya setelah rapat.\n\n" .
-                      "Berikut transkrip mentah yang perlu dirapikan:\n\n" .
-                      $combinedTranscript . "\n\n" .
-                      "Output Anda HARUS berupa objek JSON murni (tanpa markdown/backtick) dengan format PERSIS:\n" .
-                      '{"ringkasan": "...", "pembahasan": "poin 1\npoin 2\npoin 3", "keputusan": "keputusan 1\nkeputusan 2", "kesimpulan": "..."}' . "\n" .
-                      "PENTING: Nilai 'ringkasan' harus jauh lebih singkat dari transkrip asli (maksimal 10% dari panjang transkrip).";
+            // Check if combined transcript is too short to summarize
+            $textLen = strlen(trim($combinedTranscript));
+            if ($textLen < 150) {
+                $this->notulensi->update([
+                    'transkrip_raw' => $combinedTranscript,
+                    'ringkasan' => "Transkripsi selesai. Rekaman audio terlalu singkat/pendek untuk dianalisis secara lengkap oleh AI.",
+                    'pembahasan' => null,
+                    'keputusan' => null,
+                    'kesimpulan' => null,
+                    'last_edited_by_id' => $this->secretaryId,
+                    'status' => 'draft'
+                ]);
+                $summarized = true;
+                Log::info("ProcessMeetingAudio: Transcript too short ({$textLen} chars). Skipped LLM summarization.");
+            }
+
+            $prompt = "Anda adalah editor profesional yang bertugas merapikan hasil transkrip rapat menjadi dokumen yang mudah dibaca.\n\n" .
+                      "Ikuti seluruh instruksi berikut tanpa terkecuali.\n\n" .
+                      "TUJUAN\n" .
+                      "Menghasilkan transkrip rapat yang rapi, akurat, dan mempertahankan seluruh informasi yang disampaikan narasumber.\n\n" .
+                      "PRIORITAS UTAMA\n" .
+                      "Jika terjadi konflik antara \"membuat kalimat lebih natural\" dan \"akurasi terhadap isi asli\", akurasi harus selalu diutamakan. Lebih baik menandai [tidak jelas] daripada mengarang atau memaksakan kalimat yang tidak sesuai dengan apa yang sebenarnya diucapkan.\n\n" .
+                      "ATURAN\n" .
+                      "1. Jangan menambahkan informasi, opini, atau kesimpulan yang tidak terdapat pada transkrip.\n" .
+                      "2. Jangan menghapus informasi penting.\n" .
+                      "3. Hilangkan kata, frasa, atau kalimat yang berulang akibat kesalahan transkrip.\n" .
+                      "4. Perbaiki ejaan, tata bahasa, tanda baca, serta susunan kalimat agar lebih natural.\n" .
+                      "5. Pertahankan makna asli dari setiap pembicara.\n" .
+                      "6. Jika terdapat bagian yang benar-benar tidak dapat dipahami, tuliskan [tidak jelas].\n" .
+                      "7. Pertahankan nama orang, nama organisasi, nama program kerja, jabatan, lokasi, tanggal, angka, dan istilah penting.\n" .
+                      "8. Hilangkan filler words (eee, anu, kayak, jadi gini, dsb.) yang tidak mengandung informasi.\n" .
+                      "9. Jika kalimat pembicara terpotong/menggantung, rapikan menjadi kalimat utuh selama maknanya tidak berubah; jika maknanya tidak bisa disimpulkan, biarkan apa adanya.\n\n" .
+                      "LARANGAN TAMBAHAN\n" .
+                      "- Dilarang keras mengarang nama, gelar, jabatan, atau struktur field (misalnya label \"Tugas Pertama\", \"Sebelum Sekolah\", dsb.) yang tidak secara eksplisit disebutkan dalam transkrip asli.\n" .
+                      "- Jika transkrip tidak menyebutkan nama pembicara secara eksplisit, gunakan deskripsi peran (misal \"Narasumber\", \"Pewawancara\") — jangan mengarang nama.\n" .
+                      "- Sebelum memformat sebagai dialog berlabel banyak pembicara, identifikasi dulu apakah transkrip ini benar-benar multi-speaker atau hanya satu narasumber yang diwawancarai/ditanya beberapa pertanyaan.\n" .
+                      "- Dilarang membuat kalimat yang secara gramatikal maupun logis tidak masuk akal hanya demi merapikan format.\n" .
+                      "- Jika satu bagian transkrip terlalu rusak/tidak jelas untuk direkonstruksi dengan akurat, tandai bagian tersebut dengan [tidak jelas] daripada menciptakan kalimat baru.\n\n" .
+                      "LARANGAN FORMAT\n" .
+                      "- Dilarang mengubah transkrip naratif/monolog menjadi format tanya-jawab buatan (misal \"Apakah Anda tahu apa itu X?\") jika format tersebut tidak eksplisit ada dalam transkrip asli.\n" .
+                      "- Ikuti struktur asli transkrip: jika berupa narasi/penjelasan mengalir dari satu narasumber, sajikan sebagai narasi terstruktur per topik (bukan Q&A buatan).\n" .
+                      "- Jika transkrip memang berbentuk tanya-jawab (ada pewawancara bertanya secara eksplisit), gunakan Q&A HANYA untuk pertanyaan yang benar-benar diajukan, satu kali per pertanyaan — jangan mengulang entri yang sama.\n" .
+                      "- Dilarang mengulang paragraf, poin, atau entri yang identik lebih dari satu kali dalam output akhir.\n\n" .
+                      "PEMERIKSAAN KONSISTENSI\n" .
+                      "Setelah seluruh transkrip selesai dirapikan, lakukan pemeriksaan ulang terhadap seluruh dokumen dari awal hingga akhir.\n\n" .
+                      "- Identifikasi seluruh nama orang.\n" .
+                      "- Identifikasi seluruh nama organisasi.\n" .
+                      "- Identifikasi seluruh nama divisi.\n" .
+                      "- Identifikasi seluruh nama program kerja.\n" .
+                      "- Identifikasi seluruh singkatan.\n" .
+                      "- Identifikasi seluruh istilah khusus.\n\n" .
+                      "Apabila ditemukan beberapa penulisan berbeda yang mengacu pada entitas yang sama (typo, salah eja, hasil speech-to-text), ubah SEMUA kemunculannya menjadi SATU bentuk penulisan yang konsisten. Gunakan versi yang paling sering muncul atau versi baku/resmi jika diketahui. Jangan hanya memperbaiki kemunculan pertama — pastikan seluruh kemunculan telah diperbaiki.\n\n" .
+                      "FORMAT PENULISAN (Markdown)\n" .
+                      "Gunakan format markdown berikut agar struktur dokumen terbaca jelas saat dikonversi ke PDF:\n" .
+                      "- Judul dokumen: gunakan # (contoh: # Notulensi Rapat [Nama Rapat])\n" .
+                      "- Sub-bagian (misal: Informasi Rapat, Daftar Hadir, Pembahasan, Kesimpulan): gunakan ##\n" .
+                      "- Nama pembicara (jika eksplisit disebutkan): tebalkan dengan **Nama:** diikuti isi ucapan\n" .
+                      "- Poin-poin penting/daftar: gunakan bullet (-) atau angka (1.)\n" .
+                      "- Jangan gunakan format lain di luar markdown standar (tanpa HTML, tanpa tabel kompleks kecuali diminta)\n\n" .
+                      "OUTPUT\n" .
+                      "Berikan hanya hasil transkrip yang sudah dirapikan dalam format markdown, tanpa penjelasan tambahan.\n\n" .
+                      "Sebelum menghasilkan jawaban akhir, lakukan validasi akhir terhadap seluruh dokumen:\n" .
+                      "1. Pastikan tidak ada nama, gelar, atau struktur field yang dikarang dan tidak ada di transkrip asli.\n" .
+                      "2. Pastikan tidak ada lagi istilah yang memiliki lebih dari satu variasi penulisan apabila sebenarnya mengacu pada entitas yang sama.\n" .
+                      "3. Pastikan struktur markdown (judul, sub-judul, bold) sudah konsisten dari awal hingga akhir dokumen.\n\n" .
+                      "Berikut transkrip:\n\n" . $combinedTranscript;
 
             $llmApiBase = env('LLM_API_BASE');
             $llmApiKey = env('LLM_API_KEY') ?: $apiKey;
-            $llmModel = env('LLM_MODEL') ?: 'gemini-2.5-flash';
+            $llmModel = env('LLM_MODEL') ?: 'gemini-3.5-flash';
 
             // Try custom OpenAI-compatible API first (e.g. local Qwen, Ollama, LM Studio)
             if ($llmApiBase) {
                 try {
                     Log::info("ProcessMeetingAudio: calling custom OpenAI-compatible API ({$llmApiBase}) with model: {$llmModel}...");
                     $url = rtrim($llmApiBase, '/') . '/chat/completions';
-                    $response = Http::timeout(60)->withHeaders([
+                    $response = Http::timeout(480)->withHeaders([
                         'Authorization' => 'Bearer ' . $llmApiKey,
                         'Content-Type' => 'application/json'
                     ])->post($url, [
                         'model' => $llmModel,
+                        'temperature' => 0.0,
+                        'max_tokens' => 3000,
                         'messages' => [
                             [
                                 'role' => 'user',
@@ -189,25 +226,17 @@ class ProcessMeetingAudio implements ShouldQueue
                         $sumText = $resJson['choices'][0]['message']['content'] ?? null;
                         if ($sumText) {
                             $sumText = trim($sumText);
-                            if (str_starts_with($sumText, '```')) {
-                                $sumText = preg_replace('/^```(?:json)?\s*/i', '', $sumText);
-                                $sumText = preg_replace('/\s*```$/', '', $sumText);
-                                $sumText = trim($sumText);
-                            }
-                            $data = json_decode($sumText, true);
-                            if (json_last_error() === JSON_ERROR_NONE) {
-                                $this->notulensi->update([
-                                    'transkrip_raw' => $combinedTranscript,
-                                    'ringkasan' => $data['ringkasan'] ?? '',
-                                    'pembahasan' => $data['pembahasan'] ?? '',
-                                    'keputusan' => $data['keputusan'] ?? '',
-                                    'kesimpulan' => $data['kesimpulan'] ?? '',
-                                    'last_edited_by_id' => $this->secretaryId,
-                                    'status' => 'draft'
-                                ]);
-                                $summarized = true;
-                                Log::info("ProcessMeetingAudio completed and summarized via custom LLM API successfully.");
-                            }
+                            $this->notulensi->update([
+                                'transkrip_raw' => $combinedTranscript,
+                                'ringkasan' => $sumText,
+                                'pembahasan' => null,
+                                'keputusan' => null,
+                                'kesimpulan' => null,
+                                'last_edited_by_id' => $this->secretaryId,
+                                'status' => 'draft'
+                            ]);
+                            $summarized = true;
+                            Log::info("ProcessMeetingAudio completed and summarized via custom LLM API successfully.");
                         }
                     } else {
                         Log::error("ProcessMeetingAudio: Custom LLM API request failed with status: " . $response->status() . " Body: " . $response->body());
@@ -221,7 +250,7 @@ class ProcessMeetingAudio implements ShouldQueue
             if (!$summarized && $apiKey) {
                 try {
                     Log::info("ProcessMeetingAudio: calling Gemini API to summarize...");
-                    $url = "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=" . $apiKey;
+                    $url = "https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash:generateContent?key=" . $apiKey;
                     $responseSummary = Http::timeout(45)->post($url, [
                         'contents' => [
                             [
@@ -230,9 +259,10 @@ class ProcessMeetingAudio implements ShouldQueue
                                         'text' => $prompt
                                     ]
                                 ]
+                            ]
                         ],
                         'generationConfig' => [
-                            'responseMimeType' => 'application/json'
+                            'temperature' => 0.0
                         ]
                     ]);
                     
@@ -241,25 +271,17 @@ class ProcessMeetingAudio implements ShouldQueue
                         $sumText = $sumResult['candidates'][0]['content']['parts'][0]['text'] ?? null;
                         if ($sumText) {
                             $sumText = trim($sumText);
-                            if (str_starts_with($sumText, '```')) {
-                                $sumText = preg_replace('/^```(?:json)?\s*/i', '', $sumText);
-                                $sumText = preg_replace('/\s*```$/', '', $sumText);
-                                $sumText = trim($sumText);
-                            }
-                            $data = json_decode($sumText, true);
-                            if (json_last_error() === JSON_ERROR_NONE) {
-                                $this->notulensi->update([
-                                    'transkrip_raw' => $combinedTranscript,
-                                    'ringkasan' => $data['ringkasan'] ?? '',
-                                    'pembahasan' => $data['pembahasan'] ?? '',
-                                    'keputusan' => $data['keputusan'] ?? '',
-                                    'kesimpulan' => $data['kesimpulan'] ?? '',
-                                    'last_edited_by_id' => $this->secretaryId,
-                                    'status' => 'draft'
-                                ]);
-                                $summarized = true;
-                                Log::info("ProcessMeetingAudio completed and summarized via Gemini API successfully.");
-                            }
+                            $this->notulensi->update([
+                                'transkrip_raw' => $combinedTranscript,
+                                'ringkasan' => $sumText,
+                                'pembahasan' => null,
+                                'keputusan' => null,
+                                'kesimpulan' => null,
+                                'last_edited_by_id' => $this->secretaryId,
+                                'status' => 'draft'
+                            ]);
+                            $summarized = true;
+                            Log::info("ProcessMeetingAudio completed and summarized via Gemini API successfully.");
                         }
                     }
                 } catch (\Exception $e) {

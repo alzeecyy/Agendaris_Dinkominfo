@@ -33,6 +33,22 @@
         <!-- Role-Specific KPI Cards -->
         @if(Auth::user()->role === 'staff')
             <!-- Card 1: Week Agendas -->
+            @if(!empty($links['week_agendas']))
+            <a href="{{ $links['week_agendas'] }}" class="bg-white border border-[#d4d1f5]/60 rounded-[32px] p-6 flex flex-col justify-between shadow-sm hover:border-[#8e88dd] hover:shadow-md hover:scale-[1.01] active:scale-[0.99] transition-all duration-200 group">
+                <div class="flex items-center justify-between">
+                    <span class="text-xs font-bold text-[#5a508f] uppercase">Agenda Minggu Ini</span>
+                    <div class="p-2 bg-[#8ba0f2]/10 text-[#8ba0f2] rounded-2xl group-hover:bg-[#8ba0f2]/20 transition-colors">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+                        </svg>
+                    </div>
+                </div>
+                <div class="mt-4">
+                    <h2 class="text-4xl font-black text-[#2e2552]">{{ $kpi['week_agendas'] ?? 0 }}</h2>
+                    <p class="text-xs text-[#5a508f] mt-1 font-medium">Agenda kegiatan terjadwal yang dapat Anda ikuti &rarr;</p>
+                </div>
+            </a>
+            @else
             <div class="bg-white border border-[#d4d1f5]/60 rounded-[32px] p-6 flex flex-col justify-between shadow-sm">
                 <div class="flex items-center justify-between">
                     <span class="text-xs font-bold text-[#5a508f] uppercase">Agenda Minggu Ini</span>
@@ -47,8 +63,25 @@
                     <p class="text-xs text-[#5a508f] mt-1 font-medium">Agenda kegiatan terjadwal yang dapat Anda ikuti</p>
                 </div>
             </div>
+            @endif
 
             <!-- Card 2: Unfilled Presence -->
+            @if(!empty($links['pending_presence']))
+            <a href="{{ $links['pending_presence'] }}" class="bg-white border border-[#d4d1f5]/60 rounded-[32px] p-6 flex flex-col justify-between shadow-sm hover:border-rose-400 hover:shadow-md hover:scale-[1.01] active:scale-[0.99] transition-all duration-200 group">
+                <div class="flex items-center justify-between">
+                    <span class="text-xs font-bold text-[#5a508f] uppercase">Belum Presensi</span>
+                    <div class="p-2 bg-rose-50 text-rose-500 rounded-2xl group-hover:bg-rose-100 transition-colors">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                        </svg>
+                    </div>
+                </div>
+                <div class="mt-4">
+                    <h2 class="text-4xl font-black text-rose-600">{{ $kpi['pending_presence'] ?? 0 }}</h2>
+                    <p class="text-xs text-[#5a508f] mt-1 font-medium">Buka agenda terdekat untuk konfirmasi absen &rarr;</p>
+                </div>
+            </a>
+            @else
             <div class="bg-white border border-[#d4d1f5]/60 rounded-[32px] p-6 flex flex-col justify-between shadow-sm">
                 <div class="flex items-center justify-between">
                     <span class="text-xs font-bold text-[#5a508f] uppercase">Belum Presensi</span>
@@ -63,9 +96,26 @@
                     <p class="text-xs text-[#5a508f] mt-1 font-medium">Kehadiran rapat yang belum Anda konfirmasi</p>
                 </div>
             </div>
+            @endif
 
         @elseif(Auth::user()->role === 'sekretaris_bidang')
             <!-- Card 1: Bidang Agendas -->
+            @if(!empty($links['bidang_month_agendas']))
+            <a href="{{ $links['bidang_month_agendas'] }}" class="bg-white border border-[#d4d1f5]/60 rounded-[32px] p-6 flex flex-col justify-between shadow-sm hover:border-[#8e88dd] hover:shadow-md hover:scale-[1.01] active:scale-[0.99] transition-all duration-200 group">
+                <div class="flex items-center justify-between">
+                    <span class="text-xs font-bold text-[#5a508f] uppercase">Agenda Bidang Bulan Ini</span>
+                    <div class="p-2 bg-[#bc8bf2]/10 text-[#bc8bf2] rounded-2xl group-hover:bg-[#bc8bf2]/20 transition-colors">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path>
+                        </svg>
+                    </div>
+                </div>
+                <div class="mt-4">
+                    <h2 class="text-4xl font-black text-[#2e2552]">{{ $kpi['bidang_month_agendas'] ?? 0 }}</h2>
+                    <p class="text-xs text-[#5a508f] mt-1 font-medium">Kelola jadwal & kalender rapat bidang &rarr;</p>
+                </div>
+            </a>
+            @else
             <div class="bg-white border border-[#d4d1f5]/60 rounded-[32px] p-6 flex flex-col justify-between shadow-sm">
                 <div class="flex items-center justify-between">
                     <span class="text-xs font-bold text-[#5a508f] uppercase">Agenda Bidang Bulan Ini</span>
@@ -80,8 +130,25 @@
                     <p class="text-xs text-[#5a508f] mt-1 font-medium">Agenda yang dikelola oleh Sekretaris Bidang</p>
                 </div>
             </div>
+            @endif
 
             <!-- Card 2: Waiting Review -->
+            @if(!empty($links['bidang_pending_reviews']))
+            <a href="{{ $links['bidang_pending_reviews'] }}" class="bg-white border border-[#d4d1f5]/60 rounded-[32px] p-6 flex flex-col justify-between shadow-sm hover:border-amber-400 hover:shadow-md hover:scale-[1.01] active:scale-[0.99] transition-all duration-200 group">
+                <div class="flex items-center justify-between">
+                    <span class="text-xs font-bold text-[#5a508f] uppercase">Menunggu Review Ketua</span>
+                    <div class="p-2 bg-amber-50 text-amber-500 rounded-2xl group-hover:bg-amber-100 transition-colors">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"></path>
+                        </svg>
+                    </div>
+                </div>
+                <div class="mt-4">
+                    <h2 class="text-4xl font-black text-amber-600">{{ $kpi['bidang_pending_reviews'] ?? 0 }}</h2>
+                    <p class="text-xs text-[#5a508f] mt-1 font-medium">Buka draf yang sedang diajukan &rarr;</p>
+                </div>
+            </a>
+            @else
             <div class="bg-white border border-[#d4d1f5]/60 rounded-[32px] p-6 flex flex-col justify-between shadow-sm">
                 <div class="flex items-center justify-between">
                     <span class="text-xs font-bold text-[#5a508f] uppercase">Menunggu Review Ketua</span>
@@ -96,13 +163,15 @@
                     <p class="text-xs text-[#5a508f] mt-1 font-medium">Notulensi yang diajukan kepada Kepala Bidang</p>
                 </div>
             </div>
+            @endif
 
         @elseif(Auth::user()->role === 'sekretaris_master')
             <!-- Card 1: Master Total Month -->
-            <div class="bg-white border border-[#d4d1f5]/60 rounded-[32px] p-6 flex flex-col justify-between shadow-sm">
+            @if(!empty($links['master_month_agendas']))
+            <a href="{{ $links['master_month_agendas'] }}" class="bg-white border border-[#d4d1f5]/60 rounded-[32px] p-6 flex flex-col justify-between shadow-sm hover:border-[#8e88dd] hover:shadow-md hover:scale-[1.01] active:scale-[0.99] transition-all duration-200 group">
                 <div class="flex items-center justify-between">
                     <span class="text-xs font-bold text-[#5a508f] uppercase">Agenda Dinas Bulan Ini</span>
-                    <div class="p-2 bg-[#8ba0f2]/10 text-[#8ba0f2] rounded-2xl">
+                    <div class="p-2 bg-[#8ba0f2]/10 text-[#8ba0f2] rounded-2xl group-hover:bg-[#8ba0f2]/20 transition-colors">
                         <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path>
                         </svg>
@@ -110,11 +179,42 @@
                 </div>
                 <div class="mt-4">
                     <h2 class="text-4xl font-black text-[#2e2552]">{{ $kpi['master_month_agendas'] ?? 0 }}</h2>
+                    <p class="text-xs text-[#5a508f] mt-1 font-medium">Lihat seluruh kalender agenda dinas &rarr;</p>
+                </div>
+            </a>
+            @else
+            <div class="bg-white border border-[#d4d1f5]/60 rounded-[32px] p-6 flex flex-col justify-between shadow-sm">
+                <div class="flex items-center justify-between">
+                    <span class="text-xs font-bold text-[#5a508f] uppercase">Agenda Dinas Bulan Ini</span>
+                    <div class="p-2 bg-[#8ba0f2]/10 text-[#8ba0f2] rounded-2xl">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></svg>
+                    </div>
+                </div>
+                <div class="mt-4">
+                    <h2 class="text-4xl font-black text-[#2e2552]">{{ $kpi['master_month_agendas'] ?? 0 }}</h2>
                     <p class="text-xs text-[#5a508f] mt-1 font-medium">Total seluruh agenda Dinas Kominfo pada bulan ini</p>
                 </div>
             </div>
+            @endif
 
             <!-- Card 2: Master Overdue Alerts -->
+            @if(!empty($links['master_overdue_reviews']))
+            <a href="{{ $links['master_overdue_reviews'] }}" class="bg-white border border-[#d4d1f5]/60 rounded-[32px] p-6 flex flex-col justify-between shadow-sm hover:border-rose-400 hover:shadow-md hover:scale-[1.01] active:scale-[0.99] transition-all duration-200 group">
+                <div class="flex items-center justify-between">
+                    <span class="text-xs font-bold text-[#5a508f] uppercase">Notulensi Overdue (>3 Hari)</span>
+                    <div class="p-2 bg-rose-50 text-rose-500 rounded-2xl group-hover:bg-rose-100 transition-colors">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path>
+                        </svg>
+                    </div>
+                </div>
+                <div class="mt-4">
+                    <h2 class="text-4xl font-black text-rose-600">{{ $kpi['master_overdue_reviews'] ?? 0 }}</h2>
+                    <p class="text-xs text-[#5a508f] mt-1 font-medium">Buka draf tertunda pimpinan terlama &rarr;</p>
+                </div>
+            </a>
+            @else
             <div class="bg-white border border-[#d4d1f5]/60 rounded-[32px] p-6 flex flex-col justify-between shadow-sm">
                 <div class="flex items-center justify-between">
                     <span class="text-xs font-bold text-[#5a508f] uppercase">Notulensi Overdue (>3 Hari)</span>
@@ -129,9 +229,26 @@
                     <p class="text-xs text-[#5a508f] mt-1 font-medium">Draf notulensi peninjauan pimpinan yang belum disahkan</p>
                 </div>
             </div>
+            @endif
 
         @elseif(Auth::user()->isKetua())
             <!-- Card 1: Ketua Pending Approvals -->
+            @if(!empty($links['ketua_pending_reviews']))
+            <a href="{{ $links['ketua_pending_reviews'] }}" class="bg-white border border-[#d4d1f5]/60 rounded-[32px] p-6 flex flex-col justify-between shadow-sm hover:border-amber-400 hover:shadow-md hover:scale-[1.01] active:scale-[0.99] transition-all duration-200 group">
+                <div class="flex items-center justify-between">
+                    <span class="text-xs font-bold text-[#5a508f] uppercase">Notulensi Butuh Pengesahan</span>
+                    <div class="p-2 bg-amber-50 text-amber-500 rounded-2xl group-hover:bg-amber-100 transition-colors">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"></path>
+                        </svg>
+                    </div>
+                </div>
+                <div class="mt-4">
+                    <h2 class="text-4xl font-black text-amber-600">{{ $kpi['ketua_pending_reviews'] ?? 0 }}</h2>
+                    <p class="text-xs text-[#5a508f] mt-1 font-medium">Klik untuk tinjau &amp; sahkan notulensi tertunda &rarr;</p>
+                </div>
+            </a>
+            @else
             <div class="bg-white border border-[#d4d1f5]/60 rounded-[32px] p-6 flex flex-col justify-between shadow-sm">
                 <div class="flex items-center justify-between">
                     <span class="text-xs font-bold text-[#5a508f] uppercase">Notulensi Butuh Pengesahan</span>
@@ -146,6 +263,7 @@
                     <p class="text-xs text-[#5a508f] mt-1 font-medium">Menunggu tanda tangan dan persetujuan dari Anda</p>
                 </div>
             </div>
+            @endif
 
             <!-- Card 2: Master Info / Status -->
             <div class="bg-white border border-[#d4d1f5]/60 rounded-[32px] p-6 flex flex-col justify-between shadow-sm">

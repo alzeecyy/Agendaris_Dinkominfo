@@ -282,14 +282,14 @@ class="space-y-6">
                                     </button>
                                     <span class="text-[#d4d1f5]">|</span>
                                     <!-- Reset password -->
-                                    <form action="{{ route('admin.users.reset-password', $user->id) }}" method="POST" onsubmit="return confirm('Apakah Anda yakin ingin me-reset password pegawai ini ke default: password?')">
+                                    <form action="{{ route('admin.users.reset-password', $user->id) }}" method="POST" data-confirm="Apakah Anda yakin ingin me-reset password pegawai ini ke default: password?">
                                         @csrf
                                         <button type="submit" class="text-amber-600 hover:text-amber-700 transition-colors">Reset</button>
                                     </form>
                                     <span class="text-[#d4d1f5]">|</span>
                                     <!-- Toggle status -->
                                     <form action="{{ route('admin.users.toggle-status', $user->id) }}" method="POST"
-                                          onsubmit="return confirm('{{ $user->active ? 'Apakah Anda yakin ingin menonaktifkan akun pegawai ini? Pegawai tersebut tidak akan bisa masuk ke sistem.' : 'Apakah Anda yakin ingin mengaktifkan kembali akun pegawai ini?' }}')">
+                                          data-confirm="{{ $user->active ? 'Apakah Anda yakin ingin menonaktifkan akun pegawai ini? Pegawai tersebut tidak akan bisa masuk ke sistem.' : 'Apakah Anda yakin ingin mengaktifkan kembali akun pegawai ini?' }}">
                                         @csrf
                                         @if($user->active)
                                             <button type="submit" class="text-rose-600 hover:text-rose-500 transition-colors">Nonaktifkan</button>

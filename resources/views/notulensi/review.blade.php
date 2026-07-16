@@ -32,23 +32,29 @@
             <div class="space-y-5 text-sm text-[#2e2552] border-t border-[#d4d1f5]/40 pt-4">
                 <div class="space-y-1.5">
                     <h4 class="text-xs font-bold uppercase tracking-wider text-[#5a508f]">Ringkasan Rapat</h4>
-                    <p class="bg-[#f8f7ff] p-4 border border-[#d4d1f5]/40 rounded-2xl leading-relaxed whitespace-pre-line font-medium">{{ $notulensi->ringkasan }}</p>
+                    <div class="bg-[#f8f7ff] p-4 border border-[#d4d1f5]/40 rounded-2xl leading-relaxed font-medium text-slate-700">{!! $notulensi->ringkasan_html !!}</div>
                 </div>
                 
+                @if(!empty($notulensi->pembahasan))
                 <div class="space-y-1.5">
                     <h4 class="text-xs font-bold uppercase tracking-wider text-[#5a508f]">{{ $notulensi->pembahasan_title }}</h4>
                     <div class="bg-[#f8f7ff] p-4 border border-[#d4d1f5]/40 rounded-2xl leading-relaxed whitespace-pre-line font-medium text-slate-700">{{ $notulensi->pembahasan }}</div>
                 </div>
+                @endif
 
+                @if(!empty($notulensi->keputusan))
                 <div class="space-y-1.5">
                     <h4 class="text-xs font-bold uppercase tracking-wider text-[#5a508f]">{{ $notulensi->keputusan_title }}</h4>
                     <div class="bg-[#f8f7ff] p-4 border border-[#d4d1f5]/40 text-emerald-600 font-bold rounded-2xl leading-relaxed whitespace-pre-line">{{ $notulensi->keputusan }}</div>
                 </div>
+                @endif
 
+                @if(!empty($notulensi->kesimpulan))
                 <div class="space-y-1.5">
                     <h4 class="text-xs font-bold uppercase tracking-wider text-[#5a508f]">Kesimpulan</h4>
                     <div class="bg-[#f8f7ff] p-4 border border-[#d4d1f5]/40 rounded-2xl leading-relaxed whitespace-pre-line font-medium text-slate-700">{{ $notulensi->kesimpulan }}</div>
                 </div>
+                @endif
 
                 <div class="space-y-1.5" x-data="{ showTranscript: false }">
                     <button @click="showTranscript = !showTranscript" type="button" class="flex items-center gap-1.5 text-xs text-[#8e88dd] hover:text-[#2e2552] font-bold focus:outline-none">
@@ -77,7 +83,7 @@
 
                     <div class="space-y-3">
                         <!-- 1. APPROVE ACTION -->
-                        <form action="{{ route('notulensi.review.approve', $agenda->id) }}" method="POST" onsubmit="return confirm('Apakah Anda yakin ingin mengesahkan notulensi rapat ini?')">
+                        <form action="{{ route('notulensi.review.approve', $agenda->id) }}" method="POST" data-confirm="Apakah Anda yakin ingin mengesahkan notulensi rapat ini?">
                             @csrf
                             <button type="submit" 
                                     class="w-full py-3 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 active:scale-[0.98] text-white font-bold text-xs uppercase tracking-wider rounded-xl shadow-md shadow-emerald-600/10 transition-all flex items-center justify-center gap-2">

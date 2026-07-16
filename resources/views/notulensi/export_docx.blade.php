@@ -37,6 +37,14 @@
             margin-bottom: 15px;
             text-align: justify;
         }
+        .section-body h3, .section-body h4, .section-body h5 {
+            margin-top: 15px;
+            margin-bottom: 6px;
+            font-weight: bold;
+        }
+        .section-body h3 { font-size: 12pt; }
+        .section-body h4 { font-size: 11pt; }
+        .section-body h5 { font-size: 10pt; }
         table.meta-table {
             width: 100%;
             border: none;
@@ -109,7 +117,7 @@
     </table>
 
     <div class="section-header">I. Notulensi Rapat</div>
-    <div class="section-body" style="white-space: pre-wrap;">{!! nl2br(e($notulensi->ringkasan)) !!}</div>
+    <div class="section-body">{!! $notulensi->ringkasan_html !!}</div>
 
     <br>
 

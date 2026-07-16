@@ -40,7 +40,7 @@
                                         </p>
                                         
                                         <!-- Delete Audio Form -->
-                                        <form action="{{ route('notulensi.audio.delete', [$agenda->id, $index]) }}" method="POST" onsubmit="return confirm('Apakah Anda yakin ingin menghapus rekaman audio ini?')">
+                                        <form action="{{ route('notulensi.audio.delete', [$agenda->id, $index]) }}" method="POST" data-confirm="Apakah Anda yakin ingin menghapus rekaman audio ini?">
                                             @csrf
                                             @method('DELETE')
                                             <button type="submit" class="text-rose-600 hover:text-rose-500 p-1 hover:bg-rose-50 rounded-lg transition-colors" title="Hapus Rekaman">
@@ -311,47 +311,61 @@
                 regenerateSummary() {
                     const transcript = document.getElementById('transkrip_raw').value;
                     if (!transcript.trim()) {
-                        alert('Teks transkrip rapat masih kosong!');
+                        Swal.fire({
+                            text: 'Teks transkrip rapat masih kosong!',
+                            icon: 'warning',
+                            confirmButtonText: 'OK'
+                        });
                         return;
                     }
 
-                    if (!confirm('Apakah Anda yakin ingin menganalisis ulang transkrip? Tindakan ini akan menimpa isi Ringkasan saat ini.')) {
-                        return;
-                    }
+                    Swal.fire({
+                        text: 'Apakah Anda yakin ingin menganalisis ulang transkrip? Tindakan ini akan menimpa isi Ringkasan saat ini.',
+                        icon: 'question',
+                        showCancelButton: true,
+                        confirmButtonText: 'Ya, Lanjutkan',
+                        cancelButtonText: 'Batal'
+                    }).then((result) => {
+                        if (!result.isConfirmed) return;
 
-                    this.loading = true;
+                        this.loading = true;
 
-                    fetch('{{ route("notulensi.regenerate", $agenda->id) }}', {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json',
-                            'X-CSRF-TOKEN': '{{ csrf_token() }}'
-                        },
-                        body: JSON.stringify({
-                            transkrip_raw: transcript
+                        fetch('{{ route("notulensi.regenerate", $agenda->id) }}', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                            },
+                            body: JSON.stringify({
+                                transkrip_raw: transcript
+                            })
                         })
-                    })
-                    .then(res => res.json())
-                    .then(res => {
-                        this.loading = false;
-                        if (res.status === 'success') {
-                            // Build a formatted notulensi from all returned fields
-                            const d = res.data;
-                            let combined = '';
-                            if (d.ringkasan) combined += d.ringkasan;
-                            if (d.pembahasan) combined += '\n\n--- Poin Pembahasan ---\n' + d.pembahasan;
-                            if (d.keputusan) combined += '\n\n--- Keputusan ---\n' + d.keputusan;
-                            if (d.kesimpulan) combined += '\n\n--- Kesimpulan ---\n' + d.kesimpulan;
-
-                            document.getElementById('ringkasan').value = combined.trim();
-                            alert('Analisis transkrip berhasil! Ringkasan telah diperbarui. Silakan edit dan rapikan sesuai kebutuhan.');
-                        } else {
-                            alert(res.message || 'Gagal memproses analisis transkrip.');
-                        }
-                    })
-                    .catch(err => {
-                        this.loading = false;
-                        alert('Terjadi kesalahan koneksi saat memproses analisis.');
+                        .then(res => res.json())
+                        .then(res => {
+                            this.loading = false;
+                            if (res.status === 'success') {
+                                document.getElementById('ringkasan').value = res.data.trim();
+                                Swal.fire({
+                                    text: 'Analisis transkrip berhasil! Ringkasan telah diperbarui. Silakan edit dan rapikan sesuai kebutuhan.',
+                                    icon: 'success',
+                                    confirmButtonText: 'OK'
+                                });
+                            } else {
+                                Swal.fire({
+                                    text: res.message || 'Gagal memproses analisis transkrip.',
+                                    icon: 'error',
+                                    confirmButtonText: 'OK'
+                                });
+                            }
+                        })
+                        .catch(err => {
+                            this.loading = false;
+                            Swal.fire({
+                                text: 'Terjadi kesalahan koneksi saat memproses analisis.',
+                                icon: 'error',
+                                confirmButtonText: 'OK'
+                            });
+                        });
                     });
                 }
             }));

@@ -93,16 +93,19 @@ class DashboardController extends Controller
         // Calculate role-based stats KPI cards & highlights
         $kpi = [];
         $highlights = [];
+        $links = [];
         $todayStr = Carbon::today()->toDateString();
 
         if ($user->role === 'staff') {
             // Staff KPI 1: Accessible Agendas this week
             $startOfWeek = Carbon::today()->startOfWeek(Carbon::MONDAY);
             $endOfWeek = Carbon::today()->endOfWeek(Carbon::SUNDAY);
-            $kpi['week_agendas'] = Agenda::whereBetween('tanggal', [$startOfWeek->toDateString(), $endOfWeek->toDateString()])
+            $weekAgendas = Agenda::whereBetween('tanggal', [$startOfWeek->toDateString(), $endOfWeek->toDateString()])
                 ->get()
-                ->filter(fn($a) => $user->hasAccessToAgenda($a))
-                ->count();
+                ->filter(fn($a) => $user->hasAccessToAgenda($a));
+            
+            $kpi['week_agendas'] = $weekAgendas->count();
+            $links['week_agendas'] = route('calendar');
 
             // Staff KPI 2: Pending/Unfilled presence
             $accessiblePastAgendas = Agenda::where('butuh_presensi', true)
@@ -114,9 +117,12 @@ class DashboardController extends Controller
                 ->pluck('agenda_id')
                 ->toArray();
 
-            $kpi['pending_presence'] = $accessiblePastAgendas
-                ->filter(fn($a) => !in_array($a->id, $submittedPresenceIds))
-                ->count();
+            $pendingPresenceAgendas = $accessiblePastAgendas
+                ->filter(fn($a) => !in_array($a->id, $submittedPresenceIds));
+
+            $kpi['pending_presence'] = $pendingPresenceAgendas->count();
+            $firstPending = $pendingPresenceAgendas->first();
+            $links['pending_presence'] = $firstPending ? route('agenda.show', $firstPending->id) : null;
 
             // Staff Highlight Alerts
             $todayPendingPresences = Agenda::where('tanggal', $todayStr)
@@ -142,15 +148,19 @@ class DashboardController extends Controller
                     $q->where('bidang_id', $user->bidang_id);
                 })
                 ->count();
+            $links['bidang_month_agendas'] = route('calendar');
 
             // Sekre Bidang KPI 2: Bidang notulensi waiting review
-            $kpi['bidang_pending_reviews'] = Notulensi::where('status', 'menunggu_review')
+            $pendingReviews = Notulensi::where('status', 'menunggu_review')
                 ->whereHas('agenda', function($q) use ($user) {
                     $q->whereHas('sekretaris', function($sq) use ($user) {
                         $sq->where('bidang_id', $user->bidang_id);
                     });
                 })
-                ->count();
+                ->get();
+            $kpi['bidang_pending_reviews'] = $pendingReviews->count();
+            $firstPending = $pendingReviews->first();
+            $links['bidang_pending_reviews'] = $firstPending ? route('notulensi.review', $firstPending->agenda_id) : null;
 
             // Sekre Bidang Highlights: Overdue pending reviews (> 3 days)
             $overdueReviews = Notulensi::where('status', 'menunggu_review')
@@ -191,11 +201,15 @@ class DashboardController extends Controller
             $kpi['master_month_agendas'] = Agenda::whereMonth('tanggal', $selectedMonth->month)
                 ->whereYear('tanggal', $selectedMonth->year)
                 ->count();
+            $links['master_month_agendas'] = route('calendar');
 
             // Sekre Master KPI 2: All notulensi waiting review > 3 days (Overdue alerts)
-            $kpi['master_overdue_reviews'] = Notulensi::where('status', 'menunggu_review')
+            $overdueReviews = Notulensi::where('status', 'menunggu_review')
                 ->where('created_at', '<=', Carbon::now()->subDays(3))
-                ->count();
+                ->get();
+            $kpi['master_overdue_reviews'] = $overdueReviews->count();
+            $firstOverdue = $overdueReviews->first();
+            $links['master_overdue_reviews'] = $firstOverdue ? route('notulensi.review', $firstOverdue->agenda_id) : null;
 
             if ($kpi['master_overdue_reviews'] > 0) {
                 $highlights[] = [
@@ -233,6 +247,8 @@ class DashboardController extends Controller
                 ->get();
 
             $kpi['ketua_pending_reviews'] = $pendingReviews->count();
+            $firstPending = $pendingReviews->first();
+            $links['ketua_pending_reviews'] = $firstPending ? route('notulensi.review', $firstPending->agenda_id) : null;
 
             foreach ($pendingReviews as $notulensi) {
                 $highlights[] = [
@@ -257,6 +273,8 @@ class DashboardController extends Controller
                 ->get();
 
             $kpi['ketua_pending_reviews'] = $pendingReviews->count();
+            $firstPending = $pendingReviews->first();
+            $links['ketua_pending_reviews'] = $firstPending ? route('notulensi.review', $firstPending->agenda_id) : null;
 
             foreach ($pendingReviews as $notulensi) {
                 $highlights[] = [
@@ -268,30 +286,30 @@ class DashboardController extends Controller
                 ];
             }
         }
-
-        // Recent activity history (max 4 entries)
-        $pastAgendas = Agenda::where('tanggal', '<', $todayStr)
-            ->orderBy('tanggal', 'desc')
-            ->orderBy('jam_mulai', 'desc')
-            ->get()
-            ->filter(fn($agenda) => $user->hasAccessToAgenda($agenda));
-
-        $presensis = Presensi::where('user_id', $user->id)->get()->keyBy('agenda_id');
-
-        $riwayatRingkas = $pastAgendas->take(4)->map(function ($agenda) use ($presensis) {
-            $status = $presensis->has($agenda->id) ? $presensis[$agenda->id]->status : null;
-            return (object) [
-                'id' => $agenda->id,
-                'judul' => $agenda->judul,
-                'tanggal' => $agenda->tanggal,
-                'jam_mulai' => $agenda->jam_mulai,
-                'jam_selesai' => $agenda->jam_selesai,
-                'status_kehadiran' => $status,
-                'notulensi_status' => $agenda->notulensi->status ?? null,
-            ];
-        });
-
-        return view('dashboard', compact('selectedMonth', 'gridDates', 'agendasByDate', 'kpi', 'highlights', 'riwayatRingkas'));
+ 
+         // Recent activity history (max 4 entries)
+         $pastAgendas = Agenda::where('tanggal', '<', $todayStr)
+             ->orderBy('tanggal', 'desc')
+             ->orderBy('jam_mulai', 'desc')
+             ->get()
+             ->filter(fn($agenda) => $user->hasAccessToAgenda($agenda));
+ 
+         $presensis = Presensi::where('user_id', $user->id)->get()->keyBy('agenda_id');
+ 
+         $riwayatRingkas = $pastAgendas->take(4)->map(function ($agenda) use ($presensis) {
+             $status = $presensis->has($agenda->id) ? $presensis[$agenda->id]->status : null;
+             return (object) [
+                 'id' => $agenda->id,
+                 'judul' => $agenda->judul,
+                 'tanggal' => $agenda->tanggal,
+                 'jam_mulai' => $agenda->jam_mulai,
+                 'jam_selesai' => $agenda->jam_selesai,
+                 'status_kehadiran' => $status,
+                 'notulensi_status' => $agenda->notulensi->status ?? null,
+             ];
+         });
+ 
+         return view('dashboard', compact('selectedMonth', 'gridDates', 'agendasByDate', 'kpi', 'highlights', 'riwayatRingkas', 'links'));
     }
 
     /**
