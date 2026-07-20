@@ -237,16 +237,40 @@
 
 
 
-                    <!-- Submit Draft buttons -->
-                    <div class="flex items-center justify-end gap-3 border-t border-[#d4d1f5]/40 pt-6">
-                        <button type="submit" formaction="{{ route('notulensi.save', $agenda->id) }}" formmethod="POST"
-                                class="px-5 py-2.5 bg-slate-100 hover:bg-slate-200 text-[#5a508f] text-xs font-bold rounded-xl transition-all">
-                            Simpan Progress Draft
-                        </button>
-                        <button type="submit" formaction="{{ route('notulensi.submit', $agenda->id) }}" formmethod="POST"
-                                class="px-6 py-2.5 bg-[#2e2552] hover:bg-[#3d326a] text-white text-xs font-bold rounded-xl shadow-md shadow-[#2e2552]/10 transition-all">
-                            Ajukan untuk Persetujuan
-                        </button>
+                    <!-- Submit Draft buttons & Unsaved Warning -->
+                    <div class="space-y-4 pt-6 border-t border-[#d4d1f5]/40">
+                        <div x-show="isDirty" x-cloak class="p-3.5 bg-amber-50 border border-amber-300 rounded-2xl flex items-center justify-between text-xs text-amber-800 animate-pulse">
+                            <span class="flex items-center gap-2 font-bold">
+                                <svg class="w-4 h-4 text-amber-600 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
+                                </svg>
+                                <span>Ada perubahan draf yang belum disimpan! Pastikan menekan tombol <strong>Simpan Progress Draft</strong>.</span>
+                            </span>
+                            <span class="text-[10px] font-extrabold uppercase bg-amber-200 text-amber-900 px-2 py-0.5 rounded-md shrink-0">Belum Disimpan</span>
+                        </div>
+
+                        <div class="flex flex-col sm:flex-row items-center justify-between gap-3">
+                            <p class="text-[11px] text-[#5a508f] font-medium flex items-center gap-1.5">
+                                <svg class="w-4 h-4 text-amber-500 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                                </svg>
+                                <span>Ingat untuk menekan <strong>Simpan Progress Draft</strong> jika melakukan perubahan.</span>
+                            </p>
+
+                            <div class="flex items-center gap-3 w-full sm:w-auto justify-end">
+                                <button type="submit" @click="isDirty = false" formaction="{{ route('notulensi.save', $agenda->id) }}" formmethod="POST"
+                                        class="px-5 py-2.5 bg-amber-500 hover:bg-amber-600 text-white text-xs font-bold rounded-xl shadow-md shadow-amber-500/20 transition-all flex items-center gap-1.5">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4"/>
+                                    </svg>
+                                    <span>Simpan Progress Draft</span>
+                                </button>
+                                <button type="submit" @click="isDirty = false" formaction="{{ route('notulensi.submit', $agenda->id) }}" formmethod="POST"
+                                        class="px-6 py-2.5 bg-[#2e2552] hover:bg-[#3d326a] text-white text-xs font-bold rounded-xl shadow-md shadow-[#2e2552]/10 transition-all">
+                                    Ajukan untuk Persetujuan
+                                </button>
+                            </div>
+                        </div>
                     </div>
                 </form>
             </div>
@@ -257,7 +281,26 @@
         if (typeof Alpine !== 'undefined') {
             Alpine.data('notulenEditor', () => ({
                 loading: false,
-                init() {},
+                isDirty: false,
+                init() {
+                    this.$nextTick(() => {
+                        const form = document.getElementById('notulen-form');
+                        if (form) {
+                            form.querySelectorAll('input, textarea, select').forEach(el => {
+                                el.addEventListener('input', () => { this.isDirty = true; });
+                                el.addEventListener('change', () => { this.isDirty = true; });
+                            });
+                            form.addEventListener('submit', () => { this.isDirty = false; });
+                        }
+                    });
+
+                    window.addEventListener('beforeunload', (e) => {
+                        if (this.isDirty) {
+                            e.preventDefault();
+                            e.returnValue = 'Ada perubahan draf notulensi yang belum disimpan!';
+                        }
+                    });
+                },
                 regenerateSummary() {
                     const transcript = document.getElementById('transkrip_raw').value;
                     if (!transcript.trim()) {
@@ -295,6 +338,7 @@
                             this.loading = false;
                             if (res.status === 'success') {
                                 document.getElementById('ringkasan').value = res.data.trim();
+                                this.isDirty = true;
                                 Swal.fire({
                                     text: 'Analisis transkrip berhasil! Ringkasan telah diperbarui. Silakan edit dan rapikan sesuai kebutuhan.',
                                     icon: 'success',

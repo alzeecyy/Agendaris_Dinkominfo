@@ -95,13 +95,8 @@ class PresensiController extends Controller
     public function koreksi(Request $request, Agenda $agenda)
     {
         $user = Auth::user();
-        $hakAkses = $agenda->hak_akses;
 
-        // Check if user has secretary access to this agenda
-        $isSecretaryOfAgenda = $user->isSekretarisMaster() || 
-            ($user->isSekretarisBidang() && in_array((string)$user->bidang_id, array_map('strval', $hakAkses)));
-
-        if (!$isSecretaryOfAgenda) {
+        if (!$user->isSecretaryOfAgenda($agenda)) {
             return back()->with('error', 'Anda tidak memiliki wewenang untuk mengoreksi presensi.');
         }
 
