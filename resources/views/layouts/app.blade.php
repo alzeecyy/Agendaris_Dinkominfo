@@ -145,6 +145,9 @@
         .swal2-icon.swal2-success .swal2-success-ring {
             border: 4px solid rgba(16, 185, 129, 0.2) !important;
         }
+        [x-cloak] {
+            display: none !important;
+        }
     </style>
     @yield('styles')
     <!-- SweetAlert2 for beautiful custom alerts and confirms -->
@@ -192,22 +195,20 @@
                         'staff' => 'bg-blue-50 text-blue-700 border-blue-100',
                     ];
                 @endphp
-                <div class="shrink-0 select-none text-[#09103c]">
-                    <a href="{{ route('profile') }}" class="flex items-center gap-3 hover:bg-slate-100/55 p-1.5 rounded-2xl transition-all duration-200">
-                        <div class="hidden md:block text-right" style="margin: 0; padding: 0; display: flex; flex-direction: column; justify-content: center; gap: 4px;">
-                            <div class="text-xs font-black text-[#09103c]" style="line-height: 1; margin: 0; padding: 0;">{{ Auth::user()->name }}</div>
-                            <div style="line-height: 1; margin: 0; padding: 0;">
-                                <span class="inline-block text-[8px] font-extrabold px-2 py-0.5 rounded-full border {{ $roleColors[Auth::user()->role] ?? 'bg-slate-100 border-slate-200 text-slate-700' }} uppercase tracking-wider" style="line-height: 1; vertical-align: middle;">
-                                    {{ $roleLabels[Auth::user()->role] ?? 'User' }}
-                                </span>
-                            </div>
-                            <div class="text-[9px] text-slate-500 font-bold font-mono" style="line-height: 1; margin: 0; padding: 0;">NIP. {{ Auth::user()->nip }}</div>
+                <a href="{{ route('profile') }}" class="relative shrink-0 select-none text-[#09103c] flex items-center gap-3 p-1.5 rounded-2xl hover:bg-slate-50 transition-colors">
+                    <div class="hidden md:block text-right" style="margin: 0; padding: 0; display: flex; flex-direction: column; justify-content: center; gap: 4px;">
+                        <div class="text-xs font-black text-[#09103c]" style="line-height: 1; margin: 0; padding: 0;">{{ Auth::user()->name }}</div>
+                        <div style="line-height: 1; margin: 0; padding: 0;">
+                            <span class="inline-block text-[8px] font-extrabold px-2 py-0.5 rounded-full border {{ $roleColors[Auth::user()->role] ?? 'bg-slate-100 border-slate-200 text-slate-700' }} uppercase tracking-wider" style="line-height: 1; vertical-align: middle;">
+                                {{ $roleLabels[Auth::user()->role] ?? 'User' }}
+                            </span>
                         </div>
-                        <div class="w-10 h-10 bg-[#1b3bbb]/10 rounded-2xl flex items-center justify-center font-bold text-[#1b3bbb] border border-[#1b3bbb]/20 shadow-sm hover:bg-[#1b3bbb]/20 transition-colors">
-                            {{ substr(Auth::user()->name, 0, 2) }}
-                        </div>
-                    </a>
-                </div>
+                        <div class="text-[9px] text-slate-500 font-bold font-mono" style="line-height: 1; margin: 0; padding: 0;">NIP. {{ Auth::user()->nip }}</div>
+                    </div>
+                    <div class="w-10 h-10 bg-[#1b3bbb]/10 rounded-2xl flex items-center justify-center font-bold text-[#1b3bbb] border border-[#1b3bbb]/20 shadow-sm transition-colors">
+                        {{ substr(Auth::user()->name, 0, 2) }}
+                    </div>
+                </a>
             @endif
         </header>
 
@@ -222,6 +223,16 @@
 
                 <nav class="flex-1 w-full flex flex-col gap-1 px-3">
                     @if(Auth::check() && !Auth::user()->isAdmin())
+                        <!-- Profil Link -->
+                        <a href="{{ route('profile') }}" 
+                           class="flex items-center gap-3 px-4 py-3 rounded-2xl font-bold text-xs transition-all duration-200 
+                           {{ request()->routeIs('profile') ? 'bg-[#1b3bbb] text-white shadow-lg shadow-[#1b3bbb]/20' : 'text-slate-600 hover:bg-[#1b3bbb]/5 hover:text-[#1b3bbb]' }}">
+                            <svg class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
+                            </svg>
+                            <span>Kelola Profil</span>
+                        </a>
+
                         <!-- Dashboard Link -->
                         <a href="{{ route('dashboard') }}" 
                            class="flex items-center gap-3 px-4 py-3 rounded-2xl font-bold text-xs transition-all duration-200 
@@ -284,6 +295,7 @@
                             </svg>
                             <span>Kelola Bidang</span>
                         </a>
+
                     @endif
                 </nav>
 
@@ -305,7 +317,7 @@
             </aside>
 
             <!-- MAIN CONTENT AREA CONTAINER -->
-            <main class="flex-1 min-w-0 bg-slate-50 rounded-[32px] p-6 md:p-8 flex flex-col gap-6 shadow-2xl relative overflow-auto text-[#090c24] border border-white/10">
+            <main id="main-content" class="flex-1 min-w-0 bg-slate-50 rounded-[32px] p-6 md:p-8 flex flex-col gap-6 shadow-2xl relative {{ request()->routeIs('profile') ? 'overflow-hidden' : 'overflow-auto' }} text-[#090c24] border border-white/10">
                 
                 <!-- Floating Toast Notifications -->
                 @if(session('success') || session('error') || session('warning'))
@@ -354,7 +366,7 @@
                 </div>
 
                 <!-- FOOTER -->
-                <footer class="mt-8 border-t border-[#d4d1f5] pt-4 text-center text-[#5a508f] text-[10px] font-bold uppercase tracking-wider">
+                <footer class="mt-2 border-t border-[#d4d1f5] pt-3 text-center text-[#5a508f] text-[10px] font-bold uppercase tracking-wider">
                     &copy; 2026 Dinas Komunikasi dan Informatika Kabupaten Banyumas. Sirena v2.0 &bull; Premium Internal System.
                 </footer>
             </main>
@@ -391,6 +403,9 @@
             });
 
             function loadPage(url) {
+                // Close profile menu on PJAX navigation
+                window.dispatchEvent(new CustomEvent('close-profile-menu'));
+
                 // Premium linear loader
                 let loader = document.getElementById('pjax-loader');
                 if (!loader) {
@@ -451,6 +466,30 @@
                             const newTitle = doc.querySelector('.hidden.sm\\:flex.items-center.gap-2.text-xs.font-bold');
                             if (currentTitle && newTitle) {
                                 currentTitle.innerHTML = newTitle.innerHTML;
+                            }
+                            
+                            // Dynamic main container scroll state synchronization (PJAX)
+                            const mainEl = document.getElementById('main-content');
+                            if (mainEl) {
+                                if (url.includes('/profile')) {
+                                    mainEl.classList.remove('overflow-auto');
+                                    mainEl.classList.add('overflow-hidden');
+                                } else {
+                                    mainEl.classList.remove('overflow-hidden');
+                                    mainEl.classList.add('overflow-auto');
+                                }
+                            }
+
+                            // Force close all Alpine modals/dropdowns on page transition
+                            if (window.Alpine) {
+                                document.querySelectorAll('[x-data]').forEach(el => {
+                                    try {
+                                        const data = window.Alpine.$data(el);
+                                        if (data && 'openModal' in data) {
+                                            data.openModal = false;
+                                        }
+                                    } catch(err) {}
+                                });
                             }
                             
                             // Emit a custom complete event in case other libraries/scripts need to re-bind
