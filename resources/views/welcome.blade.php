@@ -71,8 +71,8 @@
                         'staff' => 'bg-blue-50 text-blue-700 border-blue-100',
                     ];
                 @endphp
-                <div class="relative select-none text-[#09103c] z-10">
-                    <a href="{{ route('profile') }}" class="flex items-center gap-2.5 hover:bg-slate-100/55 p-1 rounded-xl transition-all duration-200">
+                <div class="relative select-none text-[#09103c] z-10" x-data="{ openModal: false }">
+                    <div class="flex items-center gap-2.5 p-1 rounded-xl">
                         <div class="hidden sm:block text-right" style="margin: 0; padding: 0; display: flex; flex-direction: column; justify-content: center; gap: 3px;">
                             <div class="text-[11px] font-black text-[#09103c]" style="line-height: 1; margin: 0; padding: 0;">{{ Auth::user()->name }}</div>
                             <div style="line-height: 1; margin: 0; padding: 0;">
@@ -82,10 +82,31 @@
                             </div>
                             <div class="text-[8px] text-slate-500 font-bold font-mono" style="line-height: 1; margin: 0; padding: 0;">NIP. {{ Auth::user()->nip }}</div>
                         </div>
-                        <div class="w-8.5 h-8.5 bg-[#1b3bbb]/10 rounded-xl flex items-center justify-center font-extrabold text-xs text-[#1b3bbb] border border-[#1b3bbb]/20 shadow-sm hover:bg-[#1b3bbb]/20 transition-colors">
+                        <button @click="openModal = !openModal" class="w-8.5 h-8.5 bg-[#1b3bbb]/10 rounded-xl flex items-center justify-center font-extrabold text-xs text-[#1b3bbb] border border-[#1b3bbb]/20 shadow-sm hover:bg-[#1b3bbb]/20 transition-colors focus:outline-none cursor-pointer">
                             {{ substr(Auth::user()->name, 0, 2) }}
-                        </div>
-                    </a>
+                        </button>
+                    </div>
+
+                    <!-- Small Popup Card -->
+                    <div x-show="openModal" 
+                         @click.away="openModal = false"
+                         x-transition:enter="transition ease-out duration-200"
+                         x-transition:enter-start="opacity-0 translate-y-1 scale-95"
+                         x-transition:enter-end="opacity-100 translate-y-0 scale-100"
+                         x-transition:leave="transition ease-in duration-150"
+                         x-transition:leave-start="opacity-100 translate-y-0 scale-100"
+                         x-transition:leave-end="opacity-0 translate-y-1 scale-95"
+                         class="absolute right-0 mt-2 w-44 bg-white rounded-xl border border-slate-200/60 shadow-[0_10px_25px_rgba(9,16,60,0.1)] py-1.5 z-50"
+                         x-cloak>
+                         
+                         <!-- Kelola Profil -->
+                         <a href="{{ route('profile') }}" @click="openModal = false" class="flex items-center gap-3 px-4 py-2.5 text-xs font-bold text-slate-700 hover:bg-[#1b3bbb]/5 hover:text-[#1b3bbb] transition-all duration-150 rounded-lg mx-1">
+                             <svg class="w-4 h-4 shrink-0 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
+                             </svg>
+                             <span>Kelola Profil</span>
+                         </a>
+                    </div>
                 </div>
             @endauth
         </header>
