@@ -186,6 +186,7 @@ class NotulensiController extends Controller
         }
 
         $validated = $request->validate([
+            'judul' => 'nullable|string|max:255',
             'nomor_surat_dasar' => 'nullable|string|max:255',
             'transkrip_raw' => 'nullable|string',
             'ringkasan' => 'nullable|string',
@@ -196,13 +197,22 @@ class NotulensiController extends Controller
             'keputusan_title' => 'nullable|string',
         ]);
 
-        if (isset($validated['nomor_surat_dasar'])) {
-            $agenda->update(['nomor_surat_dasar' => $validated['nomor_surat_dasar']]);
+        $agendaUpdates = [];
+        if (!empty($validated['judul'])) {
+            $agendaUpdates['judul'] = $validated['judul'];
         }
+        if (isset($validated['nomor_surat_dasar'])) {
+            $agendaUpdates['nomor_surat_dasar'] = $validated['nomor_surat_dasar'];
+        }
+        if (!empty($agendaUpdates)) {
+            $agenda->update($agendaUpdates);
+        }
+
+        $ringkasanClean = isset($validated['ringkasan']) ? trim(preg_replace('/```(?:markdown)?/i', '', $validated['ringkasan'])) : null;
 
         $notulensi->update([
             'transkrip_raw' => $validated['transkrip_raw'] ?? null,
-            'ringkasan' => $validated['ringkasan'] ?? null,
+            'ringkasan' => $ringkasanClean,
             'pembahasan' => $validated['pembahasan'] ?? null,
             'keputusan' => $validated['keputusan'] ?? null,
             'kesimpulan' => $validated['kesimpulan'] ?? null,
@@ -234,8 +244,9 @@ class NotulensiController extends Controller
             return back()->with('error', 'Notulensi belum dibuat.');
         }
 
-        // Save current inputs first & validate nomor_surat_dasar
+        // Save current inputs first & validate judul & nomor_surat_dasar
         $validated = $request->validate([
+            'judul' => 'required|string|max:255',
             'nomor_surat_dasar' => 'required|string|max:255',
             'transkrip_raw' => 'nullable|string',
             'ringkasan' => 'nullable|string',
@@ -245,14 +256,20 @@ class NotulensiController extends Controller
             'pembahasan_title' => 'nullable|string',
             'keputusan_title' => 'nullable|string',
         ], [
-            'nomor_surat_dasar.required' => 'Nomor Surat Dasar Pelaksanaan wajib diisi sebelum mengajukan notulensi.',
+            'judul.required' => 'Nama / Judul Kegiatan Rapat wajib diisi.',
+            'nomor_surat_dasar.required' => 'Nomor Surat Pelaksanaan wajib diisi sebelum mengajukan notulensi.',
         ]);
 
-        $agenda->update(['nomor_surat_dasar' => $validated['nomor_surat_dasar']]);
+        $agenda->update([
+            'judul' => $validated['judul'],
+            'nomor_surat_dasar' => $validated['nomor_surat_dasar'],
+        ]);
+
+        $ringkasanClean = isset($validated['ringkasan']) ? trim(preg_replace('/```(?:markdown)?/i', '', $validated['ringkasan'])) : null;
 
         $notulensi->update([
             'transkrip_raw' => $validated['transkrip_raw'] ?? null,
-            'ringkasan' => $validated['ringkasan'] ?? null,
+            'ringkasan' => $ringkasanClean,
             'pembahasan' => $validated['pembahasan'] ?? null,
             'keputusan' => $validated['keputusan'] ?? null,
             'kesimpulan' => $validated['kesimpulan'] ?? null,
@@ -452,15 +469,19 @@ class NotulensiController extends Controller
 
         $attendees = [];
         
-        // Add internal users
+        $isExpired = $agenda->isPresensiExpired();
         foreach ($internalUsers as $emp) {
             $record = $attendanceRecords->get($emp->id);
             $status = $record ? $record->status : 'Belum Absen';
+            if ($isExpired && ($status === 'Belum Absen' || !$record)) {
+                $status = 'alfa';
+            }
             
             $statusLabel = 'Belum Absen';
             if ($status === 'hadir') $statusLabel = 'Hadir';
             if ($status === 'izin') $statusLabel = 'Izin';
             if ($status === 'sakit') $statusLabel = 'Sakit';
+            if ($status === 'alfa') $statusLabel = 'Alfa';
 
             $attendees[] = (object) [
                 'nama' => $emp->name,
@@ -551,7 +572,15 @@ class NotulensiController extends Controller
         foreach ($internalUsers as $emp) {
             $record = $attendanceRecords->get($emp->id);
             $status = $record ? $record->status : 'Belum Absen';
-            $statusLabel = $status === 'hadir' ? 'Hadir' : ($status === 'izin' ? 'Izin' : ($status === 'sakit' ? 'Sakit' : 'Belum Absen'));
+            if ($isExpired && ($status === 'Belum Absen' || !$record)) {
+                $status = 'alfa';
+            }
+            
+            $statusLabel = 'Belum Absen';
+            if ($status === 'hadir') $statusLabel = 'Hadir';
+            if ($status === 'izin') $statusLabel = 'Izin';
+            if ($status === 'sakit') $statusLabel = 'Sakit';
+            if ($status === 'alfa') $statusLabel = 'Alfa';
             
             $attendees[] = (object) [
                 'nama' => $emp->name,

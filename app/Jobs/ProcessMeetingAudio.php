@@ -225,7 +225,7 @@ class ProcessMeetingAudio implements ShouldQueue
                         $resJson = $response->json();
                         $sumText = $resJson['choices'][0]['message']['content'] ?? null;
                         if ($sumText) {
-                            $sumText = trim($sumText);
+                            $sumText = trim(preg_replace('/```(?:markdown)?/i', '', $sumText));
                             $this->notulensi->update([
                                 'transkrip_raw' => $combinedTranscript,
                                 'ringkasan' => $sumText,
@@ -270,7 +270,7 @@ class ProcessMeetingAudio implements ShouldQueue
                         $sumResult = $responseSummary->json();
                         $sumText = $sumResult['candidates'][0]['content']['parts'][0]['text'] ?? null;
                         if ($sumText) {
-                            $sumText = trim($sumText);
+                            $sumText = trim(preg_replace('/```(?:markdown)?/i', '', $sumText));
                             $this->notulensi->update([
                                 'transkrip_raw' => $combinedTranscript,
                                 'ringkasan' => $sumText,
