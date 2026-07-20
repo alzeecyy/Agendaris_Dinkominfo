@@ -4,8 +4,8 @@
 
 @section('content')
 <div class="space-y-6">
-    <!-- Breadcrumbs / Back button -->
-    <div class="flex items-center justify-between">
+    <!-- Breadcrumbs / Back button & Title -->
+    <div class="space-y-1">
         <a href="{{ route('agenda.show', $agenda->id) }}" 
            class="inline-flex items-center gap-2 text-xs font-bold text-[#5a508f] hover:text-[#2e2552] transition-colors">
             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -13,11 +13,9 @@
             </svg>
             <span>Kembali ke Detail Agenda</span>
         </a>
-        <div>
-            <h1 class="text-lg font-black text-[#2e2552]">
-                {{ $notulensi->status === 'disahkan' ? 'Notulensi Rapat Resmi' : 'Tinjau Draf Notulensi' }}
-            </h1>
-        </div>
+        <h1 class="text-lg font-black text-[#2e2552]">
+            {{ $notulensi->status === 'disahkan' ? 'Notulensi Rapat Resmi' : 'Tinjau Draf Notulensi' }}
+        </h1>
     </div>
 
     <div x-data="{ openRevisiPanel: false }" class="grid grid-cols-1 lg:grid-cols-3 gap-6 items-start">
@@ -31,7 +29,7 @@
                     <span class="px-2.5 py-0.5 rounded bg-amber-50 text-amber-600 border border-amber-200 text-[10px] font-bold uppercase tracking-wide">Menunggu Review</span>
                 @endif
                 <h2 class="text-lg font-black text-[#2e2552] mt-2 leading-tight">{{ $agenda->judul }}</h2>
-                <p class="text-xs text-[#5a508f] mt-1">Dasar Pelaksanaan: <strong class="text-[#2e2552]">{{ $agenda->nomor_surat_dasar ?? '-' }}</strong></p>
+                <p class="text-xs text-[#5a508f] mt-1">Nomor Surat: <strong class="text-[#2e2552]">{{ $agenda->nomor_surat_dasar ?? '-' }}</strong></p>
             </div>
 
             <!-- Read only fields -->

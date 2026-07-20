@@ -92,7 +92,7 @@
         <tr>
             <td style="font-weight: bold;">Hari, Tanggal</td>
             <td>:</td>
-            <td>{{ $agenda->tanggal->translatedFormat('l, d F Y') }}</td>
+            <td>{{ $agenda->tanggal->locale('id')->translatedFormat('l, d F Y') }}</td>
         </tr>
         <tr>
             <td style="font-weight: bold;">Waktu</td>
@@ -105,7 +105,7 @@
             <td>{{ $agenda->lokasi }}</td>
         </tr>
         <tr>
-            <td style="font-weight: bold;">Dasar Pelaksanaan</td>
+            <td style="font-weight: bold;">Nomor Surat</td>
             <td>:</td>
             <td>{{ $agenda->nomor_surat_dasar }}</td>
         </tr>
@@ -174,7 +174,7 @@
     </table>
 
     <div class="signature-box">
-        <p>Purwokerto, {{ $notulensi->updated_at->translatedFormat('d F Y') }}</p>
+        <p>Purwokerto, {{ $notulensi->updated_at->locale('id')->translatedFormat('d F Y') }}</p>
         <p>Mengesahkan,</p>
         <br><br><br>
         <p style="font-weight: bold; text-decoration: underline; margin-bottom: 2px;">{{ $notulensi->approver->name ?? '-' }}</p>

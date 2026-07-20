@@ -4,8 +4,8 @@
 
 @section('content')
 <div class="space-y-6">
-    <!-- Header/Back -->
-    <div class="flex items-center justify-between">
+    <!-- Header/Back & Title -->
+    <div class="space-y-1">
         <a href="{{ route('agenda.show', $agenda->id) }}" 
            class="inline-flex items-center gap-2 text-xs font-bold text-[#5a508f] hover:text-[#2e2552] transition-colors">
             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -13,9 +13,7 @@
             </svg>
             <span>Kembali ke Detail Agenda</span>
         </a>
-        <div>
-            <h1 class="text-lg font-black text-[#2e2552]">Kelola Notulensi Rapat</h1>
-        </div>
+        <h1 class="text-lg font-black text-[#2e2552]">Kelola Notulensi Rapat</h1>
     </div>
 
     <div x-data="notulenEditor" class="grid grid-cols-1 lg:grid-cols-3 gap-6 items-start">
@@ -193,6 +191,14 @@
                 <form id="notulen-form" class="space-y-6">
                     @csrf
                     
+                    <!-- Nomor Surat Dasar Pelaksanaan -->
+                    <div class="space-y-1.5 p-4 bg-[#8e88dd]/10 border border-[#8e88dd]/20 rounded-2xl">
+                        <label for="nomor_surat_dasar" class="block text-xs font-bold uppercase tracking-wider text-[#2e2552]">Nomor Surat Dasar Pelaksanaan <span class="text-rose-500">*</span></label>
+                        <input type="text" name="nomor_surat_dasar" id="nomor_surat_dasar" value="{{ old('nomor_surat_dasar', $agenda->nomor_surat_dasar) }}" placeholder="Contoh: 005/123/2026 Perihal Undangan Rapat Evaluasi SPBE"
+                               class="w-full mt-1 px-4 py-2.5 bg-white border border-[#d4d1f5] rounded-xl text-[#2e2552] text-sm focus:outline-none focus:ring-2 focus:ring-[#8e88dd]">
+                        <p class="text-[10px] text-[#5a508f] mt-1 font-medium">Nomor surat dasar pelaksanaan wajib diisi oleh sekretaris sebelum notulensi diajukan untuk disahkan pimpinan.</p>
+                    </div>
+
                     <!-- Transkrip Raw -->
                     <div class="space-y-1.5">
                         <div class="flex items-center justify-between">

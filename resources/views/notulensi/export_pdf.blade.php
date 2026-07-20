@@ -171,7 +171,7 @@
         <tr>
             <td class="meta-label">Hari, Tanggal</td>
             <td class="meta-colon">:</td>
-            <td>{{ $agenda->tanggal->translatedFormat('l, d F Y') }}</td>
+            <td>{{ $agenda->tanggal->locale('id')->translatedFormat('l, d F Y') }}</td>
         </tr>
         <tr>
             <td class="meta-label">Waktu</td>
@@ -184,7 +184,7 @@
             <td>{{ $agenda->lokasi }}</td>
         </tr>
         <tr>
-            <td class="meta-label">Dasar Pelaksanaan</td>
+            <td class="meta-label">Nomor Surat</td>
             <td class="meta-colon">:</td>
             <td>{{ $agenda->nomor_surat_dasar }}</td>
         </tr>
@@ -281,7 +281,7 @@
                 <td></td>
                 <td>
                     <div class="sig-box">
-                        <p>Purwokerto, {{ $notulensi->updated_at->translatedFormat('d F Y') }}</p>
+                        <p>Purwokerto, {{ $notulensi->updated_at->locale('id')->translatedFormat('d F Y') }}</p>
                         <p>Mengesahkan,</p>
                         <p style="font-weight: bold; margin-bottom: 60px;">{{ $notulensi->approver->jabatan ?? 'Pimpinan Rapat' }}</p>
                         <p style="font-weight: bold; text-decoration: underline; margin-bottom: 2px;">{{ $notulensi->approver->name ?? '-' }}</p>

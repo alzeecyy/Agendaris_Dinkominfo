@@ -186,6 +186,7 @@ class NotulensiController extends Controller
         }
 
         $validated = $request->validate([
+            'nomor_surat_dasar' => 'nullable|string|max:255',
             'transkrip_raw' => 'nullable|string',
             'ringkasan' => 'nullable|string',
             'pembahasan' => 'nullable|string',
@@ -194,6 +195,10 @@ class NotulensiController extends Controller
             'pembahasan_title' => 'nullable|string',
             'keputusan_title' => 'nullable|string',
         ]);
+
+        if (isset($validated['nomor_surat_dasar'])) {
+            $agenda->update(['nomor_surat_dasar' => $validated['nomor_surat_dasar']]);
+        }
 
         $notulensi->update([
             'transkrip_raw' => $validated['transkrip_raw'] ?? null,
@@ -224,19 +229,14 @@ class NotulensiController extends Controller
             return back()->with('error', 'Akses ditolak.');
         }
 
-        // Validate Dasar Surat
-        if (empty($agenda->nomor_surat_dasar)) {
-            return redirect()->route('agenda.show', $agenda->id)
-                ->with('error', 'Gagal mengajukan. Nomor Surat Dasar Pelaksanaan wajib diisi terlebih dahulu pada edit agenda.');
-        }
-
         $notulensi = $agenda->notulensi;
         if (!$notulensi) {
             return back()->with('error', 'Notulensi belum dibuat.');
         }
 
-        // Save current inputs first
+        // Save current inputs first & validate nomor_surat_dasar
         $validated = $request->validate([
+            'nomor_surat_dasar' => 'required|string|max:255',
             'transkrip_raw' => 'nullable|string',
             'ringkasan' => 'nullable|string',
             'pembahasan' => 'nullable|string',
@@ -244,7 +244,11 @@ class NotulensiController extends Controller
             'kesimpulan' => 'nullable|string',
             'pembahasan_title' => 'nullable|string',
             'keputusan_title' => 'nullable|string',
+        ], [
+            'nomor_surat_dasar.required' => 'Nomor Surat Dasar Pelaksanaan wajib diisi sebelum mengajukan notulensi.',
         ]);
+
+        $agenda->update(['nomor_surat_dasar' => $validated['nomor_surat_dasar']]);
 
         $notulensi->update([
             'transkrip_raw' => $validated['transkrip_raw'] ?? null,

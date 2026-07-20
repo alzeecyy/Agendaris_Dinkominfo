@@ -536,13 +536,6 @@
                               class="w-full px-4 py-2.5 bg-[#f3f2fe] border border-[#d4d1f5] rounded-2xl text-[#2e2552] text-sm focus:outline-none focus:ring-2 focus:ring-[#8e88dd]"></textarea>
                 </div>
 
-                <!-- Special Rapat Field: Dasar Pelaksanaan (Nomor Surat) -->
-                <div x-show="kategori === 'rapat'" class="space-y-1 bg-[#8e88dd]/10 p-4 border border-[#8e88dd]/20 rounded-2xl">
-                    <label for="nomor_surat_dasar" class="block text-xs font-bold text-[#2e2552] uppercase">Nomor Surat Dasar Pelaksanaan (Opsional Saat Pembuatan)</label>
-                    <input type="text" name="nomor_surat_dasar" id="nomor_surat_dasar" placeholder="Contoh: 005/123/2026 Perihal Undangan Rapat Evaluasi SPBE"
-                           class="w-full mt-1.5 px-4 py-2.5 bg-white border border-[#d4d1f5] rounded-2xl text-[#2e2552] text-sm focus:outline-none focus:ring-2 focus:ring-[#8e88dd]">
-                    <p class="text-[10px] text-[#5a508f] mt-1.5 font-medium">Catatan: Kolom ini wajib dilengkapi sekretaris sebelum mengajukan notulen hasil rapat untuk ditandatangani/disetujui oleh Ketua.</p>
-                </div>
 
                 <!-- Hak Akses (Audience) -->
                 <div x-data="{

@@ -120,10 +120,6 @@
                                 <textarea name="deskripsi" rows="3" class="w-full px-4 py-2.5 bg-[#f3f2fe] border border-[#d4d1f5] rounded-2xl text-[#2e2552] text-sm focus:outline-none">{{ $agenda->deskripsi }}</textarea>
                             </div>
                             
-                            <div class="space-y-1 bg-[#8e88dd]/10 p-4 border border-[#8e88dd]/20 rounded-2xl">
-                                <label class="block text-xs font-bold text-[#2e2552] uppercase">Nomor Surat Dasar Pelaksanaan</label>
-                                <input type="text" name="nomor_surat_dasar" value="{{ $agenda->nomor_surat_dasar }}" class="w-full mt-1.5 px-4 py-2.5 bg-white border border-[#d4d1f5] rounded-2xl text-[#2e2552] text-sm focus:outline-none">
-                            </div>
 
                             <div class="space-y-2">
                                 <label class="block text-xs font-bold text-[#5a508f] uppercase">Hak Akses / Peserta Rapat <span class="text-rose-500">*</span></label>
@@ -205,95 +201,95 @@
     </div>
 
     <!-- TOP GRID: Card Rapat (Left) vs Absensi/Notulensi (Right) -->
-    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 items-start">
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 items-stretch">
         
         <!-- Left Column: Info Detail Agenda & Disahkan Notulensi -->
         <div class="space-y-6 min-w-0">
-            <div class="bg-white border border-[#d4d1f5]/60 rounded-[32px] p-6 md:p-8 shadow-sm space-y-6">
-                <!-- Category badge -->
-                <div class="flex items-center justify-between">
-                    @php
-                        $badgeStyles = [
-                            'rapat' => 'bg-rose-50 text-rose-700 border-rose-200',
-                            'sosialisasi' => 'bg-blue-50 text-blue-700 border-blue-200',
-                            'pelatihan' => 'bg-emerald-50 text-emerald-700 border-emerald-200',
-                            'kegiatan_lainnya' => 'bg-slate-100 text-slate-700 border-slate-200',
-                        ];
-                        $kategoriLabels = [
-                            'rapat' => 'Rapat',
-                            'sosialisasi' => 'Sosialisasi',
-                            'pelatihan' => 'Pelatihan',
-                            'kegiatan_lainnya' => 'Kegiatan Lainnya',
-                        ];
-                    @endphp
-                    <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-bold border 
-                        {{ $badgeStyles[$agenda->kategori] ?? 'bg-slate-100 text-slate-700 border-slate-200' }}">
-                        {{ $kategoriLabels[$agenda->kategori] ?? $agenda->kategori }}
-                    </span>
-                    <span class="text-xs text-[#5a508f]">Dibuat oleh: <strong class="text-[#2e2552]">{{ $agenda->sekretaris->name }}</strong></span>
-                </div>
+            <div class="bg-white border border-[#d4d1f5]/60 rounded-[32px] p-6 md:p-8 shadow-sm space-y-6 h-full flex flex-col justify-between">
+                <div class="space-y-6">
+                    <!-- Category badge -->
+                    <div class="flex items-center justify-between">
+                        @php
+                            $badgeStyles = [
+                                'rapat' => 'bg-rose-50 text-rose-700 border-rose-200',
+                                'sosialisasi' => 'bg-blue-50 text-blue-700 border-blue-200',
+                                'pelatihan' => 'bg-emerald-50 text-emerald-700 border-emerald-200',
+                                'kegiatan_lainnya' => 'bg-slate-100 text-slate-700 border-slate-200',
+                            ];
+                            $kategoriLabels = [
+                                'rapat' => 'Rapat',
+                                'sosialisasi' => 'Sosialisasi',
+                                'pelatihan' => 'Pelatihan',
+                                'kegiatan_lainnya' => 'Kegiatan Lainnya',
+                            ];
+                        @endphp
+                        <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-bold border 
+                            {{ $badgeStyles[$agenda->kategori] ?? 'bg-slate-100 text-slate-700 border-slate-200' }}">
+                            {{ $kategoriLabels[$agenda->kategori] ?? $agenda->kategori }}
+                        </span>
+                        <span class="text-xs text-[#5a508f]">Dibuat oleh: <strong class="text-[#2e2552]">{{ $agenda->sekretaris->name }}</strong></span>
+                    </div>
 
-                <div class="space-y-2">
-                    <h1 class="text-2xl font-black text-[#2e2552] tracking-wide leading-snug">{{ $agenda->judul }}</h1>
-                    <p class="text-xs text-[#5a508f] leading-relaxed">{{ $agenda->deskripsi ?? 'Tidak ada deskripsi tambahan.' }}</p>
-                </div>
+                    <div class="space-y-2">
+                        <h1 class="text-2xl font-black text-[#2e2552] tracking-wide leading-snug">{{ $agenda->judul }}</h1>
+                        <p class="text-xs text-[#5a508f] leading-relaxed">{{ $agenda->deskripsi ?? 'Tidak ada deskripsi tambahan.' }}</p>
+                    </div>
 
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-4 py-4 border-t border-b border-[#d4d1f5]/40 text-sm">
-                    <!-- Tanggal -->
-                    <div class="flex items-center gap-3">
-                        <div class="p-2.5 bg-[#f3f2fe] border border-[#d4d1f5] rounded-2xl text-[#2e2552]">
-                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
-                            </svg>
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 py-4 border-t border-b border-[#d4d1f5]/40 text-sm">
+                        <!-- Tanggal -->
+                        <div class="flex items-center gap-3">
+                            <div class="p-2.5 bg-[#f3f2fe] border border-[#d4d1f5] rounded-2xl text-[#2e2552]">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+                                </svg>
+                            </div>
+                            <div>
+                                <p class="text-[10px] text-[#8e88dd] uppercase font-bold">Tanggal</p>
+                                <p class="text-xs font-bold text-[#2e2552] mt-0.5">{{ $agenda->tanggal->translatedFormat('d F Y') }}</p>
+                            </div>
                         </div>
-                        <div>
-                            <p class="text-[10px] text-[#8e88dd] uppercase font-bold">Tanggal</p>
-                            <p class="text-xs font-bold text-[#2e2552] mt-0.5">{{ $agenda->tanggal->translatedFormat('d F Y') }}</p>
+                        <!-- Jam -->
+                        <div class="flex items-center gap-3">
+                            <div class="p-2.5 bg-[#f3f2fe] border border-[#d4d1f5] rounded-2xl text-[#2e2552]">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                </svg>
+                            </div>
+                            <div>
+                                <p class="text-[10px] text-[#8e88dd] uppercase font-bold">Waktu</p>
+                                <p class="text-xs font-bold text-[#2e2552] mt-0.5">{{ substr($agenda->jam_mulai, 0, 5) }} - {{ substr($agenda->jam_selesai, 0, 5) }} WIB</p>
+                            </div>
+                        </div>
+                        <!-- Lokasi -->
+                        <div class="flex items-center gap-3">
+                            <div class="p-2.5 bg-[#f3f2fe] border border-[#d4d1f5] rounded-2xl text-[#2e2552]">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path>
+                                </svg>
+                            </div>
+                            <div>
+                                <p class="text-[10px] text-[#8e88dd] uppercase font-bold">Lokasi</p>
+                                <p class="text-xs font-bold text-[#2e2552] mt-0.5">{{ $agenda->lokasi }}</p>
+                            </div>
                         </div>
                     </div>
-                    <!-- Jam -->
-                    <div class="flex items-center gap-3">
-                        <div class="p-2.5 bg-[#f3f2fe] border border-[#d4d1f5] rounded-2xl text-[#2e2552]">
-                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                            </svg>
-                        </div>
-                        <div>
-                            <p class="text-[10px] text-[#8e88dd] uppercase font-bold">Waktu</p>
-                            <p class="text-xs font-bold text-[#2e2552] mt-0.5">{{ substr($agenda->jam_mulai, 0, 5) }} - {{ substr($agenda->jam_selesai, 0, 5) }} WIB</p>
-                        </div>
-                    </div>
-                    <!-- Lokasi -->
-                    <div class="flex items-center gap-3">
-                        <div class="p-2.5 bg-[#f3f2fe] border border-[#d4d1f5] rounded-2xl text-[#2e2552]">
-                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path>
-                            </svg>
-                        </div>
-                        <div>
-                            <p class="text-[10px] text-[#8e88dd] uppercase font-bold">Lokasi</p>
-                            <p class="text-xs font-bold text-[#2e2552] mt-0.5">{{ $agenda->lokasi }}</p>
-                        </div>
-                    </div>
                 </div>
 
-                <!-- Dasar Pelaksanaan -->
-                <div class="p-4 bg-[#f8f7ff] border border-[#d4d1f5]/40 rounded-2xl space-y-2">
-                    <h3 class="text-xs font-bold uppercase tracking-wider text-[#5a508f]">Dasar Pelaksanaan / Surat Undangan atau Tugas</h3>
+                <!-- Nomor Surat -->
+                <div class="p-4 bg-[#f8f7ff] border border-[#d4d1f5]/40 rounded-2xl space-y-2 mt-4">
+                    <h3 class="text-xs font-bold uppercase tracking-wider text-[#5a508f]">Nomor Surat</h3>
                     <p class="text-xs text-[#2e2552] font-semibold leading-relaxed">
                         {!! $agenda->nomor_surat_dasar ? e($agenda->nomor_surat_dasar) : '<span class="text-[#8e88dd] italic">Belum diisi oleh Sekretaris.</span>' !!}
                     </p>
                 </div>
             </div>
-
-
         </div>
 
         <!-- Right Column: Absensi Digital & Dokumentasi Notulensi -->
-        <div class="flex flex-col gap-6 min-w-0">
+        <div class="flex flex-col gap-6 min-w-0 h-full justify-between">
             <!-- 1. ABSENSI DIGITAL (Pegawai Internal Mandiri) -->
             @if($agenda->butuh_presensi)
-                <div class="bg-white border border-[#d4d1f5]/60 rounded-[32px] p-6 shadow-sm flex flex-col justify-between gap-4">
+                <div class="bg-white border border-[#d4d1f5]/60 rounded-[32px] p-6 shadow-sm flex-1 flex flex-col justify-between gap-4">
                     <h3 class="text-xs font-bold uppercase tracking-wider text-[#2e2552]">Absensi Digital</h3>
                     
                     @if($ownPresensi)
@@ -352,13 +348,22 @@
                                 </div>
                             </div>
                         @else
-                            <button @click="openAbsenModal = true; initSignaturePad()" 
-                                    class="w-full py-3 bg-[#2e2552] hover:bg-[#3d326a] text-white font-bold text-xs rounded-xl shadow-lg transition-all flex items-center justify-center gap-2">
-                                <span>Isi Presensi Kehadiran</span>
-                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
-                                </svg>
-                            </button>
+                            <div class="space-y-3">
+                                <div class="p-3 bg-rose-50 border border-rose-200 rounded-2xl flex items-center justify-between text-xs">
+                                    <span class="text-[#5a508f] font-medium flex items-center gap-1.5">
+                                        <span class="w-2 h-2 rounded-full bg-rose-500 animate-pulse"></span>
+                                        <span>Status Kehadiran:</span>
+                                    </span>
+                                    <span class="px-2.5 py-1 rounded-lg bg-rose-100 text-rose-700 font-extrabold uppercase text-[10px] border border-rose-300">Belum Absen</span>
+                                </div>
+                                <button @click="openAbsenModal = true; initSignaturePad()" 
+                                        class="w-full py-3 bg-[#2e2552] hover:bg-[#3d326a] text-white font-bold text-xs rounded-xl shadow-lg transition-all flex items-center justify-center gap-2">
+                                    <span>Isi Presensi Kehadiran</span>
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
+                                    </svg>
+                                </button>
+                            </div>
                         @endif
                     @endif
                 </div>
@@ -366,7 +371,7 @@
 
             <!-- 2. STATUS NOTULENSI AI (Hanya Rapat) -->
             @if($agenda->kategori === 'rapat' && $agenda->notulensi)
-                <div class="bg-white border border-[#d4d1f5]/60 rounded-[32px] p-6 shadow-sm flex flex-col justify-between gap-4">
+                <div class="bg-white border border-[#d4d1f5]/60 rounded-[32px] p-6 shadow-sm flex-1 flex flex-col justify-between gap-4">
                     <h3 class="text-xs font-bold uppercase tracking-wider text-[#2e2552]">Dokumentasi Notulensi</h3>
                     
                     @php
