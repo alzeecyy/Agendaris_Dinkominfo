@@ -26,7 +26,14 @@
         
         @if($isSecretaryOfAgenda)
             <!-- Edit Agenda Trigger (Sekretaris only) -->
-            <div x-data="{ openEditModal: false }">
+            <div x-data="{ 
+                openEditModal: {{ $errors->any() ? 'true' : 'false' }}, 
+                tempat: '{{ addslashes($initialTempat) }}', 
+                tempatLainnya: '{{ addslashes($initialTempatLainnya) }}',
+                get combinedLokasi() {
+                    return this.tempat === 'Lainnya' ? this.tempatLainnya : this.tempat;
+                }
+            }">
                 <div class="flex items-center gap-2">
                     <button @click="openEditModal = true" 
                             class="px-4 py-2 bg-white border border-[#d4d1f5] hover:bg-[#8e88dd]/15 text-xs font-bold text-[#2e2552] rounded-xl transition-all shadow-sm">
@@ -56,6 +63,22 @@
                         <form action="{{ route('agenda.update', $agenda->id) }}" method="POST" class="p-6 space-y-4 max-h-[75vh] overflow-y-auto text-[#2e2552]">
                             @csrf
                             @method('PUT')
+                            
+                            @if($errors->any())
+                                <div class="p-3.5 bg-rose-50 border border-rose-200 text-rose-700 rounded-2xl text-xs space-y-1">
+                                    <p class="font-bold flex items-center gap-1.5">
+                                        <svg class="w-4 h-4 shrink-0 text-rose-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
+                                        </svg>
+                                        <span>Perubahan Agenda Gagal Disimpan:</span>
+                                    </p>
+                                    <ul class="list-disc list-inside pl-2 space-y-0.5 font-medium">
+                                        @foreach($errors->all() as $error)
+                                            <li>{{ $error }}</li>
+                                        @endforeach
+                                    </ul>
+                                </div>
+                            @endif
                             
                             <div class="space-y-1">
                                 <label class="block text-xs font-bold text-[#5a508f] uppercase">Judul Kegiatan / Rapat <span class="text-rose-500">*</span></label>
@@ -375,23 +398,44 @@
                     <h3 class="text-xs font-bold uppercase tracking-wider text-[#2e2552]">Dokumentasi Notulensi</h3>
                     
                     @php
-                        $notulenLabels = [
-                            'draft' => 'Draft Belum Direview',
-                            'menunggu_review' => 'Menunggu Review Ketua',
-                            'disahkan' => 'Telah Disahkan Pimpinan',
-                        ];
-                        $notulenColors = [
-                            'draft' => 'bg-blue-50 text-blue-600 border-blue-200',
-                            'menunggu_review' => 'bg-amber-50 text-amber-600 border-amber-200',
-                            'disahkan' => 'bg-emerald-50 text-emerald-600 border-emerald-200',
-                        ];
+                        $notulensi = $agenda->notulensi;
+                        $hasDraftContent = !empty($notulensi->ringkasan) 
+                            || !empty($notulensi->transkrip_raw) 
+                            || !empty($notulensi->pembahasan) 
+                            || !empty($notulensi->audio_path) 
+                            || (!empty($notulensi->audio_files) && count($notulensi->audio_files) > 0);
+
+                        if ($notulensi->is_transcribing) {
+                            $notulenLabel = 'Proses Transkripsi';
+                            $notulenColor = 'bg-sky-50 text-sky-600 border-sky-200';
+                        } elseif ($notulensi->transkrip_error) {
+                            $notulenLabel = 'Gagal Transkripsi';
+                            $notulenColor = 'bg-rose-50 text-rose-600 border-rose-200';
+                        } elseif ($notulensi->status === 'draft') {
+                            if ($hasDraftContent) {
+                                $notulenLabel = 'Draft Belum Direview';
+                                $notulenColor = 'bg-blue-50 text-blue-600 border-blue-200';
+                            } else {
+                                $notulenLabel = 'Belum Ada Draft';
+                                $notulenColor = 'bg-slate-100 text-slate-500 border-slate-200';
+                            }
+                        } elseif ($notulensi->status === 'menunggu_review') {
+                            $notulenLabel = 'Menunggu Review Ketua';
+                            $notulenColor = 'bg-amber-50 text-amber-600 border-amber-200';
+                        } elseif ($notulensi->status === 'disahkan') {
+                            $notulenLabel = 'Telah Disahkan Pimpinan';
+                            $notulenColor = 'bg-emerald-50 text-emerald-600 border-emerald-200';
+                        } else {
+                            $notulenLabel = strtoupper($notulensi->status);
+                            $notulenColor = 'bg-slate-50 text-slate-600 border-slate-200';
+                        }
                     @endphp
                     
                     <div class="flex flex-col flex-1 justify-between gap-4">
                         <div class="flex items-center justify-between border-b border-[#d4d1f5]/40 pb-3">
                             <span class="text-xs text-[#5a508f]">Status Notulen:</span>
-                            <span class="text-[10px] px-2.5 py-0.5 rounded-full border font-bold uppercase {{ $notulenColors[$agenda->notulensi->status] ?? 'bg-slate-50 text-slate-600' }}">
-                                {{ $notulenLabels[$agenda->notulensi->status] ?? $agenda->notulensi->status }}
+                            <span class="text-[10px] px-2.5 py-0.5 rounded-full border font-bold uppercase {{ $notulenColor }}">
+                                {{ $notulenLabel }}
                             </span>
                         </div>
 
@@ -408,7 +452,9 @@
                                     <span>Kelola Transkrip & AI Notulen</span>
                                 </a>
                             @else
-                                <p class="text-xs text-[#8e88dd] text-center py-2 italic">Draf notulensi rapat sedang dirapikan oleh sekretaris.</p>
+                                <p class="text-xs text-[#8e88dd] text-center py-2 italic">
+                                    {{ $hasDraftContent ? 'Draf notulensi rapat sedang dirapikan oleh sekretaris.' : 'Notulensi rapat belum diunggah/dibuat oleh sekretaris.' }}
+                                </p>
                             @endif
                         @elseif($agenda->notulensi->status === 'menunggu_review')
                             @if($isApproverOfAgenda)
@@ -900,5 +946,26 @@
         document.addEventListener('alpine:init', registerAgendaDetail);
     }
     </script>
+
+    <!-- Floating AI Background Processing Toast -->
+    @if($agenda->notulensi && $agenda->notulensi->is_transcribing)
+        <div class="fixed bottom-6 right-6 z-50 bg-[#09103c] text-white p-4 rounded-2xl shadow-2xl border border-sky-500/30 flex items-center gap-3.5 max-w-sm animate-bounce">
+            <div class="w-9 h-9 bg-sky-500/20 text-sky-400 rounded-xl flex items-center justify-center shrink-0">
+                <svg class="w-5 h-5 animate-spin" fill="none" viewBox="0 0 24 24">
+                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                </svg>
+            </div>
+            <div class="space-y-0.5 text-left flex-1 min-w-0">
+                <p class="text-xs font-bold text-sky-300">Transkripsi AI Sedang Berjalan</p>
+                <p class="text-[10px] text-slate-300 leading-tight">Rekaman audio rapat sedang diolah oleh AI. Halaman akan diperbarui otomatis.</p>
+            </div>
+        </div>
+        <script>
+            setTimeout(function() {
+                window.location.reload();
+            }, 4000);
+        </script>
+    @endif
 </div>
 @endsection

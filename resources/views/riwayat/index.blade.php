@@ -243,10 +243,19 @@ class="space-y-6">
                                 @if($item->kategori !== 'rapat')
                                     <span class="text-slate-400 font-medium">-</span>
                                 @elseif($item->notulensi_status === 'disahkan')
-                                    <div class="flex items-center justify-end gap-2 font-bold">
-                                        <a href="{{ route('notulensi.export.pdf', $item->id) }}" class="text-rose-600 hover:text-rose-500 transition-colors">PDF</a>
-                                        <span class="text-[#d4d1f5]">|</span>
-                                        <a href="{{ route('notulensi.export.docx', $item->id) }}" class="text-blue-600 hover:text-blue-500 transition-colors">Word</a>
+                                    <div class="flex items-center justify-end gap-1.5 font-bold">
+                                        <a href="{{ route('notulensi.export.pdf', $item->id) }}" target="_blank" data-no-pjax title="Unduh Notulensi PDF" class="inline-flex items-center gap-1 px-2.5 py-1 bg-rose-50 hover:bg-rose-100 text-rose-700 border border-rose-200 rounded-lg text-[10px] uppercase font-bold transition-all shadow-2xs">
+                                            <svg class="w-3 h-3 text-rose-600 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z"/>
+                                            </svg>
+                                            <span>PDF</span>
+                                        </a>
+                                        <a href="{{ route('notulensi.export.docx', $item->id) }}" target="_blank" data-no-pjax title="Unduh Notulensi Word" class="inline-flex items-center gap-1 px-2.5 py-1 bg-blue-50 hover:bg-blue-100 text-blue-700 border border-blue-200 rounded-lg text-[10px] uppercase font-bold transition-all shadow-2xs">
+                                            <svg class="w-3 h-3 text-blue-600 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                                            </svg>
+                                            <span>Word</span>
+                                        </a>
                                     </div>
                                 @else
                                     <span class="text-[#8e88dd] italic font-medium">Belum Disahkan</span>
@@ -255,7 +264,19 @@ class="space-y-6">
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="6" class="py-8 px-4 text-center text-[#8e88dd] italic font-medium">Tidak terdapat data riwayat kegiatan.</td>
+                            <td colspan="6" class="py-12 px-4 text-center">
+                                <div class="flex flex-col items-center justify-center space-y-3">
+                                    <div class="w-12 h-12 bg-[#8e88dd]/10 text-[#5a508f] rounded-2xl flex items-center justify-center">
+                                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path>
+                                        </svg>
+                                    </div>
+                                    <div class="space-y-0.5">
+                                        <p class="text-xs font-bold text-[#2e2552]">Belum Ada Data Riwayat Kegiatan</p>
+                                        <p class="text-[11px] text-[#5a508f] font-medium">Riwayat rapat dan presensi yang diikuti akan tercatat secara otomatis di sini.</p>
+                                    </div>
+                                </div>
+                            </td>
                         </tr>
                     @endforelse
                 </tbody>

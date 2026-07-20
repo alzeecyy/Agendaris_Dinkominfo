@@ -240,7 +240,7 @@
 
         <!-- Footer Area -->
         <footer class="text-center text-slate-500 text-[10px] font-bold uppercase tracking-wider select-none shrink-0">
-            &copy; 2026 Dinas Komunikasi dan Informatika Kabupaten Banyumas. <span class="tracking-normal">SIRENA V2.0</span>
+            &copy; 2026 Dinas Komunikasi dan Informatika Kabupaten Banyumas.
         </footer>
     </div>
 </body>

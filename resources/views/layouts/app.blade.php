@@ -365,8 +365,8 @@
                     @yield('content')
                 </div>
 
-                <footer class="mt-2 border-t border-[#d4d1f5] pt-3 text-center text-[#5a508f] text-[10px] font-bold uppercase tracking-wider">
-                    &copy; 2026 Dinas Komunikasi dan Informatika Kabupaten Banyumas. <span class="tracking-normal">SIRENA V2.0</span>
+                <footer class="mt-2 border-t border-[#d4d1f5]/60 pt-3 text-center text-slate-500 text-[10px] font-bold uppercase tracking-wider">
+                    &copy; 2026 Dinas Komunikasi dan Informatika Kabupaten Banyumas.
                 </footer>
             </main>
         </div>
@@ -390,8 +390,8 @@
                     if (link.getAttribute('target') === '_blank') return;
                     if (link.getAttribute('download') !== null) return;
                     
-                    // Skip forms, auth, and data-no-pjax links
-                    if (link.closest('form') || url.pathname.includes('/logout')) return;
+                    // Skip forms, auth, export, download, and data-no-pjax links
+                    if (link.closest('form') || url.pathname.includes('/logout') || url.pathname.includes('/export') || url.pathname.includes('/download')) return;
                     if (link.hasAttribute('data-no-pjax')) return;
 
                     e.preventDefault();
