@@ -268,6 +268,17 @@ class NotulensiController extends Controller
     public function review(Agenda $agenda)
     {
         $user = Auth::user();
+
+        if (!$user->hasAccessToAgenda($agenda)) {
+            abort(403, 'Akses ditolak. Anda tidak memiliki wewenang untuk membuka agenda ini.');
+        }
+
+        $notulensi = $agenda->notulensi;
+        if (!$notulensi || !in_array($notulensi->status, ['menunggu_review', 'disahkan'])) {
+            return redirect()->route('agenda.show', $agenda->id)
+                ->with('error', 'Notulensi belum tersedia.');
+        }
+
         $hakAkses = $agenda->hak_akses;
 
         // Verify if user is the authorized secretary
@@ -282,14 +293,8 @@ class NotulensiController extends Controller
             $isApprover = $user->isKetuaMaster();
         }
 
-        if (!$isApprover && !$isSecretaryOfAgenda) {
-            abort(403, 'Akses ditolak. Anda tidak memiliki wewenang untuk meninjau notulensi ini.');
-        }
-
-        $notulensi = $agenda->notulensi;
-        if (!$notulensi || $notulensi->status !== 'menunggu_review') {
-            return redirect()->route('agenda.show', $agenda->id)
-                ->with('error', 'Notulensi tidak dalam status menunggu review.');
+        if ($notulensi->status === 'menunggu_review' && !$isApprover && !$isSecretaryOfAgenda) {
+            abort(403, 'Akses ditolak. Notulensi sedang dalam proses peninjauan oleh pimpinan.');
         }
 
         return view('notulensi.review', compact('agenda', 'notulensi', 'isApprover'));

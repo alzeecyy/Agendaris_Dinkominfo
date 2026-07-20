@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', 'Tinjau Notulensi')
+@section('title', $notulensi->status === 'disahkan' ? 'Notulensi Rapat Resmi' : 'Tinjau Notulensi')
 
 @section('content')
 <div class="space-y-6">
@@ -14,7 +14,9 @@
             <span>Kembali ke Detail Agenda</span>
         </a>
         <div>
-            <h1 class="text-lg font-black text-[#2e2552]">Tinjau Draf Notulensi</h1>
+            <h1 class="text-lg font-black text-[#2e2552]">
+                {{ $notulensi->status === 'disahkan' ? 'Notulensi Rapat Resmi' : 'Tinjau Draf Notulensi' }}
+            </h1>
         </div>
     </div>
 
@@ -23,9 +25,13 @@
         <!-- LEFT PANEL: READ ONLY MINUTES DETAILS -->
         <div class="lg:col-span-2 space-y-6 bg-white border border-[#d4d1f5]/60 rounded-[32px] p-6 md:p-8 shadow-sm">
             <div>
-                <span class="px-2.5 py-0.5 rounded bg-amber-50 text-amber-600 border border-amber-200 text-[10px] font-bold uppercase tracking-wide">Menunggu Review</span>
+                @if($notulensi->status === 'disahkan')
+                    <span class="px-2.5 py-0.5 rounded bg-emerald-50 text-emerald-600 border border-emerald-200 text-[10px] font-bold uppercase tracking-wide">Disahkan ✓</span>
+                @else
+                    <span class="px-2.5 py-0.5 rounded bg-amber-50 text-amber-600 border border-amber-200 text-[10px] font-bold uppercase tracking-wide">Menunggu Review</span>
+                @endif
                 <h2 class="text-lg font-black text-[#2e2552] mt-2 leading-tight">{{ $agenda->judul }}</h2>
-                <p class="text-xs text-[#5a508f] mt-1">Dasar Pelaksanaan: <strong class="text-[#2e2552]">{{ $agenda->nomor_surat_dasar }}</strong></p>
+                <p class="text-xs text-[#5a508f] mt-1">Dasar Pelaksanaan: <strong class="text-[#2e2552]">{{ $agenda->nomor_surat_dasar ?? '-' }}</strong></p>
             </div>
 
             <!-- Read only fields -->
@@ -70,10 +76,43 @@
             </div>
         </div>
 
-        <!-- RIGHT PANEL: DECISION ACTIONS -->
+        <!-- RIGHT PANEL: DECISION / DOWNLOAD ACTIONS -->
         <div class="space-y-6">
-            
-            @if($isApprover)
+            @if($notulensi->status === 'disahkan')
+                <!-- Official Approved Document & Downloads Card -->
+                <div class="bg-white border border-[#d4d1f5]/60 rounded-[32px] p-6 shadow-sm space-y-5">
+                    <div>
+                        <h3 class="text-xs font-bold uppercase tracking-wider text-[#2e2552]">Unduh Berkas Resmi</h3>
+                        <p class="text-[10px] text-[#5a508f] mt-1.5 leading-relaxed font-medium">Dokumen ini telah disahkan oleh Pimpinan. Silakan unduh salinan resmi di bawah ini.</p>
+                    </div>
+
+                    <div class="space-y-2.5">
+                        <a href="{{ route('notulensi.export.pdf', $agenda->id) }}" 
+                           class="w-full py-3 bg-rose-600 hover:bg-rose-500 text-white font-bold text-xs rounded-xl shadow-lg shadow-rose-600/15 transition-all flex items-center justify-center gap-2">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                            </svg>
+                            <span>Unduh Dokumen (PDF)</span>
+                        </a>
+
+                        <a href="{{ route('notulensi.export.docx', $agenda->id) }}" 
+                           class="w-full py-3 bg-blue-600 hover:bg-blue-500 text-white font-bold text-xs rounded-xl shadow-lg shadow-blue-600/15 transition-all flex items-center justify-center gap-2">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path>
+                            </svg>
+                            <span>Unduh Dokumen (Word / DOCX)</span>
+                        </a>
+                    </div>
+
+                    @if($notulensi->approver)
+                        <div class="p-3.5 bg-slate-50 border border-slate-200/60 rounded-2xl text-xs space-y-1">
+                            <p class="text-[9px] font-bold text-[#8e88dd] uppercase tracking-wider">Disahkan Oleh:</p>
+                            <p class="font-bold text-[#2e2552]">{{ $notulensi->approver->name }}</p>
+                            <p class="text-[10px] text-[#5a508f]">{{ $notulensi->approver->jabatan ?? '-' }}</p>
+                        </div>
+                    @endif
+                </div>
+            @elseif($isApprover)
                 <!-- Approval Control Card -->
                 <div class="bg-white border border-[#d4d1f5]/60 rounded-[32px] p-6 shadow-sm space-y-6">
                     <div>

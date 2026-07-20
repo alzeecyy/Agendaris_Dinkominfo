@@ -205,10 +205,10 @@
     </div>
 
     <!-- TOP GRID: Card Rapat (Left) vs Absensi/Notulensi (Right) -->
-    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 items-stretch">
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 items-start">
         
         <!-- Left Column: Info Detail Agenda & Disahkan Notulensi -->
-        <div class="space-y-6">
+        <div class="space-y-6 min-w-0">
             <div class="bg-white border border-[#d4d1f5]/60 rounded-[32px] p-6 md:p-8 shadow-sm space-y-6">
                 <!-- Category badge -->
                 <div class="flex items-center justify-between">
@@ -286,64 +286,14 @@
                 </div>
             </div>
 
-            <!-- RENDER NOTULENSI DOKUMEN JIKA DISAHKAN -->
-            @if($agenda->notulensi && $agenda->notulensi->status === 'disahkan')
-                <div class="bg-white border border-[#d4d1f5]/60 rounded-[32px] p-6 md:p-8 shadow-sm space-y-6">
-                    <div class="flex flex-col sm:flex-row sm:items-center justify-between border-b border-[#d4d1f5]/40 pb-4 gap-3">
-                        <div>
-                            <span class="px-2.5 py-0.5 rounded bg-emerald-50 text-emerald-600 border border-emerald-200 text-[10px] font-bold uppercase tracking-wide">Disahkan ✓</span>
-                            <h2 class="text-base font-bold text-[#2e2552] mt-1">Notulensi Hasil Rapat Resmi</h2>
-                        </div>
-                        <div class="flex items-center gap-2">
-                            <a href="{{ route('notulensi.export.pdf', $agenda->id) }}" class="px-3.5 py-2 bg-rose-600 hover:bg-rose-500 text-white text-xs font-bold rounded-xl shadow-lg shadow-rose-600/15 flex items-center gap-1.5 transition-all">
-                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
-                                </svg>
-                                <span>PDF</span>
-                            </a>
-                            <a href="{{ route('notulensi.export.docx', $agenda->id) }}" class="px-3.5 py-2 bg-blue-600 hover:bg-blue-555 text-white text-xs font-bold rounded-xl shadow-lg shadow-blue-600/15 flex items-center gap-1.5 transition-all">
-                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path>
-                                </svg>
-                                <span>Word</span>
-                            </a>
-                        </div>
-                    </div>
 
-                    <!-- Notulensi Contents display -->
-                    <div class="space-y-6 text-sm text-[#2e2552]">
-                        <div class="space-y-1.5">
-                            <h4 class="text-xs font-bold uppercase tracking-wider text-[#5a508f]">Ringkasan Rapat</h4>
-                            <p class="bg-[#f8f7ff] p-4 border border-[#d4d1f5]/40 rounded-2xl leading-relaxed">{{ $agenda->notulensi->ringkasan }}</p>
-                        </div>
-                        @if(!empty($agenda->notulensi->pembahasan))
-                        <div class="space-y-1.5">
-                            <h4 class="text-xs font-bold uppercase tracking-wider text-[#5a508f]">{{ $agenda->notulensi->pembahasan_title }}</h4>
-                            <div class="bg-[#f8f7ff] p-4 border border-[#d4d1f5]/40 rounded-2xl leading-relaxed whitespace-pre-line">{{ $agenda->notulensi->pembahasan }}</div>
-                        </div>
-                        @endif
-                        @if(!empty($agenda->notulensi->keputusan))
-                        <div class="space-y-1.5">
-                            <h4 class="text-xs font-bold uppercase tracking-wider text-[#5a508f]">{{ $agenda->notulensi->keputusan_title }}</h4>
-                            <div class="bg-[#f8f7ff] p-4 border border-[#d4d1f5]/40 rounded-2xl leading-relaxed whitespace-pre-line text-emerald-600 font-bold">{{ $agenda->notulensi->keputusan }}</div>
-                        </div>
-                        @endif
-                        @if(!empty($agenda->notulensi->kesimpulan))
-                        <div class="space-y-1.5">
-                            <h4 class="text-xs font-bold uppercase tracking-wider text-[#5a508f]">Kesimpulan</h4>
-                            <div class="bg-[#f8f7ff] p-4 border border-[#d4d1f5]/40 rounded-2xl leading-relaxed whitespace-pre-line">{{ $agenda->notulensi->kesimpulan }}</div>
-                        </div>
-                        @endif
-                    </div>
-                </div>
-            @endif
         </div>
 
         <!-- Right Column: Absensi Digital & Dokumentasi Notulensi -->
-        <div class="flex flex-col gap-6 h-full">
+        <div class="flex flex-col gap-6 min-w-0">
             <!-- 1. ABSENSI DIGITAL (Pegawai Internal Mandiri) -->
             @if($agenda->butuh_presensi)
-                <div class="bg-white border border-[#d4d1f5]/60 rounded-[32px] p-6 shadow-sm flex-1 flex flex-col justify-between gap-4">
+                <div class="bg-white border border-[#d4d1f5]/60 rounded-[32px] p-6 shadow-sm flex flex-col justify-between gap-4">
                     <h3 class="text-xs font-bold uppercase tracking-wider text-[#2e2552]">Absensi Digital</h3>
                     
                     @if($ownPresensi)
@@ -416,7 +366,7 @@
 
             <!-- 2. STATUS NOTULENSI AI (Hanya Rapat) -->
             @if($agenda->kategori === 'rapat' && $agenda->notulensi)
-                <div class="bg-white border border-[#d4d1f5]/60 rounded-[32px] p-6 shadow-sm flex-1 flex flex-col justify-between gap-4">
+                <div class="bg-white border border-[#d4d1f5]/60 rounded-[32px] p-6 shadow-sm flex flex-col justify-between gap-4">
                     <h3 class="text-xs font-bold uppercase tracking-wider text-[#2e2552]">Dokumentasi Notulensi</h3>
                     
                     @php
@@ -482,12 +432,13 @@
                                 </p>
                             @endif
                         @elseif($agenda->notulensi->status === 'disahkan')
-                            <div class="p-3 bg-emerald-50 border border-emerald-200 rounded-2xl text-xs text-emerald-600 font-bold text-center flex items-center justify-center gap-2">
-                                <span>Notulensi Disetujui Pimpinan</span>
-                                <svg class="w-4 h-4 animate-bounce" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"></path>
+                            <a href="{{ route('notulensi.review', $agenda->id) }}" 
+                               class="w-full py-3 bg-[#2e2552] hover:bg-[#3d326a] text-white font-bold text-xs rounded-xl shadow-md transition-all flex items-center justify-center gap-2">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path>
                                 </svg>
-                            </div>
+                                <span>Lihat Notulensi Rapat Resmi</span>
+                            </a>
                         @endif
                     </div>
                 </div>
