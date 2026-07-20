@@ -240,7 +240,9 @@ class="space-y-6">
                                 @endif
                             </td>
                             <td class="py-4 px-4 text-right text-xs">
-                                @if($item->notulensi_status === 'disahkan')
+                                @if($item->kategori !== 'rapat')
+                                    <span class="text-slate-400 font-medium">-</span>
+                                @elseif($item->notulensi_status === 'disahkan')
                                     <div class="flex items-center justify-end gap-2 font-bold">
                                         <a href="{{ route('notulensi.export.pdf', $item->id) }}" class="text-rose-600 hover:text-rose-500 transition-colors">PDF</a>
                                         <span class="text-[#d4d1f5]">|</span>
