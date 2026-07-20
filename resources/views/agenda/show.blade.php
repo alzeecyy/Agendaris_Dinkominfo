@@ -489,7 +489,15 @@
             @if($isSecretaryOfAgenda)
                 <div class="lg:col-span-2 flex flex-col">
                     <div class="bg-white border border-[#d4d1f5]/60 rounded-[32px] p-6 shadow-sm space-y-4 h-full flex flex-col">
-                        <h3 class="text-xs font-bold uppercase tracking-wider text-[#2e2552]">Koreksi Presensi Pegawai</h3>
+                        <div class="flex items-center justify-between gap-4">
+                            <h3 class="text-xs font-bold uppercase tracking-wider text-[#2e2552]">Koreksi Presensi Pegawai</h3>
+                            <button @click="openGuestModal = true" class="px-3.5 py-2 bg-[#2e2552] hover:bg-[#3d326a] text-white text-[10px] font-bold rounded-xl transition-all shadow-sm flex items-center gap-1.5 shrink-0">
+                                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z"></path>
+                                </svg>
+                                <span>+ Tamu Eksternal</span>
+                            </button>
+                        </div>
                         
                         <div class="max-h-96 overflow-y-auto pr-1">
                             <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
@@ -514,6 +522,30 @@
                                                 <option value="izin" {{ $part->status_presensi === 'izin' ? 'selected' : '' }}>Izin</option>
                                                 <option value="sakit" {{ $part->status_presensi === 'sakit' ? 'selected' : '' }}>Sakit</option>
                                             </select>
+                                        </form>
+                                    </div>
+                                @endforeach
+
+                                @foreach($externalParticipants as $guest)
+                                    <div class="flex items-center justify-between gap-3 p-3 bg-[#f0effd] border border-[#d4d1f5]/40 rounded-2xl shadow-sm">
+                                        <div class="min-w-0 flex-1">
+                                            <div class="flex items-center gap-1.5 min-w-0">
+                                                <div class="text-xs font-bold text-[#2e2552] truncate" title="{{ $guest->nama }}">{{ $guest->nama }}</div>
+                                                <span class="inline-block shrink-0 px-1.5 py-0.5 bg-[#8e88dd]/20 text-[#2e2552] text-[8px] font-black rounded uppercase tracking-wider">Tamu</span>
+                                            </div>
+                                            <div class="text-[9px] text-[#5a508f] truncate font-medium mt-0.5" title="{{ $guest->jabatan }} - {{ $guest->instansi }}">
+                                                {{ $guest->jabatan }} di <strong>{{ $guest->instansi }}</strong>
+                                            </div>
+                                        </div>
+                                        
+                                        <form action="{{ route('notulensi.external.delete', $guest->id) }}" method="POST" class="shrink-0" data-confirm="Apakah Anda yakin ingin menghapus tamu eksternal ini?">
+                                            @csrf
+                                            @method('DELETE')
+                                            <button type="submit" class="text-rose-600 hover:text-rose-500 p-1.5 hover:bg-rose-50 rounded-xl transition-colors" title="Hapus Tamu">
+                                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+                                                </svg>
+                                            </button>
                                         </form>
                                     </div>
                                 @endforeach
@@ -597,6 +629,61 @@
             <div class="p-4 bg-[#f8f7ff] border-t border-[#d4d1f5]/40 flex justify-end">
                 <button @click="openDetailModal = false" class="px-4 py-2.5 bg-[#2e2552] hover:bg-[#3d326a] text-white text-xs font-bold rounded-2xl shadow-sm">Tutup</button>
             </div>
+        </div>
+    </div>
+    @endif
+
+    @if($isSecretaryOfAgenda)
+    <!-- MODAL: DAFTAR HADIR TAMU EKSTERNAL -->
+    <div x-show="openGuestModal" x-cloak class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/50 backdrop-blur-sm">
+        <div @click.away="openGuestModal = false" 
+             class="bg-white border border-[#d4d1f5]/60 rounded-3xl w-full max-w-lg shadow-2xl overflow-hidden relative text-[#2e2552]"
+             x-transition:enter="transition ease-out duration-300 transform"
+             x-transition:enter-start="opacity-0 scale-95"
+             x-transition:enter-end="opacity-100 scale-100">
+             
+            <div class="absolute top-0 left-0 w-full h-[2px] bg-gradient-to-r from-[#2e2552] to-[#8e88dd]"></div>
+
+            <div class="p-6 border-b border-[#d4d1f5]/40 flex items-center justify-between">
+                <div>
+                    <h3 class="text-base font-bold text-[#2e2552]">Tambah Tamu Eksternal</h3>
+                    <p class="text-xs text-[#5a508f]">Masukkan nama undangan dari luar Dinkominfo</p>
+                </div>
+                <button @click="openGuestModal = false" class="text-[#5a508f] hover:text-[#2e2552] transition-colors">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                    </svg>
+                </button>
+            </div>
+
+            <form action="{{ route('notulensi.external.add', $agenda->id) }}" method="POST" class="p-6 space-y-4">
+                @csrf
+                <div class="space-y-1">
+                    <label for="ext_nama_show" class="block text-xs font-bold text-[#5a508f] uppercase">Nama Tamu <span class="text-rose-500">*</span></label>
+                    <input type="text" name="nama" id="ext_nama_show" required placeholder="Contoh: Budi Santoso, S.Kom"
+                           class="w-full px-4 py-2.5 bg-[#f3f2fe] border border-[#d4d1f5] rounded-2xl text-[#2e2552] text-sm focus:outline-none focus:ring-2 focus:ring-[#8e88dd]">
+                </div>
+                <div class="space-y-1">
+                    <label for="ext_jabatan_show" class="block text-xs font-bold text-[#5a508f] uppercase">Jabatan <span class="text-rose-500">*</span></label>
+                    <input type="text" name="jabatan" id="ext_jabatan_show" required placeholder="Contoh: Analis Infrastruktur"
+                           class="w-full px-4 py-2.5 bg-[#f3f2fe] border border-[#d4d1f5] rounded-2xl text-[#2e2552] text-sm focus:outline-none focus:ring-2 focus:ring-[#8e88dd]">
+                </div>
+                <div class="space-y-1">
+                    <label for="ext_instansi_show" class="block text-xs font-bold text-[#5a508f] uppercase">Instansi Asal <span class="text-rose-500">*</span></label>
+                    <input type="text" name="instansi" id="ext_instansi_show" required placeholder="Contoh: Bappeda Litbang"
+                           class="w-full px-4 py-2.5 bg-[#f3f2fe] border border-[#d4d1f5] rounded-2xl text-[#2e2552] text-sm focus:outline-none focus:ring-2 focus:ring-[#8e88dd]">
+                </div>
+
+                <!-- Footer / Action Buttons -->
+                <div class="flex gap-3 justify-end pt-2">
+                    <button type="button" @click="openGuestModal = false" class="px-4 py-2.5 border border-[#cbd5e1] hover:bg-slate-50 text-[#2e2552] text-xs font-bold rounded-2xl">
+                        Batal
+                    </button>
+                    <button type="submit" class="px-5 py-2.5 bg-[#2e2552] hover:bg-[#3d326a] text-white text-xs font-bold rounded-2xl shadow-sm">
+                        + Tambah Tamu
+                    </button>
+                </div>
+            </form>
         </div>
     </div>
     @endif
@@ -727,6 +814,7 @@
             Alpine.data('agendaDetail', () => ({
                 openDetailModal: false,
                 openAbsenModal: false,
+                openGuestModal: false,
                 status: 'hadir',
                 keterangan: '',
                 signatureData: '',

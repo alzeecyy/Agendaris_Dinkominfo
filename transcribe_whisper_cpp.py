@@ -59,10 +59,20 @@ try:
                         wav_file.writeframes(data)
 
     # Step 2: Run whisper.cpp on the temp WAV
-    main_exe = os.path.join(whisper_dir, "Release", "whisper-cli.exe")
-    
-    if not os.path.exists(main_exe):
-        raise FileNotFoundError(f"whisper.cpp executable not found at: {main_exe}")
+    possible_exes = [
+        os.path.join(whisper_dir, "Release", "whisper-cli.exe"),
+        os.path.join(whisper_dir, "whisper-cli.exe"),
+        os.path.join(whisper_dir, "main.exe"),
+        os.path.join(whisper_dir, "Release", "main.exe"),
+    ]
+    main_exe = None
+    for exe in possible_exes:
+        if os.path.exists(exe):
+            main_exe = exe
+            break
+            
+    if main_exe is None:
+        raise FileNotFoundError(f"whisper.cpp executable not found in any of the expected locations: {possible_exes}")
 
     # Use fewer threads to reduce memory pressure
     # Use beam search (default bs=5) for better accuracy - do NOT use bs=1 (greedy, very inaccurate)
@@ -74,7 +84,6 @@ try:
         "-f", temp_wav,
         "-nt",          # no timestamps in output
         "-l", "id",     # Indonesian language
-        "-nfa",         # no flash attention (saves memory)
         "-ng",          # no GPU
         "-t", cpu_threads,
         "--word-thold", "0.01",  # filter very low-confidence words

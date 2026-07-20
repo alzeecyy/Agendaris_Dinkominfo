@@ -223,16 +223,6 @@
 
                 <nav class="flex-1 w-full flex flex-col gap-1 px-3">
                     @if(Auth::check() && !Auth::user()->isAdmin())
-                        <!-- Profil Link -->
-                        <a href="{{ route('profile') }}" 
-                           class="flex items-center gap-3 px-4 py-3 rounded-2xl font-bold text-xs transition-all duration-200 
-                           {{ request()->routeIs('profile') ? 'bg-[#1b3bbb] text-white shadow-lg shadow-[#1b3bbb]/20' : 'text-slate-600 hover:bg-[#1b3bbb]/5 hover:text-[#1b3bbb]' }}">
-                            <svg class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
-                            </svg>
-                            <span>Kelola Profil</span>
-                        </a>
-
                         <!-- Dashboard Link -->
                         <a href="{{ route('dashboard') }}" 
                            class="flex items-center gap-3 px-4 py-3 rounded-2xl font-bold text-xs transition-all duration-200 
@@ -261,6 +251,16 @@
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
                             </svg>
                             <span>Riwayat Rapat</span>
+                        </a>
+
+                        <!-- Profil Link -->
+                        <a href="{{ route('profile') }}" 
+                           class="flex items-center gap-3 px-4 py-3 rounded-2xl font-bold text-xs transition-all duration-200 
+                           {{ request()->routeIs('profile') ? 'bg-[#1b3bbb] text-white shadow-lg shadow-[#1b3bbb]/20' : 'text-slate-600 hover:bg-[#1b3bbb]/5 hover:text-[#1b3bbb]' }}">
+                            <svg class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
+                            </svg>
+                            <span>Kelola Profil</span>
                         </a>
                     @endif
 
@@ -365,9 +365,8 @@
                     @yield('content')
                 </div>
 
-                <!-- FOOTER -->
                 <footer class="mt-2 border-t border-[#d4d1f5] pt-3 text-center text-[#5a508f] text-[10px] font-bold uppercase tracking-wider">
-                    &copy; 2026 Dinas Komunikasi dan Informatika Kabupaten Banyumas. Sirena v2.0 &bull; Premium Internal System.
+                    &copy; 2026 Dinas Komunikasi dan Informatika Kabupaten Banyumas. <span class="tracking-normal">SIRENA V2.0</span>
                 </footer>
             </main>
         </div>

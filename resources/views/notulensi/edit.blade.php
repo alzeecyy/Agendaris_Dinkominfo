@@ -16,10 +16,10 @@
         <h1 class="text-lg font-black text-[#2e2552]">Kelola Notulensi Rapat</h1>
     </div>
 
-    <div x-data="notulenEditor" class="grid grid-cols-1 lg:grid-cols-3 gap-6 items-start">
+    <div x-data="notulenEditor" class="space-y-6">
         
-        <!-- LEFT/MID COLUMN: EDIT FIELDS FORM -->
-        <div class="lg:col-span-2 space-y-6">
+        <!-- EDIT FIELDS FORM -->
+        <div class="space-y-6">
             <div class="bg-white border border-[#d4d1f5]/60 rounded-[32px] p-6 md:p-8 shadow-sm space-y-6">
                 
                 <!-- Audio List -->
@@ -251,70 +251,6 @@
                 </form>
             </div>
         </div>
-
-        <!-- RIGHT COLUMN: PESERTA EKSTERNAL MANAGEMENT -->
-        <div class="space-y-6">
-            
-            <!-- External Guests Card -->
-            <div class="bg-white border border-[#d4d1f5]/60 rounded-[32px] p-6 shadow-sm space-y-6">
-                <div>
-                    <h3 class="text-xs font-bold uppercase tracking-wider text-[#2e2552]">Daftar Hadir Tamu Eksternal</h3>
-                    <p class="text-[10px] text-[#5a508f] mt-1.5 leading-relaxed font-medium">Gunakan ini untuk memasukkan nama undangan dari luar Dinkominfo (OPD lain, dll).</p>
-                </div>
-
-                <!-- Add Guest Form -->
-                <form action="{{ route('notulensi.external.add', $agenda->id) }}" method="POST" class="space-y-3 p-4 bg-[#f8f7ff] border border-[#d4d1f5]/40 rounded-2xl text-[#2e2552]">
-                    @csrf
-                    <div class="space-y-1">
-                        <label for="ext_nama" class="block text-[9px] font-bold text-[#5a508f] uppercase">Nama Tamu</label>
-                        <input type="text" name="nama" id="ext_nama" required placeholder="Contoh: Budi Santoso, S.Kom"
-                               class="w-full px-3 py-2 bg-white border border-[#d4d1f5] rounded-xl text-xs text-[#2e2552] placeholder-slate-400 focus:outline-none">
-                    </div>
-                    <div class="space-y-1">
-                        <label for="ext_jabatan" class="block text-[9px] font-bold text-[#5a508f] uppercase">Jabatan</label>
-                        <input type="text" name="jabatan" id="ext_jabatan" required placeholder="Contoh: Analis Infrastruktur"
-                               class="w-full px-3 py-2 bg-white border border-[#d4d1f5] rounded-xl text-xs text-[#2e2552] placeholder-slate-400 focus:outline-none">
-                    </div>
-                    <div class="space-y-1">
-                        <label for="ext_instansi" class="block text-[9px] font-bold text-[#5a508f] uppercase">Instansi Asal</label>
-                        <input type="text" name="instansi" id="ext_instansi" required placeholder="Contoh: Bappeda Litbang"
-                               class="w-full px-3 py-2 bg-white border border-[#d4d1f5] rounded-xl text-xs text-[#2e2552] placeholder-slate-400 focus:outline-none">
-                    </div>
-                    <button type="submit" class="w-full py-2.5 bg-[#2e2552] hover:bg-[#3d326a] text-white text-xs font-bold rounded-xl transition-all shadow-sm">
-                        + Tambah Tamu
-                    </button>
-                </form>
-
-                <!-- List Guests table -->
-                <div class="space-y-2">
-                    <h4 class="text-[10px] font-bold text-[#5a508f] uppercase">Tamu Terdaftar:</h4>
-                    
-                    <div class="space-y-2 max-h-60 overflow-y-auto pr-1">
-                        @forelse($externalParticipants as $guest)
-                            <div class="flex items-center justify-between p-3 bg-[#f8f7ff] border border-[#d4d1f5]/20 rounded-2xl text-xs">
-                                <div class="min-w-0">
-                                    <div class="font-bold text-[#2e2552] truncate">{{ $guest->nama }}</div>
-                                    <div class="text-[9px] text-[#5a508f] truncate font-medium">{{ $guest->jabatan }} - <strong class="text-[#2e2552]">{{ $guest->instansi }}</strong></div>
-                                </div>
-                                <form action="{{ route('notulensi.external.delete', $guest->id) }}" method="POST">
-                                    @csrf
-                                    @method('DELETE')
-                                    <button type="submit" class="text-rose-600 hover:text-rose-500 p-1.5 hover:bg-rose-50 rounded-xl transition-colors" title="Hapus Tamu">
-                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
-                                        </svg>
-                                    </button>
-                                </form>
-                            </div>
-                        @empty
-                            <p class="text-xs text-slate-400 text-center py-4 italic font-medium">Belum ada tamu eksternal.</p>
-                        @endforelse
-                    </div>
-                </div>
-
-            </div>
-        </div>
-
     </div>
     <script>
     function registerNotulenEditor() {
