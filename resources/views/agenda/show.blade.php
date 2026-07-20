@@ -204,11 +204,11 @@
         @endif
     </div>
 
-    <!-- MAIN GRID DETAIL: Left Panel (Content), Right Panel (Presensi/Notulensi) -->
-    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 items-start">
+    <!-- TOP GRID: Card Rapat (Left) vs Absensi/Notulensi (Right) -->
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 items-stretch">
         
-        <!-- Left Panel: Info Detail Agenda -->
-        <div class="lg:col-span-2 space-y-6">
+        <!-- Left Column: Info Detail Agenda & Disahkan Notulensi -->
+        <div class="space-y-6">
             <div class="bg-white border border-[#d4d1f5]/60 rounded-[32px] p-6 md:p-8 shadow-sm space-y-6">
                 <!-- Category badge -->
                 <div class="flex items-center justify-between">
@@ -339,12 +339,11 @@
             @endif
         </div>
 
-        <!-- Right Panel: Presensi & Notulensi Actions -->
-        <div class="space-y-6">
-            
+        <!-- Right Column: Absensi Digital & Dokumentasi Notulensi -->
+        <div class="flex flex-col gap-6 h-full">
             <!-- 1. ABSENSI DIGITAL (Pegawai Internal Mandiri) -->
             @if($agenda->butuh_presensi)
-                <div class="bg-white border border-[#d4d1f5]/60 rounded-[32px] p-6 shadow-sm space-y-4">
+                <div class="bg-white border border-[#d4d1f5]/60 rounded-[32px] p-6 shadow-sm flex-1 flex flex-col justify-between gap-4">
                     <h3 class="text-xs font-bold uppercase tracking-wider text-[#2e2552]">Absensi Digital</h3>
                     
                     @if($ownPresensi)
@@ -384,7 +383,6 @@
                     @else
                         @if($agenda->isPresensiExpired())
                             <div class="bg-red-50/60 border border-red-200/80 rounded-2xl p-4 space-y-3">
-                                <!-- Header with warning icon and main message -->
                                 <div class="flex items-start gap-2.5">
                                     <div class="p-1 bg-red-100 text-red-600 rounded-lg shrink-0">
                                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -397,18 +395,13 @@
                                         <p class="text-[10px] text-red-600/90 leading-relaxed font-medium">Pengisian presensi mandiri dibatasi maksimal 1 jam setelah rapat selesai.</p>
                                     </div>
                                 </div>
-                                
-                                <!-- Divider -->
                                 <div class="border-t border-red-200/40"></div>
-
-                                <!-- Status badge -->
                                 <div class="flex items-center justify-between text-xs bg-red-100/60 border border-red-200/50 rounded-xl px-3 py-2">
                                     <span class="text-[9px] font-bold text-red-700 uppercase tracking-wider">Status Kehadiran:</span>
                                     <span class="text-[10px] font-black text-white bg-red-600 px-2.5 py-0.5 rounded-md">ALFA</span>
                                 </div>
                             </div>
                         @else
-                            <!-- Button to open structured presence modal -->
                             <button @click="openAbsenModal = true; initSignaturePad()" 
                                     class="w-full py-3 bg-[#2e2552] hover:bg-[#3d326a] text-white font-bold text-xs rounded-xl shadow-lg transition-all flex items-center justify-center gap-2">
                                 <span>Isi Presensi Kehadiran</span>
@@ -421,12 +414,96 @@
                 </div>
             @endif
 
-            <!-- 2. TABEL REKAPITULASI PRESENSI INTERNAL -->
-            @if($agenda->butuh_presensi && Auth::user()->role !== 'staff')
-                <div class="bg-white border border-[#d4d1f5]/60 rounded-[32px] p-6 shadow-sm space-y-4">
+            <!-- 2. STATUS NOTULENSI AI (Hanya Rapat) -->
+            @if($agenda->kategori === 'rapat' && $agenda->notulensi)
+                <div class="bg-white border border-[#d4d1f5]/60 rounded-[32px] p-6 shadow-sm flex-1 flex flex-col justify-between gap-4">
+                    <h3 class="text-xs font-bold uppercase tracking-wider text-[#2e2552]">Dokumentasi Notulensi</h3>
+                    
+                    @php
+                        $notulenLabels = [
+                            'draft' => 'Draft Belum Direview',
+                            'menunggu_review' => 'Menunggu Review Ketua',
+                            'disahkan' => 'Telah Disahkan Pimpinan',
+                        ];
+                        $notulenColors = [
+                            'draft' => 'bg-blue-50 text-blue-600 border-blue-200',
+                            'menunggu_review' => 'bg-amber-50 text-amber-600 border-amber-200',
+                            'disahkan' => 'bg-emerald-50 text-emerald-600 border-emerald-200',
+                        ];
+                    @endphp
+                    
+                    <div class="flex flex-col flex-1 justify-between gap-4">
+                        <div class="flex items-center justify-between border-b border-[#d4d1f5]/40 pb-3">
+                            <span class="text-xs text-[#5a508f]">Status Notulen:</span>
+                            <span class="text-[10px] px-2.5 py-0.5 rounded-full border font-bold uppercase {{ $notulenColors[$agenda->notulensi->status] ?? 'bg-slate-50 text-slate-600' }}">
+                                {{ $notulenLabels[$agenda->notulensi->status] ?? $agenda->notulensi->status }}
+                            </span>
+                        </div>
+
+                        @if($agenda->notulensi->status === 'draft')
+                            @if($isSecretaryOfAgenda)
+                                @if($agenda->notulensi->catatan_revisi)
+                                    <div class="bg-rose-50 border border-rose-200 text-rose-700 p-4 rounded-2xl text-xs space-y-1">
+                                        <p class="font-bold">Butuh Revisi / Perbaikan:</p>
+                                        <p class="italic">"{{ $agenda->notulensi->catatan_revisi }}"</p>
+                                    </div>
+                                @endif
+                                <a href="{{ route('notulensi.edit', $agenda->id) }}" 
+                                   class="w-full py-3.5 bg-[#2e2552] hover:bg-[#3d326a] text-white font-bold text-xs rounded-xl shadow-md transition-all flex items-center justify-center gap-2">
+                                    <span>Kelola Transkrip & AI Notulen</span>
+                                </a>
+                            @else
+                                <p class="text-xs text-[#8e88dd] text-center py-2 italic">Draf notulensi rapat sedang dirapikan oleh sekretaris.</p>
+                            @endif
+                        @elseif($agenda->notulensi->status === 'menunggu_review')
+                            @if($isApproverOfAgenda)
+                                <a href="{{ route('notulensi.review', $agenda->id) }}" 
+                                   class="w-full py-3.5 bg-gradient-to-r from-amber-600 to-orange-600 hover:from-amber-500 hover:to-orange-500 text-white font-bold text-xs rounded-xl shadow-lg transition-all flex items-center justify-center gap-2">
+                                    <span>Tinjau & Sahkan Notulensi</span>
+                                </a>
+                            @endif
+
+                            @if($isSecretaryOfAgenda)
+                                <div class="space-y-2">
+                                    <a href="{{ route('notulensi.edit', $agenda->id) }}" 
+                                       class="w-full py-3 bg-[#2e2552] hover:bg-[#3d326a] text-white font-bold text-xs rounded-xl shadow-md transition-all flex items-center justify-center gap-2">
+                                        <span>Kelola & Edit Notulensi</span>
+                                    </a>
+                                    <a href="{{ route('notulensi.review', $agenda->id) }}" 
+                                       class="w-full py-2.5 bg-slate-100 hover:bg-slate-200 text-[#5a508f] font-bold text-xs rounded-xl border border-[#d4d1f5] transition-all flex items-center justify-center gap-2">
+                                        <span>Pratinjau Mode Baca</span>
+                                    </a>
+                                </div>
+                            @endif
+
+                            @if(!$isApproverOfAgenda && !$isSecretaryOfAgenda)
+                                <p class="text-xs text-[#5a508f] text-center py-3 bg-[#f8f7ff] border border-[#d4d1f5]/40 rounded-2xl font-medium">
+                                    Menunggu verifikasi dari pimpinan berwenang.
+                                </p>
+                            @endif
+                        @elseif($agenda->notulensi->status === 'disahkan')
+                            <div class="p-3 bg-emerald-50 border border-emerald-200 rounded-2xl text-xs text-emerald-600 font-bold text-center flex items-center justify-center gap-2">
+                                <span>Notulensi Disetujui Pimpinan</span>
+                                <svg class="w-4 h-4 animate-bounce" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"></path>
+                                </svg>
+                            </div>
+                        @endif
+                    </div>
+                </div>
+            @endif
+        </div>
+    </div>
+
+    <!-- BOTTOM GRID: Rekap Kehadiran Bidang (Left 1/3) vs Koreksi Presensi Pegawai (Right 2/3) -->
+    @if($agenda->butuh_presensi && Auth::user()->role !== 'staff')
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 items-stretch">
+            <!-- Left Column: Rekap Kehadiran Bidang -->
+            <div class="{{ $isSecretaryOfAgenda ? 'lg:col-span-1' : 'lg:col-span-3' }} flex flex-col">
+                <div class="bg-white border border-[#d4d1f5]/60 rounded-[32px] p-6 shadow-sm space-y-4 h-full flex flex-col">
                     <h3 class="text-xs font-bold uppercase tracking-wider text-[#2e2552]">Rekap Kehadiran Bidang</h3>
                     
-                    <div class="space-y-3">
+                    <div class="{{ $isSecretaryOfAgenda ? 'space-y-3' : 'grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4' }}">
                         @foreach($recap as $rc)
                             <div @click="showBidangDetails({{ $rc->bidang_id }}, '{{ addslashes($rc->bidang_nama) }}')" 
                                  class="p-3 bg-[#f8f7ff] border border-[#d4d1f5]/40 hover:border-[#8e88dd]/60 hover:bg-[#f3f2fe] rounded-2xl text-xs space-y-2 cursor-pointer transition-all duration-200 shadow-sm">
@@ -450,121 +527,47 @@
                         @endforeach
                     </div>
                 </div>
+            </div>
 
-                <!-- 3. KELOLA PRESENSI MANUAL (Hanya Sekretaris) -->
-                @if($isSecretaryOfAgenda)
-                    <div class="bg-white border border-[#d4d1f5]/60 rounded-[32px] p-6 shadow-sm space-y-4">
+            <!-- Right Column: Koreksi Presensi Pegawai (Spans 2 columns, list arranged in a 2-column grid) -->
+            @if($isSecretaryOfAgenda)
+                <div class="lg:col-span-2 flex flex-col">
+                    <div class="bg-white border border-[#d4d1f5]/60 rounded-[32px] p-6 shadow-sm space-y-4 h-full flex flex-col">
                         <h3 class="text-xs font-bold uppercase tracking-wider text-[#2e2552]">Koreksi Presensi Pegawai</h3>
                         
-                        <div class="max-h-72 overflow-y-auto space-y-2 pr-1">
-                            @foreach($participants as $part)
-                                <div class="flex items-center justify-between gap-2 p-2 bg-[#f8f7ff] border border-[#d4d1f5]/20 rounded-2xl">
-                                    <div class="min-w-0">
-                                        <div class="text-xs font-bold text-[#2e2552] truncate">{{ $part->name }}</div>
-                                        <div class="text-[9px] text-[#5a508f] truncate font-medium">{{ $part->jabatan }}</div>
+                        <div class="max-h-96 overflow-y-auto pr-1">
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+                                @foreach($participants as $part)
+                                    <div class="flex items-center justify-between gap-3 p-3 bg-[#f8f7ff] border border-[#d4d1f5]/20 rounded-2xl shadow-sm">
+                                        <div class="min-w-0 flex-1">
+                                            <div class="text-xs font-bold text-[#2e2552] truncate" title="{{ $part->name }}">{{ $part->name }}</div>
+                                            <div class="text-[9px] text-[#5a508f] truncate font-medium mt-0.5" title="{{ $part->jabatan }}">{{ $part->jabatan }}</div>
+                                        </div>
+                                        
+                                        <form action="{{ route('agenda.absen.koreksi', $agenda->id) }}" method="POST" class="shrink-0">
+                                            @csrf
+                                            <input type="hidden" name="user_id" value="{{ $part->id }}">
+                                            <select name="status" onchange="this.form.submit()" 
+                                                    class="text-[10px] bg-white border border-[#d4d1f5] rounded-xl text-[#2e2552] px-2.5 py-1 font-bold focus:outline-none focus:ring-1 focus:ring-[#8e88dd]">
+                                                @if($agenda->isPresensiExpired())
+                                                    <option value="alfa" {{ $part->status_presensi === 'alfa' ? 'selected' : '' }}>Alfa</option>
+                                                @else
+                                                    <option value="Belum Absen" {{ $part->status_presensi === 'Belum Absen' ? 'selected' : '' }}>Belum Absen</option>
+                                                @endif
+                                                <option value="hadir" {{ $part->status_presensi === 'hadir' ? 'selected' : '' }}>Hadir</option>
+                                                <option value="izin" {{ $part->status_presensi === 'izin' ? 'selected' : '' }}>Izin</option>
+                                                <option value="sakit" {{ $part->status_presensi === 'sakit' ? 'selected' : '' }}>Sakit</option>
+                                            </select>
+                                        </form>
                                     </div>
-                                    
-                                    <form action="{{ route('agenda.absen.koreksi', $agenda->id) }}" method="POST">
-                                        @csrf
-                                        <input type="hidden" name="user_id" value="{{ $part->id }}">
-                                        <select name="status" onchange="this.form.submit()" 
-                                                class="text-[10px] bg-white border border-[#d4d1f5] rounded-xl text-[#2e2552] px-2 py-1 font-bold focus:outline-none">
-                                            @if($agenda->isPresensiExpired())
-                                                <option value="alfa" {{ $part->status_presensi === 'alfa' ? 'selected' : '' }}>Alfa</option>
-                                            @else
-                                                <option value="Belum Absen" {{ $part->status_presensi === 'Belum Absen' ? 'selected' : '' }}>Belum Absen</option>
-                                            @endif
-                                            <option value="hadir" {{ $part->status_presensi === 'hadir' ? 'selected' : '' }}>Hadir</option>
-                                            <option value="izin" {{ $part->status_presensi === 'izin' ? 'selected' : '' }}>Izin</option>
-                                            <option value="sakit" {{ $part->status_presensi === 'sakit' ? 'selected' : '' }}>Sakit</option>
-                                        </select>
-                                    </form>
-                                </div>
-                            @endforeach
-                        </div>
-                    </div>
-                @endif
-            @endif
-
-            <!-- 4. STATUS NOTULENSI AI (Hanya Rapat) -->
-            @if($agenda->kategori === 'rapat' && $agenda->notulensi)
-                <div class="bg-white border border-[#d4d1f5]/60 rounded-[32px] p-6 shadow-sm space-y-4">
-                    <h3 class="text-xs font-bold uppercase tracking-wider text-[#2e2552]">Dokumentasi Notulensi</h3>
-                    
-                    @php
-                        $notulenLabels = [
-                            'draft' => 'Draft Belum Direview',
-                            'menunggu_review' => 'Menunggu Review Ketua',
-                            'disahkan' => 'Telah Disahkan Pimpinan',
-                        ];
-                        $notulenColors = [
-                            'draft' => 'bg-blue-50 text-blue-600 border-blue-200',
-                            'menunggu_review' => 'bg-amber-55 text-amber-600 border-amber-200',
-                            'disahkan' => 'bg-emerald-50 text-emerald-600 border-emerald-200',
-                        ];
-                    @endphp
-                    
-                    <div class="flex items-center justify-between border-b border-[#d4d1f5]/40 pb-3">
-                        <span class="text-xs text-[#5a508f]">Status Notulen:</span>
-                        <span class="text-[10px] px-2.5 py-0.5 rounded-full border font-bold uppercase {{ $notulenColors[$agenda->notulensi->status] }}">
-                            {{ $notulenLabels[$agenda->notulensi->status] }}
-                        </span>
-                    </div>
-
-                    @if($agenda->notulensi->status === 'draft')
-                        @if($isSecretaryOfAgenda)
-                            @if($agenda->notulensi->catatan_revisi)
-                                <div class="bg-rose-50 border border-rose-200 text-rose-700 p-4 rounded-2xl text-xs space-y-1">
-                                    <p class="font-bold">Butuh Revisi / Perbaikan:</p>
-                                    <p class="italic">"{{ $agenda->notulensi->catatan_revisi }}"</p>
-                                </div>
-                            @endif
-                            <a href="{{ route('notulensi.edit', $agenda->id) }}" 
-                               class="w-full py-3.5 bg-[#2e2552] hover:bg-[#3d326a] text-white font-bold text-xs rounded-xl shadow-md transition-all flex items-center justify-center gap-2">
-                                <span>Kelola Transkrip & AI Notulen</span>
-                            </a>
-                        @else
-                            <p class="text-xs text-[#8e88dd] text-center py-2 italic">Draf notulensi rapat sedang dirapikan oleh sekretaris.</p>
-                        @endif
-                    @elseif($agenda->notulensi->status === 'menunggu_review')
-                        @if($isApproverOfAgenda)
-                            <a href="{{ route('notulensi.review', $agenda->id) }}" 
-                               class="w-full py-3.5 bg-gradient-to-r from-amber-600 to-orange-600 hover:from-amber-500 hover:to-orange-500 text-white font-bold text-xs rounded-xl shadow-lg transition-all flex items-center justify-center gap-2">
-                                <span>Tinjau & Sahkan Notulensi</span>
-                            </a>
-                        @endif
-
-                        @if($isSecretaryOfAgenda)
-                            <div class="space-y-2">
-                                <a href="{{ route('notulensi.edit', $agenda->id) }}" 
-                                   class="w-full py-3 bg-[#2e2552] hover:bg-[#3d326a] text-white font-bold text-xs rounded-xl shadow-md transition-all flex items-center justify-center gap-2">
-                                    <span>Kelola & Edit Notulensi</span>
-                                </a>
-                                <a href="{{ route('notulensi.review', $agenda->id) }}" 
-                                   class="w-full py-2.5 bg-slate-100 hover:bg-slate-200 text-[#5a508f] font-bold text-xs rounded-xl border border-[#d4d1f5] transition-all flex items-center justify-center gap-2">
-                                    <span>Pratinjau Mode Baca</span>
-                                </a>
+                                @endforeach
                             </div>
-                        @endif
-
-                        @if(!$isApproverOfAgenda && !$isSecretaryOfAgenda)
-                            <p class="text-xs text-[#5a508f] text-center py-3 bg-[#f8f7ff] border border-[#d4d1f5]/40 rounded-2xl font-medium">
-                                Menunggu verifikasi dari pimpinan berwenang.
-                            </p>
-                        @endif
-                    @elseif($agenda->notulensi->status === 'disahkan')
-                        <div class="p-3 bg-emerald-50 border border-emerald-200 rounded-2xl text-xs text-emerald-600 font-bold text-center flex items-center justify-center gap-2">
-                            <span>Notulensi Disetujui Pimpinan</span>
-                            <svg class="w-4 h-4 animate-bounce" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"></path>
-                            </svg>
                         </div>
-                    @endif
+                    </div>
                 </div>
             @endif
-
         </div>
-    </div>
+    @endif
 
     <!-- DETAIL MODAL FOR ATTENDEES TABLE -->
     @if(Auth::user()->role !== 'staff')
