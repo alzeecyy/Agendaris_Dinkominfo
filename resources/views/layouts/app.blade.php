@@ -381,7 +381,7 @@
             </div>
             <div class="space-y-2">
                 <h3 id="heavy-loading-title" class="text-base font-extrabold text-[#09103c]">Sedang Memproses Data</h3>
-                <p id="heavy-loading-message" class="text-xs text-slate-500 leading-relaxed font-medium">Mohon tunggu sejenak, sistem sedang menyelesaikan permintaan Anda...</p>
+                <p id="heavy-loading-message" class="text-xs text-slate-500 leading-relaxed font-medium">Mohon tunggu sejenak...</p>
             </div>
             <div class="w-full bg-slate-100 rounded-full h-1.5 overflow-hidden">
                 <div class="bg-gradient-to-r from-[#1b3bbb] to-blue-400 h-full w-full animate-pulse"></div>
@@ -396,7 +396,7 @@
             const overlay = document.getElementById('heavy-loading-overlay');
             if (!overlay) return;
             if (title) document.getElementById('heavy-loading-title').innerText = title;
-            if (message) document.getElementById('heavy-loading-message').innerText = message;
+            document.getElementById('heavy-loading-message').innerText = message || 'Mohon tunggu sejenak...';
             overlay.classList.remove('hidden');
             overlay.classList.add('flex');
         };
@@ -450,9 +450,7 @@
             // 2. Smart Threshold Loading: If server/network takes > 250ms, show modern loading modal!
             const isAgendaDetail = url.includes('/agenda/');
             const heavyLoadingTitle = isAgendaDetail ? 'Membuka Detail Agenda Rapat' : 'Memuat Halaman';
-            const heavyLoadingMsg = isAgendaDetail 
-                ? 'Sedang menghubungkan ke server dan mengambil data agenda rapat, mohon tunggu sejenak...' 
-                : 'Sedang memuat data halaman, mohon tunggu sejenak...';
+            const heavyLoadingMsg = 'Mohon tunggu sejenak...';
 
             const heavyTimer = setTimeout(() => {
                 if (typeof window.showHeavyLoading === 'function') {
