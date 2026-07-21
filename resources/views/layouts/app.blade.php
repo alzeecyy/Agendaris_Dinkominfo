@@ -573,6 +573,11 @@
                                 });
                             }
                             form.removeAttribute('data-confirm');
+                            const btn = form.querySelector('button[type="submit"], input[type="submit"]');
+                            if (btn) {
+                                btn.style.pointerEvents = 'none';
+                                btn.classList.add('opacity-75', 'cursor-not-allowed');
+                            }
                             form.submit();
                         }
                     });
@@ -586,39 +591,59 @@
                     e.preventDefault();
                     return;
                 }
+                form.dataset.submitting = 'true';
 
                 // Heavy process modal trigger
                 if (form.hasAttribute('data-heavy-loading')) {
                     const title = form.getAttribute('data-heavy-title') || 'Sedang Memproses...';
                     const message = form.getAttribute('data-heavy-msg') || 'Mohon tidak menutup atau memuat ulang halaman selama proses berjalan.';
                     window.showHeavyLoading(title, message);
+                } else {
+                    // Show linear top loader for any standard form submission
+                    let loader = document.getElementById('pjax-loader');
+                    if (!loader) {
+                        loader = document.createElement('div');
+                        loader.id = 'pjax-loader';
+                        loader.style.position = 'fixed';
+                        loader.style.top = '0';
+                        loader.style.left = '0';
+                        loader.style.height = '3px';
+                        loader.style.backgroundColor = '#1b3bbb';
+                        loader.style.zIndex = '9999';
+                        loader.style.width = '0%';
+                        loader.style.transition = 'width 0.4s ease';
+                        document.body.appendChild(loader);
+                    }
+                    loader.style.width = '30%';
+                    setTimeout(() => { if (loader) loader.style.width = '80%'; }, 150);
                 }
 
                 // Submit button loading state
-                const submitBtn = form.querySelector('button[type="submit"], input[type="submit"]');
+                const submitBtn = form.querySelector('button[type="submit"], input[type="submit"], button:not([type="button"])');
                 if (submitBtn) {
-                    form.dataset.submitting = 'true';
-                    submitBtn.disabled = true;
                     submitBtn.style.pointerEvents = 'none';
                     submitBtn.classList.add('opacity-75', 'cursor-not-allowed');
 
                     const customText = form.getAttribute('data-loading-text') || submitBtn.getAttribute('data-loading-text');
                     const textToUse = customText || 'Memproses...';
-                    const spinnerSvg = `<svg class="w-4 h-4 mr-2 animate-spin text-current shrink-0" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>`;
+                    const spinnerSvg = `<svg class="w-4 h-4 mr-2 animate-spin text-current inline shrink-0" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>`;
 
                     submitBtn.innerHTML = `<span class="inline-flex items-center justify-center">${spinnerSvg}<span>${textToUse}</span></span>`;
 
-                    // Automatic safety reset after timeout if form submission doesn't result in page unload
+                    // Disable button on next tick so native browser form submit isn't aborted
+                    setTimeout(() => {
+                        if (submitBtn) submitBtn.disabled = true;
+                    }, 20);
+
+                    // Automatic safety reset after 10 seconds if form submission stays on same page
                     setTimeout(() => {
                         if (document.body.contains(submitBtn) && form.dataset.submitting === 'true') {
-                            setTimeout(() => {
-                                form.dataset.submitting = 'false';
-                                submitBtn.disabled = false;
-                                submitBtn.style.pointerEvents = '';
-                                submitBtn.classList.remove('opacity-75', 'cursor-not-allowed');
-                            }, 10000);
+                            form.dataset.submitting = 'false';
+                            submitBtn.disabled = false;
+                            submitBtn.style.pointerEvents = '';
+                            submitBtn.classList.remove('opacity-75', 'cursor-not-allowed');
                         }
-                    }, 2000);
+                    }, 10000);
                 }
             });
 
