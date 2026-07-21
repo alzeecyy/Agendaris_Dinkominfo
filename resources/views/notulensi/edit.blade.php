@@ -341,6 +341,9 @@
                         if (!result.isConfirmed) return;
 
                         this.loading = true;
+                        if (typeof window.showHeavyLoading === 'function') {
+                            window.showHeavyLoading('Menganalisis Transkrip AI', 'AI sedang menganalisis ulang isi transkrip rapat. Mohon tunggu...');
+                        }
 
                         fetch('{{ route("notulensi.regenerate", $agenda->id) }}', {
                             method: 'POST',
@@ -355,6 +358,7 @@
                         .then(res => res.json())
                         .then(res => {
                             this.loading = false;
+                            if (typeof window.hideHeavyLoading === 'function') window.hideHeavyLoading();
                             if (res.status === 'success') {
                                 document.getElementById('ringkasan').value = res.data.trim();
                                 this.isDirty = true;
@@ -373,6 +377,7 @@
                         })
                         .catch(err => {
                             this.loading = false;
+                            if (typeof window.hideHeavyLoading === 'function') window.hideHeavyLoading();
                             Swal.fire({
                                 text: 'Terjadi kesalahan koneksi saat memproses analisis.',
                                 icon: 'error',
@@ -392,6 +397,9 @@
         } else {
             document.getElementById('large-upload-btn').style.display = 'none';
             document.getElementById('large-upload-loading').style.display = 'flex';
+        }
+        if (typeof window.showHeavyLoading === 'function') {
+            window.showHeavyLoading('Transkripsi Audio Rapat', 'Berkas audio sedang diunggah dan diproses secara otomatis oleh Whisper.cpp & AI. Mohon tunggu sejenak dan jangan menutup halaman ini...');
         }
     }
 
