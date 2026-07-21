@@ -447,16 +447,20 @@
                 if (loader) loader.style.width = '70%';
             }, 120);
 
-            // 2. Smart Threshold Loading: If server/network takes > 250ms, show modern loading modal!
+            // 2. Smart Threshold Loading: If server/network takes > 250ms, show modern loading modal (except for navbar links)!
+            const isNavbarLink = sourceEl && (sourceEl.closest('aside') || sourceEl.closest('header') || sourceEl.closest('nav'));
             const isAgendaDetail = url.includes('/agenda/');
             const heavyLoadingTitle = isAgendaDetail ? 'Membuka Detail Agenda Rapat' : 'Memuat Halaman';
             const heavyLoadingMsg = 'Mohon tunggu sejenak...';
 
-            const heavyTimer = setTimeout(() => {
-                if (typeof window.showHeavyLoading === 'function') {
-                    window.showHeavyLoading(heavyLoadingTitle, heavyLoadingMsg);
-                }
-            }, 250);
+            let heavyTimer = null;
+            if (!isNavbarLink) {
+                heavyTimer = setTimeout(() => {
+                    if (typeof window.showHeavyLoading === 'function') {
+                        window.showHeavyLoading(heavyLoadingTitle, heavyLoadingMsg);
+                    }
+                }, 250);
+            }
 
             // Cancel any pending fetch
             if (pjaxFetchController) {
