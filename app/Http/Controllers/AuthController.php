@@ -83,6 +83,9 @@ class AuthController extends Controller
 
     public function showProfile()
     {
+        if (Auth::user()->isAdmin()) {
+            return redirect()->route('dashboard');
+        }
         return view('auth.profile');
     }
 }

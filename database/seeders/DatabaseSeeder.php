@@ -18,25 +18,31 @@ class DatabaseSeeder extends Seeder
     public function run(): void
     {
         // 1. Seed Bidang
-        $aptika = Bidang::create([
-            'nama' => 'Bidang Aplikasi Informatika',
-            'singkatan' => 'Aptika',
-        ]);
+        $aptika = Bidang::firstOrCreate(
+            ['nama' => 'Bidang Aplikasi Informatika'],
+            ['singkatan' => 'Aptika']
+        );
 
-        $ikp = Bidang::create([
-            'nama' => 'Bidang Informasi dan Komunikasi Publik',
-            'singkatan' => 'IKP',
-        ]);
+        $ikp = Bidang::firstOrCreate(
+            ['nama' => 'Bidang Informasi dan Komunikasi Publik'],
+            ['singkatan' => 'IKP']
+        );
 
-        $statistik = Bidang::create([
-            'nama' => 'Bidang Statistik, Persandian, dan Infrastruktur Teknologi Informasi dan Komunikasi',
-            'singkatan' => 'Statistik & Persandian',
-        ]);
+        $statistik = Bidang::firstOrCreate(
+            ['nama' => 'Bidang Statistik, Persandian, dan Infrastruktur Teknologi Informasi dan Komunikasi'],
+            ['singkatan' => 'Statistik & Persandian']
+        );
+
+        $sekretariat = Bidang::firstOrCreate(
+            ['nama' => 'Sekretariat'],
+            ['singkatan' => 'Sekretariat']
+        );
 
         $bidangList = [
             'aptika' => $aptika,
             'ikp' => $ikp,
             'statistik' => $statistik,
+            'sekretariat' => $sekretariat,
         ];
 
         // Shared password hash
@@ -47,40 +53,46 @@ class DatabaseSeeder extends Seeder
 
         // 2. Seed Master Level Accounts
         // Admin
-        $admin = User::create([
-            'name' => 'Administrator Dinkominfo',
-            'nip' => $nipPrefix . '000', // 199001012015011000
-            'jabatan' => 'Sistem Administrator',
-            'bidang_id' => null,
-            'role' => 'admin',
-            'password' => $hashedPassword,
-            'must_change_password' => false,
-            'active' => true,
-        ]);
+        $admin = User::updateOrCreate(
+            ['nip' => $nipPrefix . '000'],
+            [
+                'name' => 'Administrator Dinkominfo',
+                'jabatan' => 'Sistem Administrator',
+                'bidang_id' => null,
+                'role' => 'admin',
+                'password' => $hashedPassword,
+                'must_change_password' => false,
+                'active' => true,
+            ]
+        );
 
         // Ketua Master (Kepala Dinas)
-        $ketuaMaster = User::create([
-            'name' => 'Ir. Purwadi Santoso, M.Hum.',
-            'nip' => $nipPrefix . '001', // 199001012015011001
-            'jabatan' => 'Kepala Dinas / Ketua Master',
-            'bidang_id' => null,
-            'role' => 'ketua_master',
-            'password' => $hashedPassword,
-            'must_change_password' => true,
-            'active' => true,
-        ]);
+        $ketuaMaster = User::updateOrCreate(
+            ['nip' => $nipPrefix . '001'],
+            [
+                'name' => 'Ir. Purwadi Santoso, M.Hum.',
+                'jabatan' => 'Kepala Dinas / Ketua Master',
+                'bidang_id' => null,
+                'role' => 'ketua_master',
+                'password' => $hashedPassword,
+                'must_change_password' => true,
+                'active' => true,
+            ]
+        );
 
-        // Sekretaris Master
-        $sekretarisMaster = User::create([
-            'name' => 'Drs. H. Mulyono, M.Si.',
-            'nip' => $nipPrefix . '002', // 199001012015011002
-            'jabatan' => 'Sekretaris Master Dinas',
-            'bidang_id' => null,
-            'role' => 'sekretaris_master',
-            'password' => $hashedPassword,
-            'must_change_password' => true,
-            'active' => true,
-        ]);
+        // Sekretaris Master (Sekretaris Dinas / Kepala Sekretariat)
+        $sekretarisMaster = User::updateOrCreate(
+            ['nip' => $nipPrefix . '002'],
+            [
+                'name' => 'Drs. H. Mulyono, M.Si.',
+                'jabatan' => 'Sekretaris Dinas',
+                'bidang_id' => $sekretariat->id,
+                'role' => 'sekretaris_master',
+                'password' => $hashedPassword,
+                'must_change_password' => true,
+                'active' => true,
+            ]
+        );
 
         // Dummy Names Configuration
         $names = [
@@ -116,10 +128,19 @@ class DatabaseSeeder extends Seeder
                     'Farhan Bashir, S.Si.', 'Gita Savitri, S.Stat.', 'Hafiz Rizky, S.Si.',
                     'Irma Suryani, A.Md.', 'Junaedi, S.Stat.', 'Kurniawati, S.Si.'
                 ]
+            ],
+            'sekretariat' => [
+                'bendahara' => 'Ratna Juwita, A.Md.',
+                'staff' => [
+                    'Ahmad Rizky, A.Md.', 'Budi Hartono, S.E.', 'Cahyo Utomo, S.T.',
+                    'Dewi Sartika, A.Md.', 'Endang Sri, S.E.', 'Firman Utina, S.Kom.',
+                    'Gilang Ramadhan, S.T.', 'Haryati, S.E.', 'Indra Lesmana, A.Md.',
+                    'Joko Widodo, S.E.', 'Kurnia Fitri, S.T.', 'Lestari Indah, S.E.'
+                ]
             ]
         ];
 
-        // Suffix mapping per division (Aptika: 10-24, IKP: 30-44, Statistik: 50-64)
+        // Suffix mapping per division (Aptika: 10-24, IKP: 30-44, Statistik: 50-64, Sekretariat: 70-84)
         $divisionConfig = [
             'aptika' => [
                 'start' => 10,
@@ -132,6 +153,10 @@ class DatabaseSeeder extends Seeder
             'statistik' => [
                 'start' => 50,
                 'bidang' => $statistik
+            ],
+            'sekretariat' => [
+                'start' => 70,
+                'bidang' => $sekretariat
             ]
         ];
 
@@ -143,58 +168,68 @@ class DatabaseSeeder extends Seeder
             $bidName = $bidang->nama;
             $data = $names[$key];
 
-            // 1. Ketua Bidang (ends in 10, 30, 50)
-            $suffixStr = str_pad($startSuffix, 3, '0', STR_PAD_LEFT);
-            $usersMap[$key . '_ketua'] = User::create([
-                'name' => $data['ketua'],
-                'nip' => $nipPrefix . $suffixStr,
-                'jabatan' => 'Kepala ' . $bidName,
-                'bidang_id' => $bidang->id,
-                'role' => 'ketua_bidang',
-                'password' => $hashedPassword,
-                'must_change_password' => true,
-                'active' => true,
-            ]);
+            if ($key !== 'sekretariat') {
+                // 1. Ketua Bidang
+                $suffixStr = str_pad($startSuffix, 3, '0', STR_PAD_LEFT);
+                $usersMap[$key . '_ketua'] = User::updateOrCreate(
+                    ['nip' => $nipPrefix . $suffixStr],
+                    [
+                        'name' => $data['ketua'],
+                        'jabatan' => 'Kepala ' . $bidName,
+                        'bidang_id' => $bidang->id,
+                        'role' => 'ketua_bidang',
+                        'password' => $hashedPassword,
+                        'must_change_password' => true,
+                        'active' => true,
+                    ]
+                );
 
-            // 2. Sekretaris Bidang (ends in 11, 31, 51)
-            $suffixStr = str_pad($startSuffix + 1, 3, '0', STR_PAD_LEFT);
-            $usersMap[$key . '_sekretaris'] = User::create([
-                'name' => $data['sekretaris'],
-                'nip' => $nipPrefix . $suffixStr,
-                'jabatan' => 'Sekretaris ' . $bidName,
-                'bidang_id' => $bidang->id,
-                'role' => 'sekretaris_bidang',
-                'password' => $hashedPassword,
-                'must_change_password' => true,
-                'active' => true,
-            ]);
+                // 2. Sekretaris Bidang
+                $suffixStr = str_pad($startSuffix + 1, 3, '0', STR_PAD_LEFT);
+                $usersMap[$key . '_sekretaris'] = User::updateOrCreate(
+                    ['nip' => $nipPrefix . $suffixStr],
+                    [
+                        'name' => $data['sekretaris'],
+                        'jabatan' => 'Sekretaris ' . $bidName,
+                        'bidang_id' => $bidang->id,
+                        'role' => 'sekretaris_bidang',
+                        'password' => $hashedPassword,
+                        'must_change_password' => true,
+                        'active' => true,
+                    ]
+                );
+            }
 
-            // 3. Bendahara Bidang (Staff Role) (ends in 12, 32, 52)
+            // 3. Bendahara Bidang (Staff Role)
             $suffixStr = str_pad($startSuffix + 2, 3, '0', STR_PAD_LEFT);
-            $usersMap[$key . '_bendahara'] = User::create([
-                'name' => $data['bendahara'],
-                'nip' => $nipPrefix . $suffixStr,
-                'jabatan' => 'Bendahara ' . $bidName,
-                'bidang_id' => $bidang->id,
-                'role' => 'staff',
-                'password' => $hashedPassword,
-                'must_change_password' => true,
-                'active' => true,
-            ]);
-
-            // 4. Staff 1 - 12 (Staff Role)
-            for ($i = 0; $i < 12; $i++) {
-                $suffixStr = str_pad($startSuffix + 3 + $i, 3, '0', STR_PAD_LEFT);
-                $usersMap[$key . '_staff_' . $i] = User::create([
-                    'name' => $data['staff'][$i],
-                    'nip' => $nipPrefix . $suffixStr,
-                    'jabatan' => 'Staff ' . $bidName,
+            $usersMap[$key . '_bendahara'] = User::updateOrCreate(
+                ['nip' => $nipPrefix . $suffixStr],
+                [
+                    'name' => $data['bendahara'],
+                    'jabatan' => $key === 'sekretariat' ? 'Staff Sekretariat' : 'Bendahara ' . $bidName,
                     'bidang_id' => $bidang->id,
                     'role' => 'staff',
                     'password' => $hashedPassword,
                     'must_change_password' => true,
                     'active' => true,
-                ]);
+                ]
+            );
+
+            // 4. Staff 1 - 12 (Staff Role)
+            for ($i = 0; $i < 12; $i++) {
+                $suffixStr = str_pad($startSuffix + 3 + $i, 3, '0', STR_PAD_LEFT);
+                $usersMap[$key . '_staff_' . $i] = User::updateOrCreate(
+                    ['nip' => $nipPrefix . $suffixStr],
+                    [
+                        'name' => $data['staff'][$i],
+                        'jabatan' => 'Staff ' . $bidName,
+                        'bidang_id' => $bidang->id,
+                        'role' => 'staff',
+                        'password' => $hashedPassword,
+                        'must_change_password' => true,
+                        'active' => true,
+                    ]
+                );
             }
         }
 
@@ -205,185 +240,196 @@ class DatabaseSeeder extends Seeder
 
         // Rapat 1: Rapat Evaluasi SPBE (Today, overlaps to test split-column)
         // Bidang Aptika (ID: 1)
-        $agenda1 = Agenda::create([
-            'judul' => 'Rapat Evaluasi Indeks Layanan SPBE',
-            'tanggal' => $today->toDateString(),
-            'jam_mulai' => '08:30:00',
-            'jam_selesai' => '10:00:00',
-            'lokasi' => 'Aula Rapat Dinkominfo',
-            'deskripsi' => 'Rapat koordinasi membahas pencapaian nilai indeks Sistem Pemerintahan Berbasis Elektronik (SPBE) tahun lalu serta penyusunan strategi perbaikan.',
-            'kategori' => 'rapat',
-            'hak_akses' => [(string)$aptika->id],
-            'butuh_presensi' => true,
-            'nomor_surat_dasar' => '005/214/2026 Perihal Evaluasi Layanan IT',
-            'sekretaris_id' => $usersMap['aptika_sekretaris']->id,
-        ]);
-        Notulensi::create([
-            'agenda_id' => $agenda1->id,
-            'status' => 'draft',
-        ]);
+        // Rapat 1: Rapat Evaluasi SPBE (Today, overlaps to test split-column)
+        // Bidang Aptika (ID: 1)
+        $agenda1 = Agenda::updateOrCreate(
+            ['judul' => 'Rapat Evaluasi Indeks Layanan SPBE', 'tanggal' => $today->toDateString()],
+            [
+                'jam_mulai' => '08:30:00',
+                'jam_selesai' => '10:00:00',
+                'lokasi' => 'Aula Rapat Dinkominfo',
+                'deskripsi' => 'Rapat koordinasi membahas pencapaian nilai indeks Sistem Pemerintahan Berbasis Elektronik (SPBE) tahun lalu serta penyusunan strategi perbaikan.',
+                'kategori' => 'rapat',
+                'hak_akses' => [(string)$aptika->id],
+                'butuh_presensi' => true,
+                'nomor_surat_dasar' => '005/214/2026 Perihal Evaluasi Layanan IT',
+                'sekretaris_id' => $usersMap['aptika_sekretaris']->id,
+            ]
+        );
+        Notulensi::firstOrCreate(
+            ['agenda_id' => $agenda1->id],
+            ['status' => 'draft']
+        );
 
         // Rapat 2: Rapat Integrasi API Layanan Publik (Today, overlaps with Rapat 1)
         // Bidang Aptika (ID: 1)
-        $agenda2 = Agenda::create([
-            'judul' => 'Rapat Penyelarasan API Portal Banyumas',
-            'tanggal' => $today->toDateString(),
-            'jam_mulai' => '09:30:00',
-            'jam_selesai' => '11:00:00',
-            'lokasi' => 'Ruang Pelatihan',
-            'deskripsi' => 'Penyelarasan antarmuka pemograman aplikasi (API) untuk mendukung integrasi single-sign-on (SSO) pada Portal Layanan Publik Banyumas.',
-            'kategori' => 'rapat',
-            'hak_akses' => [(string)$aptika->id],
-            'butuh_presensi' => true,
-            'nomor_surat_dasar' => null, // Optional at start
-            'sekretaris_id' => $usersMap['aptika_sekretaris']->id,
-        ]);
-        Notulensi::create([
-            'agenda_id' => $agenda2->id,
-            'status' => 'draft',
-        ]);
+        $agenda2 = Agenda::updateOrCreate(
+            ['judul' => 'Rapat Penyelarasan API Portal Banyumas', 'tanggal' => $today->toDateString()],
+            [
+                'jam_mulai' => '09:30:00',
+                'jam_selesai' => '11:00:00',
+                'lokasi' => 'Ruang Pelatihan',
+                'deskripsi' => 'Penyelarasan antarmuka pemograman aplikasi (API) untuk mendukung integrasi single-sign-on (SSO) pada Portal Layanan Publik Banyumas.',
+                'kategori' => 'rapat',
+                'hak_akses' => [(string)$aptika->id],
+                'butuh_presensi' => true,
+                'nomor_surat_dasar' => null,
+                'sekretaris_id' => $usersMap['aptika_sekretaris']->id,
+            ]
+        );
+        Notulensi::firstOrCreate(
+            ['agenda_id' => $agenda2->id],
+            ['status' => 'draft']
+        );
 
         // Rapat 3: Rapat Lintas Bidang Kehumasan (Tomorrow)
         // Semua Orang
-        $agenda3 = Agenda::create([
-            'judul' => 'Sosialisasi & Koordinasi Media Publikasi Pemkab',
-            'tanggal' => $tomorrow->toDateString(),
-            'jam_mulai' => '10:00:00',
-            'jam_selesai' => '12:00:00',
-            'lokasi' => 'Aula Rapat Dinkominfo',
-            'deskripsi' => 'Rapat koordinasi lintas bidang guna penyelarasan konten publikasi media sosial dinas dan penanganan disinformasi publik.',
-            'kategori' => 'rapat',
-            'hak_akses' => ['semua_orang'],
-            'butuh_presensi' => true,
-            'nomor_surat_dasar' => '005/012/2026 Undangan Rilis Publikasi Media',
-            'sekretaris_id' => $sekretarisMaster->id,
-        ]);
-        Notulensi::create([
-            'agenda_id' => $agenda3->id,
-            'status' => 'draft',
-        ]);
+        $agenda3 = Agenda::updateOrCreate(
+            ['judul' => 'Sosialisasi & Koordinasi Media Publikasi Pemkab', 'tanggal' => $tomorrow->toDateString()],
+            [
+                'jam_mulai' => '10:00:00',
+                'jam_selesai' => '12:00:00',
+                'lokasi' => 'Aula Rapat Dinkominfo',
+                'deskripsi' => 'Rapat koordinasi lintas bidang guna penyelarasan konten publikasi media sosial dinas dan penanganan disinformasi publik.',
+                'kategori' => 'rapat',
+                'hak_akses' => ['semua_orang'],
+                'butuh_presensi' => true,
+                'nomor_surat_dasar' => '005/012/2026 Undangan Rilis Publikasi Media',
+                'sekretaris_id' => $sekretarisMaster->id,
+            ]
+        );
+        Notulensi::firstOrCreate(
+            ['agenda_id' => $agenda3->id],
+            ['status' => 'draft']
+        );
 
         // Rapat 4: Rapat Kemarin (Awaiting Review for Ketua Bidang IKP to test approval flow)
         // Bidang IKP (ID: 2)
-        $agenda4 = Agenda::create([
-            'judul' => 'Koordinasi Layanan Informasi Publik PPID',
-            'tanggal' => $yesterday->toDateString(),
-            'jam_mulai' => '13:00:00',
-            'jam_selesai' => '14:30:00',
-            'lokasi' => 'Smart Room Graha Satria',
-            'deskripsi' => 'Rapat rutin membahas pembaruan data berkala pada portal PPID Dinkominfo Kabupaten Banyumas.',
-            'kategori' => 'rapat',
-            'hak_akses' => [(string)$ikp->id],
-            'butuh_presensi' => true,
-            'nomor_surat_dasar' => '005/982/2026 Perihal Pembaruan Data PPID',
-            'sekretaris_id' => $usersMap['ikp_sekretaris']->id,
-        ]);
-        
-        // Seed completed draft awaiting review
-        Notulensi::create([
-            'agenda_id' => $agenda4->id,
-            'transkrip_raw' => "[DEMO AI TRANSCRIPTION]\n\nPembicara 1 (Sekretaris IKP): Selamat siang rekan-rekan. Rapat PPID hari ini kita akan membahas mengenai update informasi berkala di website.\nPembicara 2 (Staff IKP): Kami sudah mengumpulkan data statistik kunjungan dan update dokumen regulasi terbaru.\nPembicara 3 (Ketua IKP): Pastikan semua dokumen diunggah tepat waktu agar kepatuhan keterbukaan informasi publik kita tetap prima.",
-            'ringkasan' => 'Rapat koordinasi rutin PPID Dinkominfo menghasilkan kesepakatan pembaruan data berkala pada portal informasi publik.',
-            'pembahasan' => "1. Pembahasan statistik kunjungan portal PPID.\n2. Inventarisasi dokumen regulasi terbaru yang wajib dipublikasikan secara berkala.",
-            'keputusan' => "1. Menyetujui pengunggahan data statistik kunjungan triwulan ke-2.\n2. Menetapkan tenggat waktu pembaruan website maksimal hari jumat ini.",
-            'kesimpulan' => 'Pembaruan portal PPID berjalan sesuai jadwal untuk mempertahankan predikat keterbukaan informasi utama.',
-            'status' => 'menunggu_review',
-            'last_edited_by_id' => $usersMap['ikp_sekretaris']->id,
-        ]);
+        $agenda4 = Agenda::updateOrCreate(
+            ['judul' => 'Koordinasi Layanan Informasi Publik PPID', 'tanggal' => $yesterday->toDateString()],
+            [
+                'jam_mulai' => '13:00:00',
+                'jam_selesai' => '14:30:00',
+                'lokasi' => 'Smart Room Graha Satria',
+                'deskripsi' => 'Rapat rutin membahas pembaruan data berkala pada portal PPID Dinkominfo Kabupaten Banyumas.',
+                'kategori' => 'rapat',
+                'hak_akses' => [(string)$ikp->id],
+                'butuh_presensi' => true,
+                'nomor_surat_dasar' => '005/982/2026 Perihal Pembaruan Data PPID',
+                'sekretaris_id' => $usersMap['ikp_sekretaris']->id,
+            ]
+        );
+        Notulensi::updateOrCreate(
+            ['agenda_id' => $agenda4->id],
+            [
+                'transkrip_raw' => "[DEMO AI TRANSCRIPTION]\n\nPembicara 1 (Sekretaris IKP): Selamat siang rekan-rekan. Rapat PPID hari ini kita akan membahas mengenai update informasi berkala di website.\nPembicara 2 (Staff IKP): Kami sudah mengumpulkan data statistik kunjungan dan update dokumen regulasi terbaru.\nPembicara 3 (Ketua IKP): Pastikan semua dokumen diunggah tepat waktu agar kepatuhan keterbukaan informasi publik kita tetap prima.",
+                'ringkasan' => 'Rapat koordinasi rutin PPID Dinkominfo menghasilkan kesepakatan pembaruan data berkala pada portal informasi publik.',
+                'pembahasan' => "1. Pembahasan statistik kunjungan portal PPID.\n2. Inventarisasi dokumen regulasi terbaru yang wajib dipublikasikan secara berkala.",
+                'keputusan' => "1. Menyetujui pengunggahan data statistik kunjungan triwulan ke-2.\n2. Menetapkan tenggat waktu pembaruan website maksimal hari jumat ini.",
+                'kesimpulan' => 'Pembaruan portal PPID berjalan sesuai jadwal untuk mempertahankan predikat keterbukaan informasi utama.',
+                'status' => 'menunggu_review',
+                'last_edited_by_id' => $usersMap['ikp_sekretaris']->id,
+            ]
+        );
 
         // Rapat 5: Sosialisasi Keamanan Informasi (Today, Lintas Dinas)
-        $agenda5 = Agenda::create([
-            'judul' => 'Sosialisasi Keamanan Informasi & Anti-Phishing',
-            'tanggal' => $today->toDateString(),
-            'jam_mulai' => '11:15:00',
-            'jam_selesai' => '12:30:00',
-            'lokasi' => 'Aula Rapat Dinkominfo',
-            'deskripsi' => 'Sosialisasi pentingnya kesadaran keamanan informasi siber bagi seluruh ASN lingkungan Pemerintah Kabupaten Banyumas.',
-            'kategori' => 'sosialisasi',
-            'hak_akses' => ['semua_orang'],
-            'butuh_presensi' => true,
-            'nomor_surat_dasar' => '005/228/2026 Perihal Sosialisasi Keamanan Informasi',
-            'sekretaris_id' => $usersMap['aptika_sekretaris']->id,
-        ]);
-        Notulensi::create([
-            'agenda_id' => $agenda5->id,
-            'status' => 'draft',
-        ]);
+        $agenda5 = Agenda::updateOrCreate(
+            ['judul' => 'Sosialisasi Keamanan Informasi & Anti-Phishing', 'tanggal' => $today->toDateString()],
+            [
+                'jam_mulai' => '11:15:00',
+                'jam_selesai' => '12:30:00',
+                'lokasi' => 'Aula Rapat Dinkominfo',
+                'deskripsi' => 'Sosialisasi pentingnya kesadaran keamanan informasi siber bagi seluruh ASN lingkungan Pemerintah Kabupaten Banyumas.',
+                'kategori' => 'sosialisasi',
+                'hak_akses' => ['semua_orang'],
+                'butuh_presensi' => true,
+                'nomor_surat_dasar' => '005/228/2026 Perihal Sosialisasi Keamanan Informasi',
+                'sekretaris_id' => $usersMap['aptika_sekretaris']->id,
+            ]
+        );
+        Notulensi::firstOrCreate(
+            ['agenda_id' => $agenda5->id],
+            ['status' => 'draft']
+        );
 
         // Rapat 6: Pelatihan Jurnalistik (Today, Bidang IKP)
-        $agenda6 = Agenda::create([
-            'judul' => 'Pelatihan Jurnalistik & Penulisan Rilis Berita',
-            'tanggal' => $today->toDateString(),
-            'jam_mulai' => '13:00:00',
-            'jam_selesai' => '14:30:00',
-            'lokasi' => 'Smart Room Graha Satria',
-            'deskripsi' => 'Pelatihan teknis penulisan artikel berita rilis publikasi Pemkab bagi staff humas.',
-            'kategori' => 'pelatihan',
-            'hak_akses' => [(string)$ikp->id],
-            'butuh_presensi' => true,
-            'nomor_surat_dasar' => null,
-            'sekretaris_id' => $usersMap['ikp_sekretaris']->id,
-        ]);
-        Notulensi::create([
-            'agenda_id' => $agenda6->id,
-            'status' => 'draft',
-        ]);
+        $agenda6 = Agenda::updateOrCreate(
+            ['judul' => 'Pelatihan Jurnalistik & Penulisan Rilis Berita', 'tanggal' => $today->toDateString()],
+            [
+                'jam_mulai' => '13:00:00',
+                'jam_selesai' => '14:30:00',
+                'lokasi' => 'Smart Room Graha Satria',
+                'deskripsi' => 'Pelatihan teknis penulisan artikel berita rilis publikasi Pemkab bagi staff humas.',
+                'kategori' => 'pelatihan',
+                'hak_akses' => [(string)$ikp->id],
+                'butuh_presensi' => true,
+                'nomor_surat_dasar' => null,
+                'sekretaris_id' => $usersMap['ikp_sekretaris']->id,
+            ]
+        );
+        Notulensi::firstOrCreate(
+            ['agenda_id' => $agenda6->id],
+            ['status' => 'draft']
+        );
 
         // Rapat 7: Bimtek Metadata Statistik (Tomorrow, Bidang Statistik)
-        $agenda7 = Agenda::create([
-            'judul' => 'Bimbingan Teknis Metadata Statistik Sektoral',
-            'tanggal' => $tomorrow->toDateString(),
-            'jam_mulai' => '08:00:00',
-            'jam_selesai' => '10:00:00',
-            'lokasi' => 'Aula Rapat Dinkominfo',
-            'deskripsi' => 'Pengisian metadata statistik sektoral daerah terintegrasi portal satu data Indonesia.',
-            'kategori' => 'pelatihan',
-            'hak_akses' => [(string)$statistik->id],
-            'butuh_presensi' => true,
-            'nomor_surat_dasar' => '005/765/2026 Undangan Bimtek Metadata',
-            'sekretaris_id' => $usersMap['statistik_sekretaris']->id,
-        ]);
-        Notulensi::create([
-            'agenda_id' => $agenda7->id,
-            'status' => 'draft',
-        ]);
+        $agenda7 = Agenda::updateOrCreate(
+            ['judul' => 'Bimbingan Teknis Metadata Statistik Sektoral', 'tanggal' => $tomorrow->toDateString()],
+            [
+                'jam_mulai' => '08:00:00',
+                'jam_selesai' => '10:00:00',
+                'lokasi' => 'Aula Rapat Dinkominfo',
+                'deskripsi' => 'Pengisian metadata statistik sektoral daerah terintegrasi portal satu data Indonesia.',
+                'kategori' => 'pelatihan',
+                'hak_akses' => [(string)$statistik->id],
+                'butuh_presensi' => true,
+                'nomor_surat_dasar' => '005/765/2026 Undangan Bimtek Metadata',
+                'sekretaris_id' => $usersMap['statistik_sekretaris']->id,
+            ]
+        );
+        Notulensi::firstOrCreate(
+            ['agenda_id' => $agenda7->id],
+            ['status' => 'draft']
+        );
 
         // Rapat 8: Rapat Pengamanan Siber SPBE (Tomorrow, Bidang Aptika)
-        $agenda8 = Agenda::create([
-            'judul' => 'Koordinasi Rutin Pengamanan Siber SPBE',
-            'tanggal' => $tomorrow->toDateString(),
-            'jam_mulai' => '13:30:00',
-            'jam_selesai' => '15:00:00',
-            'lokasi' => 'Ruang Pelatihan',
-            'deskripsi' => 'Evaluasi celah keamanan sistem informasi SPBE Pemkab Banyumas triwulan pertama.',
-            'kategori' => 'rapat',
-            'hak_akses' => [(string)$aptika->id],
-            'butuh_presensi' => true,
-            'nomor_surat_dasar' => null,
-            'sekretaris_id' => $usersMap['aptika_sekretaris']->id,
-        ]);
-        Notulensi::create([
-            'agenda_id' => $agenda8->id,
-            'status' => 'draft',
-        ]);
+        $agenda8 = Agenda::updateOrCreate(
+            ['judul' => 'Koordinasi Rutin Pengamanan Siber SPBE', 'tanggal' => $tomorrow->toDateString()],
+            [
+                'jam_mulai' => '13:30:00',
+                'jam_selesai' => '15:00:00',
+                'lokasi' => 'Ruang Pelatihan',
+                'deskripsi' => 'Evaluasi celah keamanan sistem informasi SPBE Pemkab Banyumas triwulan pertama.',
+                'kategori' => 'rapat',
+                'hak_akses' => [(string)$aptika->id],
+                'butuh_presensi' => true,
+                'nomor_surat_dasar' => null,
+                'sekretaris_id' => $usersMap['aptika_sekretaris']->id,
+            ]
+        );
+        Notulensi::firstOrCreate(
+            ['agenda_id' => $agenda8->id],
+            ['status' => 'draft']
+        );
 
         // Rapat 9: Kegiatan Lainnya Infografis (Yesterday, Bidang Statistik)
-        $agenda9 = Agenda::create([
-            'judul' => 'Penyusunan Publikasi Infografis Banyumas Dalam Angka',
-            'tanggal' => $yesterday->toDateString(),
-            'jam_mulai' => '09:00:00',
-            'jam_selesai' => '11:00:00',
-            'lokasi' => 'Smart Room Graha Satria',
-            'deskripsi' => 'Rapat finalisasi data statistik sektoral dan perancangan desain visual infografis Banyumas.',
-            'kategori' => 'kegiatan_lainnya',
-            'hak_akses' => [(string)$statistik->id],
-            'butuh_presensi' => true,
-            'nomor_surat_dasar' => null,
-            'sekretaris_id' => $usersMap['statistik_sekretaris']->id,
-        ]);
-        Notulensi::create([
-            'agenda_id' => $agenda9->id,
-            'status' => 'draft',
-        ]);
+        $agenda9 = Agenda::updateOrCreate(
+            ['judul' => 'Penyusunan Publikasi Infografis Banyumas Dalam Angka', 'tanggal' => $yesterday->toDateString()],
+            [
+                'jam_mulai' => '09:00:00',
+                'jam_selesai' => '11:00:00',
+                'lokasi' => 'Smart Room Graha Satria',
+                'deskripsi' => 'Rapat finalisasi data statistik sektoral dan perancangan desain visual infografis Banyumas.',
+                'kategori' => 'kegiatan_lainnya',
+                'hak_akses' => [(string)$statistik->id],
+                'butuh_presensi' => true,
+                'nomor_surat_dasar' => null,
+                'sekretaris_id' => $usersMap['statistik_sekretaris']->id,
+            ]
+        );
+        Notulensi::firstOrCreate(
+            ['agenda_id' => $agenda9->id],
+            ['status' => 'draft']
+        );
     }
 }

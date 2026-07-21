@@ -48,7 +48,7 @@ class AgendaController extends Controller
             'lokasi.required' => 'Lokasi kegiatan wajib diisi.',
             'kategori.required' => 'Kategori agenda wajib diisi.',
             'bidangs.required_without' => 'Pilih minimal satu bidang atau centang Semua Orang.',
-            'semua_orang.prohibited' => 'Sekretaris Bidang tidak diperbolehkan membuat rapat Lintas Dinas (Semua Orang).',
+            'semua_orang.prohibited' => 'Admin Bidang tidak diperbolehkan membuat rapat Lintas Dinas (Semua Orang).',
         ]);
 
         // Determine hak_akses
@@ -60,7 +60,7 @@ class AgendaController extends Controller
             }
             // Max 2 bidangs allowed
             if (count($bidangs) > 2) {
-                return back()->withErrors(['bidangs' => 'Sekretaris Bidang hanya diperbolehkan memilih bidangnya sendiri dan maksimal 1 bidang tambahan.'])->withInput();
+                return back()->withErrors(['bidangs' => 'Admin Bidang hanya diperbolehkan memilih bidangnya sendiri dan maksimal 1 bidang tambahan.'])->withInput();
             }
             $hakAkses = $bidangs;
         } else {
@@ -192,6 +192,8 @@ class AgendaController extends Controller
         $isApproverOfAgenda = false;
         if ($agenda->notulensi && $agenda->notulensi->status === 'menunggu_review') {
             $isApproverOfAgenda = $user->isApproverOfAgenda($agenda);
+        }
+        
         $stdLocations = ['Aula Rapat Dinkominfo', 'Ruang Pelatihan', 'Smart Room Graha Satria'];
         $initialTempat = in_array($agenda->lokasi, $stdLocations) ? $agenda->lokasi : 'Lainnya';
         $initialTempatLainnya = $initialTempat === 'Lainnya' ? $agenda->lokasi : '';
@@ -249,7 +251,7 @@ class AgendaController extends Controller
             'lokasi.required' => 'Lokasi kegiatan wajib diisi.',
             'kategori.required' => 'Kategori agenda wajib diisi.',
             'bidangs.required_without' => 'Pilih minimal satu bidang atau centang Semua Orang.',
-            'semua_orang.prohibited' => 'Sekretaris Bidang tidak diperbolehkan membuat rapat Lintas Dinas (Semua Orang).',
+            'semua_orang.prohibited' => 'Admin Bidang tidak diperbolehkan membuat rapat Lintas Dinas (Semua Orang).',
         ]);
 
         // Determine hak_akses
@@ -261,7 +263,7 @@ class AgendaController extends Controller
             }
             // Max 2 bidangs allowed
             if (count($bidangs) > 2) {
-                return back()->withErrors(['bidangs' => 'Sekretaris Bidang hanya diperbolehkan memilih bidangnya sendiri dan maksimal 1 bidang tambahan.'])->withInput();
+                return back()->withErrors(['bidangs' => 'Admin Bidang hanya diperbolehkan memilih bidangnya sendiri dan maksimal 1 bidang tambahan.'])->withInput();
             }
             $newHakAkses = $bidangs;
         } else {

@@ -178,12 +178,13 @@
             <!-- Right Profile Drodown -->
             @if(Auth::check())
                 @php
+                    $bidSuffix = Auth::user()->bidang ? ' ' . (Auth::user()->bidang->singkatan ?? Auth::user()->bidang->nama) : '';
                     $roleLabels = [
                         'admin' => 'Administrator',
-                        'sekretaris_master' => 'Sekretaris Master',
+                        'sekretaris_master' => 'Sekretaris Dinas',
                         'ketua_master' => 'Kepala Dinas',
-                        'sekretaris_bidang' => 'Sekretaris Bidang',
-                        'ketua_bidang' => 'Ketua Bidang',
+                        'sekretaris_bidang' => 'Admin Bidang' . $bidSuffix,
+                        'ketua_bidang' => 'Ketua Bidang' . $bidSuffix,
                         'staff' => 'Staff Pegawai',
                     ];
                     $roleColors = [
@@ -195,20 +196,68 @@
                         'staff' => 'bg-blue-50 text-blue-700 border-blue-100',
                     ];
                 @endphp
-                <a href="{{ route('profile') }}" class="relative shrink-0 select-none text-[#09103c] flex items-center gap-3 p-1.5 rounded-2xl hover:bg-slate-50 transition-colors">
-                    <div class="hidden md:block text-right" style="margin: 0; padding: 0; display: flex; flex-direction: column; justify-content: center; gap: 4px;">
-                        <div class="text-xs font-black text-[#09103c]" style="line-height: 1; margin: 0; padding: 0;">{{ Auth::user()->name }}</div>
-                        <div style="line-height: 1; margin: 0; padding: 0;">
-                            <span class="inline-block text-[8px] font-extrabold px-2 py-0.5 rounded-full border {{ $roleColors[Auth::user()->role] ?? 'bg-slate-100 border-slate-200 text-slate-700' }} uppercase tracking-wider" style="line-height: 1; vertical-align: middle;">
-                                {{ $roleLabels[Auth::user()->role] ?? 'User' }}
-                            </span>
+                @if(Auth::user()->isAdmin())
+                    <div x-data="{ openAdminMenu: false }" class="relative shrink-0 select-none">
+                        <button type="button" @click="openAdminMenu = !openAdminMenu" class="text-[#09103c] flex items-center gap-3 p-1.5 rounded-2xl hover:bg-slate-50 transition-colors text-right cursor-pointer focus:outline-none">
+                            <div class="hidden md:block text-right" style="margin: 0; padding: 0; display: flex; flex-direction: column; justify-content: center; gap: 4px;">
+                                <div class="text-xs font-black text-[#09103c]" style="line-height: 1; margin: 0; padding: 0;">{{ Auth::user()->name }}</div>
+                                <div style="line-height: 1; margin: 0; padding: 0;">
+                                    <span class="inline-block text-[8px] font-extrabold px-2 py-0.5 rounded-full border {{ $roleColors[Auth::user()->role] ?? 'bg-slate-100 border-slate-200 text-slate-700' }} uppercase tracking-wider" style="line-height: 1; vertical-align: middle;">
+                                        {{ $roleLabels[Auth::user()->role] ?? 'User' }}
+                                    </span>
+                                </div>
+                                <div class="text-[9px] text-slate-500 font-bold font-mono" style="line-height: 1; margin: 0; padding: 0;">NIP. {{ Auth::user()->nip }}</div>
+                            </div>
+                            <div class="w-10 h-10 bg-[#1b3bbb]/10 rounded-2xl flex items-center justify-center font-bold text-[#1b3bbb] border border-[#1b3bbb]/20 shadow-sm transition-colors">
+                                {{ substr(Auth::user()->name, 0, 2) }}
+                            </div>
+                        </button>
+
+                        <!-- COMPACT FLOATING ADMIN DROPDOWN MENU -->
+                        <div x-show="openAdminMenu" 
+                             @click.away="openAdminMenu = false" 
+                             x-cloak
+                             x-transition:enter="transition ease-out duration-150 transform"
+                             x-transition:enter-start="opacity-0 scale-95 -translate-y-1"
+                             x-transition:enter-end="opacity-100 scale-100 translate-y-0"
+                             class="absolute right-0 mt-2 w-60 bg-white border border-[#d4d1f5]/80 rounded-2xl shadow-xl z-50 p-3.5 space-y-3 text-[#2e2552]">
+                            
+                            <div class="pb-2.5 border-b border-[#d4d1f5]/50 flex items-center gap-2.5">
+                                <div class="w-8 h-8 bg-red-50 text-red-600 rounded-xl flex items-center justify-center font-black text-xs border border-red-100 shrink-0">
+                                    Ad
+                                </div>
+                                <div class="min-w-0 flex-1">
+                                    <div class="text-xs font-black text-[#2e2552] truncate">{{ Auth::user()->name }}</div>
+                                    <div class="text-[10px] text-[#5a508f] font-mono truncate">NIP. {{ Auth::user()->nip }}</div>
+                                </div>
+                            </div>
+
+                            <div>
+                                <a href="{{ route('password.change') }}" class="w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-bold text-[#2e2552] hover:bg-[#1b3bbb]/5 hover:text-[#1b3bbb] transition-colors">
+                                    <svg class="w-4 h-4 text-[#8e88dd]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path>
+                                    </svg>
+                                    <span>Ubah Kata Sandi</span>
+                                </a>
+                            </div>
                         </div>
-                        <div class="text-[9px] text-slate-500 font-bold font-mono" style="line-height: 1; margin: 0; padding: 0;">NIP. {{ Auth::user()->nip }}</div>
                     </div>
-                    <div class="w-10 h-10 bg-[#1b3bbb]/10 rounded-2xl flex items-center justify-center font-bold text-[#1b3bbb] border border-[#1b3bbb]/20 shadow-sm transition-colors">
-                        {{ substr(Auth::user()->name, 0, 2) }}
-                    </div>
-                </a>
+                @else
+                    <a href="{{ route('profile') }}" class="relative shrink-0 select-none text-[#09103c] flex items-center gap-3 p-1.5 rounded-2xl hover:bg-slate-50 transition-colors">
+                        <div class="hidden md:block text-right" style="margin: 0; padding: 0; display: flex; flex-direction: column; justify-content: center; gap: 4px;">
+                            <div class="text-xs font-black text-[#09103c]" style="line-height: 1; margin: 0; padding: 0;">{{ Auth::user()->name }}</div>
+                            <div style="line-height: 1; margin: 0; padding: 0;">
+                                <span class="inline-block text-[8px] font-extrabold px-2 py-0.5 rounded-full border {{ $roleColors[Auth::user()->role] ?? 'bg-slate-100 border-slate-200 text-slate-700' }} uppercase tracking-wider" style="line-height: 1; vertical-align: middle;">
+                                    {{ $roleLabels[Auth::user()->role] ?? 'User' }}
+                                </span>
+                            </div>
+                            <div class="text-[9px] text-slate-500 font-bold font-mono" style="line-height: 1; margin: 0; padding: 0;">NIP. {{ Auth::user()->nip }}</div>
+                        </div>
+                        <div class="w-10 h-10 bg-[#1b3bbb]/10 rounded-2xl flex items-center justify-center font-bold text-[#1b3bbb] border border-[#1b3bbb]/20 shadow-sm transition-colors">
+                            {{ substr(Auth::user()->name, 0, 2) }}
+                        </div>
+                    </a>
+                @endif
             @endif
         </header>
 
@@ -619,6 +668,110 @@
                 }
             });
 
+            function loadPage(url) {
+                // Close profile menu on PJAX navigation
+                window.dispatchEvent(new CustomEvent('close-profile-menu'));
+
+                // Premium linear loader
+                let loader = document.getElementById('pjax-loader');
+                if (!loader) {
+                    loader = document.createElement('div');
+                    loader.id = 'pjax-loader';
+                    loader.style.position = 'fixed';
+                    loader.style.top = '0';
+                    loader.style.left = '0';
+                    loader.style.height = '3px';
+                    loader.style.backgroundColor = '#8e88dd';
+                    loader.style.zIndex = '9999';
+                    loader.style.width = '0%';
+                    loader.style.transition = 'width 0.4s ease';
+                    document.body.appendChild(loader);
+                }
+                loader.style.width = '15%';
+                setTimeout(() => { if(loader) loader.style.width = '75%'; }, 100);
+
+                fetch(url)
+                    .then(res => res.text())
+                    .then(html => {
+                        if (loader) {
+                            loader.style.width = '100%';
+                            setTimeout(() => loader.remove(), 150);
+                        }
+                        
+                        const parser = new DOMParser();
+                        const doc = parser.parseFromString(html, 'text/html');
+                        
+                        const currentContainer = document.getElementById('pjax-container');
+                        const newContainer = doc.getElementById('pjax-container');
+                        
+                        if (currentContainer && newContainer) {
+                            currentContainer.innerHTML = newContainer.innerHTML;
+
+                            // Execute script tags inside the new container for PJAX compatibility
+                            const scripts = currentContainer.querySelectorAll('script');
+                            scripts.forEach(oldScript => {
+                                const newScript = document.createElement('script');
+                                Array.from(oldScript.attributes).forEach(attr => newScript.setAttribute(attr.name, attr.value));
+                                newScript.appendChild(document.createTextNode(oldScript.innerHTML));
+                                document.body.appendChild(newScript);
+                                newScript.remove();
+                            });
+
+                            document.title = doc.title;
+                            history.pushState({ url: url }, doc.title, url);
+                            
+                            // Synchronize the sidebar active status dynamically
+                            const currentNav = document.querySelector('aside nav');
+                            const newNav = doc.querySelector('aside nav');
+                            if (currentNav && newNav) {
+                                currentNav.innerHTML = newNav.innerHTML;
+                            }
+                            
+                            // Synchronize header breadcrumb
+                            const currentTitle = document.querySelector('.hidden.sm\\:flex.items-center.gap-2.text-xs.font-bold');
+                            const newTitle = doc.querySelector('.hidden.sm\\:flex.items-center.gap-2.text-xs.font-bold');
+                            if (currentTitle && newTitle) {
+                                currentTitle.innerHTML = newTitle.innerHTML;
+                            }
+                            
+                            // Dynamic main container scroll state synchronization (PJAX)
+                            const mainEl = document.getElementById('main-content');
+                            if (mainEl) {
+                                if (url.includes('/profile')) {
+                                    mainEl.classList.remove('overflow-auto');
+                                    mainEl.classList.add('overflow-hidden');
+                                } else {
+                                    mainEl.classList.remove('overflow-hidden');
+                                    mainEl.classList.add('overflow-auto');
+                                }
+                            }
+
+                            // Force close all Alpine modals/dropdowns on page transition
+                            if (window.Alpine) {
+                                document.querySelectorAll('[x-data]').forEach(el => {
+                                    try {
+                                        const data = window.Alpine.$data(el);
+                                        if (data && 'openModal' in data) {
+                                            data.openModal = false;
+                                        }
+                                    } catch(err) {}
+                                });
+                                // Re-initialize AlpineJS tree for newly injected PJAX DOM elements
+                                if (typeof window.Alpine.initTree === 'function') {
+                                    window.Alpine.initTree(currentContainer);
+                                }
+                            }
+                            
+                            // Emit a custom complete event in case other libraries/scripts need to re-bind
+                            window.dispatchEvent(new CustomEvent('pjax:complete'));
+                        } else {
+                            window.location.href = url;
+                        }
+                    })
+                    .catch(err => {
+                        window.location.href = url;
+                    });
+            }
             // Global Form Submit Interceptor with Double-Click Prevention & Loading States
             document.addEventListener('submit', function(e) {
                 const form = e.target;

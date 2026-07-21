@@ -162,8 +162,10 @@ class="space-y-6">
                 <select x-model="filterRole" 
                         class="w-full px-4 py-2.5 bg-[#f3f2fe] border border-[#d4d1f5] rounded-2xl text-xs text-[#2e2552] focus:outline-none">
                     <option value="">Semua Role</option>
-                    <option value="ketua">Ketua / Kadin</option>
-                    <option value="sekretaris">Sekretaris</option>
+                    <option value="sekretaris_master">Sekretaris Dinas</option>
+                    <option value="sekretaris_bidang">Admin Bidang</option>
+                    <option value="ketua_master">Kepala Dinas</option>
+                    <option value="ketua_bidang">Ketua Bidang</option>
                     <option value="staff">Staff</option>
                 </select>
             </div>
@@ -214,11 +216,12 @@ class="space-y-6">
                                         'ketua_bidang' => 'bg-purple-50 text-purple-700 border-purple-200',
                                         'staff' => 'bg-blue-50 text-blue-700 border-blue-200',
                                     ];
+                                    $bidName = $user->bidang ? ($user->bidang->singkatan ?? $user->bidang->nama) : '';
                                     $roleLabel = [
-                                        'sekretaris_master' => 'Sekretaris Master',
+                                        'sekretaris_master' => 'Sekretaris Dinas',
                                         'ketua_master' => 'Kepala Dinas',
-                                        'sekretaris_bidang' => 'Sekretaris Bidang',
-                                        'ketua_bidang' => 'Ketua Bidang',
+                                        'sekretaris_bidang' => $bidName ? "Admin Bidang {$bidName}" : 'Admin Bidang',
+                                        'ketua_bidang' => $bidName ? "Ketua Bidang {$bidName}" : 'Ketua Bidang',
                                         'staff' => 'Staff',
                                     ];
                                 @endphp
@@ -372,10 +375,10 @@ class="space-y-6">
                         <label for="role" class="block text-xs font-bold text-[#5a508f] uppercase">Role Sistem <span class="text-rose-500">*</span></label>
                         <select name="role" id="role" required class="w-full px-4 py-2.5 bg-[#f3f2fe] border border-[#d4d1f5] rounded-2xl text-[#2e2552] text-sm focus:outline-none">
                             <option value="staff">Staff</option>
-                            <option value="sekretaris_bidang">Sekretaris Bidang</option>
+                            <option value="sekretaris_bidang">Admin Bidang</option>
                             <option value="ketua_bidang">Ketua Bidang</option>
-                            <option value="sekretaris_master">Sekretaris Master</option>
-                            <option value="ketua_master">Kepala Dinas / Ketua Master</option>
+                            <option value="sekretaris_master">Sekretaris Dinas</option>
+                            <option value="ketua_master">Kepala Dinas</option>
                         </select>
                     </div>
                 </div>
@@ -428,10 +431,10 @@ class="space-y-6">
                         <label class="block text-xs font-bold text-[#5a508f] uppercase">Role Sistem <span class="text-rose-500">*</span></label>
                         <select name="role" x-model="editUser.role" required class="w-full px-4 py-2.5 bg-[#f3f2fe] border border-[#d4d1f5] rounded-2xl text-[#2e2552] text-sm">
                             <option value="staff">Staff</option>
-                            <option value="sekretaris_bidang">Sekretaris Bidang</option>
+                            <option value="sekretaris_bidang">Admin Bidang</option>
                             <option value="ketua_bidang">Ketua Bidang</option>
-                            <option value="sekretaris_master">Sekretaris Master</option>
-                            <option value="ketua_master">Kepala Dinas / Ketua Master</option>
+                            <option value="sekretaris_master">Sekretaris Dinas</option>
+                            <option value="ketua_master">Kepala Dinas</option>
                         </select>
                     </div>
                 </div>
