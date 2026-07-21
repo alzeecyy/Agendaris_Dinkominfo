@@ -373,15 +373,20 @@
     </div>
 
     <!-- Heavy Process Loading Overlay Modal -->
-    <div id="heavy-loading-overlay" class="fixed inset-0 z-[9999] bg-slate-900/60 backdrop-blur-md hidden items-center justify-center p-4 transition-opacity duration-300">
-        <div class="bg-white rounded-3xl p-8 max-w-md w-full text-center shadow-2xl border border-slate-100 flex flex-col items-center gap-5 transform transition-transform duration-300">
-            <div class="relative flex items-center justify-center">
-                <div class="w-16 h-16 rounded-full border-4 border-[#1b3bbb]/20 border-t-[#1b3bbb] animate-spin"></div>
-                <div class="absolute w-8 h-8 rounded-full bg-[#1b3bbb]/10 animate-ping"></div>
+    <div id="heavy-loading-overlay" class="fixed inset-0 z-[99999] bg-slate-900/50 backdrop-blur-md hidden items-center justify-center p-4 transition-all duration-300">
+        <div class="bg-white/95 rounded-[32px] p-8 max-w-sm w-full text-center shadow-2xl border border-slate-200/80 flex flex-col items-center gap-5 transform transition-transform duration-300">
+            <!-- Spinner Icon Container -->
+            <div class="relative w-16 h-16 flex items-center justify-center">
+                <div class="absolute inset-0 rounded-full border-4 border-[#1b3bbb]/15 border-t-[#1b3bbb] animate-spin"></div>
+                <div class="w-8 h-8 rounded-2xl bg-[#1b3bbb]/10 flex items-center justify-center text-[#1b3bbb]">
+                    <svg class="w-5 h-5 animate-pulse" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                    </svg>
+                </div>
             </div>
-            <div class="space-y-2">
-                <h3 id="heavy-loading-title" class="text-base font-extrabold text-[#09103c]">Sedang Memproses Data</h3>
-                <p id="heavy-loading-message" class="text-xs text-slate-500 leading-relaxed font-medium">Mohon tunggu sejenak...</p>
+            <div class="space-y-1.5">
+                <h3 id="heavy-loading-title" class="text-base font-extrabold text-[#09103c]">Memproses...</h3>
+                <p id="heavy-loading-message" class="text-xs text-slate-500 font-medium">Mohon tunggu sejenak...</p>
             </div>
             <div class="w-full bg-slate-100 rounded-full h-1.5 overflow-hidden">
                 <div class="bg-gradient-to-r from-[#1b3bbb] to-blue-400 h-full w-full animate-pulse"></div>
@@ -395,7 +400,7 @@
         window.showHeavyLoading = function(title, message) {
             const overlay = document.getElementById('heavy-loading-overlay');
             if (!overlay) return;
-            if (title) document.getElementById('heavy-loading-title').innerText = title;
+            document.getElementById('heavy-loading-title').innerText = title || 'Memproses...';
             document.getElementById('heavy-loading-message').innerText = message || 'Mohon tunggu sejenak...';
             overlay.classList.remove('hidden');
             overlay.classList.add('flex');
@@ -628,7 +633,6 @@
                     e.preventDefault();
                     const message = form.getAttribute('data-confirm');
                     const confirmBtnText = form.getAttribute('data-confirm-btn') || 'Ya, Lanjutkan';
-                    const heavyTitle = form.getAttribute('data-heavy-title');
                     
                     Swal.fire({
                         text: message,
@@ -639,18 +643,7 @@
                         allowOutsideClick: false
                     }).then((result) => {
                         if (result.isConfirmed) {
-                            if (heavyTitle) {
-                                window.showHeavyLoading(heavyTitle, form.getAttribute('data-heavy-msg') || 'Mohon tunggu, proses sedang berjalan...');
-                            } else {
-                                Swal.fire({
-                                    title: 'Memproses...',
-                                    text: 'Mohon tunggu sejenak...',
-                                    allowOutsideClick: false,
-                                    didOpen: () => {
-                                        Swal.showLoading();
-                                    }
-                                });
-                            }
+                            window.showHeavyLoading('Memproses...', 'Mohon tunggu sejenak...');
                             form.removeAttribute('data-confirm');
                             const btn = form.querySelector('button[type="submit"], input[type="submit"]');
                             if (btn) {
