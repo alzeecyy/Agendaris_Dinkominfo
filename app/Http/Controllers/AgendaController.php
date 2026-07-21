@@ -185,20 +185,13 @@ class AgendaController extends Controller
         // Get external participants
         $externalParticipants = $agenda->externalParticipants;
 
-        // Check if user has secretary access to this agenda (either master secretary, or the bidang secretary of this agenda)
-        $isSecretaryOfAgenda = $user->isSekretarisMaster() || 
-            ($user->isSekretarisBidang() && in_array((string)$user->bidang_id, array_map('strval', $hakAkses)));
+        // Check if user has secretary access to this agenda
+        $isSecretaryOfAgenda = $user->isSecretaryOfAgenda($agenda);
 
         // Check if user is the approver of this agenda's notulensi
         $isApproverOfAgenda = false;
         if ($agenda->notulensi && $agenda->notulensi->status === 'menunggu_review') {
-            if (count($hakAkses) === 1 && !in_array('semua_orang', $hakAkses)) {
-                // Single bidang -> Ketua Bidang is approver
-                $isApproverOfAgenda = $user->isKetuaBidang() && $user->bidang_id == $hakAkses[0];
-            } else {
-                // Multi bidang or semua orang -> Ketua Master is approver
-                $isApproverOfAgenda = $user->isKetuaMaster();
-            }
+            $isApproverOfAgenda = $user->isApproverOfAgenda($agenda);
         }
 
         return view('agenda.show', compact(
@@ -219,12 +212,7 @@ class AgendaController extends Controller
     {
         $user = Auth::user();
 
-        // Check if user has secretary access to this agenda
-        $hakAkses = $agenda->hak_akses;
-        $isSecretaryOfAgenda = $user->isSekretarisMaster() || 
-            ($user->isSekretarisBidang() && in_array((string)$user->bidang_id, array_map('strval', $hakAkses)));
-
-        if (!$isSecretaryOfAgenda) {
+        if (!$user->isSecretaryOfAgenda($agenda)) {
             abort(403, 'Akses ditolak. Anda tidak memiliki wewenang untuk mengubah agenda ini.');
         }
 
@@ -324,12 +312,7 @@ class AgendaController extends Controller
     {
         $user = Auth::user();
 
-        // Check if user has secretary access to this agenda
-        $hakAkses = $agenda->hak_akses;
-        $isSecretaryOfAgenda = $user->isSekretarisMaster() || 
-            ($user->isSekretarisBidang() && in_array((string)$user->bidang_id, array_map('strval', $hakAkses)));
-
-        if (!$isSecretaryOfAgenda) {
+        if (!$user->isSecretaryOfAgenda($agenda)) {
             abort(403, 'Akses ditolak. Anda tidak memiliki wewenang untuk menghapus agenda ini.');
         }
 

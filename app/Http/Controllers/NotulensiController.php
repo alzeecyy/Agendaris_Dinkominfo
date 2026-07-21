@@ -20,13 +20,8 @@ class NotulensiController extends Controller
     public function edit(Agenda $agenda)
     {
         $user = Auth::user();
-        $hakAkses = $agenda->hak_akses;
 
-        // Check if user has secretary access to this agenda
-        $isSecretaryOfAgenda = $user->isSekretarisMaster() || 
-            ($user->isSekretarisBidang() && in_array((string)$user->bidang_id, array_map('strval', $hakAkses)));
-
-        if (!$isSecretaryOfAgenda) {
+        if (!$user->isSecretaryOfAgenda($agenda)) {
             abort(403, 'Akses ditolak. Anda tidak memiliki wewenang untuk mengedit notulensi ini.');
         }
 
@@ -50,21 +45,17 @@ class NotulensiController extends Controller
     public function uploadAudio(Request $request, Agenda $agenda)
     {
         $user = Auth::user();
-        $hakAkses = $agenda->hak_akses;
 
-        $isSecretaryOfAgenda = $user->isSekretarisMaster() || 
-            ($user->isSekretarisBidang() && in_array((string)$user->bidang_id, array_map('strval', $hakAkses)));
-
-        if (!$isSecretaryOfAgenda) {
+        if (!$user->isSecretaryOfAgenda($agenda)) {
             return back()->with('error', 'Anda tidak memiliki wewenang untuk mengunggah berkas.');
         }
 
         $request->validate([
-            'audio' => 'required|file|mimes:mp3,wav,m4a,mpga|max:20480', // max 20MB
+            'audio' => 'required|file|mimes:mp3,wav,m4a,ogg,webm,aac,flac|max:102400',
         ], [
-            'audio.required' => 'File audio wajib diunggah.',
-            'audio.mimes' => 'Format file harus berupa mp3, wav, atau m4a.',
-            'audio.max' => 'Ukuran file audio maksimal adalah 20MB.',
+            'audio.required' => 'Silakan pilih berkas audio rapat terlebih dahulu.',
+            'audio.mimes' => 'Format berkas audio harus berupa MP3, WAV, M4A, OGG, WEBM, AAC, atau FLAC.',
+            'audio.max' => 'Ukuran berkas audio maksimal adalah 100 MB.',
         ]);
 
         $notulensi = $agenda->notulensi;
@@ -72,10 +63,10 @@ class NotulensiController extends Controller
             $notulensi = Notulensi::create([
                 'agenda_id' => $agenda->id,
                 'status' => 'draft',
-                'audio_files' => [],
             ]);
         }
 
+        // Handle up to 3 audio files
         $audioFiles = $notulensi->audio_files ?? [];
         if (count($audioFiles) >= 3) {
             return back()->with('error', 'Gagal mengunggah. Maksimal 3 berkas audio rapat tercapai.');
@@ -113,12 +104,8 @@ class NotulensiController extends Controller
     public function deleteAudio(Agenda $agenda, $index)
     {
         $user = Auth::user();
-        $hakAkses = $agenda->hak_akses;
 
-        $isSecretaryOfAgenda = $user->isSekretarisMaster() || 
-            ($user->isSekretarisBidang() && in_array((string)$user->bidang_id, array_map('strval', $hakAkses)));
-
-        if (!$isSecretaryOfAgenda) {
+        if (!$user->isSecretaryOfAgenda($agenda)) {
             return back()->with('error', 'Anda tidak memiliki wewenang untuk menghapus berkas.');
         }
 
@@ -171,12 +158,8 @@ class NotulensiController extends Controller
     public function saveDraft(Request $request, Agenda $agenda)
     {
         $user = Auth::user();
-        $hakAkses = $agenda->hak_akses;
 
-        $isSecretaryOfAgenda = $user->isSekretarisMaster() || 
-            ($user->isSekretarisBidang() && in_array((string)$user->bidang_id, array_map('strval', $hakAkses)));
-
-        if (!$isSecretaryOfAgenda) {
+        if (!$user->isSecretaryOfAgenda($agenda)) {
             return back()->with('error', 'Akses ditolak.');
         }
 
@@ -230,12 +213,8 @@ class NotulensiController extends Controller
     public function submitForReview(Request $request, Agenda $agenda)
     {
         $user = Auth::user();
-        $hakAkses = $agenda->hak_akses;
 
-        $isSecretaryOfAgenda = $user->isSekretarisMaster() || 
-            ($user->isSekretarisBidang() && in_array((string)$user->bidang_id, array_map('strval', $hakAkses)));
-
-        if (!$isSecretaryOfAgenda) {
+        if (!$user->isSecretaryOfAgenda($agenda)) {
             return back()->with('error', 'Akses ditolak.');
         }
 
@@ -300,19 +279,10 @@ class NotulensiController extends Controller
                 ->with('error', 'Notulensi belum tersedia.');
         }
 
-        $hakAkses = $agenda->hak_akses;
-
         // Verify if user is the authorized secretary
-        $isSecretaryOfAgenda = $user->isSekretarisMaster() || 
-            ($user->isSekretarisBidang() && in_array((string)$user->bidang_id, array_map('strval', $hakAkses)));
-
+        $isSecretaryOfAgenda = $user->isSecretaryOfAgenda($agenda);
         // Verify that user is the authorized Ketua (Master or Bidang)
-        $isApprover = false;
-        if (count($hakAkses) === 1 && !in_array('semua_orang', $hakAkses)) {
-            $isApprover = $user->isKetuaBidang() && $user->bidang_id == $hakAkses[0];
-        } else {
-            $isApprover = $user->isKetuaMaster();
-        }
+        $isApprover = $user->isApproverOfAgenda($agenda);
 
         if ($notulensi->status === 'menunggu_review' && !$isApprover && !$isSecretaryOfAgenda) {
             abort(403, 'Akses ditolak. Notulensi sedang dalam proses peninjauan oleh pimpinan.');
@@ -327,16 +297,8 @@ class NotulensiController extends Controller
     public function approve(Request $request, Agenda $agenda)
     {
         $user = Auth::user();
-        $hakAkses = $agenda->hak_akses;
 
-        $isApprover = false;
-        if (count($hakAkses) === 1 && !in_array('semua_orang', $hakAkses)) {
-            $isApprover = $user->isKetuaBidang() && $user->bidang_id == $hakAkses[0];
-        } else {
-            $isApprover = $user->isKetuaMaster();
-        }
-
-        if (!$isApprover) {
+        if (!$user->isApproverOfAgenda($agenda)) {
             return back()->with('error', 'Akses ditolak.');
         }
 
@@ -359,16 +321,8 @@ class NotulensiController extends Controller
     public function requestRevision(Request $request, Agenda $agenda)
     {
         $user = Auth::user();
-        $hakAkses = $agenda->hak_akses;
 
-        $isApprover = false;
-        if (count($hakAkses) === 1 && !in_array('semua_orang', $hakAkses)) {
-            $isApprover = $user->isKetuaBidang() && $user->bidang_id == $hakAkses[0];
-        } else {
-            $isApprover = $user->isKetuaMaster();
-        }
-
-        if (!$isApprover) {
+        if (!$user->isApproverOfAgenda($agenda)) {
             return back()->with('error', 'Akses ditolak.');
         }
 
@@ -396,12 +350,8 @@ class NotulensiController extends Controller
     public function addExternal(Request $request, Agenda $agenda)
     {
         $user = Auth::user();
-        $hakAkses = $agenda->hak_akses;
 
-        $isSecretaryOfAgenda = $user->isSekretarisMaster() || 
-            ($user->isSekretarisBidang() && in_array((string)$user->bidang_id, array_map('strval', $hakAkses)));
-
-        if (!$isSecretaryOfAgenda) {
+        if (!$user->isSecretaryOfAgenda($agenda)) {
             return back()->with('error', 'Akses ditolak.');
         }
 
@@ -428,12 +378,8 @@ class NotulensiController extends Controller
     {
         $user = Auth::user();
         $agenda = $participant->agenda;
-        $hakAkses = $agenda->hak_akses;
 
-        $isSecretaryOfAgenda = $user->isSekretarisMaster() || 
-            ($user->isSekretarisBidang() && in_array((string)$user->bidang_id, array_map('strval', $hakAkses)));
-
-        if (!$isSecretaryOfAgenda) {
+        if (!$user->isSecretaryOfAgenda($agenda)) {
             return back()->with('error', 'Akses ditolak.');
         }
 
@@ -621,12 +567,8 @@ class NotulensiController extends Controller
     public function regenerate(Request $request, Agenda $agenda)
     {
         $user = Auth::user();
-        $hakAkses = $agenda->hak_akses;
 
-        $isSecretaryOfAgenda = $user->isSekretarisMaster() || 
-            ($user->isSekretarisBidang() && in_array((string)$user->bidang_id, array_map('strval', $hakAkses)));
-
-        if (!$isSecretaryOfAgenda) {
+        if (!$user->isSecretaryOfAgenda($agenda)) {
             return response()->json(['status' => 'error', 'message' => 'Akses ditolak.'], 403);
         }
 
@@ -692,9 +634,9 @@ class NotulensiController extends Controller
                                                "FORMAT PENULISAN (Markdown)\n" .
                                                "Gunakan format markdown berikut agar struktur dokumen terbaca jelas saat dikonversi ke PDF:\n" .
                                                "- Judul dokumen: gunakan # (contoh: # Notulensi Rapat [Nama Rapat])\n" .
-                                               "- Sub-bagian (misal: Informasi Rapat, Daftar Hadir, Pembahasan, Kesimpulan): gunakan ##\n" .
-                                               "- Nama pembicara (jika eksplisit disebutkan): tebalkan dengan **Nama:** diikuti isi ucapan\n" .
-                                               "- Poin-poin penting/daftar: gunakan bullet (-) atau angka (1.)\n" .
+                                               "- Sub-bagian (misal: Informasi Rapat, Pembahasan, Kesimpulan): gunakan ##\n" .
+                                               "- Penomoran poin: gunakan angka langsung tanpa tanda strip di depannya (contoh: 1. Perencanaan Aplikasi, 2. Rapat Koordinasi)\n" .
+                                               "- Sub-detail (Isi, Penjelasan, Catatan): tulis langsung nama label diikuti titik dua tanpa tanda strip di depannya (contoh: Isi: ..., Penjelasan: ...)\n" .
                                                "- Jangan gunakan format lain di luar markdown standar (tanpa HTML, tanpa tabel kompleks kecuali diminta)\n\n" .
                                                "OUTPUT\n" .
                                                "Berikan hanya hasil transkrip yang sudah dirapikan dalam format markdown, tanpa penjelasan tambahan.\n\n" .
@@ -784,9 +726,9 @@ class NotulensiController extends Controller
                                          "FORMAT PENULISAN (Markdown)\n" .
                                          "Gunakan format markdown berikut agar struktur dokumen terbaca jelas saat dikonversi ke PDF:\n" .
                                          "- Judul dokumen: gunakan # (contoh: # Notulensi Rapat [Nama Rapat])\n" .
-                                         "- Sub-bagian (misal: Informasi Rapat, Daftar Hadir, Pembahasan, Kesimpulan): gunakan ##\n" .
-                                         "- Nama pembicara (jika eksplisit disebutkan): tebalkan dengan **Nama:** diikuti isi ucapan\n" .
-                                         "- Poin-poin penting/daftar: gunakan bullet (-) atau angka (1.)\n" .
+                                         "- Sub-bagian (misal: Informasi Rapat, Pembahasan, Kesimpulan): gunakan ##\n" .
+                                         "- Penomoran poin: gunakan angka langsung tanpa tanda strip di depannya (contoh: 1. Perencanaan Aplikasi, 2. Rapat Koordinasi)\n" .
+                                         "- Sub-detail (Isi, Penjelasan, Catatan): tulis langsung nama label diikuti titik dua tanpa tanda strip di depannya (contoh: Isi: ..., Penjelasan: ...)\n" .
                                          "- Jangan gunakan format lain di luar markdown standar (tanpa HTML, tanpa tabel kompleks kecuali diminta)\n\n" .
                                          "OUTPUT\n" .
                                          "Berikan hanya hasil transkrip yang sudah dirapikan dalam format markdown, tanpa penjelasan tambahan.\n\n" .

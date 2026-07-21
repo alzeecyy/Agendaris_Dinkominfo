@@ -251,8 +251,8 @@ function showUploadLoading(type) {
                             </p>
                             <button type="button" onclick="window.location.reload()" 
                                     class="w-full py-2 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white text-xs font-bold rounded-xl shadow-md shadow-blue-500/10 transition-all flex items-center justify-center gap-1.5">
-                                <svg class="w-3.5 h-3.5" id="refresh-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 1121.21 8H18.2M7 9a7 7 0 1111.468-4.686L18 9"/>
+                                <svg class="w-4 h-4 shrink-0" id="refresh-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0 3.181 3.183a8.25 8.25 0 0 0 13.803-3.7M4.031 9.865a8.25 8.25 0 0 1 13.803-3.7l3.181 3.182m0-4.991v4.99"/>
                                 </svg>
                                 <span>Perbarui &amp; Cek Hasil Transkrip</span>
                             </button>
@@ -262,9 +262,25 @@ function showUploadLoading(type) {
                 @endif
 
                 <!-- Edit Draft Form -->
-                <form id="notulen-form" class="space-y-6">
+                <form id="notulen-form" class="space-y-6" action="{{ route('notulensi.save', $agenda->id) }}" method="POST">
                     @csrf
                     
+                    @if($errors->any())
+                        <div class="p-4 bg-rose-50 border border-rose-200 text-rose-700 rounded-2xl text-xs space-y-1">
+                            <p class="font-bold flex items-center gap-2">
+                                <svg class="w-4 h-4 shrink-0 text-rose-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
+                                </svg>
+                                <span>Pengajuan Gagal. Silakan periksa kembali kelengkapan data:</span>
+                            </p>
+                            <ul class="list-disc list-inside pl-2 space-y-0.5 font-medium">
+                                @foreach($errors->all() as $error)
+                                    <li>{{ $error }}</li>
+                                @endforeach
+                            </ul>
+                        </div>
+                    @endif
+
                     <!-- Judul & Nomor Surat Rapat -->
                     <div class="p-4 bg-[#8e88dd]/10 border border-[#8e88dd]/20 rounded-2xl space-y-4">
                         <div class="space-y-1">
@@ -275,7 +291,7 @@ function showUploadLoading(type) {
 
                         <div class="space-y-1">
                             <label for="nomor_surat_dasar" class="block text-xs font-bold uppercase tracking-wider text-[#2e2552]">Nomor Surat <span class="text-rose-500">*</span></label>
-                            <input type="text" name="nomor_surat_dasar" id="nomor_surat_dasar" value="{{ old('nomor_surat_dasar', $agenda->nomor_surat_dasar) }}" placeholder="Contoh: 005/123/2026 Perihal Undangan Rapat Evaluasi SPBE"
+                            <input type="text" name="nomor_surat_dasar" id="nomor_surat_dasar" required value="{{ old('nomor_surat_dasar', $agenda->nomor_surat_dasar) }}" placeholder="Contoh: 005/123/2026 Perihal Undangan Rapat Evaluasi SPBE"
                                    class="w-full mt-1 px-4 py-2.5 bg-white border border-[#d4d1f5] rounded-xl text-[#2e2552] text-sm focus:outline-none focus:ring-2 focus:ring-[#8e88dd]">
                             <p class="text-[10px] text-[#5a508f] mt-1 font-medium">Judul rapat dan nomor surat wajib diisi oleh sekretaris sebelum notulensi diajukan untuk disahkan pimpinan.</p>
                         </div>
@@ -311,19 +327,162 @@ function showUploadLoading(type) {
 
 
 
-                    <!-- Submit Draft buttons -->
-                    <div class="flex items-center justify-end gap-3 border-t border-[#d4d1f5]/40 pt-6">
-                        <button type="submit" formaction="{{ route('notulensi.save', $agenda->id) }}" formmethod="POST"
-                                class="px-5 py-2.5 bg-slate-100 hover:bg-slate-200 text-[#5a508f] text-xs font-bold rounded-xl transition-all">
-                            Simpan Progress Draft
-                        </button>
-                        <button type="submit" formaction="{{ route('notulensi.submit', $agenda->id) }}" formmethod="POST"
-                                class="px-6 py-2.5 bg-[#2e2552] hover:bg-[#3d326a] text-white text-xs font-bold rounded-xl shadow-md shadow-[#2e2552]/10 transition-all">
-                            Ajukan untuk Persetujuan
-                        </button>
+                    <!-- Submit Draft buttons & Unsaved Warning -->
+                    <div class="space-y-4 pt-6 border-t border-[#d4d1f5]/40">
+                        <div x-show="isDirty" x-cloak class="p-3.5 bg-amber-50 border border-amber-300 rounded-2xl flex items-center justify-between text-xs text-amber-800 animate-pulse">
+                            <span class="flex items-center gap-2 font-bold">
+                                <svg class="w-4 h-4 text-amber-600 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
+                                </svg>
+                                <span>Ada perubahan draf yang belum disimpan! Pastikan menekan tombol <strong>Simpan Progress Draft</strong>.</span>
+                            </span>
+                            <span class="text-[10px] font-extrabold uppercase bg-amber-200 text-amber-900 px-2 py-0.5 rounded-md shrink-0">Belum Disimpan</span>
+                        </div>
+
+                        <div class="flex flex-col sm:flex-row items-center justify-between gap-3">
+                            <p class="text-[11px] text-[#5a508f] font-medium flex items-center gap-1.5">
+                                <svg class="w-4 h-4 text-amber-500 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                                </svg>
+                                <span>Ingat untuk menekan <strong>Simpan Progress Draft</strong> jika melakukan perubahan.</span>
+                            </p>
+
+                            <div class="flex flex-col sm:flex-row items-center gap-3 w-full sm:w-auto justify-end">
+                                <button type="submit" @click="isDirty = false" formaction="{{ route('notulensi.save', $agenda->id) }}" formmethod="POST"
+                                        class="w-full sm:w-auto px-5 py-2.5 bg-amber-50 hover:bg-amber-100 text-amber-700 border border-amber-300 text-xs font-bold rounded-xl shadow-xs transition-all flex items-center justify-center gap-1.5">
+                                    <svg class="w-4 h-4 text-amber-600 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4"/>
+                                    </svg>
+                                    <span>Simpan Progress Draft</span>
+                                </button>
+                                <button type="submit" @click="isDirty = false" formaction="{{ route('notulensi.submit', $agenda->id) }}" formmethod="POST"
+                                        class="w-full sm:w-auto px-6 py-2.5 bg-gradient-to-r from-[#2e2552] to-[#4338ca] hover:from-[#211a3d] hover:to-[#3730a3] text-white text-xs font-bold rounded-xl shadow-md shadow-[#2e2552]/20 transition-all flex items-center justify-center gap-2">
+                                    <span>Ajukan untuk Persetujuan</span>
+                                    <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"/>
+                                    </svg>
+                                </button>
+                            </div>
+                        </div>
                     </div>
                 </form>
             </div>
         </div>
+
+    </div>
+    <script>
+    function registerNotulenEditor() {
+        if (typeof Alpine !== 'undefined') {
+            Alpine.data('notulenEditor', () => ({
+                loading: false,
+                isDirty: false,
+                init() {
+                    this.$nextTick(() => {
+                        const form = document.getElementById('notulen-form');
+                        if (form) {
+                            form.querySelectorAll('input, textarea, select').forEach(el => {
+                                el.addEventListener('input', () => { this.isDirty = true; });
+                                el.addEventListener('change', () => { this.isDirty = true; });
+                            });
+                            form.addEventListener('submit', () => { this.isDirty = false; });
+                        }
+                    });
+
+                    window.addEventListener('beforeunload', (e) => {
+                        if (this.isDirty) {
+                            e.preventDefault();
+                            e.returnValue = 'Ada perubahan draf notulensi yang belum disimpan!';
+                        }
+                    });
+                },
+                regenerateSummary() {
+                    const transcript = document.getElementById('transkrip_raw').value;
+                    if (!transcript.trim()) {
+                        Swal.fire({
+                            text: 'Teks transkrip rapat masih kosong!',
+                            icon: 'warning',
+                            confirmButtonText: 'OK'
+                        });
+                        return;
+                    }
+
+                    Swal.fire({
+                        text: 'Apakah Anda yakin ingin menganalisis ulang transkrip? Tindakan ini akan menimpa isi Ringkasan saat ini.',
+                        icon: 'question',
+                        showCancelButton: true,
+                        confirmButtonText: 'Ya, Lanjutkan',
+                        cancelButtonText: 'Batal'
+                    }).then((result) => {
+                        if (!result.isConfirmed) return;
+
+                        this.loading = true;
+                        if (typeof window.showHeavyLoading === 'function') {
+                            window.showHeavyLoading('Menganalisis Transkrip AI', 'AI sedang menganalisis ulang isi transkrip rapat. Mohon tunggu...');
+                        }
+
+                        fetch('{{ route("notulensi.regenerate", $agenda->id) }}', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                            },
+                            body: JSON.stringify({
+                                transkrip_raw: transcript
+                            })
+                        })
+                        .then(res => res.json())
+                        .then(res => {
+                            this.loading = false;
+                            if (typeof window.hideHeavyLoading === 'function') window.hideHeavyLoading();
+                            if (res.status === 'success') {
+                                document.getElementById('ringkasan').value = res.data.trim();
+                                this.isDirty = true;
+                                Swal.fire({
+                                    text: 'Analisis transkrip berhasil! Ringkasan telah diperbarui. Silakan edit dan rapikan sesuai kebutuhan.',
+                                    icon: 'success',
+                                    confirmButtonText: 'OK'
+                                });
+                            } else {
+                                Swal.fire({
+                                    text: res.message || 'Gagal memproses analisis transkrip.',
+                                    icon: 'error',
+                                    confirmButtonText: 'OK'
+                                });
+                            }
+                        })
+                        .catch(err => {
+                            this.loading = false;
+                            if (typeof window.hideHeavyLoading === 'function') window.hideHeavyLoading();
+                            Swal.fire({
+                                text: 'Terjadi kesalahan koneksi saat memproses analisis.',
+                                icon: 'error',
+                                confirmButtonText: 'OK'
+                            });
+                        });
+                    });
+                }
+            }));
+        }
+    }
+
+    function showUploadLoading(type) {
+        if (type === 'compact') {
+            document.getElementById('compact-upload-btn').style.display = 'none';
+            document.getElementById('compact-upload-loading').style.display = 'inline-flex';
+        } else {
+            document.getElementById('large-upload-btn').style.display = 'none';
+            document.getElementById('large-upload-loading').style.display = 'flex';
+        }
+        if (typeof window.showHeavyLoading === 'function') {
+            window.showHeavyLoading('Transkripsi Audio Rapat', 'Berkas audio sedang diunggah dan diproses secara otomatis oleh Whisper.cpp & AI. Mohon tunggu sejenak dan jangan menutup halaman ini...');
+        }
+    }
+
+    if (typeof Alpine !== 'undefined') {
+        registerNotulenEditor();
+    } else {
+        document.addEventListener('alpine:init', registerNotulenEditor);
+    }
+    </script>
 </div>
 @endsection

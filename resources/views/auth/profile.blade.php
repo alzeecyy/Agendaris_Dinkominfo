@@ -63,12 +63,13 @@
             </div>
 
             @php
+                $bidSuffix = Auth::user()->bidang ? ' ' . (Auth::user()->bidang->singkatan ?? Auth::user()->bidang->nama) : '';
                 $roleLabels = [
                     'admin' => 'Administrator',
                     'sekretaris_master' => 'Sekretaris Dinas',
                     'ketua_master' => 'Kepala Dinas',
-                    'sekretaris_bidang' => 'Admin Bidang',
-                    'ketua_bidang' => 'Ketua Bidang',
+                    'sekretaris_bidang' => 'Admin Bidang' . $bidSuffix,
+                    'ketua_bidang' => 'Ketua Bidang' . $bidSuffix,
                     'staff' => 'Staff Pegawai',
                 ];
             @endphp

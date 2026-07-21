@@ -185,9 +185,9 @@ class ProcessMeetingAudio implements ShouldQueue
                       "FORMAT PENULISAN (Markdown)\n" .
                       "Gunakan format markdown berikut agar struktur dokumen terbaca jelas saat dikonversi ke PDF:\n" .
                       "- Judul dokumen: gunakan # (contoh: # Notulensi Rapat [Nama Rapat])\n" .
-                      "- Sub-bagian (misal: Informasi Rapat, Daftar Hadir, Pembahasan, Kesimpulan): gunakan ##\n" .
-                      "- Nama pembicara (jika eksplisit disebutkan): tebalkan dengan **Nama:** diikuti isi ucapan\n" .
-                      "- Poin-poin penting/daftar: gunakan bullet (-) atau angka (1.)\n" .
+                      "- Sub-bagian (misal: Informasi Rapat, Pembahasan, Kesimpulan): gunakan ##\n" .
+                      "- Penomoran poin: gunakan angka langsung tanpa tanda strip di depannya (contoh: 1. Perencanaan Aplikasi, 2. Rapat Koordinasi)\n" .
+                      "- Sub-detail (Isi, Penjelasan, Catatan): tulis langsung nama label diikuti titik dua tanpa tanda strip di depannya (contoh: Isi: ..., Penjelasan: ...)\n" .
                       "- Jangan gunakan format lain di luar markdown standar (tanpa HTML, tanpa tabel kompleks kecuali diminta)\n\n" .
                       "OUTPUT\n" .
                       "Berikan hanya hasil transkrip yang sudah dirapikan dalam format markdown, tanpa penjelasan tambahan.\n\n" .

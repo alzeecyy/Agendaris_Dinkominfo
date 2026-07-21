@@ -8,13 +8,8 @@
     selectedDate: '{{ $selectedDate->toDateString() }}', 
     selectedTime: '07:15', 
     kategori: 'rapat',
-    tempat: 'Ruang Rapat Kartini',
-    tempatLainnya: '',
     showMonthPicker: false,
-    pickerYear: {{ $selectedDate->year }},
-    get combinedLokasi() {
-        return this.tempat === 'Lainnya' ? this.tempatLainnya : this.tempat;
-    }
+    pickerYear: {{ $selectedDate->year }}
 }" class="h-full flex flex-col xl:flex-row gap-6">
     
     <!-- LEFT PANEL: Mini Calendar & Quick Add -->
@@ -493,7 +488,7 @@
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div class="space-y-1">
                         <label for="tempat" class="block text-xs font-bold text-[#5a508f] uppercase">Tempat / Ruangan <span class="text-rose-500">*</span></label>
-                        <select id="tempat" x-model="tempat"
+                        <select id="tempat" name="lokasi" required
                                 class="w-full px-4 py-2.5 bg-[#f3f2fe] border border-[#d4d1f5] rounded-2xl text-[#2e2552] text-sm focus:outline-none focus:ring-2 focus:ring-[#8e88dd]">
                             <option value="Ruang Rapat Kartini">Ruang Rapat Kartini (Gedung A)</option>
                             <option value="Aula Utama Kominfo">Aula Utama Kominfo (Gedung A)</option>
@@ -520,16 +515,6 @@
                     </div>
                 </div>
 
-                <!-- Custom Tempat text field (show if Lainnya is selected) -->
-                <div x-show="tempat === 'Lainnya'" x-transition class="space-y-1">
-                    <label for="tempat_lainnya" class="block text-xs font-bold text-[#5a508f] uppercase">Nama Tempat Baru <span class="text-rose-500">*</span></label>
-                    <input type="text" id="tempat_lainnya" x-model="tempatLainnya" placeholder="Contoh: Ruang Tamu Sekretariat"
-                           class="w-full px-4 py-2.5 bg-[#f3f2fe] border border-[#d4d1f5] rounded-2xl text-[#2e2552] text-sm focus:outline-none focus:ring-2 focus:ring-[#8e88dd]">
-                </div>
-
-                <!-- Hidden input to submit combined lokasi -->
-                <input type="hidden" name="lokasi" :value="combinedLokasi">
-
                 <!-- Description -->
                 <div class="space-y-1">
                     <label for="deskripsi" class="block text-xs font-bold text-[#5a508f] uppercase">Deskripsi (Opsional)</label>
@@ -539,20 +524,20 @@
 
 
                 <!-- Hak Akses (Audience) -->
-                <div x-data="{
+                @php
+                    $allBidangIds = $bidangs->pluck('id')->map(fn($id) => (string)$id)->toArray();
+                    $totalBidangCount = count($allBidangIds);
+                @endphp
+                <div x-data='{
                     semuaOrang: false,
-                    @if(Auth::user()->isSekretarisBidang())
-                        bidangs: ['{{ Auth::user()->bidang_id }}'],
-                        isSekBid: true,
-                        ownBidangId: '{{ Auth::user()->bidang_id }}',
-                    @else
-                        bidangs: [],
-                        isSekBid: false,
-                        ownBidangId: null,
-                    @endif
+                    allBidangIds: {{ json_encode(array_values($allBidangIds)) }},
+                    totalCount: {{ $totalBidangCount }},
+                    bidangs: {{ Auth::user()->isSekretarisBidang() ? json_encode([(string)Auth::user()->bidang_id]) : "[]" }},
+                    isSekBid: {{ Auth::user()->isSekretarisBidang() ? "true" : "false" }},
+                    ownBidangId: "{{ Auth::user()->bidang_id }}",
                     toggleSemua() {
                         if (this.semuaOrang) {
-                            this.bidangs = ['1', '2', '3'];
+                            this.bidangs = Array.from(this.allBidangIds);
                         } else {
                             this.bidangs = [];
                         }
@@ -562,18 +547,14 @@
                             if (!this.bidangs.includes(this.ownBidangId)) {
                                 this.bidangs.push(this.ownBidangId);
                             }
-                            if (3 <= this.bidangs.length) {
-                                alert('Admin Bidang hanya dapat memilih maksimal 1 bidang tambahan.');
+                            if (this.bidangs.length > 2) {
+                                alert("Admin Bidang hanya dapat memilih maksimal 1 bidang tambahan.");
                                 this.bidangs = [this.ownBidangId, id];
                             }
                         }
-                        if (this.bidangs.length === 3) {
-                            this.semuaOrang = true;
-                        } else {
-                            this.semuaOrang = false;
-                        }
+                        this.semuaOrang = (this.bidangs.length === this.totalCount);
                     }
-                }" class="space-y-2 border-t border-[#d4d1f5]/40 pt-3">
+                }' class="space-y-2 border-t border-[#d4d1f5]/40 pt-3">
                     <label class="block text-xs font-bold text-[#5a508f] uppercase">Hak Akses / Peserta Rapat <span class="text-rose-500">*</span></label>
                     
                     @if(Auth::user()->isSekretarisBidang())
@@ -634,3 +615,4 @@
     </div>
 </div>
 @endsection
+

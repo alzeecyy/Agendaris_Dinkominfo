@@ -105,4 +105,57 @@ class User extends Authenticatable
 
         return in_array((string)$this->bidang_id, array_map('strval', $hakAkses));
     }
+
+    /**
+     * Checks if this user is a secretary with management rights for an agenda.
+     */
+    public function isSecretaryOfAgenda(Agenda $agenda): bool
+    {
+        if ($this->isAdmin()) {
+            return false;
+        }
+
+        // Master secretary has full rights
+        if ($this->isSekretarisMaster()) {
+            return true;
+        }
+
+        // The secretary user who created this agenda has rights
+        if ($this->id == $agenda->sekretaris_id && ($this->isSekretarisMaster() || $this->isSekretarisBidang())) {
+            return true;
+        }
+
+        // Bidang secretary has rights if agenda is for 'semua_orang' or includes their bidang_id
+        if ($this->isSekretarisBidang()) {
+            $hakAkses = $agenda->hak_akses ?? [];
+            if (in_array('semua_orang', $hakAkses) || in_array((string)$this->bidang_id, array_map('strval', $hakAkses))) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    /**
+     * Checks if this user is an approver (Ketua) for an agenda's notulensi.
+     */
+    public function isApproverOfAgenda(Agenda $agenda): bool
+    {
+        if ($this->isAdmin()) {
+            return false;
+        }
+
+        if ($this->isKetuaMaster()) {
+            return true;
+        }
+
+        if ($this->isKetuaBidang()) {
+            $hakAkses = $agenda->hak_akses ?? [];
+            if (in_array('semua_orang', $hakAkses) || in_array((string)$this->bidang_id, array_map('strval', $hakAkses))) {
+                return true;
+            }
+        }
+
+        return false;
+    }
 }

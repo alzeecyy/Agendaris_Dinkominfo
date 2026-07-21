@@ -178,12 +178,13 @@
             <!-- Right Profile Drodown -->
             @if(Auth::check())
                 @php
+                    $bidSuffix = Auth::user()->bidang ? ' ' . (Auth::user()->bidang->singkatan ?? Auth::user()->bidang->nama) : '';
                     $roleLabels = [
                         'admin' => 'Administrator',
                         'sekretaris_master' => 'Sekretaris Dinas',
                         'ketua_master' => 'Kepala Dinas',
-                        'sekretaris_bidang' => 'Admin Bidang',
-                        'ketua_bidang' => 'Ketua Bidang',
+                        'sekretaris_bidang' => 'Admin Bidang' . $bidSuffix,
+                        'ketua_bidang' => 'Ketua Bidang' . $bidSuffix,
                         'staff' => 'Staff Pegawai',
                     ];
                     $roleColors = [
@@ -195,20 +196,68 @@
                         'staff' => 'bg-blue-50 text-blue-700 border-blue-100',
                     ];
                 @endphp
-                <a href="{{ route('profile') }}" class="relative shrink-0 select-none text-[#09103c] flex items-center gap-3 p-1.5 rounded-2xl hover:bg-slate-50 transition-colors">
-                    <div class="hidden md:block text-right" style="margin: 0; padding: 0; display: flex; flex-direction: column; justify-content: center; gap: 4px;">
-                        <div class="text-xs font-black text-[#09103c]" style="line-height: 1; margin: 0; padding: 0;">{{ Auth::user()->name }}</div>
-                        <div style="line-height: 1; margin: 0; padding: 0;">
-                            <span class="inline-block text-[8px] font-extrabold px-2 py-0.5 rounded-full border {{ $roleColors[Auth::user()->role] ?? 'bg-slate-100 border-slate-200 text-slate-700' }} uppercase tracking-wider" style="line-height: 1; vertical-align: middle;">
-                                {{ $roleLabels[Auth::user()->role] ?? 'User' }}
-                            </span>
+                @if(Auth::user()->isAdmin())
+                    <div x-data="{ openAdminMenu: false }" class="relative shrink-0 select-none">
+                        <button type="button" @click="openAdminMenu = !openAdminMenu" class="text-[#09103c] flex items-center gap-3 p-1.5 rounded-2xl hover:bg-slate-50 transition-colors text-right cursor-pointer focus:outline-none">
+                            <div class="hidden md:block text-right" style="margin: 0; padding: 0; display: flex; flex-direction: column; justify-content: center; gap: 4px;">
+                                <div class="text-xs font-black text-[#09103c]" style="line-height: 1; margin: 0; padding: 0;">{{ Auth::user()->name }}</div>
+                                <div style="line-height: 1; margin: 0; padding: 0;">
+                                    <span class="inline-block text-[8px] font-extrabold px-2 py-0.5 rounded-full border {{ $roleColors[Auth::user()->role] ?? 'bg-slate-100 border-slate-200 text-slate-700' }} uppercase tracking-wider" style="line-height: 1; vertical-align: middle;">
+                                        {{ $roleLabels[Auth::user()->role] ?? 'User' }}
+                                    </span>
+                                </div>
+                                <div class="text-[9px] text-slate-500 font-bold font-mono" style="line-height: 1; margin: 0; padding: 0;">NIP. {{ Auth::user()->nip }}</div>
+                            </div>
+                            <div class="w-10 h-10 bg-[#1b3bbb]/10 rounded-2xl flex items-center justify-center font-bold text-[#1b3bbb] border border-[#1b3bbb]/20 shadow-sm transition-colors">
+                                {{ substr(Auth::user()->name, 0, 2) }}
+                            </div>
+                        </button>
+
+                        <!-- COMPACT FLOATING ADMIN DROPDOWN MENU -->
+                        <div x-show="openAdminMenu" 
+                             @click.away="openAdminMenu = false" 
+                             x-cloak
+                             x-transition:enter="transition ease-out duration-150 transform"
+                             x-transition:enter-start="opacity-0 scale-95 -translate-y-1"
+                             x-transition:enter-end="opacity-100 scale-100 translate-y-0"
+                             class="absolute right-0 mt-2 w-60 bg-white border border-[#d4d1f5]/80 rounded-2xl shadow-xl z-50 p-3.5 space-y-3 text-[#2e2552]">
+                            
+                            <div class="pb-2.5 border-b border-[#d4d1f5]/50 flex items-center gap-2.5">
+                                <div class="w-8 h-8 bg-red-50 text-red-600 rounded-xl flex items-center justify-center font-black text-xs border border-red-100 shrink-0">
+                                    Ad
+                                </div>
+                                <div class="min-w-0 flex-1">
+                                    <div class="text-xs font-black text-[#2e2552] truncate">{{ Auth::user()->name }}</div>
+                                    <div class="text-[10px] text-[#5a508f] font-mono truncate">NIP. {{ Auth::user()->nip }}</div>
+                                </div>
+                            </div>
+
+                            <div>
+                                <a href="{{ route('password.change') }}" class="w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-bold text-[#2e2552] hover:bg-[#1b3bbb]/5 hover:text-[#1b3bbb] transition-colors">
+                                    <svg class="w-4 h-4 text-[#8e88dd]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path>
+                                    </svg>
+                                    <span>Ubah Kata Sandi</span>
+                                </a>
+                            </div>
                         </div>
-                        <div class="text-[9px] text-slate-500 font-bold font-mono" style="line-height: 1; margin: 0; padding: 0;">NIP. {{ Auth::user()->nip }}</div>
                     </div>
-                    <div class="w-10 h-10 bg-[#1b3bbb]/10 rounded-2xl flex items-center justify-center font-bold text-[#1b3bbb] border border-[#1b3bbb]/20 shadow-sm transition-colors">
-                        {{ substr(Auth::user()->name, 0, 2) }}
-                    </div>
-                </a>
+                @else
+                    <a href="{{ route('profile') }}" class="relative shrink-0 select-none text-[#09103c] flex items-center gap-3 p-1.5 rounded-2xl hover:bg-slate-50 transition-colors">
+                        <div class="hidden md:block text-right" style="margin: 0; padding: 0; display: flex; flex-direction: column; justify-content: center; gap: 4px;">
+                            <div class="text-xs font-black text-[#09103c]" style="line-height: 1; margin: 0; padding: 0;">{{ Auth::user()->name }}</div>
+                            <div style="line-height: 1; margin: 0; padding: 0;">
+                                <span class="inline-block text-[8px] font-extrabold px-2 py-0.5 rounded-full border {{ $roleColors[Auth::user()->role] ?? 'bg-slate-100 border-slate-200 text-slate-700' }} uppercase tracking-wider" style="line-height: 1; vertical-align: middle;">
+                                    {{ $roleLabels[Auth::user()->role] ?? 'User' }}
+                                </span>
+                            </div>
+                            <div class="text-[9px] text-slate-500 font-bold font-mono" style="line-height: 1; margin: 0; padding: 0;">NIP. {{ Auth::user()->nip }}</div>
+                        </div>
+                        <div class="w-10 h-10 bg-[#1b3bbb]/10 rounded-2xl flex items-center justify-center font-bold text-[#1b3bbb] border border-[#1b3bbb]/20 shadow-sm transition-colors">
+                            {{ substr(Auth::user()->name, 0, 2) }}
+                        </div>
+                    </a>
+                @endif
             @endif
         </header>
 
@@ -365,16 +414,49 @@
                     @yield('content')
                 </div>
 
-                <footer class="mt-2 border-t border-[#d4d1f5] pt-3 text-center text-[#5a508f] text-[10px] font-bold uppercase tracking-wider">
-                    &copy; 2026 Dinas Komunikasi dan Informatika Kabupaten Banyumas. <span class="tracking-normal">SIRENA V2.0</span>
+                <footer class="mt-2 border-t border-[#d4d1f5]/60 pt-3 text-center text-slate-500 text-[10px] font-bold uppercase tracking-wider">
+                    &copy; 2026 Dinas Komunikasi dan Informatika Kabupaten Banyumas.
                 </footer>
             </main>
+        </div>
+    </div>
+
+    <!-- Heavy Process Loading Overlay Modal -->
+    <div id="heavy-loading-overlay" class="fixed inset-0 z-[9999] bg-slate-900/60 backdrop-blur-md hidden items-center justify-center p-4 transition-opacity duration-300">
+        <div class="bg-white rounded-3xl p-8 max-w-md w-full text-center shadow-2xl border border-slate-100 flex flex-col items-center gap-5 transform transition-transform duration-300">
+            <div class="relative flex items-center justify-center">
+                <div class="w-16 h-16 rounded-full border-4 border-[#1b3bbb]/20 border-t-[#1b3bbb] animate-spin"></div>
+                <div class="absolute w-8 h-8 rounded-full bg-[#1b3bbb]/10 animate-ping"></div>
+            </div>
+            <div class="space-y-2">
+                <h3 id="heavy-loading-title" class="text-base font-extrabold text-[#09103c]">Sedang Memproses Data</h3>
+                <p id="heavy-loading-message" class="text-xs text-slate-500 leading-relaxed font-medium">Mohon tunggu sejenak, sistem sedang menyelesaikan permintaan Anda...</p>
+            </div>
+            <div class="w-full bg-slate-100 rounded-full h-1.5 overflow-hidden">
+                <div class="bg-gradient-to-r from-[#1b3bbb] to-blue-400 h-full w-full animate-pulse"></div>
+            </div>
         </div>
     </div>
 
     @yield('scripts')
     
     <script>
+        window.showHeavyLoading = function(title, message) {
+            const overlay = document.getElementById('heavy-loading-overlay');
+            if (!overlay) return;
+            if (title) document.getElementById('heavy-loading-title').innerText = title;
+            if (message) document.getElementById('heavy-loading-message').innerText = message;
+            overlay.classList.remove('hidden');
+            overlay.classList.add('flex');
+        };
+
+        window.hideHeavyLoading = function() {
+            const overlay = document.getElementById('heavy-loading-overlay');
+            if (!overlay) return;
+            overlay.classList.add('hidden');
+            overlay.classList.remove('flex');
+        };
+
         document.addEventListener('DOMContentLoaded', function() {
             // PJAX Clicks Interceptor
             document.addEventListener('click', function(e) {
@@ -390,8 +472,8 @@
                     if (link.getAttribute('target') === '_blank') return;
                     if (link.getAttribute('download') !== null) return;
                     
-                    // Skip forms, auth, and data-no-pjax links
-                    if (link.closest('form') || url.pathname.includes('/logout')) return;
+                    // Skip forms, auth, export, download, and data-no-pjax links
+                    if (link.closest('form') || url.pathname.includes('/logout') || url.pathname.includes('/export') || url.pathname.includes('/download')) return;
                     if (link.hasAttribute('data-no-pjax')) return;
 
                     e.preventDefault();
@@ -506,24 +588,115 @@
                     });
             }
 
-            // Intercept form submissions that have data-confirm attributes using SweetAlert2
+            // Global Form Submit Interceptor with Double-Click Prevention & Loading States
             document.addEventListener('submit', function(e) {
                 const form = e.target;
+                
+                // HTML5 validity check
+                if (typeof form.checkValidity === 'function' && !form.checkValidity()) {
+                    return;
+                }
+
+                // Handle forms with data-confirm attributes (SweetAlert2)
                 if (form.hasAttribute('data-confirm')) {
                     e.preventDefault();
                     const message = form.getAttribute('data-confirm');
+                    const confirmBtnText = form.getAttribute('data-confirm-btn') || 'Ya, Lanjutkan';
+                    const heavyTitle = form.getAttribute('data-heavy-title');
+                    
                     Swal.fire({
                         text: message,
                         icon: 'warning',
                         showCancelButton: true,
-                        confirmButtonText: 'Ya, Lanjutkan',
-                        cancelButtonText: 'Batal'
+                        confirmButtonText: confirmBtnText,
+                        cancelButtonText: 'Batal',
+                        allowOutsideClick: false
                     }).then((result) => {
                         if (result.isConfirmed) {
+                            if (heavyTitle) {
+                                window.showHeavyLoading(heavyTitle, form.getAttribute('data-heavy-msg') || 'Mohon tunggu, proses sedang berjalan...');
+                            } else {
+                                Swal.fire({
+                                    title: 'Memproses...',
+                                    text: 'Mohon tunggu sejenak...',
+                                    allowOutsideClick: false,
+                                    didOpen: () => {
+                                        Swal.showLoading();
+                                    }
+                                });
+                            }
                             form.removeAttribute('data-confirm');
+                            const btn = form.querySelector('button[type="submit"], input[type="submit"]');
+                            if (btn) {
+                                btn.style.pointerEvents = 'none';
+                                btn.classList.add('opacity-75', 'cursor-not-allowed');
+                            }
                             form.submit();
                         }
                     });
+                    return;
+                }
+
+                if (form.hasAttribute('data-no-loading')) return;
+
+                // Double click prevention
+                if (form.dataset.submitting === 'true') {
+                    e.preventDefault();
+                    return;
+                }
+                form.dataset.submitting = 'true';
+
+                // Heavy process modal trigger
+                if (form.hasAttribute('data-heavy-loading')) {
+                    const title = form.getAttribute('data-heavy-title') || 'Sedang Memproses...';
+                    const message = form.getAttribute('data-heavy-msg') || 'Mohon tidak menutup atau memuat ulang halaman selama proses berjalan.';
+                    window.showHeavyLoading(title, message);
+                } else {
+                    // Show linear top loader for any standard form submission
+                    let loader = document.getElementById('pjax-loader');
+                    if (!loader) {
+                        loader = document.createElement('div');
+                        loader.id = 'pjax-loader';
+                        loader.style.position = 'fixed';
+                        loader.style.top = '0';
+                        loader.style.left = '0';
+                        loader.style.height = '3px';
+                        loader.style.backgroundColor = '#1b3bbb';
+                        loader.style.zIndex = '9999';
+                        loader.style.width = '0%';
+                        loader.style.transition = 'width 0.4s ease';
+                        document.body.appendChild(loader);
+                    }
+                    loader.style.width = '30%';
+                    setTimeout(() => { if (loader) loader.style.width = '80%'; }, 150);
+                }
+
+                // Submit button loading state
+                const submitBtn = form.querySelector('button[type="submit"], input[type="submit"], button:not([type="button"])');
+                if (submitBtn) {
+                    submitBtn.style.pointerEvents = 'none';
+                    submitBtn.classList.add('opacity-75', 'cursor-not-allowed');
+
+                    const customText = form.getAttribute('data-loading-text') || submitBtn.getAttribute('data-loading-text');
+                    const textToUse = customText || 'Memproses...';
+                    const spinnerSvg = `<svg class="w-4 h-4 mr-2 animate-spin text-current inline shrink-0" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>`;
+
+                    submitBtn.innerHTML = `<span class="inline-flex items-center justify-center">${spinnerSvg}<span>${textToUse}</span></span>`;
+
+                    // Disable button on next tick so native browser form submit isn't aborted
+                    setTimeout(() => {
+                        if (submitBtn) submitBtn.disabled = true;
+                    }, 20);
+
+                    // Automatic safety reset after 10 seconds if form submission stays on same page
+                    setTimeout(() => {
+                        if (document.body.contains(submitBtn) && form.dataset.submitting === 'true') {
+                            form.dataset.submitting = 'false';
+                            submitBtn.disabled = false;
+                            submitBtn.style.pointerEvents = '';
+                            submitBtn.classList.remove('opacity-75', 'cursor-not-allowed');
+                        }
+                    }, 10000);
                 }
             });
 

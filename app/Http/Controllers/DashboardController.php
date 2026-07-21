@@ -436,6 +436,11 @@ class DashboardController extends Controller
             if ($a->tanggal !== $todayStr) {
                 return false;
             }
+            // Masters (sekretaris_master, ketua_master) can see all agendas regardless of bidang_id
+            if ($user->isSekretarisMaster() || $user->isKetuaMaster()) {
+                return true;
+            }
+            // Bidang-level roles: filter by their own bidang or semua_orang
             if ($user->bidang_id) {
                 return in_array((string)$user->bidang_id, $a->hak_akses) || in_array('semua_orang', $a->hak_akses);
             }

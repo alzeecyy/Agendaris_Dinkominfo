@@ -54,12 +54,13 @@
             <!-- Profile Area -->
             @auth
                 @php
+                    $bidSuffix = Auth::user()->bidang ? ' ' . (Auth::user()->bidang->singkatan ?? Auth::user()->bidang->nama) : '';
                     $roleLabels = [
                         'admin' => 'Administrator',
                         'sekretaris_master' => 'Sekretaris Dinas',
                         'ketua_master' => 'Kepala Dinas',
-                        'sekretaris_bidang' => 'Admin Bidang',
-                        'ketua_bidang' => 'Ketua Bidang',
+                        'sekretaris_bidang' => 'Admin Bidang' . $bidSuffix,
+                        'ketua_bidang' => 'Ketua Bidang' . $bidSuffix,
                         'staff' => 'Staff Pegawai',
                     ];
                     $roleColors = [
@@ -71,20 +72,68 @@
                         'staff' => 'bg-blue-50 text-blue-700 border-blue-100',
                     ];
                 @endphp
-                <a href="{{ route('profile') }}" class="relative shrink-0 select-none text-[#09103c] flex items-center gap-2.5 p-1 rounded-xl hover:bg-slate-50 transition-colors">
-                    <div class="hidden sm:block text-right" style="margin: 0; padding: 0; display: flex; flex-direction: column; justify-content: center; gap: 3px;">
-                        <div class="text-[11px] font-black text-[#09103c]" style="line-height: 1; margin: 0; padding: 0;">{{ Auth::user()->name }}</div>
-                        <div style="line-height: 1; margin: 0; padding: 0;">
-                            <span class="inline-block text-[7.5px] font-extrabold px-1.5 py-0.5 rounded-full border {{ $roleColors[Auth::user()->role] ?? 'bg-slate-100 border-slate-200 text-slate-700' }} uppercase tracking-wider" style="line-height: 1; vertical-align: middle;">
-                                {{ $roleLabels[Auth::user()->role] ?? 'User' }}
-                            </span>
+                @if(Auth::user()->isAdmin())
+                    <div x-data="{ openAdminMenu: false }" class="relative shrink-0 select-none">
+                        <button type="button" @click="openAdminMenu = !openAdminMenu" class="text-[#09103c] flex items-center gap-2.5 p-1 rounded-xl hover:bg-slate-50 transition-colors cursor-pointer focus:outline-none">
+                            <div class="hidden sm:block text-right" style="margin: 0; padding: 0; display: flex; flex-direction: column; justify-content: center; gap: 3px;">
+                                <div class="text-[11px] font-black text-[#09103c]" style="line-height: 1; margin: 0; padding: 0;">{{ Auth::user()->name }}</div>
+                                <div style="line-height: 1; margin: 0; padding: 0;">
+                                    <span class="inline-block text-[7.5px] font-extrabold px-1.5 py-0.5 rounded-full border {{ $roleColors[Auth::user()->role] ?? 'bg-slate-100 border-slate-200 text-slate-700' }} uppercase tracking-wider" style="line-height: 1; vertical-align: middle;">
+                                        {{ $roleLabels[Auth::user()->role] ?? 'User' }}
+                                    </span>
+                                </div>
+                                <div class="text-[8px] text-slate-500 font-bold font-mono" style="line-height: 1; margin: 0; padding: 0;">NIP. {{ Auth::user()->nip }}</div>
+                            </div>
+                            <div class="w-8.5 h-8.5 bg-[#1b3bbb]/10 rounded-xl flex items-center justify-center font-extrabold text-xs text-[#1b3bbb] border border-[#1b3bbb]/20 shadow-sm hover:bg-[#1b3bbb]/20 transition-colors">
+                                {{ substr(Auth::user()->name, 0, 2) }}
+                            </div>
+                        </button>
+
+                        <!-- COMPACT FLOATING ADMIN DROPDOWN MENU -->
+                        <div x-show="openAdminMenu" 
+                             @click.away="openAdminMenu = false" 
+                             x-cloak
+                             x-transition:enter="transition ease-out duration-150 transform"
+                             x-transition:enter-start="opacity-0 scale-95 -translate-y-1"
+                             x-transition:enter-end="opacity-100 scale-100 translate-y-0"
+                             class="absolute right-0 mt-2 w-60 bg-white border border-[#d4d1f5]/80 rounded-2xl shadow-xl z-50 p-3.5 space-y-3 text-[#2e2552]">
+                            
+                            <div class="pb-2.5 border-b border-[#d4d1f5]/50 flex items-center gap-2.5">
+                                <div class="w-8 h-8 bg-red-50 text-red-600 rounded-xl flex items-center justify-center font-black text-xs border border-red-100 shrink-0">
+                                    Ad
+                                </div>
+                                <div class="min-w-0 flex-1">
+                                    <div class="text-xs font-black text-[#2e2552] truncate">{{ Auth::user()->name }}</div>
+                                    <div class="text-[10px] text-[#5a508f] font-mono truncate">NIP. {{ Auth::user()->nip }}</div>
+                                </div>
+                            </div>
+
+                            <div>
+                                <a href="{{ route('password.change') }}" class="w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-bold text-[#2e2552] hover:bg-[#1b3bbb]/5 hover:text-[#1b3bbb] transition-colors">
+                                    <svg class="w-4 h-4 text-[#8e88dd]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path>
+                                    </svg>
+                                    <span>Ubah Kata Sandi</span>
+                                </a>
+                            </div>
                         </div>
-                        <div class="text-[8px] text-slate-500 font-bold font-mono" style="line-height: 1; margin: 0; padding: 0;">NIP. {{ Auth::user()->nip }}</div>
                     </div>
-                    <div class="w-8.5 h-8.5 bg-[#1b3bbb]/10 rounded-xl flex items-center justify-center font-extrabold text-xs text-[#1b3bbb] border border-[#1b3bbb]/20 shadow-sm hover:bg-[#1b3bbb]/20 transition-colors">
-                        {{ substr(Auth::user()->name, 0, 2) }}
-                    </div>
-                </a>
+                @else
+                    <a href="{{ route('profile') }}" class="relative shrink-0 select-none text-[#09103c] flex items-center gap-2.5 p-1 rounded-xl hover:bg-slate-50 transition-colors">
+                        <div class="hidden sm:block text-right" style="margin: 0; padding: 0; display: flex; flex-direction: column; justify-content: center; gap: 3px;">
+                            <div class="text-[11px] font-black text-[#09103c]" style="line-height: 1; margin: 0; padding: 0;">{{ Auth::user()->name }}</div>
+                            <div style="line-height: 1; margin: 0; padding: 0;">
+                                <span class="inline-block text-[7.5px] font-extrabold px-1.5 py-0.5 rounded-full border {{ $roleColors[Auth::user()->role] ?? 'bg-slate-100 border-slate-200 text-slate-700' }} uppercase tracking-wider" style="line-height: 1; vertical-align: middle;">
+                                    {{ $roleLabels[Auth::user()->role] ?? 'User' }}
+                                </span>
+                            </div>
+                            <div class="text-[8px] text-slate-500 font-bold font-mono" style="line-height: 1; margin: 0; padding: 0;">NIP. {{ Auth::user()->nip }}</div>
+                        </div>
+                        <div class="w-8.5 h-8.5 bg-[#1b3bbb]/10 rounded-xl flex items-center justify-center font-extrabold text-xs text-[#1b3bbb] border border-[#1b3bbb]/20 shadow-sm hover:bg-[#1b3bbb]/20 transition-colors">
+                            {{ substr(Auth::user()->name, 0, 2) }}
+                        </div>
+                    </a>
+                @endif
             @endauth
         </header>
 
@@ -240,7 +289,7 @@
 
         <!-- Footer Area -->
         <footer class="text-center text-slate-500 text-[10px] font-bold uppercase tracking-wider select-none shrink-0">
-            &copy; 2026 Dinas Komunikasi dan Informatika Kabupaten Banyumas. <span class="tracking-normal">SIRENA V2.0</span>
+            &copy; 2026 Dinas Komunikasi dan Informatika Kabupaten Banyumas.
         </footer>
     </div>
 </body>
