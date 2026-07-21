@@ -372,9 +372,42 @@
         </div>
     </div>
 
+    <!-- Heavy Process Loading Overlay Modal -->
+    <div id="heavy-loading-overlay" class="fixed inset-0 z-[9999] bg-slate-900/60 backdrop-blur-md hidden items-center justify-center p-4 transition-opacity duration-300">
+        <div class="bg-white rounded-3xl p-8 max-w-md w-full text-center shadow-2xl border border-slate-100 flex flex-col items-center gap-5 transform transition-transform duration-300">
+            <div class="relative flex items-center justify-center">
+                <div class="w-16 h-16 rounded-full border-4 border-[#1b3bbb]/20 border-t-[#1b3bbb] animate-spin"></div>
+                <div class="absolute w-8 h-8 rounded-full bg-[#1b3bbb]/10 animate-ping"></div>
+            </div>
+            <div class="space-y-2">
+                <h3 id="heavy-loading-title" class="text-base font-extrabold text-[#09103c]">Sedang Memproses Data</h3>
+                <p id="heavy-loading-message" class="text-xs text-slate-500 leading-relaxed font-medium">Mohon tunggu sejenak, sistem sedang menyelesaikan permintaan Anda...</p>
+            </div>
+            <div class="w-full bg-slate-100 rounded-full h-1.5 overflow-hidden">
+                <div class="bg-gradient-to-r from-[#1b3bbb] to-blue-400 h-full w-full animate-pulse"></div>
+            </div>
+        </div>
+    </div>
+
     @yield('scripts')
     
     <script>
+        window.showHeavyLoading = function(title, message) {
+            const overlay = document.getElementById('heavy-loading-overlay');
+            if (!overlay) return;
+            if (title) document.getElementById('heavy-loading-title').innerText = title;
+            if (message) document.getElementById('heavy-loading-message').innerText = message;
+            overlay.classList.remove('hidden');
+            overlay.classList.add('flex');
+        };
+
+        window.hideHeavyLoading = function() {
+            const overlay = document.getElementById('heavy-loading-overlay');
+            if (!overlay) return;
+            overlay.classList.add('hidden');
+            overlay.classList.remove('flex');
+        };
+
         document.addEventListener('DOMContentLoaded', function() {
             // PJAX Clicks Interceptor
             document.addEventListener('click', function(e) {
@@ -502,24 +535,115 @@
                     });
             }
 
-            // Intercept form submissions that have data-confirm attributes using SweetAlert2
+            // Global Form Submit Interceptor with Double-Click Prevention & Loading States
             document.addEventListener('submit', function(e) {
                 const form = e.target;
+                
+                // HTML5 validity check
+                if (typeof form.checkValidity === 'function' && !form.checkValidity()) {
+                    return;
+                }
+
+                // Handle forms with data-confirm attributes (SweetAlert2)
                 if (form.hasAttribute('data-confirm')) {
                     e.preventDefault();
                     const message = form.getAttribute('data-confirm');
+                    const confirmBtnText = form.getAttribute('data-confirm-btn') || 'Ya, Lanjutkan';
+                    const heavyTitle = form.getAttribute('data-heavy-title');
+                    
                     Swal.fire({
                         text: message,
                         icon: 'warning',
                         showCancelButton: true,
-                        confirmButtonText: 'Ya, Lanjutkan',
-                        cancelButtonText: 'Batal'
+                        confirmButtonText: confirmBtnText,
+                        cancelButtonText: 'Batal',
+                        allowOutsideClick: false
                     }).then((result) => {
                         if (result.isConfirmed) {
+                            if (heavyTitle) {
+                                window.showHeavyLoading(heavyTitle, form.getAttribute('data-heavy-msg') || 'Mohon tunggu, proses sedang berjalan...');
+                            } else {
+                                Swal.fire({
+                                    title: 'Memproses...',
+                                    text: 'Mohon tunggu sejenak...',
+                                    allowOutsideClick: false,
+                                    didOpen: () => {
+                                        Swal.showLoading();
+                                    }
+                                });
+                            }
                             form.removeAttribute('data-confirm');
+                            const btn = form.querySelector('button[type="submit"], input[type="submit"]');
+                            if (btn) {
+                                btn.style.pointerEvents = 'none';
+                                btn.classList.add('opacity-75', 'cursor-not-allowed');
+                            }
                             form.submit();
                         }
                     });
+                    return;
+                }
+
+                if (form.hasAttribute('data-no-loading')) return;
+
+                // Double click prevention
+                if (form.dataset.submitting === 'true') {
+                    e.preventDefault();
+                    return;
+                }
+                form.dataset.submitting = 'true';
+
+                // Heavy process modal trigger
+                if (form.hasAttribute('data-heavy-loading')) {
+                    const title = form.getAttribute('data-heavy-title') || 'Sedang Memproses...';
+                    const message = form.getAttribute('data-heavy-msg') || 'Mohon tidak menutup atau memuat ulang halaman selama proses berjalan.';
+                    window.showHeavyLoading(title, message);
+                } else {
+                    // Show linear top loader for any standard form submission
+                    let loader = document.getElementById('pjax-loader');
+                    if (!loader) {
+                        loader = document.createElement('div');
+                        loader.id = 'pjax-loader';
+                        loader.style.position = 'fixed';
+                        loader.style.top = '0';
+                        loader.style.left = '0';
+                        loader.style.height = '3px';
+                        loader.style.backgroundColor = '#1b3bbb';
+                        loader.style.zIndex = '9999';
+                        loader.style.width = '0%';
+                        loader.style.transition = 'width 0.4s ease';
+                        document.body.appendChild(loader);
+                    }
+                    loader.style.width = '30%';
+                    setTimeout(() => { if (loader) loader.style.width = '80%'; }, 150);
+                }
+
+                // Submit button loading state
+                const submitBtn = form.querySelector('button[type="submit"], input[type="submit"], button:not([type="button"])');
+                if (submitBtn) {
+                    submitBtn.style.pointerEvents = 'none';
+                    submitBtn.classList.add('opacity-75', 'cursor-not-allowed');
+
+                    const customText = form.getAttribute('data-loading-text') || submitBtn.getAttribute('data-loading-text');
+                    const textToUse = customText || 'Memproses...';
+                    const spinnerSvg = `<svg class="w-4 h-4 mr-2 animate-spin text-current inline shrink-0" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>`;
+
+                    submitBtn.innerHTML = `<span class="inline-flex items-center justify-center">${spinnerSvg}<span>${textToUse}</span></span>`;
+
+                    // Disable button on next tick so native browser form submit isn't aborted
+                    setTimeout(() => {
+                        if (submitBtn) submitBtn.disabled = true;
+                    }, 20);
+
+                    // Automatic safety reset after 10 seconds if form submission stays on same page
+                    setTimeout(() => {
+                        if (document.body.contains(submitBtn) && form.dataset.submitting === 'true') {
+                            form.dataset.submitting = 'false';
+                            submitBtn.disabled = false;
+                            submitBtn.style.pointerEvents = '';
+                            submitBtn.classList.remove('opacity-75', 'cursor-not-allowed');
+                        }
+                    }, 10000);
                 }
             });
 
