@@ -65,9 +65,9 @@
             @php
                 $roleLabels = [
                     'admin' => 'Administrator',
-                    'sekretaris_master' => 'Sekretaris Master',
+                    'sekretaris_master' => 'Sekretaris Dinas',
                     'ketua_master' => 'Kepala Dinas',
-                    'sekretaris_bidang' => 'Sekretaris Bidang',
+                    'sekretaris_bidang' => 'Admin Bidang',
                     'ketua_bidang' => 'Ketua Bidang',
                     'staff' => 'Staff Pegawai',
                 ];

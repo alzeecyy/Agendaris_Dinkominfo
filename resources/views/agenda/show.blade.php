@@ -6,13 +6,98 @@
 @php
     $predefinedRooms = [
         'Ruang Rapat Kartini', 'Aula Utama Kominfo', 'Ruang Rapat Kepala Dinas',
-        'Ruang PPID', 'Ruang Bidang IKP', 'Ruang Server TIK', 'Ruang Bidang Aptika', 'Ruang Bidang Statistik & Persandian'
+        'Ruang PPID', 'Ruang Bidang IKP', 'Ruang Server TIK', 'Ruang Bidang Aptika', 'Ruang Bidang Statistik & Persandian', 'Ruang Sekretariat'
     ];
     $isPredefined = in_array($agenda->lokasi, $predefinedRooms);
     $initialTempat = $isPredefined ? $agenda->lokasi : 'Lainnya';
     $initialTempatLainnya = $isPredefined ? '' : $agenda->lokasi;
 @endphp
-<div x-data="agendaDetail" class="space-y-6">
+<div x-data="{
+    openDetailModal: false,
+    openAbsenModal: false,
+    openGuestModal: false,
+    status: 'hadir',
+    keterangan: '',
+    signatureData: '',
+    isSignatureEmpty: true,
+    signaturePad: null,
+    selectedBidangName: '',
+    detailParticipants: [],
+    get allParticipants() {
+        try {
+            return JSON.parse(this.$el.getAttribute('data-participants') || '[]');
+        } catch(e) {
+            return [];
+        }
+    },
+    tempat: '{{ $initialTempat }}',
+    tempatLainnya: '{{ $initialTempatLainnya }}',
+    init() {
+        this.$watch('status', value => {
+            if (value === 'hadir') {
+                this.initSignaturePad();
+            }
+        });
+        this.$watch('openAbsenModal', value => {
+            if (value && this.status === 'hadir') {
+                this.initSignaturePad();
+            }
+        });
+    },
+    get combinedLokasi() {
+        return this.tempat === 'Lainnya' ? this.tempatLainnya : this.tempat;
+    },
+    showBidangDetails(bidId, bidName) {
+        this.selectedBidangName = bidName;
+        this.detailParticipants = this.allParticipants.filter(p => p.bidang_id == bidId);
+        this.openDetailModal = true;
+    },
+    initSignaturePad() {
+        this.$nextTick(() => {
+            const canvas = document.getElementById('signature-canvas');
+            if (!canvas) return;
+
+            const ratio = Math.max(window.devicePixelRatio || 1, 1);
+            canvas.width = canvas.offsetWidth * ratio;
+            canvas.height = canvas.offsetHeight * ratio;
+            canvas.getContext('2d').scale(ratio, ratio);
+
+            if (this.signaturePad) {
+                this.signaturePad.off();
+            }
+
+            this.signaturePad = new SignaturePad(canvas, {
+                backgroundColor: 'rgba(255, 255, 255, 0)',
+                penColor: '#09103c'
+            });
+
+            this.signaturePad.addEventListener('beginStroke', () => {
+                this.isSignatureEmpty = false;
+            });
+
+            this.clearSignature();
+        });
+    },
+    clearSignature() {
+        if (this.signaturePad) {
+            this.signaturePad.clear();
+        }
+        this.signatureData = '';
+        this.isSignatureEmpty = true;
+    },
+    submitAbsen(e) {
+        if (this.status === 'hadir') {
+            if (this.isSignatureEmpty || !this.signaturePad || this.signaturePad.isEmpty()) {
+                e.preventDefault();
+                alert('Tanda tangan digital wajib diisi sebelum mengirim presensi.');
+                return;
+            }
+            this.signatureData = this.signaturePad.toDataURL('image/png');
+        } else {
+            this.signatureData = '';
+        }
+    }
+}" data-participants='@json(Auth::user()->role === "staff" ? [] : $participants)' class="space-y-6">
     
     <!-- Breadcrumbs / Back button -->
     <div class="flex items-center justify-between">
@@ -92,6 +177,7 @@
                                         <option value="Ruang Server TIK">Ruang Server TIK (Gedung B)</option>
                                         <option value="Ruang Bidang Aptika">Ruang Bidang Aptika (Gedung B)</option>
                                         <option value="Ruang Bidang Statistik & Persandian">Ruang Bidang Statistik & Persandian (Gedung B)</option>
+                                        <option value="Ruang Sekretariat">Ruang Sekretariat (Gedung A)</option>
                                         <option value="Lainnya">Lainnya (Isi Kustom)...</option>
                                     </select>
                                 </div>
@@ -149,7 +235,7 @@
                                                 this.bidangs.push(this.ownBidangId);
                                             }
                                             if (3 <= this.bidangs.length) {
-                                                alert('Sekretaris Bidang hanya dapat memilih maksimal 1 bidang tambahan.');
+                                                alert('Admin Bidang hanya dapat memilih maksimal 1 bidang tambahan.');
                                                 this.bidangs = [this.ownBidangId, id];
                                             }
                                         }
@@ -200,11 +286,11 @@
         @endif
     </div>
 
-    <!-- TOP GRID: Card Rapat (Left) vs Absensi/Notulensi (Right) -->
+    <!-- TOP GRID: Card Rapat (Left) vs Absensi/Notulensi/Rekap (Right) -->
     <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 items-stretch">
         
-        <!-- Left Column: Info Detail Agenda & Disahkan Notulensi -->
-        <div class="space-y-6 min-w-0">
+        <!-- Left Column: Info Detail Agenda -->
+        <div class="space-y-6 min-w-0 flex flex-col">
             <div class="bg-white border border-[#d4d1f5]/60 rounded-[32px] p-6 md:p-8 shadow-sm space-y-6 h-full flex flex-col justify-between">
                 <div class="space-y-6">
                     <!-- Category badge -->
@@ -285,11 +371,11 @@
             </div>
         </div>
 
-        <!-- Right Column: Absensi Digital & Dokumentasi Notulensi -->
+        <!-- Right Column: Absensi Digital, Notulensi & Rekap Kehadiran Bidang -->
         <div class="flex flex-col gap-6 min-w-0 h-full justify-between">
             <!-- 1. ABSENSI DIGITAL (Pegawai Internal Mandiri) -->
             @if($agenda->butuh_presensi)
-                <div class="bg-white border border-[#d4d1f5]/60 rounded-[32px] p-6 shadow-sm flex-1 flex flex-col justify-between gap-4">
+                <div class="bg-white border border-[#d4d1f5]/60 rounded-[32px] p-6 shadow-sm space-y-4">
                     <h3 class="text-xs font-bold uppercase tracking-wider text-[#2e2552]">Absensi Digital</h3>
                     
                     @if($ownPresensi)
@@ -371,7 +457,7 @@
 
             <!-- 2. STATUS NOTULENSI AI (Hanya Rapat) -->
             @if($agenda->kategori === 'rapat' && $agenda->notulensi)
-                <div class="bg-white border border-[#d4d1f5]/60 rounded-[32px] p-6 shadow-sm flex-1 flex flex-col justify-between gap-4">
+                <div class="bg-white border border-[#d4d1f5]/60 rounded-[32px] p-6 shadow-sm space-y-4">
                     <h3 class="text-xs font-bold uppercase tracking-wider text-[#2e2552]">Dokumentasi Notulensi</h3>
                     
                     @php
@@ -387,7 +473,7 @@
                         ];
                     @endphp
                     
-                    <div class="flex flex-col flex-1 justify-between gap-4">
+                    <div class="flex flex-col gap-4">
                         <div class="flex items-center justify-between border-b border-[#d4d1f5]/40 pb-3">
                             <span class="text-xs text-[#5a508f]">Status Notulen:</span>
                             <span class="text-[10px] px-2.5 py-0.5 rounded-full border font-bold uppercase {{ $notulenColors[$agenda->notulensi->status] ?? 'bg-slate-50 text-slate-600' }}">
@@ -448,59 +534,58 @@
                     </div>
                 </div>
             @endif
+
+            <!-- 3. REKAP KEHADIRAN BIDANG -->
+            @if($agenda->butuh_presensi && Auth::user()->role !== 'staff')
+                <div class="bg-white border border-[#d4d1f5]/60 rounded-[32px] p-6 shadow-sm space-y-4 flex-1 flex flex-col justify-between">
+                    <div class="space-y-4">
+                        <h3 class="text-xs font-bold uppercase tracking-wider text-[#2e2552]">Rekap Kehadiran Bidang</h3>
+                        
+                        <div class="space-y-3">
+                            @foreach($recap as $rc)
+                                <div @click="showBidangDetails({{ $rc->bidang_id }}, '{{ addslashes($rc->bidang_nama) }}')" 
+                                     class="p-3 bg-[#f8f7ff] border border-[#d4d1f5]/40 hover:border-[#8e88dd]/60 hover:bg-[#f3f2fe] rounded-2xl text-xs space-y-2 cursor-pointer transition-all duration-200 shadow-sm">
+                                    <div class="font-bold text-[#2e2552] flex items-center justify-between gap-2">
+                                        <span class="truncate">{{ $rc->bidang_nama }}</span>
+                                        <span class="text-[9px] text-[#8e88dd] font-bold uppercase tracking-wider flex items-center gap-0.5 shrink-0">
+                                            <span>Detail</span>
+                                            <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+                                            </svg>
+                                        </span>
+                                    </div>
+                                    <div class="grid grid-cols-5 gap-1.5 text-center text-[9px] font-bold text-[#5a508f]">
+                                        <div class="bg-emerald-50 text-emerald-600 py-1 rounded-lg border border-emerald-100">Hadir: {{ $rc->hadir }}</div>
+                                        <div class="bg-amber-50 text-amber-600 py-1 rounded-lg border border-amber-100">Izin: {{ $rc->izin }}</div>
+                                        <div class="bg-rose-50 text-rose-600 py-1 rounded-lg border border-rose-100">Sakit: {{ $rc->sakit }}</div>
+                                        <div class="bg-red-50 text-red-600 py-1 rounded-lg border border-red-100">Alfa: {{ $rc->alfa }}</div>
+                                        <div class="bg-slate-100 text-slate-500 py-1 rounded-lg border border-slate-200">Belum: {{ $rc->belum }}</div>
+                                    </div>
+                                </div>
+                            @endforeach
+                        </div>
+                    </div>
+                </div>
+            @endif
         </div>
     </div>
 
-    <!-- BOTTOM GRID: Rekap Kehadiran Bidang (Left 1/3) vs Koreksi Presensi Pegawai (Right 2/3) -->
-    @if($agenda->butuh_presensi && Auth::user()->role !== 'staff')
-        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 items-stretch">
-            <!-- Left Column: Rekap Kehadiran Bidang -->
-            <div class="{{ $isSecretaryOfAgenda ? 'lg:col-span-1' : 'lg:col-span-3' }} flex flex-col">
-                <div class="bg-white border border-[#d4d1f5]/60 rounded-[32px] p-6 shadow-sm space-y-4 h-full flex flex-col">
-                    <h3 class="text-xs font-bold uppercase tracking-wider text-[#2e2552]">Rekap Kehadiran Bidang</h3>
-                    
-                    <div class="{{ $isSecretaryOfAgenda ? 'space-y-3' : 'grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4' }}">
-                        @foreach($recap as $rc)
-                            <div @click="showBidangDetails({{ $rc->bidang_id }}, '{{ addslashes($rc->bidang_nama) }}')" 
-                                 class="p-3 bg-[#f8f7ff] border border-[#d4d1f5]/40 hover:border-[#8e88dd]/60 hover:bg-[#f3f2fe] rounded-2xl text-xs space-y-2 cursor-pointer transition-all duration-200 shadow-sm">
-                                <div class="font-bold text-[#2e2552] flex items-center justify-between gap-2">
-                                    <span class="truncate">{{ $rc->bidang_nama }}</span>
-                                    <span class="text-[9px] text-[#8e88dd] font-bold uppercase tracking-wider flex items-center gap-0.5">
-                                        <span>Detail</span>
-                                        <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
-                                        </svg>
-                                    </span>
-                                </div>
-                                <div class="grid grid-cols-5 gap-1.5 text-center text-[9px] font-bold text-[#5a508f]">
-                                    <div class="bg-emerald-50 text-emerald-600 py-1 rounded-lg border border-emerald-100">Hadir: {{ $rc->hadir }}</div>
-                                    <div class="bg-amber-50 text-amber-600 py-1 rounded-lg border border-amber-100">Izin: {{ $rc->izin }}</div>
-                                    <div class="bg-rose-50 text-rose-600 py-1 rounded-lg border border-rose-100">Sakit: {{ $rc->sakit }}</div>
-                                    <div class="bg-red-50 text-red-600 py-1 rounded-lg border border-red-100">Alfa: {{ $rc->alfa }}</div>
-                                    <div class="bg-slate-100 text-slate-500 py-1 rounded-lg border border-slate-200">Belum: {{ $rc->belum }}</div>
-                                </div>
-                            </div>
-                        @endforeach
-                    </div>
+    <!-- BOTTOM SECTION: Koreksi Presensi Pegawai (Full Width) -->
+    @if($agenda->butuh_presensi && $isSecretaryOfAgenda)
+        <div class="w-full">
+            <div class="bg-white border border-[#d4d1f5]/60 rounded-[32px] p-6 shadow-sm space-y-4">
+                <div class="flex items-center justify-between gap-4">
+                    <h3 class="text-xs font-bold uppercase tracking-wider text-[#2e2552]">Koreksi Presensi Pegawai</h3>
+                    <button @click="openGuestModal = true" class="px-3.5 py-2 bg-[#2e2552] hover:bg-[#3d326a] text-white text-[10px] font-bold rounded-xl transition-all shadow-sm flex items-center gap-1.5 shrink-0">
+                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z"></path>
+                        </svg>
+                        <span>+ Tamu Eksternal</span>
+                    </button>
                 </div>
-            </div>
-
-            <!-- Right Column: Koreksi Presensi Pegawai (Spans 2 columns, list arranged in a 2-column grid) -->
-            @if($isSecretaryOfAgenda)
-                <div class="lg:col-span-2 flex flex-col">
-                    <div class="bg-white border border-[#d4d1f5]/60 rounded-[32px] p-6 shadow-sm space-y-4 h-full flex flex-col">
-                        <div class="flex items-center justify-between gap-4">
-                            <h3 class="text-xs font-bold uppercase tracking-wider text-[#2e2552]">Koreksi Presensi Pegawai</h3>
-                            <button @click="openGuestModal = true" class="px-3.5 py-2 bg-[#2e2552] hover:bg-[#3d326a] text-white text-[10px] font-bold rounded-xl transition-all shadow-sm flex items-center gap-1.5 shrink-0">
-                                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z"></path>
-                                </svg>
-                                <span>+ Tamu Eksternal</span>
-                            </button>
-                        </div>
-                        
-                        <div class="max-h-96 overflow-y-auto pr-1">
-                            <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+                
+                <div class="max-h-96 overflow-y-auto pr-1">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
                                 @foreach($participants as $part)
                                     <div class="flex items-center justify-between gap-3 p-3 bg-[#f8f7ff] border border-[#d4d1f5]/20 rounded-2xl shadow-sm">
                                         <div class="min-w-0 flex-1">
@@ -554,8 +639,6 @@
                     </div>
                 </div>
             @endif
-        </div>
-    @endif
 
     <!-- DETAIL MODAL FOR ATTENDEES TABLE -->
     @if(Auth::user()->role !== 'staff')
@@ -807,98 +890,5 @@
                 </div>
             </form>
         </div>
-    </div>
-    <script>
-    function registerAgendaDetail() {
-        if (typeof Alpine !== 'undefined') {
-            Alpine.data('agendaDetail', () => ({
-                openDetailModal: false,
-                openAbsenModal: false,
-                openGuestModal: false,
-                status: 'hadir',
-                keterangan: '',
-                signatureData: '',
-                isSignatureEmpty: true,
-                signaturePad: null,
-                selectedBidangName: '',
-                detailParticipants: [],
-                allParticipants: @json(Auth::user()->role === 'staff' ? [] : $participants),
-                tempat: '{{ $initialTempat }}',
-                tempatLainnya: '{{ $initialTempatLainnya }}',
-                init() {
-                    this.$watch('status', value => {
-                        if (value === 'hadir') {
-                            this.initSignaturePad();
-                        }
-                    });
-                    this.$watch('openAbsenModal', value => {
-                        if (value && this.status === 'hadir') {
-                            this.initSignaturePad();
-                        }
-                    });
-                },
-                get combinedLokasi() {
-                    return this.tempat === 'Lainnya' ? this.tempatLainnya : this.tempat;
-                },
-                showBidangDetails(bidId, bidName) {
-                    this.selectedBidangName = bidName;
-                    this.detailParticipants = this.allParticipants.filter(p => p.bidang_id == bidId);
-                    this.openDetailModal = true;
-                },
-                initSignaturePad() {
-                    this.$nextTick(() => {
-                        const canvas = document.getElementById('signature-canvas');
-                        if (!canvas) return;
-
-                        const ratio = Math.max(window.devicePixelRatio || 1, 1);
-                        canvas.width = canvas.offsetWidth * ratio;
-                        canvas.height = canvas.offsetHeight * ratio;
-                        canvas.getContext("2d").scale(ratio, ratio);
-
-                        if (this.signaturePad) {
-                            this.signaturePad.off();
-                        }
-
-                        this.signaturePad = new SignaturePad(canvas, {
-                            backgroundColor: 'rgba(255, 255, 255, 0)',
-                            penColor: '#09103c'
-                        });
-
-                        this.signaturePad.addEventListener("beginStroke", () => {
-                            this.isSignatureEmpty = false;
-                        });
-
-                        this.clearSignature();
-                    });
-                },
-                clearSignature() {
-                    if (this.signaturePad) {
-                        this.signaturePad.clear();
-                    }
-                    this.signatureData = '';
-                    this.isSignatureEmpty = true;
-                },
-                submitAbsen(e) {
-                    if (this.status === 'hadir') {
-                        if (this.isSignatureEmpty || !this.signaturePad || this.signaturePad.isEmpty()) {
-                            e.preventDefault();
-                            alert('Tanda tangan digital wajib diisi sebelum mengirim presensi.');
-                            return;
-                        }
-                        this.signatureData = this.signaturePad.toDataURL('image/png');
-                    } else {
-                        this.signatureData = '';
-                    }
-                }
-            }));
-        }
-    }
-
-    if (typeof Alpine !== 'undefined') {
-        registerAgendaDetail();
-    } else {
-        document.addEventListener('alpine:init', registerAgendaDetail);
-    }
-    </script>
 </div>
 @endsection

@@ -16,7 +16,81 @@
         <h1 class="text-lg font-black text-[#2e2552]">Kelola Notulensi Rapat</h1>
     </div>
 
-    <div x-data="notulenEditor" class="space-y-6">
+<script>
+function showUploadLoading(type) {
+    if (type === 'compact') {
+        document.getElementById('compact-upload-btn').style.display = 'none';
+        document.getElementById('compact-upload-loading').style.display = 'inline-flex';
+    } else {
+        document.getElementById('large-upload-btn').style.display = 'none';
+        document.getElementById('large-upload-loading').style.display = 'flex';
+    }
+}
+</script>
+
+    <div x-data="{
+        loading: false,
+        regenerateSummary() {
+            const transcript = document.getElementById('transkrip_raw').value;
+            if (!transcript.trim()) {
+                Swal.fire({
+                    text: 'Teks transkrip rapat masih kosong!',
+                    icon: 'warning',
+                    confirmButtonText: 'OK'
+                });
+                return;
+            }
+
+            Swal.fire({
+                text: 'Apakah Anda yakin ingin menganalisis ulang transkrip? Tindakan ini akan menimpa isi Ringkasan saat ini.',
+                icon: 'question',
+                showCancelButton: true,
+                confirmButtonText: 'Ya, Lanjutkan',
+                cancelButtonText: 'Batal'
+            }).then((result) => {
+                if (!result.isConfirmed) return;
+
+                this.loading = true;
+
+                fetch('{{ route("notulensi.regenerate", $agenda->id) }}', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                    },
+                    body: JSON.stringify({
+                        transkrip_raw: transcript
+                    })
+                })
+                .then(res => res.json())
+                .then(res => {
+                    this.loading = false;
+                    if (res.status === 'success') {
+                        document.getElementById('ringkasan').value = res.data.trim();
+                        Swal.fire({
+                            text: 'Analisis transkrip berhasil! Ringkasan telah diperbarui. Silakan edit dan rapikan sesuai kebutuhan.',
+                            icon: 'success',
+                            confirmButtonText: 'OK'
+                        });
+                    } else {
+                        Swal.fire({
+                            text: res.message || 'Gagal memproses analisis transkrip.',
+                            icon: 'error',
+                            confirmButtonText: 'OK'
+                        });
+                    }
+                })
+                .catch(err => {
+                    this.loading = false;
+                    Swal.fire({
+                        text: 'Terjadi kesalahan koneksi saat memproses analisis.',
+                        icon: 'error',
+                        confirmButtonText: 'OK'
+                    });
+                });
+            });
+        }
+    }" class="space-y-6">
         
         <!-- EDIT FIELDS FORM -->
         <div class="space-y-6">
@@ -251,92 +325,5 @@
                 </form>
             </div>
         </div>
-    </div>
-    <script>
-    function registerNotulenEditor() {
-        if (typeof Alpine !== 'undefined') {
-            Alpine.data('notulenEditor', () => ({
-                loading: false,
-                init() {},
-                regenerateSummary() {
-                    const transcript = document.getElementById('transkrip_raw').value;
-                    if (!transcript.trim()) {
-                        Swal.fire({
-                            text: 'Teks transkrip rapat masih kosong!',
-                            icon: 'warning',
-                            confirmButtonText: 'OK'
-                        });
-                        return;
-                    }
-
-                    Swal.fire({
-                        text: 'Apakah Anda yakin ingin menganalisis ulang transkrip? Tindakan ini akan menimpa isi Ringkasan saat ini.',
-                        icon: 'question',
-                        showCancelButton: true,
-                        confirmButtonText: 'Ya, Lanjutkan',
-                        cancelButtonText: 'Batal'
-                    }).then((result) => {
-                        if (!result.isConfirmed) return;
-
-                        this.loading = true;
-
-                        fetch('{{ route("notulensi.regenerate", $agenda->id) }}', {
-                            method: 'POST',
-                            headers: {
-                                'Content-Type': 'application/json',
-                                'X-CSRF-TOKEN': '{{ csrf_token() }}'
-                            },
-                            body: JSON.stringify({
-                                transkrip_raw: transcript
-                            })
-                        })
-                        .then(res => res.json())
-                        .then(res => {
-                            this.loading = false;
-                            if (res.status === 'success') {
-                                document.getElementById('ringkasan').value = res.data.trim();
-                                Swal.fire({
-                                    text: 'Analisis transkrip berhasil! Ringkasan telah diperbarui. Silakan edit dan rapikan sesuai kebutuhan.',
-                                    icon: 'success',
-                                    confirmButtonText: 'OK'
-                                });
-                            } else {
-                                Swal.fire({
-                                    text: res.message || 'Gagal memproses analisis transkrip.',
-                                    icon: 'error',
-                                    confirmButtonText: 'OK'
-                                });
-                            }
-                        })
-                        .catch(err => {
-                            this.loading = false;
-                            Swal.fire({
-                                text: 'Terjadi kesalahan koneksi saat memproses analisis.',
-                                icon: 'error',
-                                confirmButtonText: 'OK'
-                            });
-                        });
-                    });
-                }
-            }));
-        }
-    }
-
-    function showUploadLoading(type) {
-        if (type === 'compact') {
-            document.getElementById('compact-upload-btn').style.display = 'none';
-            document.getElementById('compact-upload-loading').style.display = 'inline-flex';
-        } else {
-            document.getElementById('large-upload-btn').style.display = 'none';
-            document.getElementById('large-upload-loading').style.display = 'flex';
-        }
-    }
-
-    if (typeof Alpine !== 'undefined') {
-        registerNotulenEditor();
-    } else {
-        document.addEventListener('alpine:init', registerNotulenEditor);
-    }
-    </script>
 </div>
 @endsection

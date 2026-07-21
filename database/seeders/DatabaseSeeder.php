@@ -33,10 +33,16 @@ class DatabaseSeeder extends Seeder
             'singkatan' => 'Statistik & Persandian',
         ]);
 
+        $sekretariat = Bidang::create([
+            'nama' => 'Sekretariat',
+            'singkatan' => 'Sekretariat',
+        ]);
+
         $bidangList = [
             'aptika' => $aptika,
             'ikp' => $ikp,
             'statistik' => $statistik,
+            'sekretariat' => $sekretariat,
         ];
 
         // Shared password hash
@@ -74,7 +80,7 @@ class DatabaseSeeder extends Seeder
         $sekretarisMaster = User::create([
             'name' => 'Drs. H. Mulyono, M.Si.',
             'nip' => $nipPrefix . '002', // 199001012015011002
-            'jabatan' => 'Sekretaris Master Dinas',
+            'jabatan' => 'Sekretaris Dinas',
             'bidang_id' => null,
             'role' => 'sekretaris_master',
             'password' => $hashedPassword,
@@ -116,10 +122,21 @@ class DatabaseSeeder extends Seeder
                     'Farhan Bashir, S.Si.', 'Gita Savitri, S.Stat.', 'Hafiz Rizky, S.Si.',
                     'Irma Suryani, A.Md.', 'Junaedi, S.Stat.', 'Kurniawati, S.Si.'
                 ]
+            ],
+            'sekretariat' => [
+                'ketua' => 'Dr. Tri Nugroho, M.M.',
+                'sekretaris' => 'Maya Rosita, S.E.',
+                'bendahara' => 'Ratna Juwita, A.Md.',
+                'staff' => [
+                    'Ahmad Rizky, A.Md.', 'Budi Hartono, S.E.', 'Cahyo Utomo, S.T.',
+                    'Dewi Sartika, A.Md.', 'Endang Sri, S.E.', 'Firman Utina, S.Kom.',
+                    'Gilang Ramadhan, S.T.', 'Haryati, S.E.', 'Indra Lesmana, A.Md.',
+                    'Joko Widodo, S.E.', 'Kurnia Fitri, S.T.', 'Lestari Indah, S.E.'
+                ]
             ]
         ];
 
-        // Suffix mapping per division (Aptika: 10-24, IKP: 30-44, Statistik: 50-64)
+        // Suffix mapping per division (Aptika: 10-24, IKP: 30-44, Statistik: 50-64, Sekretariat: 70-84)
         $divisionConfig = [
             'aptika' => [
                 'start' => 10,
@@ -132,6 +149,10 @@ class DatabaseSeeder extends Seeder
             'statistik' => [
                 'start' => 50,
                 'bidang' => $statistik
+            ],
+            'sekretariat' => [
+                'start' => 70,
+                'bidang' => $sekretariat
             ]
         ];
 

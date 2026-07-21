@@ -503,6 +503,7 @@
                             <option value="Ruang Server TIK">Ruang Server TIK (Gedung B)</option>
                             <option value="Ruang Bidang Aptika">Ruang Bidang Aptika (Gedung B)</option>
                             <option value="Ruang Bidang Statistik & Persandian">Ruang Bidang Statistik & Persandian (Gedung B)</option>
+                            <option value="Ruang Sekretariat">Ruang Sekretariat (Gedung A)</option>
                             <option value="Lainnya">Lainnya (Isi Kustom)...</option>
                         </select>
                     </div>
@@ -562,7 +563,7 @@
                                 this.bidangs.push(this.ownBidangId);
                             }
                             if (3 <= this.bidangs.length) {
-                                alert('Sekretaris Bidang hanya dapat memilih maksimal 1 bidang tambahan.');
+                                alert('Admin Bidang hanya dapat memilih maksimal 1 bidang tambahan.');
                                 this.bidangs = [this.ownBidangId, id];
                             }
                         }

@@ -127,7 +127,7 @@
                 </div>
                 <div class="mt-4">
                     <h2 class="text-4xl font-black text-[#2e2552]">{{ $kpi['bidang_month_agendas'] ?? 0 }}</h2>
-                    <p class="text-xs text-[#5a508f] mt-1 font-medium">Agenda yang dikelola oleh Sekretaris Bidang</p>
+                    <p class="text-xs text-[#5a508f] mt-1 font-medium">Agenda yang dikelola oleh Admin Bidang</p>
                 </div>
             </div>
             @endif

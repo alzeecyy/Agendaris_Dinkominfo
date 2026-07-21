@@ -215,9 +215,9 @@ class="space-y-6">
                                         'staff' => 'bg-blue-50 text-blue-700 border-blue-200',
                                     ];
                                     $roleLabel = [
-                                        'sekretaris_master' => 'Sekretaris Master',
+                                        'sekretaris_master' => 'Sekretaris Dinas',
                                         'ketua_master' => 'Kepala Dinas',
-                                        'sekretaris_bidang' => 'Sekretaris Bidang',
+                                        'sekretaris_bidang' => 'Admin Bidang',
                                         'ketua_bidang' => 'Ketua Bidang',
                                         'staff' => 'Staff',
                                     ];
@@ -372,9 +372,9 @@ class="space-y-6">
                         <label for="role" class="block text-xs font-bold text-[#5a508f] uppercase">Role Sistem <span class="text-rose-500">*</span></label>
                         <select name="role" id="role" required class="w-full px-4 py-2.5 bg-[#f3f2fe] border border-[#d4d1f5] rounded-2xl text-[#2e2552] text-sm focus:outline-none">
                             <option value="staff">Staff</option>
-                            <option value="sekretaris_bidang">Sekretaris Bidang</option>
+                            <option value="sekretaris_bidang">Admin Bidang</option>
                             <option value="ketua_bidang">Ketua Bidang</option>
-                            <option value="sekretaris_master">Sekretaris Master</option>
+                            <option value="sekretaris_master">Sekretaris Dinas</option>
                             <option value="ketua_master">Kepala Dinas / Ketua Master</option>
                         </select>
                     </div>
@@ -428,9 +428,9 @@ class="space-y-6">
                         <label class="block text-xs font-bold text-[#5a508f] uppercase">Role Sistem <span class="text-rose-500">*</span></label>
                         <select name="role" x-model="editUser.role" required class="w-full px-4 py-2.5 bg-[#f3f2fe] border border-[#d4d1f5] rounded-2xl text-[#2e2552] text-sm">
                             <option value="staff">Staff</option>
-                            <option value="sekretaris_bidang">Sekretaris Bidang</option>
+                            <option value="sekretaris_bidang">Admin Bidang</option>
                             <option value="ketua_bidang">Ketua Bidang</option>
-                            <option value="sekretaris_master">Sekretaris Master</option>
+                            <option value="sekretaris_master">Sekretaris Dinas</option>
                             <option value="ketua_master">Kepala Dinas / Ketua Master</option>
                         </select>
                     </div>

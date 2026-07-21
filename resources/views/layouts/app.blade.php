@@ -180,9 +180,9 @@
                 @php
                     $roleLabels = [
                         'admin' => 'Administrator',
-                        'sekretaris_master' => 'Sekretaris Master',
+                        'sekretaris_master' => 'Sekretaris Dinas',
                         'ketua_master' => 'Kepala Dinas',
-                        'sekretaris_bidang' => 'Sekretaris Bidang',
+                        'sekretaris_bidang' => 'Admin Bidang',
                         'ketua_bidang' => 'Ketua Bidang',
                         'staff' => 'Staff Pegawai',
                     ];
@@ -489,6 +489,10 @@
                                         }
                                     } catch(err) {}
                                 });
+                                // Re-initialize AlpineJS tree for newly injected PJAX DOM elements
+                                if (typeof window.Alpine.initTree === 'function') {
+                                    window.Alpine.initTree(currentContainer);
+                                }
                             }
                             
                             // Emit a custom complete event in case other libraries/scripts need to re-bind
