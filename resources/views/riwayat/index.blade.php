@@ -192,7 +192,7 @@ class="space-y-6">
                     </tr>
                     @forelse($riwayatData as $item)
                         <tr class="agenda-row hover:bg-[#f8f7ff] cursor-pointer transition-colors"
-                            onclick="if (!event.target.closest('a')) { window.location.href='{{ route('agenda.show', $item->id) }}' }"
+                            onclick="if (!event.target.closest('a')) { window.loadPage('{{ route('agenda.show', $item->id) }}', this) }"
                             x-show="matchesFilter('{{ addslashes($item->judul) }}', '{{ $item->kategori }}', '{{ $item->tanggal->toDateString() }}', '{{ $item->status_kehadiran }}') && isAgendaVisible({{ $item->id }})">
                             <td class="py-4 px-4 font-bold text-[#2e2552]">
                                 <a href="{{ route('agenda.show', $item->id) }}" class="hover:text-[#8e88dd] transition-colors">

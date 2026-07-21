@@ -422,15 +422,20 @@
     </div>
 
     <!-- Heavy Process Loading Overlay Modal -->
-    <div id="heavy-loading-overlay" class="fixed inset-0 z-[9999] bg-slate-900/60 backdrop-blur-md hidden items-center justify-center p-4 transition-opacity duration-300">
-        <div class="bg-white rounded-3xl p-8 max-w-md w-full text-center shadow-2xl border border-slate-100 flex flex-col items-center gap-5 transform transition-transform duration-300">
-            <div class="relative flex items-center justify-center">
-                <div class="w-16 h-16 rounded-full border-4 border-[#1b3bbb]/20 border-t-[#1b3bbb] animate-spin"></div>
-                <div class="absolute w-8 h-8 rounded-full bg-[#1b3bbb]/10 animate-ping"></div>
+    <div id="heavy-loading-overlay" class="fixed inset-0 z-[99999] bg-slate-900/50 backdrop-blur-md hidden items-center justify-center p-4 transition-all duration-300">
+        <div class="bg-white/95 rounded-[32px] p-8 max-w-sm w-full text-center shadow-2xl border border-slate-200/80 flex flex-col items-center gap-5 transform transition-transform duration-300">
+            <!-- Spinner Icon Container -->
+            <div class="relative w-16 h-16 flex items-center justify-center">
+                <div class="absolute inset-0 rounded-full border-4 border-[#1b3bbb]/15 border-t-[#1b3bbb] animate-spin"></div>
+                <div class="w-8 h-8 rounded-2xl bg-[#1b3bbb]/10 flex items-center justify-center text-[#1b3bbb]">
+                    <svg class="w-5 h-5 animate-pulse" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                    </svg>
+                </div>
             </div>
-            <div class="space-y-2">
-                <h3 id="heavy-loading-title" class="text-base font-extrabold text-[#09103c]">Sedang Memproses Data</h3>
-                <p id="heavy-loading-message" class="text-xs text-slate-500 leading-relaxed font-medium">Mohon tunggu sejenak, sistem sedang menyelesaikan permintaan Anda...</p>
+            <div class="space-y-1.5">
+                <h3 id="heavy-loading-title" class="text-base font-extrabold text-[#09103c]">Memproses...</h3>
+                <p id="heavy-loading-message" class="text-xs text-slate-500 font-medium">Mohon tunggu sejenak...</p>
             </div>
             <div class="w-full bg-slate-100 rounded-full h-1.5 overflow-hidden">
                 <div class="bg-gradient-to-r from-[#1b3bbb] to-blue-400 h-full w-full animate-pulse"></div>
@@ -444,8 +449,8 @@
         window.showHeavyLoading = function(title, message) {
             const overlay = document.getElementById('heavy-loading-overlay');
             if (!overlay) return;
-            if (title) document.getElementById('heavy-loading-title').innerText = title;
-            if (message) document.getElementById('heavy-loading-message').innerText = message;
+            document.getElementById('heavy-loading-title').innerText = title || 'Memproses...';
+            document.getElementById('heavy-loading-message').innerText = message || 'Mohon tunggu sejenak...';
             overlay.classList.remove('hidden');
             overlay.classList.add('flex');
         };
@@ -455,6 +460,186 @@
             if (!overlay) return;
             overlay.classList.add('hidden');
             overlay.classList.remove('flex');
+        };
+
+        let pjaxFetchController = null;
+
+        window.loadPage = function(url, sourceEl = null) {
+            // Double click prevention on same link/card
+            if (sourceEl && sourceEl.dataset.navigating === 'true') {
+                return;
+            }
+            if (sourceEl) {
+                sourceEl.dataset.navigating = 'true';
+                sourceEl.style.pointerEvents = 'none';
+                sourceEl.style.opacity = '0.75';
+                sourceEl.classList.add('animate-pulse');
+            }
+
+            // Close profile menu on PJAX navigation
+            window.dispatchEvent(new CustomEvent('close-profile-menu'));
+
+            // 1. Show linear top progress loader immediately (0ms)
+            let loader = document.getElementById('pjax-loader');
+            if (!loader) {
+                loader = document.createElement('div');
+                loader.id = 'pjax-loader';
+                loader.style.position = 'fixed';
+                loader.style.top = '0';
+                loader.style.left = '0';
+                loader.style.height = '3.5px';
+                loader.style.backgroundColor = '#1b3bbb';
+                loader.style.boxShadow = '0 0 10px rgba(27, 59, 187, 0.5)';
+                loader.style.zIndex = '99999';
+                loader.style.width = '0%';
+                loader.style.transition = 'width 0.3s ease';
+                document.body.appendChild(loader);
+            }
+            loader.style.width = '25%';
+
+            const progressTimer = setTimeout(() => {
+                if (loader) loader.style.width = '70%';
+            }, 120);
+
+            // 2. Smart Threshold Loading: If server/network takes > 250ms, show modern loading modal (except for navbar links)!
+            const isNavbarLink = sourceEl && (sourceEl.closest('aside') || sourceEl.closest('header') || sourceEl.closest('nav'));
+            const isAgendaDetail = url.includes('/agenda/');
+            const heavyLoadingTitle = isAgendaDetail ? 'Membuka Detail Agenda Rapat' : 'Memuat Halaman';
+            const heavyLoadingMsg = 'Mohon tunggu sejenak...';
+
+            let heavyTimer = null;
+            if (!isNavbarLink) {
+                heavyTimer = setTimeout(() => {
+                    if (typeof window.showHeavyLoading === 'function') {
+                        window.showHeavyLoading(heavyLoadingTitle, heavyLoadingMsg);
+                    }
+                }, 250);
+            }
+
+            // Cancel any pending fetch
+            if (pjaxFetchController) {
+                try { pjaxFetchController.abort(); } catch(e) {}
+            }
+            pjaxFetchController = new AbortController();
+
+            const cleanupLoading = () => {
+                clearTimeout(heavyTimer);
+                clearTimeout(progressTimer);
+                if (loader) {
+                    loader.style.width = '100%';
+                    setTimeout(() => { if (loader) loader.remove(); }, 180);
+                }
+                if (typeof window.hideHeavyLoading === 'function') {
+                    window.hideHeavyLoading();
+                }
+                if (sourceEl) {
+                    delete sourceEl.dataset.navigating;
+                    sourceEl.style.pointerEvents = '';
+                    sourceEl.style.opacity = '';
+                    sourceEl.classList.remove('animate-pulse');
+                }
+            };
+
+            fetch(url, {
+                signal: pjaxFetchController.signal,
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest'
+                }
+            })
+            .then(res => {
+                if (!res.ok) {
+                    throw new Error(`HTTP ${res.status}`);
+                }
+                return res.text();
+            })
+            .then(html => {
+                cleanupLoading();
+                
+                const parser = new DOMParser();
+                const doc = parser.parseFromString(html, 'text/html');
+                
+                const currentContainer = document.getElementById('pjax-container');
+                const newContainer = doc.getElementById('pjax-container');
+                
+                if (currentContainer && newContainer) {
+                    currentContainer.innerHTML = newContainer.innerHTML;
+
+                    // Execute script tags inside the new container for PJAX compatibility
+                    const scripts = currentContainer.querySelectorAll('script');
+                    scripts.forEach(oldScript => {
+                        const newScript = document.createElement('script');
+                        Array.from(oldScript.attributes).forEach(attr => newScript.setAttribute(attr.name, attr.value));
+                        newScript.appendChild(document.createTextNode(oldScript.innerHTML));
+                        document.body.appendChild(newScript);
+                        newScript.remove();
+                    });
+
+                    document.title = doc.title;
+                    history.pushState({ url: url }, doc.title, url);
+                    
+                    // Synchronize the sidebar active status dynamically
+                    const currentNav = document.querySelector('aside nav');
+                    const newNav = doc.querySelector('aside nav');
+                    if (currentNav && newNav) {
+                        currentNav.innerHTML = newNav.innerHTML;
+                    }
+                    
+                    // Synchronize header breadcrumb
+                    const currentTitle = document.querySelector('.hidden.sm\\:flex.items-center.gap-2.text-xs.font-bold');
+                    const newTitle = doc.querySelector('.hidden.sm\\:flex.items-center.gap-2.text-xs.font-bold');
+                    if (currentTitle && newTitle) {
+                        currentTitle.innerHTML = newTitle.innerHTML;
+                    }
+                    
+                    // Dynamic main container scroll state synchronization (PJAX)
+                    const mainEl = document.getElementById('main-content');
+                    if (mainEl) {
+                        if (url.includes('/profile')) {
+                            mainEl.classList.remove('overflow-auto');
+                            mainEl.classList.add('overflow-hidden');
+                        } else {
+                            mainEl.classList.remove('overflow-hidden');
+                            mainEl.classList.add('overflow-auto');
+                        }
+                        mainEl.scrollTop = 0;
+                    }
+
+                    // Force close all Alpine modals/dropdowns on page transition
+                    if (window.Alpine) {
+                        document.querySelectorAll('[x-data]').forEach(el => {
+                            try {
+                                const data = window.Alpine.$data(el);
+                                if (data && 'openModal' in data) {
+                                    data.openModal = false;
+                                }
+                            } catch(err) {}
+                        });
+                    }
+                    
+                    // Emit a custom complete event in case other libraries/scripts need to re-bind
+                    window.dispatchEvent(new CustomEvent('pjax:complete'));
+                } else {
+                    window.location.href = url;
+                }
+            })
+            .catch(err => {
+                if (err.name === 'AbortError') return;
+                cleanupLoading();
+                
+                if (typeof Swal !== 'undefined') {
+                    Swal.fire({
+                        title: 'Koneksi Lambat / Terganggu',
+                        text: 'Mencoba membuka halaman secara langsung...',
+                        icon: 'warning',
+                        timer: 1500,
+                        showConfirmButton: false
+                    }).then(() => {
+                        window.location.href = url;
+                    });
+                } else {
+                    window.location.href = url;
+                }
+            });
         };
 
         document.addEventListener('DOMContentLoaded', function() {
@@ -477,7 +662,7 @@
                     if (link.hasAttribute('data-no-pjax')) return;
 
                     e.preventDefault();
-                    loadPage(url.href);
+                    window.loadPage(url.href, link);
                 } catch(err) {
                     // Fallback on error
                 }
@@ -587,7 +772,6 @@
                         window.location.href = url;
                     });
             }
-
             // Global Form Submit Interceptor with Double-Click Prevention & Loading States
             document.addEventListener('submit', function(e) {
                 const form = e.target;
@@ -602,7 +786,6 @@
                     e.preventDefault();
                     const message = form.getAttribute('data-confirm');
                     const confirmBtnText = form.getAttribute('data-confirm-btn') || 'Ya, Lanjutkan';
-                    const heavyTitle = form.getAttribute('data-heavy-title');
                     
                     Swal.fire({
                         text: message,
@@ -613,18 +796,7 @@
                         allowOutsideClick: false
                     }).then((result) => {
                         if (result.isConfirmed) {
-                            if (heavyTitle) {
-                                window.showHeavyLoading(heavyTitle, form.getAttribute('data-heavy-msg') || 'Mohon tunggu, proses sedang berjalan...');
-                            } else {
-                                Swal.fire({
-                                    title: 'Memproses...',
-                                    text: 'Mohon tunggu sejenak...',
-                                    allowOutsideClick: false,
-                                    didOpen: () => {
-                                        Swal.showLoading();
-                                    }
-                                });
-                            }
+                            window.showHeavyLoading('Memproses...', 'Mohon tunggu sejenak...');
                             form.removeAttribute('data-confirm');
                             const btn = form.querySelector('button[type="submit"], input[type="submit"]');
                             if (btn) {

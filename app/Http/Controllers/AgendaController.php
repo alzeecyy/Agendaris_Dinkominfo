@@ -192,7 +192,9 @@ class AgendaController extends Controller
         $isApproverOfAgenda = false;
         if ($agenda->notulensi && $agenda->notulensi->status === 'menunggu_review') {
             $isApproverOfAgenda = $user->isApproverOfAgenda($agenda);
-        }
+        $stdLocations = ['Aula Rapat Dinkominfo', 'Ruang Pelatihan', 'Smart Room Graha Satria'];
+        $initialTempat = in_array($agenda->lokasi, $stdLocations) ? $agenda->lokasi : 'Lainnya';
+        $initialTempatLainnya = $initialTempat === 'Lainnya' ? $agenda->lokasi : '';
 
         return view('agenda.show', compact(
             'agenda', 
@@ -201,7 +203,9 @@ class AgendaController extends Controller
             'recap', 
             'externalParticipants', 
             'isSecretaryOfAgenda',
-            'isApproverOfAgenda'
+            'isApproverOfAgenda',
+            'initialTempat',
+            'initialTempatLainnya'
         ));
     }
 
