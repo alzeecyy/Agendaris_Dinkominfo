@@ -145,7 +145,7 @@ class="space-y-6">
             <div>
                 <select x-model="filterKategori" 
                         class="w-full px-4 py-2.5 bg-[#f3f2fe] border border-[#d4d1f5] rounded-2xl text-xs text-[#2e2552] focus:outline-none">
-                    <option value="">Semua Kategori</option>
+                    <option value="">-- Semua Kategori --</option>
                     <option value="rapat">Rapat</option>
                     <option value="sosialisasi">Sosialisasi</option>
                     <option value="pelatihan">Pelatihan</option>
@@ -163,7 +163,7 @@ class="space-y-6">
             <div>
                 <select x-model="filterStatus" 
                         class="w-full px-4 py-2.5 bg-[#f3f2fe] border border-[#d4d1f5] rounded-2xl text-xs text-[#2e2552] focus:outline-none">
-                    <option value="">Semua Kehadiran</option>
+                    <option value="">-- Semua Kehadiran --</option>
                     <option value="hadir">Hadir</option>
                     <option value="izin">Izin</option>
                     <option value="sakit">Sakit</option>
@@ -174,32 +174,32 @@ class="space-y-6">
         </div>
 
         <div class="overflow-x-auto">
-            <table class="w-full text-left text-sm text-[#2e2552]">
-                <thead class="text-xs font-bold uppercase tracking-wider text-[#5a508f] border-b border-[#d4d1f5]/40">
+            <table class="w-full text-left text-xs text-[#2e2552]">
+                <thead class="text-[11px] font-bold uppercase tracking-wider text-[#5a508f] border-b border-[#d4d1f5]/40 select-none">
                     <tr>
-                        <th class="py-4 px-4">Nama Agenda Kegiatan</th>
-                        <th class="py-4 px-4">Kategori</th>
-                        <th class="py-4 px-4">Tanggal & Jam</th>
-                        <th class="py-4 px-4">Lokasi</th>
-                        <th class="py-4 px-4 text-center">Status Kehadiran</th>
-                        <th class="py-4 px-4 text-right">Notulensi</th>
+                        <th class="py-3.5 px-3">Nama Agenda Kegiatan</th>
+                        <th class="py-3.5 px-3 text-center">Kategori</th>
+                        <th class="py-3.5 px-3 whitespace-nowrap">Tanggal & Jam</th>
+                        <th class="py-3.5 px-3">Lokasi</th>
+                        <th class="py-3.5 px-3 text-center leading-tight">Status<br>Kehadiran</th>
+                        <th class="py-3.5 px-3 text-center whitespace-nowrap">Notulensi</th>
                     </tr>
                 </thead>
                 <tbody class="divide-y divide-[#d4d1f5]/30">
                     <!-- Client-side Empty State for filters -->
                     <tr x-show="filteredAgendas.length === 0" class="hover:bg-transparent">
-                        <td colspan="6" class="py-8 px-4 text-center text-[#8e88dd] italic font-medium">Tidak ada riwayat kegiatan yang cocok dengan kriteria filter.</td>
+                        <td colspan="6" class="py-8 px-3 text-center text-[#8e88dd] italic font-medium">Tidak ada riwayat kegiatan yang cocok dengan kriteria filter.</td>
                     </tr>
                     @forelse($riwayatData as $item)
                         <tr class="agenda-row hover:bg-[#f8f7ff] cursor-pointer transition-colors"
                             onclick="if (!event.target.closest('a')) { window.loadPage('{{ route('agenda.show', $item->id) }}', this) }"
                             x-show="matchesFilter('{{ addslashes($item->judul) }}', '{{ $item->kategori }}', '{{ $item->tanggal->toDateString() }}', '{{ $item->status_kehadiran }}') && isAgendaVisible({{ $item->id }})">
-                            <td class="py-4 px-4 font-bold text-[#2e2552]">
-                                <a href="{{ route('agenda.show', $item->id) }}" class="hover:text-[#8e88dd] transition-colors">
+                            <td class="py-3 px-3 font-bold text-xs text-[#2e2552]">
+                                <a href="{{ route('agenda.show', $item->id) }}" class="hover:text-[#8e88dd] transition-colors leading-snug">
                                     {{ $item->judul }}
                                 </a>
                             </td>
-                            <td class="py-4 px-4">
+                            <td class="py-3 px-3 text-center whitespace-nowrap">
                                 @php
                                     $badgeStyles = [
                                         'rapat' => 'bg-rose-50 text-rose-700 border-rose-200',
@@ -214,43 +214,43 @@ class="space-y-6">
                                         'kegiatan_lainnya' => 'Kegiatan Lainnya',
                                     ];
                                 @endphp
-                                <span class="inline-block text-[10px] px-2.5 py-0.5 font-bold uppercase rounded-lg border 
+                                <span class="inline-block text-[9.5px] px-2 py-0.5 font-bold uppercase rounded-lg border 
                                     {{ $badgeStyles[$item->kategori] ?? 'bg-slate-100 text-slate-700 border-slate-200' }}">
                                     {{ $kategoriLabels[$item->kategori] ?? $item->kategori }}
                                 </span>
                             </td>
-                            <td class="py-4 px-4 text-xs font-semibold">
+                            <td class="py-3 px-3 text-xs font-semibold whitespace-nowrap">
                                 <div>{{ $item->tanggal->translatedFormat('d M Y') }}</div>
-                                <div class="text-[#8e88dd] mt-0.5 font-bold">{{ substr($item->jam_mulai, 0, 5) }} - {{ substr($item->jam_selesai, 0, 5) }}</div>
+                                <div class="text-[#8e88dd] mt-0.5 font-bold whitespace-nowrap">{{ substr($item->jam_mulai, 0, 5) }} - {{ substr($item->jam_selesai, 0, 5) }}</div>
                             </td>
-                            <td class="py-4 px-4 text-xs text-[#5a508f] font-medium truncate max-w-[150px]" title="{{ $item->lokasi }}">
+                            <td class="py-3 px-3 text-xs text-[#5a508f] font-medium whitespace-nowrap" title="{{ $item->lokasi }}">
                                 {{ $item->lokasi }}
                             </td>
-                            <td class="py-4 px-4 text-center text-xs">
+                            <td class="py-3 px-3 text-center text-xs whitespace-nowrap">
                                 @if($item->status_kehadiran === 'hadir')
-                                    <span class="inline-block px-2.5 py-1 rounded-lg bg-emerald-50 text-emerald-600 border border-emerald-200 font-bold">Hadir ✓</span>
+                                    <span class="inline-block px-2 py-0.5 rounded-lg bg-emerald-50 text-emerald-600 border border-emerald-200 font-bold text-xs">Hadir ✓</span>
                                 @elseif($item->status_kehadiran === 'izin')
-                                    <span class="inline-block px-2.5 py-1 rounded-lg bg-amber-50 text-amber-600 border border-amber-200 font-bold">Izin</span>
+                                    <span class="inline-block px-2 py-0.5 rounded-lg bg-amber-50 text-amber-600 border border-amber-200 font-bold text-xs">Izin</span>
                                 @elseif($item->status_kehadiran === 'sakit')
-                                    <span class="inline-block px-2.5 py-1 rounded-lg bg-rose-50 text-rose-600 border border-rose-200 font-bold">Sakit</span>
+                                    <span class="inline-block px-2 py-0.5 rounded-lg bg-rose-50 text-rose-600 border border-rose-200 font-bold text-xs">Sakit</span>
                                 @elseif($item->status_kehadiran === 'alfa')
-                                    <span class="inline-block px-2.5 py-1 rounded-lg bg-red-50 text-red-600 border border-red-200 font-extrabold">Alfa</span>
+                                    <span class="inline-block px-2 py-0.5 rounded-lg bg-red-50 text-red-600 border border-red-200 font-extrabold text-xs">Alfa</span>
                                 @else
-                                    <span class="inline-block px-2.5 py-1 rounded-lg bg-slate-100 text-slate-400 border border-slate-200 font-semibold">-</span>
+                                    <span class="inline-block px-2 py-0.5 rounded-lg bg-slate-100 text-slate-400 border border-slate-200 font-semibold text-xs">-</span>
                                 @endif
                             </td>
-                            <td class="py-4 px-4 text-right text-xs">
+                            <td class="py-3 px-3 text-center text-xs whitespace-nowrap">
                                 @if($item->kategori !== 'rapat')
                                     <span class="text-slate-400 font-medium">-</span>
                                 @elseif($item->notulensi_status === 'disahkan')
-                                    <div class="flex items-center justify-end gap-1.5 font-bold">
-                                        <a href="{{ route('notulensi.export.pdf', $item->id) }}" target="_blank" data-no-pjax title="Unduh Notulensi PDF" class="inline-flex items-center gap-1 px-2.5 py-1 bg-rose-50 hover:bg-rose-100 text-rose-700 border border-rose-200 rounded-lg text-[10px] uppercase font-bold transition-all shadow-2xs">
+                                    <div class="flex items-center justify-center gap-1.5 font-bold">
+                                        <a href="{{ route('notulensi.export.pdf', $item->id) }}" target="_blank" data-no-pjax title="Unduh Notulensi PDF" class="inline-flex items-center gap-1 px-2 py-0.5 bg-rose-50 hover:bg-rose-100 text-rose-700 border border-rose-200 rounded-lg text-[9.5px] uppercase font-bold transition-all shadow-2xs">
                                             <svg class="w-3 h-3 text-rose-600 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z"/>
                                             </svg>
                                             <span>PDF</span>
                                         </a>
-                                        <a href="{{ route('notulensi.export.docx', $item->id) }}" target="_blank" data-no-pjax title="Unduh Notulensi Word" class="inline-flex items-center gap-1 px-2.5 py-1 bg-blue-50 hover:bg-blue-100 text-blue-700 border border-blue-200 rounded-lg text-[10px] uppercase font-bold transition-all shadow-2xs">
+                                        <a href="{{ route('notulensi.export.docx', $item->id) }}" target="_blank" data-no-pjax title="Unduh Notulensi Word" class="inline-flex items-center gap-1 px-2 py-0.5 bg-blue-50 hover:bg-blue-100 text-blue-700 border border-blue-200 rounded-lg text-[9.5px] uppercase font-bold transition-all shadow-2xs">
                                             <svg class="w-3 h-3 text-blue-600 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
                                             </svg>
