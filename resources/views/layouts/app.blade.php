@@ -285,12 +285,24 @@
                         <!-- Calendar Link -->
                         <a href="{{ route('calendar') }}" 
                            class="flex items-center gap-3 px-4 py-3 rounded-2xl font-bold text-xs transition-all duration-200 
-                           {{ request()->routeIs('calendar') ? 'bg-[#1b3bbb] text-white shadow-lg shadow-[#1b3bbb]/20' : 'text-slate-600 hover:bg-[#1b3bbb]/5 hover:text-[#1b3bbb]' }}">
+                           {{ request()->routeIs('calendar') && !request()->has('open_add') ? 'bg-[#1b3bbb] text-white shadow-lg shadow-[#1b3bbb]/20' : 'text-slate-600 hover:bg-[#1b3bbb]/5 hover:text-[#1b3bbb]' }}">
                             <svg class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
                             </svg>
                             <span>Kalender Rinci</span>
                         </a>
+
+                        @if(Auth::user()->isSekretarisMaster() || Auth::user()->isSekretarisBidang())
+                            <!-- Tambah Agenda Link (Sekretaris Only - Shortcut to Open Add Agenda Modal) -->
+                            <a href="{{ route('calendar', ['open_add' => 1]) }}" 
+                               class="flex items-center gap-3 px-4 py-3 rounded-2xl font-bold text-xs transition-all duration-200 
+                               {{ request()->routeIs('calendar') && request()->has('open_add') ? 'bg-[#1b3bbb] text-white shadow-lg shadow-[#1b3bbb]/20' : 'text-slate-600 hover:bg-[#1b3bbb]/5 hover:text-[#1b3bbb]' }}">
+                                <svg class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
+                                </svg>
+                                <span>Tambah Agenda</span>
+                            </a>
+                        @endif
 
                         <!-- Riwayat Link -->
                         <a href="{{ route('riwayat') }}" 

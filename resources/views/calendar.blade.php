@@ -4,7 +4,7 @@
 
 @section('content')
 <div x-data="{ 
-    openAddModal: false, 
+    openAddModal: {{ ($errors->any() || request()->has('open_add')) ? 'true' : 'false' }}, 
     selectedDate: '{{ $selectedDate->toDateString() }}', 
     selectedTime: '07:15', 
     kategori: 'rapat',
