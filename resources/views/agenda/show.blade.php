@@ -2,11 +2,6 @@
 
 @section('title', 'Detail Agenda')
 
-@php
-    $stdLocations = ['Aula Rapat Dinkominfo', 'Ruang Pelatihan', 'Smart Room Graha Satria'];
-    $initialTempat = $initialTempat ?? (in_array($agenda->lokasi, $stdLocations) ? $agenda->lokasi : 'Lainnya');
-    $initialTempatLainnya = $initialTempatLainnya ?? ($initialTempat === 'Lainnya' ? $agenda->lokasi : '');
-@endphp
 
 @section('content')
 @php
