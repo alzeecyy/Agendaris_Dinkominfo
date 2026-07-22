@@ -260,7 +260,7 @@ class AgendarisTest extends TestCase
         $agenda = Agenda::create([
             'judul' => 'Rapat Rutin',
             'tanggal' => \Carbon\Carbon::today()->toDateString(),
-            'jam_mulai' => '09:00',
+            'jam_mulai' => '00:00',
             'jam_selesai' => '23:30',
             'lokasi' => 'Aula',
             'kategori' => 'rapat',
