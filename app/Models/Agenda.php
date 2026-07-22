@@ -64,8 +64,8 @@ class Agenda extends Model
             return false;
         }
 
-        $startDateTime = \Carbon\Carbon::parse($this->tanggal->toDateString() . ' ' . $this->jam_mulai);
-        return now()->lessThan($startDateTime);
+        $startDateTime = \Carbon\Carbon::parse($this->tanggal->toDateString() . ' ' . $this->jam_mulai, 'Asia/Jakarta');
+        return now()->setTimezone('Asia/Jakarta')->lessThan($startDateTime);
     }
 
     /**
@@ -77,9 +77,9 @@ class Agenda extends Model
             return false;
         }
 
-        $endDateTime = \Carbon\Carbon::parse($this->tanggal->toDateString() . ' ' . $this->jam_selesai);
+        $endDateTime = \Carbon\Carbon::parse($this->tanggal->toDateString() . ' ' . $this->jam_selesai, 'Asia/Jakarta');
         $limitDateTime = $endDateTime->copy()->addHour();
-        $now = now();
+        $now = now()->setTimezone('Asia/Jakarta');
 
         return $now->greaterThan($endDateTime) && $now->lessThanOrEqualTo($limitDateTime);
     }
@@ -93,10 +93,10 @@ class Agenda extends Model
             return false;
         }
 
-        $endDateTime = \Carbon\Carbon::parse($this->tanggal->toDateString() . ' ' . $this->jam_selesai);
+        $endDateTime = \Carbon\Carbon::parse($this->tanggal->toDateString() . ' ' . $this->jam_selesai, 'Asia/Jakarta');
         $limitDateTime = $endDateTime->copy()->addHour();
 
-        return now()->greaterThan($limitDateTime);
+        return now()->setTimezone('Asia/Jakarta')->greaterThan($limitDateTime);
     }
 
     /**
