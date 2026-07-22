@@ -25,8 +25,14 @@ class PresensiController extends Controller
             return back()->with('error', 'Anda tidak memiliki akses ke agenda ini.');
         }
 
+        if ($agenda->isPresensiNotStarted()) {
+            $jamMulai = substr($agenda->jam_mulai, 0, 5);
+            $tanggalStr = $agenda->tanggal ? $agenda->tanggal->translatedFormat('d F Y') : '';
+            return back()->with('error', "Absensi belum dibuka. Absensi baru dapat diisi saat waktu rapat dimulai ({$tanggalStr} jam {$jamMulai} WIB).");
+        }
+
         if ($agenda->isPresensiExpired()) {
-            return back()->with('error', 'Batas waktu presensi mandiri telah berakhir (Maksimal 1 jam setelah rapat selesai).');
+            return back()->with('error', 'Absensi telah ditutup. Batas waktu toleransi presensi mandiri (maksimal 1 jam setelah rapat selesai) telah berakhir.');
         }
 
         $validated = $request->validate([

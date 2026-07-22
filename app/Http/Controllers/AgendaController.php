@@ -112,6 +112,9 @@ class AgendaController extends Controller
             abort(403, 'Akses ditolak. Anda tidak memiliki wewenang untuk membuka agenda ini.');
         }
 
+        // Eager load relations for high performance
+        $agenda->load(['sekretaris.bidang', 'notulensi', 'externalParticipants']);
+
         // Get own presensi status
         $ownPresensi = Presensi::where('agenda_id', $agenda->id)
             ->where('user_id', $user->id)

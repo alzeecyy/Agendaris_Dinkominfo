@@ -347,7 +347,9 @@ class DashboardController extends Controller
         $endDateStr = $dates[6]->toDateString();
 
         // Get all agendas within this range
+        // Fetch all agendas for the selected 7-day week range with eager loading
         $rawAgendas = Agenda::whereBetween('tanggal', [$startDateStr, $endDateStr])
+            ->with('sekretaris.bidang')
             ->orderBy('jam_mulai')
             ->get();
 
@@ -546,6 +548,7 @@ class DashboardController extends Controller
         }
 
         $agendas = Agenda::where('butuh_presensi', true)
+            ->with(['notulensi', 'sekretaris.bidang'])
             ->orderBy('tanggal', 'desc')
             ->orderBy('jam_mulai', 'desc')
             ->get()
