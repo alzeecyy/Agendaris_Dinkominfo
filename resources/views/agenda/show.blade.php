@@ -1097,8 +1097,8 @@
     }
     </script>
 
-    <!-- Floating AI Background Processing Toast -->
-    @if($agenda->notulensi && $agenda->notulensi->is_transcribing)
+    <!-- Floating AI Background Processing Toast (Sekretaris Only) -->
+    @if($isSecretaryOfAgenda && $agenda->notulensi && $agenda->notulensi->is_transcribing)
         <div class="fixed bottom-6 right-6 z-50 bg-[#09103c] text-white p-4 rounded-2xl shadow-2xl border border-sky-500/30 flex items-center gap-3.5 max-w-sm animate-bounce">
             <div class="w-9 h-9 bg-sky-500/20 text-sky-400 rounded-xl flex items-center justify-center shrink-0">
                 <svg class="w-5 h-5 animate-spin" fill="none" viewBox="0 0 24 24">
