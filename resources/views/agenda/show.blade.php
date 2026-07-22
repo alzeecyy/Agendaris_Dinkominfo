@@ -27,7 +27,8 @@
     detailParticipants: [],
     get allParticipants() {
         try {
-            return JSON.parse(this.$el.getAttribute('data-participants') || '[]');
+            const root = document.querySelector('[data-participants]');
+            return JSON.parse(root ? root.getAttribute('data-participants') : '[]');
         } catch(e) {
             return [];
         }
@@ -99,7 +100,7 @@
             this.signatureData = '';
         }
     }
-}" data-participants='@json((Auth::user()->role === "staff" && !Auth::user()->isSekretariat()) ? [] : $participants)' class="space-y-6">
+}" data-participants='@json($participants)' class="space-y-6">
     
     <!-- Breadcrumbs / Back button -->
     <div class="flex items-center justify-between">

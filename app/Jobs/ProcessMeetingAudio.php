@@ -38,95 +38,82 @@ class ProcessMeetingAudio implements ShouldQueue
         try {
             Log::info("ProcessMeetingAudio job started for notulensi ID: " . $this->notulensi->id);
             
+            // Refresh model from DB to get the latest audio_files array
+            $this->notulensi->refresh();
+            
             $agenda = $this->notulensi->agenda;
             $apiKey = env('GEMINI_API_KEY');
 
-            // Determine specific audio file path to process
-            $audioPath = $this->specificAudioPath;
-            if (!$audioPath) {
-                if ($this->notulensi->audio_path) {
-                    $audioPath = $this->notulensi->audio_path;
-                } elseif (!empty($this->notulensi->audio_files) && is_array($this->notulensi->audio_files)) {
-                    $audioPath = $this->notulensi->audio_files[0]['path'] ?? null;
-                }
+            $pythonPath = env('PYTHON_PATH', 'python');
+            $scriptPath = base_path('transcribe_whisper_cpp.py');
+
+            // Retrieve list of audio files to process
+            $audioFiles = $this->notulensi->audio_files;
+            if (empty($audioFiles) && $this->notulensi->audio_path) {
+                $audioFiles = [
+                    [
+                        'name' => $this->notulensi->audio_name ?? 'Rekaman Audio',
+                        'path' => $this->notulensi->audio_path
+                    ]
+                ];
             }
 
-            if (!$audioPath) {
-                Log::warning("ProcessMeetingAudio: No audio path to process.");
+            if (empty($audioFiles)) {
+                Log::warning("ProcessMeetingAudio: No audio files to process.");
+                $this->notulensi->update(['is_transcribing' => false]);
                 return;
             }
 
-            // Determine the audio index in the files list
-            $audioIndex = 1;
-            if (is_array($this->notulensi->audio_files)) {
-                foreach ($this->notulensi->audio_files as $idx => $f) {
-                    if ($f['path'] === $audioPath) {
-                        $audioIndex = $idx + 1;
-                        break;
-                    }
+            $transcriptBlocks = [];
+
+            foreach ($audioFiles as $index => $audioItem) {
+                $audioPath = $audioItem['path'] ?? null;
+                $audioName = $audioItem['name'] ?? ('Rekaman #' . ($index + 1));
+                
+                if (!$audioPath) continue;
+
+                $audioFile = Storage::disk('public')->path($audioPath);
+                if (!file_exists($audioFile)) {
+                    Log::error("ProcessMeetingAudio: Audio file not found at " . $audioFile);
+                    continue;
                 }
-            }
 
-            $pythonPath = env('PYTHON_PATH', 'python');
-            $scriptPath = base_path('transcribe_whisper_cpp.py');
-            $audioFile = Storage::disk('public')->path($audioPath);
-            Log::info("ProcessMeetingAudio: absolute path: " . $audioFile);
-            Log::info("ProcessMeetingAudio: file_exists? " . (file_exists($audioFile) ? "YES" : "NO"));
-
-            $newTranscript = "";
-            if (file_exists($audioFile)) {
                 try {
-                    Log::info("ProcessMeetingAudio: Transcribing audio via local whisper.cpp...");
+                    Log::info("ProcessMeetingAudio: Transcribing audio file #" . ($index + 1) . " ({$audioName})...");
                     $cmd = (str_contains($pythonPath, ' ') ? '"' . $pythonPath . '"' : $pythonPath) . " " . escapeshellarg($scriptPath) . " " . escapeshellarg($audioFile) . " 2>&1";
-                    Log::info("ProcessMeetingAudio running: " . $cmd);
                     $output = shell_exec($cmd);
-                    Log::info("ProcessMeetingAudio raw output: " . $output);
-                    
+
                     if ($output) {
                         $data = json_decode($output, true);
                         if (json_last_error() === JSON_ERROR_NONE && isset($data['status']) && $data['status'] === 'success') {
-                            $newTranscript = self::cleanTranscriptText($data['text'] ?? '');
-                            $modelUsed = $data['model'] ?? 'unknown';
-                            Log::info("ProcessMeetingAudio: transcription succeeded using model: {$modelUsed}");
-                            // Clear any previous error
-                            $this->notulensi->update(['transkrip_error' => null]);
+                            $cleanedText = self::cleanTranscriptText($data['text'] ?? '');
+                            if (!empty($cleanedText)) {
+                                if (count($audioFiles) > 1) {
+                                    $transcriptBlocks[] = "📌 BAGIAN REKAMAN " . ($index + 1) . ": " . mb_strtoupper($audioName) . "\n" . str_repeat("—", 50) . "\n" . $cleanedText;
+                                } else {
+                                    $transcriptBlocks[] = $cleanedText;
+                                }
+                            }
                         } else {
-                            Log::error("ProcessMeetingAudio local transcription error or raw output: " . $output);
+                            Log::error("ProcessMeetingAudio: Whisper error on file " . $audioName . ": " . $output);
                         }
-                    } else {
-                        Log::error("ProcessMeetingAudio: shell_exec returned no output.");
                     }
                 } catch (\Exception $e) {
-                    Log::error("ProcessMeetingAudio exception during local transcription: " . $e->getMessage());
+                    Log::error("ProcessMeetingAudio exception for " . $audioName . ": " . $e->getMessage());
                 }
-            } else {
-                Log::error("ProcessMeetingAudio error: audio file does not exist at " . $audioFile);
             }
 
-            if (empty($newTranscript)) {
-                Log::error("ProcessMeetingAudio: local transcription returned empty or failed. Kemungkinan RAM tidak cukup atau whisper.cpp error.");
+            if (empty($transcriptBlocks)) {
+                Log::error("ProcessMeetingAudio: All audio transcriptions failed or returned empty.");
                 $this->notulensi->update([
                     'is_transcribing' => false,
-                    'transkrip_error' => 'Transkripsi gagal: Whisper tidak dapat dijalankan. Kemungkinan RAM komputer tidak mencukupi. Tutup aplikasi lain (browser, LM Studio, dll) lalu coba upload ulang berkas audio.',
+                    'transkrip_error' => 'Transkripsi gagal: Whisper tidak dapat memproses berkas audio. Pastikan berkas audio valid dan memuat suara percakapan.',
                 ]);
                 return;
             }
 
-
-            // Combine transcriptions
-            $isFirstAudio = true;
-            if (is_array($this->notulensi->audio_files) && count($this->notulensi->audio_files) > 1) {
-                $isFirstAudio = false;
-            }
-
-            if ($isFirstAudio) {
-                Log::info("ProcessMeetingAudio: Overwriting pre-existing transcript for the first audio upload.");
-                $combinedTranscript = $newTranscript;
-            } else {
-                $existingTranscript = $this->notulensi->transkrip_raw;
-                $separator = "\n\n=== [BAGIAN REKAMAN #{$audioIndex}] ===\n\n";
-                $combinedTranscript = $existingTranscript . $separator . $newTranscript;
-            }
+            // Combine formatted transcriptions
+            $combinedTranscript = implode("\n\n\n", $transcriptBlocks);
 
             $summarized = false;
 
@@ -146,56 +133,24 @@ class ProcessMeetingAudio implements ShouldQueue
                 Log::info("ProcessMeetingAudio: Transcript too short ({$textLen} chars). Skipped LLM summarization.");
             }
 
-            $prompt = "Anda adalah editor profesional yang bertugas merapikan hasil transkrip rapat menjadi dokumen yang mudah dibaca.\n\n" .
-                      "Ikuti seluruh instruksi berikut tanpa terkecuali.\n\n" .
-                      "TUJUAN\n" .
-                      "Menghasilkan transkrip rapat yang rapi, akurat, dan mempertahankan seluruh informasi yang disampaikan narasumber.\n\n" .
-                      "PRIORITAS UTAMA\n" .
-                      "Jika terjadi konflik antara \"membuat kalimat lebih natural\" dan \"akurasi terhadap isi asli\", akurasi harus selalu diutamakan. Lebih baik menandai [tidak jelas] daripada mengarang atau memaksakan kalimat yang tidak sesuai dengan apa yang sebenarnya diucapkan.\n\n" .
-                      "ATURAN\n" .
-                      "1. Jangan menambahkan informasi, opini, atau kesimpulan yang tidak terdapat pada transkrip.\n" .
-                      "2. Jangan menghapus informasi penting.\n" .
-                      "3. Hilangkan kata, frasa, atau kalimat yang berulang akibat kesalahan transkrip.\n" .
-                      "4. Perbaiki ejaan, tata bahasa, tanda baca, serta susunan kalimat agar lebih natural.\n" .
-                      "5. Pertahankan makna asli dari setiap pembicara.\n" .
-                      "6. Jika terdapat bagian yang benar-benar tidak dapat dipahami, tuliskan [tidak jelas].\n" .
-                      "7. Pertahankan nama orang, nama organisasi, nama program kerja, jabatan, lokasi, tanggal, angka, dan istilah penting.\n" .
-                      "8. Hilangkan filler words (eee, anu, kayak, jadi gini, dsb.) yang tidak mengandung informasi.\n" .
-                      "9. Jika kalimat pembicara terpotong/menggantung, rapikan menjadi kalimat utuh selama maknanya tidak berubah; jika maknanya tidak bisa disimpulkan, biarkan apa adanya.\n\n" .
-                      "LARANGAN TAMBAHAN\n" .
-                      "- Dilarang keras mengarang nama, gelar, jabatan, atau struktur field (misalnya label \"Tugas Pertama\", \"Sebelum Sekolah\", dsb.) yang tidak secara eksplisit disebutkan dalam transkrip asli.\n" .
-                      "- Jika transkrip tidak menyebutkan nama pembicara secara eksplisit, gunakan deskripsi peran (misal \"Narasumber\", \"Pewawancara\") — jangan mengarang nama.\n" .
-                      "- Sebelum memformat sebagai dialog berlabel banyak pembicara, identifikasi dulu apakah transkrip ini benar-benar multi-speaker atau hanya satu narasumber yang diwawancarai/ditanya beberapa pertanyaan.\n" .
-                      "- Dilarang membuat kalimat yang secara gramatikal maupun logis tidak masuk akal hanya demi merapikan format.\n" .
-                      "- Jika satu bagian transkrip terlalu rusak/tidak jelas untuk direkonstruksi dengan akurat, tandai bagian tersebut dengan [tidak jelas] daripada menciptakan kalimat baru.\n\n" .
-                      "LARANGAN FORMAT\n" .
-                      "- Dilarang mengubah transkrip naratif/monolog menjadi format tanya-jawab buatan (misal \"Apakah Anda tahu apa itu X?\") jika format tersebut tidak eksplisit ada dalam transkrip asli.\n" .
-                      "- Ikuti struktur asli transkrip: jika berupa narasi/penjelasan mengalir dari satu narasumber, sajikan sebagai narasi terstruktur per topik (bukan Q&A buatan).\n" .
-                      "- Jika transkrip memang berbentuk tanya-jawab (ada pewawancara bertanya secara eksplisit), gunakan Q&A HANYA untuk pertanyaan yang benar-benar diajukan, satu kali per pertanyaan — jangan mengulang entri yang sama.\n" .
-                      "- Dilarang mengulang paragraf, poin, atau entri yang identik lebih dari satu kali dalam output akhir.\n\n" .
-                      "PEMERIKSAAN KONSISTENSI\n" .
-                      "Setelah seluruh transkrip selesai dirapikan, lakukan pemeriksaan ulang terhadap seluruh dokumen dari awal hingga akhir.\n\n" .
-                      "- Identifikasi seluruh nama orang.\n" .
-                      "- Identifikasi seluruh nama organisasi.\n" .
-                      "- Identifikasi seluruh nama divisi.\n" .
-                      "- Identifikasi seluruh nama program kerja.\n" .
-                      "- Identifikasi seluruh singkatan.\n" .
-                      "- Identifikasi seluruh istilah khusus.\n\n" .
-                      "Apabila ditemukan beberapa penulisan berbeda yang mengacu pada entitas yang sama (typo, salah eja, hasil speech-to-text), ubah SEMUA kemunculannya menjadi SATU bentuk penulisan yang konsisten. Gunakan versi yang paling sering muncul atau versi baku/resmi jika diketahui. Jangan hanya memperbaiki kemunculan pertama — pastikan seluruh kemunculan telah diperbaiki.\n\n" .
-                      "FORMAT PENULISAN (Markdown)\n" .
-                      "Gunakan format markdown berikut agar struktur dokumen terbaca jelas saat dikonversi ke PDF:\n" .
-                      "- Judul dokumen: gunakan # (contoh: # Notulensi Rapat [Nama Rapat])\n" .
-                      "- Sub-bagian (misal: Informasi Rapat, Pembahasan, Kesimpulan): gunakan ##\n" .
-                      "- Penomoran poin: gunakan angka langsung tanpa tanda strip di depannya (contoh: 1. Perencanaan Aplikasi, 2. Rapat Koordinasi)\n" .
-                      "- Sub-detail (Isi, Penjelasan, Catatan): tulis langsung nama label diikuti titik dua tanpa tanda strip di depannya (contoh: Isi: ..., Penjelasan: ...)\n" .
-                      "- Jangan gunakan format lain di luar markdown standar (tanpa HTML, tanpa tabel kompleks kecuali diminta)\n\n" .
-                      "OUTPUT\n" .
-                      "Berikan hanya hasil transkrip yang sudah dirapikan dalam format markdown, tanpa penjelasan tambahan.\n\n" .
-                      "Sebelum menghasilkan jawaban akhir, lakukan validasi akhir terhadap seluruh dokumen:\n" .
-                      "1. Pastikan tidak ada nama, gelar, atau struktur field yang dikarang dan tidak ada di transkrip asli.\n" .
-                      "2. Pastikan tidak ada lagi istilah yang memiliki lebih dari satu variasi penulisan apabila sebenarnya mengacu pada entitas yang sama.\n" .
-                      "3. Pastikan struktur markdown (judul, sub-judul, bold) sudah konsisten dari awal hingga akhir dokumen.\n\n" .
-                      "Berikut transkrip:\n\n" . $combinedTranscript;
+            $prompt = "Anda adalah Sekretaris Profesional & Notulis Rapat Senior. Tugas Anda adalah menganalisis teks transkrip percakapan rapat berikut dan menyusun RINGKASAN & NOTULENSI RAPAT yang sangat rapi, terstruktur, profesional, dan mudah dipahami.\n\n" .
+                      "STRUKTUR OUTPUT MARKDOWN MANDATORI:\n\n" .
+                      "### 📌 RINGKASAN EKSEKUTIF RAPAT\n" .
+                      "[Tuliskan 1-2 paragraf ringkasan eksekutif yang merangkum keseluruhan isi pembicaraan rapat secara padat, jelas, dan profesional]\n\n" .
+                      "### 💡 POIN-POIN PEMBAHASAN UTAMA\n" .
+                      "1. **[Judul Topik/Bahasan Utama]**\n" .
+                      "   - Rincian pembahasan dan penjelasan yang disampaikan narasumber/peserta.\n" .
+                      "2. **[Judul Topik/Bahasan Selanjutnya]**\n" .
+                      "   - Rincian pembahasan dan penjelasan lanjutan.\n\n" .
+                      "### 📝 KEPUTUSAN & TINDAK LANJUT\n" .
+                      "1. **[Keputusan/Kesepakatan Pertama]**: Penjelasan rincian keputusan atau langkah konkret yang disepakati.\n" .
+                      "2. **[Tindak Lanjut]**: Rencana penanganan atau tugas kelanjutan setelah rapat.\n\n" .
+                      "ATURAN PENULISAN:\n" .
+                      "- Gunakan bahasa Indonesia baku yang formal dan mudah dipahami.\n" .
+                      "- Ekstrak seluruh poin penting dari SELURUH bagian transkrip (termasuk jika terdiri dari beberapa bagian audio/rekaman).\n" .
+                      "- Jangan membuat informasi fiktif di luar transkrip asli.\n" .
+                      "- Tuliskan jawaban LANGSUNG dalam format markdown sesuai struktur di atas tanpa kata pengantar tambahan.\n\n" .
+                      "Berikut teks transkrip percakapan rapat:\n\n" . $combinedTranscript;
 
             $llmApiBase = env('LLM_API_BASE');
             $llmApiKey = env('LLM_API_KEY') ?: $apiKey;
@@ -206,7 +161,7 @@ class ProcessMeetingAudio implements ShouldQueue
                 try {
                     Log::info("ProcessMeetingAudio: calling custom OpenAI-compatible API ({$llmApiBase}) with model: {$llmModel}...");
                     $url = rtrim($llmApiBase, '/') . '/chat/completions';
-                    $response = Http::timeout(480)->withHeaders([
+                    $response = Http::timeout(15)->withHeaders([
                         'Authorization' => 'Bearer ' . $llmApiKey,
                         'Content-Type' => 'application/json'
                     ])->post($url, [
