@@ -102,7 +102,7 @@ class DashboardController extends Controller
         $links = [];
         $todayStr = Carbon::today()->toDateString();
 
-        if ($user->role === 'staff' && !$user->isSekretariat()) {
+        if ($user->role === 'staff') {
             // Staff KPI 1: Accessible Agendas this week
             $startOfWeek = Carbon::today()->startOfWeek(Carbon::MONDAY);
             $endOfWeek = Carbon::today()->endOfWeek(Carbon::SUNDAY);
@@ -113,22 +113,25 @@ class DashboardController extends Controller
             $kpi['week_agendas'] = $weekAgendas->count();
             $links['week_agendas'] = route('calendar');
 
-            // Staff KPI 2: Pending/Unfilled presence
-            $accessiblePastAgendas = Agenda::where('butuh_presensi', true)
-                ->where('tanggal', '<=', $todayStr)
-                ->get()
-                ->filter(fn($a) => $user->hasAccessToAgenda($a));
-
+            // Staff KPI 2: Active / Fillable Unfilled Presences (agendas where presensi is active & not expired)
             $submittedPresenceIds = Presensi::where('user_id', $user->id)
                 ->pluck('agenda_id')
                 ->toArray();
 
-            $pendingPresenceAgendas = $accessiblePastAgendas
-                ->filter(fn($a) => !in_array($a->id, $submittedPresenceIds));
+            $fillableAgendas = Agenda::where('butuh_presensi', true)
+                ->where('tanggal', '>=', $todayStr)
+                ->orderBy('tanggal', 'asc')
+                ->orderBy('jam_mulai', 'asc')
+                ->get()
+                ->filter(function($a) use ($user, $submittedPresenceIds) {
+                    return $user->hasAccessToAgenda($a) 
+                        && !in_array($a->id, $submittedPresenceIds) 
+                        && !$a->isPresensiExpired();
+                });
 
-            $kpi['pending_presence'] = $pendingPresenceAgendas->count();
-            $firstPending = $pendingPresenceAgendas->first();
-            $links['pending_presence'] = $firstPending ? route('agenda.show', $firstPending->id) : null;
+            $kpi['pending_presence'] = $fillableAgendas->count();
+            $firstPending = $fillableAgendas->first();
+            $links['pending_presence'] = $firstPending ? route('agenda.show', $firstPending->id) : route('calendar');
 
             // Staff Highlight Alerts
             $todayPendingPresences = Agenda::where('tanggal', $todayStr)
@@ -202,7 +205,7 @@ class DashboardController extends Controller
                 ];
             }
 
-        } elseif ($user->role === 'sekretaris_master' || $user->isSekretariat()) {
+        } elseif ($user->role === 'sekretaris_master') {
             // Sekre Master KPI 1: All bidangs agendas this month
             $kpi['master_month_agendas'] = Agenda::whereMonth('tanggal', $selectedMonth->month)
                 ->whereYear('tanggal', $selectedMonth->year)
