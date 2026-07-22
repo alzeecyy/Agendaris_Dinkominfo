@@ -6,8 +6,9 @@
 @section('content')
 @php
     $predefinedRooms = [
-        'Ruang Rapat Kartini', 'Aula Utama Kominfo', 'Ruang Rapat Kepala Dinas',
-        'Ruang PPID', 'Ruang Bidang IKP', 'Ruang Server TIK', 'Ruang Bidang Aptika', 'Ruang Bidang Statistik & Persandian', 'Ruang Sekretariat'
+        'Aula Rapat Dinkominfo',
+        'Ruang Pelatihan',
+        'Smart Room Graha Satria'
     ];
     $isPredefined = in_array($agenda->lokasi, $predefinedRooms);
     $initialTempat = $isPredefined ? $agenda->lokasi : 'Lainnya';
@@ -193,22 +194,17 @@
                                     <label for="tempat_edit" class="block text-xs font-bold text-[#5a508f] uppercase">Tempat / Ruangan <span class="text-rose-500">*</span></label>
                                     <select id="tempat_edit" name="lokasi" required
                                             class="w-full px-4 py-2.5 bg-[#f3f2fe] border border-[#d4d1f5] rounded-2xl text-[#2e2552] text-sm focus:outline-none">
-                                        <option value="Ruang Rapat Kartini">Ruang Rapat Kartini (Gedung A)</option>
-                                        <option value="Aula Utama Kominfo">Aula Utama Kominfo (Gedung A)</option>
-                                        <option value="Ruang Rapat Kepala Dinas">Ruang Rapat Kepala Dinas (Gedung A)</option>
-                                        <option value="Ruang PPID">Ruang PPID (Gedung B)</option>
-                                        <option value="Ruang Bidang IKP">Ruang Bidang IKP (Gedung B)</option>
-                                        <option value="Ruang Server TIK">Ruang Server TIK (Gedung B)</option>
-                                        <option value="Ruang Bidang Aptika">Ruang Bidang Aptika (Gedung B)</option>
-                                        <option value="Ruang Bidang Statistik & Persandian">Ruang Bidang Statistik & Persandian (Gedung B)</option>
-                                        <option value="Ruang Sekretariat">Ruang Sekretariat (Gedung A)</option>
-                                        <option value="Lainnya">Lainnya (Isi Kustom)...</option>
+                                        <option value="" disabled {{ empty($agenda->lokasi) ? 'selected' : '' }}>-- Pilih Lokasi / Ruangan --</option>
+                                        <option value="Aula Rapat Dinkominfo" {{ $agenda->lokasi === 'Aula Rapat Dinkominfo' ? 'selected' : '' }}>Aula Rapat Dinkominfo</option>
+                                        <option value="Ruang Pelatihan" {{ $agenda->lokasi === 'Ruang Pelatihan' ? 'selected' : '' }}>Ruang Pelatihan</option>
+                                        <option value="Smart Room Graha Satria" {{ $agenda->lokasi === 'Smart Room Graha Satria' ? 'selected' : '' }}>Smart Room Graha Satria</option>
                                     </select>
                                 </div>
 
                                 <div class="space-y-1">
                                     <label class="block text-xs font-bold text-[#5a508f] uppercase">Kategori <span class="text-rose-500">*</span></label>
                                     <select name="kategori" required class="w-full px-4 py-2.5 bg-[#f3f2fe] border border-[#d4d1f5] rounded-2xl text-[#2e2552] text-sm focus:outline-none">
+                                        <option value="" disabled {{ empty($agenda->kategori) ? 'selected' : '' }}>-- Pilih Kategori --</option>
                                         <option value="rapat" {{ $agenda->kategori === 'rapat' ? 'selected' : '' }}>Rapat</option>
                                         <option value="sosialisasi" {{ $agenda->kategori === 'sosialisasi' ? 'selected' : '' }}>Sosialisasi</option>
                                         <option value="pelatihan" {{ $agenda->kategori === 'pelatihan' ? 'selected' : '' }}>Pelatihan</option>
