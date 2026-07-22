@@ -441,7 +441,32 @@
                             @endif
                         </div>
                     @else
-                        @if($agenda->isPresensiExpired())
+                        @if($agenda->isPresensiNotStarted())
+                            <!-- KONDISI 1: Sebelum waktu mulai rapat -->
+                            <div class="bg-amber-50/70 border border-amber-200/80 rounded-2xl p-4 space-y-3">
+                                <div class="flex items-start gap-2.5">
+                                    <div class="p-1.5 bg-amber-100 text-amber-700 rounded-xl shrink-0">
+                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                                        </svg>
+                                    </div>
+                                    <div class="space-y-0.5 text-left">
+                                        <h4 class="text-[11px] font-bold text-amber-900 leading-tight">Absensi Belum Dibuka</h4>
+                                        <p class="text-[10px] text-amber-700/90 leading-relaxed font-medium">
+                                            Absensi dapat dilakukan saat rapat dimulai ({{ $agenda->tanggal ? $agenda->tanggal->translatedFormat('d F Y') : '' }} jam {{ substr($agenda->jam_mulai, 0, 5) }} WIB).
+                                        </p>
+                                    </div>
+                                </div>
+                                <div class="border-t border-amber-200/40"></div>
+                                <button disabled class="w-full py-3 bg-slate-100 border border-slate-200 text-slate-400 font-bold text-xs rounded-xl cursor-not-allowed flex items-center justify-center gap-2">
+                                    <svg class="w-4 h-4 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/>
+                                    </svg>
+                                    <span>Absensi Belum Dibuka</span>
+                                </button>
+                            </div>
+                        @elseif($agenda->isPresensiExpired())
+                            <!-- KONDISI 4: Lebih dari 1 jam setelah rapat selesai -->
                             <div class="bg-red-50/60 border border-red-200/80 rounded-2xl p-4 space-y-3">
                                 <div class="flex items-start gap-2.5">
                                     <div class="p-1 bg-red-100 text-red-600 rounded-lg shrink-0">
@@ -451,8 +476,8 @@
                                         </svg>
                                     </div>
                                     <div class="space-y-0.5 text-left">
-                                        <h4 class="text-[11px] font-bold text-red-800 leading-tight">Batas Waktu Presensi Berakhir</h4>
-                                        <p class="text-[10px] text-red-600/90 leading-relaxed font-medium">Pengisian presensi mandiri dibatasi maksimal 1 jam setelah rapat selesai.</p>
+                                        <h4 class="text-[11px] font-bold text-red-800 leading-tight">Absensi Telah Ditutup</h4>
+                                        <p class="text-[10px] text-red-600/90 leading-relaxed font-medium">Batas waktu pengisian presensi mandiri (1 jam setelah rapat selesai) telah berakhir.</p>
                                     </div>
                                 </div>
                                 <div class="border-t border-red-200/40"></div>
@@ -461,14 +486,38 @@
                                     <span class="text-[10px] font-black text-white bg-red-600 px-2.5 py-0.5 rounded-md">ALFA</span>
                                 </div>
                             </div>
-                        @else
+                        @elseif($agenda->isPresensiInGracePeriod())
+                            <!-- KONDISI 3: Setelah rapat selesai tetapi masih dalam toleransi 1 jam -->
                             <div class="space-y-3">
-                                <div class="p-3 bg-rose-50 border border-rose-200 rounded-2xl flex items-center justify-between text-xs">
+                                <div class="p-3 bg-amber-50 border border-amber-200/80 rounded-2xl space-y-1.5 text-xs">
+                                    <div class="flex items-center justify-between">
+                                        <span class="text-amber-900 font-bold flex items-center gap-1.5">
+                                            <span class="w-2 h-2 rounded-full bg-amber-500 animate-pulse"></span>
+                                            <span>Masa Toleransi Absensi</span>
+                                        </span>
+                                        <span class="px-2 py-0.5 rounded-lg bg-amber-100 text-amber-800 font-extrabold uppercase text-[9px] border border-amber-300">Toleransi 1 Jam</span>
+                                    </div>
+                                    <p class="text-[10px] text-amber-700 leading-relaxed font-medium">
+                                        Jadwal rapat telah selesai ({{ substr($agenda->jam_selesai, 0, 5) }} WIB). Anda masih dapat melakukan absensi hingga jam {{ \Carbon\Carbon::parse($agenda->tanggal->toDateString() . ' ' . $agenda->jam_selesai)->addHour()->format('H:i') }} WIB.
+                                    </p>
+                                </div>
+                                <button @click="openAbsenModal = true; initSignaturePad()" 
+                                        class="w-full py-3 bg-[#2e2552] hover:bg-[#3d326a] text-white font-bold text-xs rounded-xl shadow-lg transition-all flex items-center justify-center gap-2">
+                                    <span>Isi Presensi Kehadiran</span>
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
+                                    </svg>
+                                </button>
+                            </div>
+                        @else
+                            <!-- KONDISI 2: Berlangsung normal saat waktu rapat -->
+                            <div class="space-y-3">
+                                <div class="p-3 bg-emerald-50 border border-emerald-200 rounded-2xl flex items-center justify-between text-xs">
                                     <span class="text-[#5a508f] font-medium flex items-center gap-1.5">
-                                        <span class="w-2 h-2 rounded-full bg-rose-500 animate-pulse"></span>
+                                        <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
                                         <span>Status Kehadiran:</span>
                                     </span>
-                                    <span class="px-2.5 py-1 rounded-lg bg-rose-100 text-rose-700 font-extrabold uppercase text-[10px] border border-rose-300">Belum Absen</span>
+                                    <span class="px-2.5 py-1 rounded-lg bg-emerald-100 text-emerald-700 font-extrabold uppercase text-[10px] border border-emerald-300">Belum Absen</span>
                                 </div>
                                 <button @click="openAbsenModal = true; initSignaturePad()" 
                                         class="w-full py-3 bg-[#2e2552] hover:bg-[#3d326a] text-white font-bold text-xs rounded-xl shadow-lg transition-all flex items-center justify-center gap-2">

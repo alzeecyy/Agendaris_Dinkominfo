@@ -56,7 +56,36 @@ class Agenda extends Model
     }
 
     /**
-     * Check if the self-attendance filling period has expired (1 hour after jam_selesai).
+     * Check if presensi period has not started yet (before tanggal & jam_mulai).
+     */
+    public function isPresensiNotStarted(): bool
+    {
+        if (!$this->tanggal || !$this->jam_mulai) {
+            return false;
+        }
+
+        $startDateTime = \Carbon\Carbon::parse($this->tanggal->toDateString() . ' ' . $this->jam_mulai);
+        return now()->lessThan($startDateTime);
+    }
+
+    /**
+     * Check if the meeting is currently in grace period for attendance (within 1 hour after jam_selesai).
+     */
+    public function isPresensiInGracePeriod(): bool
+    {
+        if (!$this->tanggal || !$this->jam_selesai) {
+            return false;
+        }
+
+        $endDateTime = \Carbon\Carbon::parse($this->tanggal->toDateString() . ' ' . $this->jam_selesai);
+        $limitDateTime = $endDateTime->copy()->addHour();
+        $now = now();
+
+        return $now->greaterThan($endDateTime) && $now->lessThanOrEqualTo($limitDateTime);
+    }
+
+    /**
+     * Check if the self-attendance filling period has expired (more than 1 hour after jam_selesai).
      */
     public function isPresensiExpired(): bool
     {
@@ -65,8 +94,16 @@ class Agenda extends Model
         }
 
         $endDateTime = \Carbon\Carbon::parse($this->tanggal->toDateString() . ' ' . $this->jam_selesai);
-        $limitDateTime = $endDateTime->addHour();
+        $limitDateTime = $endDateTime->copy()->addHour();
 
         return now()->greaterThan($limitDateTime);
+    }
+
+    /**
+     * Check if attendance can currently be submitted by participant.
+     */
+    public function canPresensiBeFilled(): bool
+    {
+        return !$this->isPresensiNotStarted() && !$this->isPresensiExpired();
     }
 }
