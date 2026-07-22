@@ -3,20 +3,20 @@
 @section('title', 'Kelola Notulensi')
 
 @section('content')
-<div x-data="notulenEditor" class="space-y-6">
+<div x-data="notulenEditor" class="space-y-6 -mt-6">
     
     <!-- Top Header & Breadcrumbs -->
     <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-[#d4d1f5]/40 pb-4">
-        <div class="space-y-1">
+        <div>
             <a href="{{ route('agenda.show', $agenda->id) }}" 
-               class="inline-flex items-center gap-2 text-xs font-bold text-[#5a508f] hover:text-[#2e2552] transition-colors">
+               class="inline-flex items-center gap-2 text-xs font-bold text-[#5a508f] hover:text-[#2e2552] transition-colors -mt-2 mb-3">
                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 12H5m7 7l-7-7 7-7"></path>
                 </svg>
                 <span>Kembali ke Detail Agenda</span>
             </a>
             <h1 class="text-xl font-black text-[#2e2552]">Kelola Notulensi Rapat</h1>
-            <p class="text-xs text-[#5a508f] font-medium">Lengkapi informasi rapat, unggah rekaman suara, edit notulensi AI, lalu simpan atau ajukan ke pimpinan.</p>
+            <p class="text-xs text-[#5a508f] font-medium mt-1">Lengkapi informasi rapat, unggah rekaman suara, edit notulensi AI, lalu simpan atau ajukan ke pimpinan.</p>
         </div>
 
         <!-- Status Badge -->

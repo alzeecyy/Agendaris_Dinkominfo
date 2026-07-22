@@ -365,7 +365,7 @@ class="space-y-6">
                     <div class="space-y-1">
                         <label for="bidang_id" class="block text-xs font-bold text-[#5a508f] uppercase">Bidang Dinas</label>
                         <select name="bidang_id" id="bidang_id" class="w-full px-4 py-2.5 bg-[#f3f2fe] border border-[#d4d1f5] rounded-2xl text-[#2e2552] text-sm focus:outline-none">
-                            <option value="" disabled selected>-- Pilih Bidang --</option>
+                            <option value="" disabled selected>Pilih Bidang</option>
                             @foreach($bidangs as $bid)
                                 <option value="{{ $bid->id }}">{{ $bid->singkatan }}</option>
                             @endforeach
@@ -374,7 +374,7 @@ class="space-y-6">
                     <div class="space-y-1">
                         <label for="role" class="block text-xs font-bold text-[#5a508f] uppercase">Role Sistem <span class="text-rose-500">*</span></label>
                         <select name="role" id="role" required class="w-full px-4 py-2.5 bg-[#f3f2fe] border border-[#d4d1f5] rounded-2xl text-[#2e2552] text-sm focus:outline-none">
-                            <option value="" disabled selected>-- Pilih Role --</option>
+                            <option value="" disabled selected>Pilih Role</option>
                             <option value="staff">Staff</option>
                             <option value="sekretaris_bidang">Admin Bidang</option>
                             <option value="ketua_bidang">Ketua Bidang</option>
@@ -422,7 +422,7 @@ class="space-y-6">
                     <div class="space-y-1">
                         <label class="block text-xs font-bold text-[#5a508f] uppercase">Bidang Dinas</label>
                         <select name="bidang_id" x-model="editUser.bidang_id" class="w-full px-4 py-2.5 bg-[#f3f2fe] border border-[#d4d1f5] rounded-2xl text-[#2e2552] text-sm">
-                            <option value="" disabled>-- Pilih Bidang --</option>
+                            <option value="" disabled>Pilih Bidang</option>
                             @foreach($bidangs as $bid)
                                 <option value="{{ $bid->id }}">{{ $bid->singkatan }}</option>
                             @endforeach
@@ -431,7 +431,7 @@ class="space-y-6">
                     <div class="space-y-1">
                         <label class="block text-xs font-bold text-[#5a508f] uppercase">Role Sistem <span class="text-rose-500">*</span></label>
                         <select name="role" x-model="editUser.role" required class="w-full px-4 py-2.5 bg-[#f3f2fe] border border-[#d4d1f5] rounded-2xl text-[#2e2552] text-sm">
-                            <option value="" disabled>-- Pilih Role --</option>
+                            <option value="" disabled>Pilih Role</option>
                             <option value="staff">Staff</option>
                             <option value="sekretaris_bidang">Admin Bidang</option>
                             <option value="ketua_bidang">Ketua Bidang</option>
