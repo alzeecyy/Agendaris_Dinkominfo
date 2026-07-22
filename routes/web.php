@@ -74,6 +74,8 @@ Route::middleware(['auth'])->group(function () {
         // Notulensi Editing
         Route::get('/agenda/{agenda}/notulensi/edit', [NotulensiController::class, 'edit'])->name('notulensi.edit');
         Route::post('/agenda/{agenda}/notulensi/upload', [NotulensiController::class, 'uploadAudio'])->name('notulensi.upload');
+        Route::post('/agenda/{agenda}/notulensi/process-audio', [NotulensiController::class, 'processAudio'])->name('notulensi.process.audio');
+        Route::get('/agenda/{agenda}/notulensi/status', [NotulensiController::class, 'checkStatus'])->name('notulensi.status');
         Route::delete('/agenda/{agenda}/notulensi/audio/{index}', [NotulensiController::class, 'deleteAudio'])->name('notulensi.audio.delete');
         Route::post('/agenda/{agenda}/notulensi/save', [NotulensiController::class, 'saveDraft'])->name('notulensi.save');
         Route::post('/agenda/{agenda}/notulensi/submit', [NotulensiController::class, 'submitForReview'])->name('notulensi.submit');

@@ -88,14 +88,58 @@ class NotulensiController extends Controller
             'audio_name' => $file->getClientOriginalName(),
             'audio_files' => $audioFiles,
             'status' => 'draft',
-            'is_transcribing' => true,
-            'transkrip_error' => null, // Reset any previous error
+            'is_transcribing' => false, // Do not auto-transcribe immediately so user can upload more files
+            'transkrip_error' => null,
         ]);
 
-        // Dispatch background job for AI transcription for the specific file
+        return back()->with('success', 'Berkas audio berhasil diunggah (' . count($audioFiles) . '/3). Silakan tambah berkas audio lain atau tekan tombol "Proses Transkripsi AI" saat siap.');
+    }
+
+    /**
+     * Trigger AI audio transcription process manually.
+     */
+    public function processAudio(Agenda $agenda)
+    {
+        $user = Auth::user();
+
+        if (!$user->isSecretaryOfAgenda($agenda)) {
+            return back()->with('error', 'Anda tidak memiliki wewenang untuk memproses audio.');
+        }
+
+        $notulensi = $agenda->notulensi;
+        if (!$notulensi || empty($notulensi->audio_files)) {
+            return back()->with('error', 'Silakan unggah minimal 1 berkas audio rapat terlebih dahulu.');
+        }
+
+        // Set is_transcribing to true
+        $notulensi->update([
+            'is_transcribing' => true,
+            'transkrip_error' => null,
+        ]);
+
+        // Dispatch background job for AI transcription
+        $audioFiles = $notulensi->audio_files ?? [];
+        $lastFile = !empty($audioFiles) ? end($audioFiles) : null;
+        $path = is_array($lastFile) ? ($lastFile['path'] ?? $notulensi->audio_path) : $notulensi->audio_path;
+
         ProcessMeetingAudio::dispatch($notulensi, $user->id, $path);
 
-        return back()->with('success', 'Berkas audio berhasil diunggah. AI sedang melakukan analisis transkripsi rapat di latar belakang.');
+        return back()->with('success', 'Proses transkripsi AI telah dimulai. Mohon tunggu sejenak...');
+    }
+
+    /**
+     * Check current transcription status via AJAX (no page refresh lag).
+     */
+    public function checkStatus(Agenda $agenda)
+    {
+        $notulensi = $agenda->notulensi;
+        return response()->json([
+            'is_transcribing' => $notulensi ? (bool)$notulensi->is_transcribing : false,
+            'transkrip_error' => $notulensi->transkrip_error ?? null,
+            'has_transcript' => !empty($notulensi->transkrip_raw),
+        ])->header('Cache-Control', 'no-cache, no-store, must-revalidate, max-age=0')
+          ->header('Pragma', 'no-cache')
+          ->header('Expires', 'Sat, 01 Jan 2000 00:00:00 GMT');
     }
 
     /**
@@ -595,56 +639,24 @@ class NotulensiController extends Controller
                         [
                             'parts' => [
                                 [
-                                     'text' => "Anda adalah editor profesional yang bertugas merapikan hasil transkrip rapat menjadi dokumen yang mudah dibaca.\n\n" .
-                                               "Ikuti seluruh instruksi berikut tanpa terkecuali.\n\n" .
-                                               "TUJUAN\n" .
-                                               "Menghasilkan transkrip rapat yang rapi, akurat, dan mempertahankan seluruh informasi yang disampaikan narasumber.\n\n" .
-                                               "PRIORITAS UTAMA\n" .
-                                               "Jika terjadi konflik antara \"membuat kalimat lebih natural\" dan \"akurasi terhadap isi asli\", akurasi harus selalu diutamakan. Lebih baik menandai [tidak jelas] daripada mengarang atau memaksakan kalimat yang tidak sesuai dengan apa yang sebenarnya diucapkan.\n\n" .
-                                               "ATURAN\n" .
-                                               "1. Jangan menambahkan informasi, opini, atau kesimpulan yang tidak terdapat pada transkrip.\n" .
-                                               "2. Jangan menghapus informasi penting.\n" .
-                                               "3. Hilangkan kata, frasa, atau kalimat yang berulang akibat kesalahan transkrip.\n" .
-                                               "4. Perbaiki ejaan, tata bahasa, tanda baca, serta susunan kalimat agar lebih natural.\n" .
-                                               "5. Pertahankan makna asli dari setiap pembicara.\n" .
-                                               "6. Jika terdapat bagian yang benar-benar tidak dapat dipahami, tuliskan [tidak jelas].\n" .
-                                               "7. Pertahankan nama orang, nama organisasi, nama program kerja, jabatan, lokasi, tanggal, angka, dan istilah penting.\n" .
-                                               "8. Hilangkan filler words (eee, anu, kayak, jadi gini, dsb.) yang tidak mengandung informasi.\n" .
-                                               "9. Jika kalimat pembicara terpotong/menggantung, rapikan menjadi kalimat utuh selama maknanya tidak berubah; jika maknanya tidak bisa disimpulkan, biarkan apa adanya.\n\n" .
-                                               "LARANGAN TAMBAHAN\n" .
-                                               "- Dilarang keras mengarang nama, gelar, jabatan, atau struktur field (misalnya label \"Tugas Pertama\", \"Sebelum Sekolah\", dsb.) yang tidak secara eksplisit disebutkan dalam transkrip asli.\n" .
-                                               "- Jika transkrip tidak menyebutkan nama pembicara secara eksplisit, gunakan deskripsi peran (misal \"Narasumber\", \"Pewawancara\") — jangan mengarang nama.\n" .
-                                               "- Sebelum memformat sebagai dialog berlabel banyak pembicara, identifikasi dulu apakah transkrip ini benar-benar multi-speaker atau hanya satu narasumber yang diwawancarai/ditanya beberapa pertanyaan.\n" .
-                                               "- Dilarang membuat kalimat yang secara gramatikal maupun logis tidak masuk akal hanya demi merapikan format.\n" .
-                                               "- Jika satu bagian transkrip terlalu rusak/tidak jelas untuk direkonstruksi dengan akurat, tandai bagian tersebut dengan [tidak jelas] daripada menciptakan kalimat baru.\n\n" .
-                                               "LARANGAN FORMAT\n" .
-                                               "- Dilarang mengubah transkrip naratif/monolog menjadi format tanya-jawab buatan (misal \"Apakah Anda tahu apa itu X?\") jika format tersebut tidak eksplisit ada dalam transkrip asli.\n" .
-                                               "- Ikuti struktur asli transkrip: jika berupa narasi/penjelasan mengalir dari satu narasumber, sajikan sebagai narasi terstruktur per topik (bukan Q&A buatan).\n" .
-                                               "- Jika transkrip memang berbentuk tanya-jawab (ada pewawancara bertanya secara eksplisit), gunakan Q&A HANYA untuk pertanyaan yang benar-benar diajukan, satu kali per pertanyaan — jangan mengulang entri yang sama.\n" .
-                                               "- Dilarang mengulang paragraf, poin, atau entri yang identik lebih dari satu kali dalam output akhir.\n\n" .
-                                               "PEMERIKSAAN KONSISTENSI\n" .
-                                               "Setelah seluruh transkrip selesai dirapikan, lakukan pemeriksaan ulang terhadap seluruh dokumen dari awal hingga akhir.\n\n" .
-                                               "- Identifikasi seluruh nama orang.\n" .
-                                               "- Identifikasi seluruh nama organisasi.\n" .
-                                               "- Identifikasi seluruh nama divisi.\n" .
-                                               "- Identifikasi seluruh nama program kerja.\n" .
-                                               "- Identifikasi seluruh singkatan.\n" .
-                                               "- Identifikasi seluruh istilah khusus.\n\n" .
-                                               "Apabila ditemukan beberapa penulisan berbeda yang mengacu pada entitas yang sama (typo, salah eja, hasil speech-to-text), ubah SEMUA kemunculannya menjadi SATU bentuk penulisan yang konsisten. Gunakan versi yang paling sering muncul atau versi baku/resmi jika diketahui. Jangan hanya memperbaiki kemunculan pertama — pastikan seluruh kemunculan telah diperbaiki.\n\n" .
-                                               "FORMAT PENULISAN (Markdown)\n" .
-                                               "Gunakan format markdown berikut agar struktur dokumen terbaca jelas saat dikonversi ke PDF:\n" .
-                                               "- Judul dokumen: gunakan # (contoh: # Notulensi Rapat [Nama Rapat])\n" .
-                                               "- Sub-bagian (misal: Informasi Rapat, Pembahasan, Kesimpulan): gunakan ##\n" .
-                                               "- Penomoran poin: gunakan angka langsung tanpa tanda strip di depannya (contoh: 1. Perencanaan Aplikasi, 2. Rapat Koordinasi)\n" .
-                                               "- Sub-detail (Isi, Penjelasan, Catatan): tulis langsung nama label diikuti titik dua tanpa tanda strip di depannya (contoh: Isi: ..., Penjelasan: ...)\n" .
-                                               "- Jangan gunakan format lain di luar markdown standar (tanpa HTML, tanpa tabel kompleks kecuali diminta)\n\n" .
-                                               "OUTPUT\n" .
-                                               "Berikan hanya hasil transkrip yang sudah dirapikan dalam format markdown, tanpa penjelasan tambahan.\n\n" .
-                                               "Sebelum menghasilkan jawaban akhir, lakukan validasi akhir terhadap seluruh dokumen:\n" .
-                                               "1. Pastikan tidak ada nama, gelar, atau struktur field yang dikarang dan tidak ada di transkrip asli.\n" .
-                                               "2. Pastikan tidak ada lagi istilah yang memiliki lebih dari satu variasi penulisan apabila sebenarnya mengacu pada entitas yang sama.\n" .
-                                               "3. Pastikan struktur markdown (judul, sub-judul, bold) sudah konsisten dari awal hingga akhir dokumen.\n\n" .
-                                               "Berikut transkrip:\n\n" . $transcript
+                                     'text' => "Anda adalah Sekretaris Profesional & Notulis Rapat Senior. Tugas Anda adalah menganalisis teks transkrip percakapan rapat berikut dan menyusun RINGKASAN & NOTULENSI RAPAT yang sangat rapi, terstruktur, profesional, dan mudah dipahami.\n\n" .
+                                               "STRUKTUR OUTPUT MARKDOWN MANDATORI:\n\n" .
+                                               "### 📌 RINGKASAN EKSEKUTIF RAPAT\n" .
+                                               "[Tuliskan 1-2 paragraf ringkasan eksekutif yang merangkum keseluruhan isi pembicaraan rapat secara padat, jelas, dan profesional]\n\n" .
+                                               "### 💡 POIN-POIN PEMBAHASAN UTAMA\n" .
+                                               "1. **[Judul Topik/Bahasan Utama]**\n" .
+                                               "   - Rincian pembahasan dan penjelasan yang disampaikan narasumber/peserta.\n" .
+                                               "2. **[Judul Topik/Bahasan Selanjutnya]**\n" .
+                                               "   - Rincian pembahasan dan penjelasan lanjutan.\n\n" .
+                                               "### 📝 KEPUTUSAN & TINDAK LANJUT\n" .
+                                               "1. **[Keputusan/Kesepakatan Pertama]**: Penjelasan rincian keputusan atau langkah konkret yang disepakati.\n" .
+                                               "2. **[Tindak Lanjut]**: Rencana penanganan atau tugas kelanjutan setelah rapat.\n\n" .
+                                               "ATURAN PENULISAN:\n" .
+                                               "- Gunakan bahasa Indonesia baku yang formal dan mudah dipahami.\n" .
+                                               "- Ekstrak seluruh poin penting dari SELURUH bagian transkrip.\n" .
+                                               "- Jangan membuat informasi fiktif di luar transkrip asli.\n" .
+                                               "- Tuliskan jawaban LANGSUNG dalam format markdown sesuai struktur di atas tanpa kata pengantar tambahan.\n\n" .
+                                               "Berikut teks transkrip percakapan rapat:\n\n" . $transcript
                                 ]
                             ]
                         ]

@@ -77,7 +77,7 @@ try:
     # Use fewer threads to reduce memory pressure
     # Use beam search (default bs=5) for better accuracy - do NOT use bs=1 (greedy, very inaccurate)
     # -ng: no GPU, -nfa: no flash attention, -l id: Indonesian language
-    cpu_threads = str(min(4, os.cpu_count() or 2))
+    cpu_threads = str(max(4, (os.cpu_count() or 4) - 2))
     cmd = [
         main_exe,
         "-m", model_bin,

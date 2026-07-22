@@ -449,9 +449,6 @@
                 <h3 id="heavy-loading-title" class="text-base font-extrabold text-[#09103c]">Memproses...</h3>
                 <p id="heavy-loading-message" class="text-xs text-slate-500 font-medium">Mohon tunggu sejenak...</p>
             </div>
-            <div class="w-full bg-slate-100 rounded-full h-1.5 overflow-hidden">
-                <div class="bg-gradient-to-r from-[#1b3bbb] to-blue-400 h-full w-full animate-pulse"></div>
-            </div>
         </div>
     </div>
 
