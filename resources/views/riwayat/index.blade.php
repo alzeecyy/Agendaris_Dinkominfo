@@ -145,7 +145,7 @@ class="space-y-6">
             <div>
                 <select x-model="filterKategori" 
                         class="w-full px-4 py-2.5 bg-[#f3f2fe] border border-[#d4d1f5] rounded-2xl text-xs text-[#2e2552] focus:outline-none">
-                    <option value="">-- Semua Kategori --</option>
+                    <option value="">Semua Kategori</option>
                     <option value="rapat">Rapat</option>
                     <option value="sosialisasi">Sosialisasi</option>
                     <option value="pelatihan">Pelatihan</option>
@@ -163,7 +163,7 @@ class="space-y-6">
             <div>
                 <select x-model="filterStatus" 
                         class="w-full px-4 py-2.5 bg-[#f3f2fe] border border-[#d4d1f5] rounded-2xl text-xs text-[#2e2552] focus:outline-none">
-                    <option value="">-- Semua Kehadiran --</option>
+                    <option value="">Semua Kehadiran</option>
                     <option value="hadir">Hadir</option>
                     <option value="izin">Izin</option>
                     <option value="sakit">Sakit</option>

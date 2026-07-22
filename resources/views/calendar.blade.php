@@ -490,7 +490,7 @@
                         <label for="tempat" class="block text-xs font-bold text-[#5a508f] uppercase">Tempat / Ruangan <span class="text-rose-500">*</span></label>
                         <select id="tempat" name="lokasi" required
                                 class="w-full px-4 py-2.5 bg-[#f3f2fe] border border-[#d4d1f5] rounded-2xl text-[#2e2552] text-sm focus:outline-none focus:ring-2 focus:ring-[#8e88dd]">
-                            <option value="" disabled selected>-- Pilih Lokasi / Ruangan --</option>
+                            <option value="" disabled selected>Pilih Lokasi / Ruangan</option>
                             <option value="Aula Rapat Dinkominfo">Aula Rapat Dinkominfo</option>
                             <option value="Ruang Pelatihan">Ruang Pelatihan</option>
                             <option value="Smart Room Graha Satria">Smart Room Graha Satria</option>
@@ -501,7 +501,7 @@
                         <label for="kategori" class="block text-xs font-bold text-[#5a508f] uppercase">Kategori <span class="text-rose-500">*</span></label>
                         <select name="kategori" id="kategori" required x-model="kategori"
                                 class="w-full px-4 py-2.5 bg-[#f3f2fe] border border-[#d4d1f5] rounded-2xl text-[#2e2552] text-sm focus:outline-none focus:ring-2 focus:ring-[#8e88dd]">
-                            <option value="" disabled selected>-- Pilih Kategori --</option>
+                            <option value="" disabled selected>Pilih Kategori</option>
                             <option value="rapat">Rapat</option>
                             <option value="sosialisasi">Sosialisasi</option>
                             <option value="pelatihan">Pelatihan</option>

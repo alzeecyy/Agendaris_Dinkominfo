@@ -195,7 +195,7 @@
                                     <label for="tempat_edit" class="block text-xs font-bold text-[#5a508f] uppercase">Tempat / Ruangan <span class="text-rose-500">*</span></label>
                                     <select id="tempat_edit" name="lokasi" required
                                             class="w-full px-4 py-2.5 bg-[#f3f2fe] border border-[#d4d1f5] rounded-2xl text-[#2e2552] text-sm focus:outline-none">
-                                        <option value="" disabled {{ empty($agenda->lokasi) ? 'selected' : '' }}>-- Pilih Lokasi / Ruangan --</option>
+                                        <option value="" disabled {{ empty($agenda->lokasi) ? 'selected' : '' }}>Pilih Lokasi / Ruangan</option>
                                         <option value="Aula Rapat Dinkominfo" {{ $agenda->lokasi === 'Aula Rapat Dinkominfo' ? 'selected' : '' }}>Aula Rapat Dinkominfo</option>
                                         <option value="Ruang Pelatihan" {{ $agenda->lokasi === 'Ruang Pelatihan' ? 'selected' : '' }}>Ruang Pelatihan</option>
                                         <option value="Smart Room Graha Satria" {{ $agenda->lokasi === 'Smart Room Graha Satria' ? 'selected' : '' }}>Smart Room Graha Satria</option>
@@ -205,7 +205,7 @@
                                 <div class="space-y-1">
                                     <label class="block text-xs font-bold text-[#5a508f] uppercase">Kategori <span class="text-rose-500">*</span></label>
                                     <select name="kategori" required class="w-full px-4 py-2.5 bg-[#f3f2fe] border border-[#d4d1f5] rounded-2xl text-[#2e2552] text-sm focus:outline-none">
-                                        <option value="" disabled {{ empty($agenda->kategori) ? 'selected' : '' }}>-- Pilih Kategori --</option>
+                                        <option value="" disabled {{ empty($agenda->kategori) ? 'selected' : '' }}>Pilih Kategori</option>
                                         <option value="rapat" {{ $agenda->kategori === 'rapat' ? 'selected' : '' }}>Rapat</option>
                                         <option value="sosialisasi" {{ $agenda->kategori === 'sosialisasi' ? 'selected' : '' }}>Sosialisasi</option>
                                         <option value="pelatihan" {{ $agenda->kategori === 'pelatihan' ? 'selected' : '' }}>Pelatihan</option>
