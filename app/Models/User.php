@@ -83,6 +83,18 @@ class User extends Authenticatable
         return $this->role === 'staff';
     }
 
+    public function isSekretariat(): bool
+    {
+        if (!$this->bidang_id) {
+            return false;
+        }
+
+        return $this->bidang && (
+            strcasecmp($this->bidang->singkatan, 'sekretariat') === 0 || 
+            strcasecmp($this->bidang->nama, 'sekretariat') === 0
+        );
+    }
+
     /**
      * Checks if this user has access to view/participate in an agenda.
      */
@@ -92,8 +104,8 @@ class User extends Authenticatable
             return false; // Admins don't participate in agendas or view their content
         }
 
-        if ($this->isSekretarisMaster() || $this->isKetuaMaster()) {
-            return true; // Masters can view all agendas
+        if ($this->isSekretarisMaster() || $this->isKetuaMaster() || $this->isSekretariat()) {
+            return true; // Masters & Sekretariat staff can view all agendas across all bidangs
         }
 
         // For Bidang roles & Staff:
@@ -115,8 +127,8 @@ class User extends Authenticatable
             return false;
         }
 
-        // Master secretary has full rights
-        if ($this->isSekretarisMaster()) {
+        // Master secretary or Sekretariat staff has full management rights for any agenda (backup Sekdin)
+        if ($this->isSekretarisMaster() || $this->isSekretariat()) {
             return true;
         }
 

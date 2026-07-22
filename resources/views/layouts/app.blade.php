@@ -292,7 +292,7 @@
                             <span>Kalender Rinci</span>
                         </a>
 
-                        @if(Auth::user()->isSekretarisMaster() || Auth::user()->isSekretarisBidang())
+                        @if(Auth::user()->isSekretarisMaster() || Auth::user()->isSekretarisBidang() || Auth::user()->isSekretariat())
                             <!-- Tambah Agenda Link (Sekretaris Only - Shortcut to Open Add Agenda Modal) -->
                             <a href="{{ route('calendar', ['open_add' => 1]) }}" 
                                class="flex items-center gap-3 px-4 py-3 rounded-2xl font-bold text-xs transition-all duration-200 

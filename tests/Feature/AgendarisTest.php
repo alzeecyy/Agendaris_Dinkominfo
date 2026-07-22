@@ -259,9 +259,9 @@ class AgendarisTest extends TestCase
         // Create an agenda requiring presence
         $agenda = Agenda::create([
             'judul' => 'Rapat Rutin',
-            'tanggal' => '2026-07-15',
+            'tanggal' => \Carbon\Carbon::today()->toDateString(),
             'jam_mulai' => '09:00',
-            'jam_selesai' => '10:30',
+            'jam_selesai' => '23:30',
             'lokasi' => 'Aula',
             'kategori' => 'rapat',
             'hak_akses' => ['semua_orang'],
@@ -312,5 +312,51 @@ class AgendarisTest extends TestCase
             $response = $this->actingAs($user)->get('/calendar');
             $response->assertStatus(200);
         }
+    }
+
+    /**
+     * Test staff in Bidang Sekretariat has cross-bidang agenda access.
+     */
+    public function test_sekretariat_staff_has_cross_bidang_agenda_access(): void
+    {
+        $sekretariat = Bidang::create([
+            'nama' => 'Sekretariat',
+            'singkatan' => 'Sekretariat'
+        ]);
+
+        $staffSekretariat = User::create([
+            'name' => 'Staff Sekretariat',
+            'nip' => 'staff.sekretariat',
+            'jabatan' => 'Staff Sekretariat',
+            'bidang_id' => $sekretariat->id,
+            'role' => 'staff',
+            'password' => Hash::make('password'),
+            'must_change_password' => false,
+            'active' => true,
+        ]);
+
+        // Create an agenda restricted to Aptika bidang only
+        $agendaAptika = Agenda::create([
+            'judul' => 'Rapat Rintisan Aptika',
+            'tanggal' => '2026-07-25',
+            'jam_mulai' => '09:00',
+            'jam_selesai' => '10:00',
+            'lokasi' => 'Ruang Aptika',
+            'kategori' => 'rapat',
+            'hak_akses' => [(string)$this->bidangAptika->id],
+            'butuh_presensi' => true,
+            'sekretaris_id' => $this->sekretarisAptika->id,
+        ]);
+
+        // Staff Sekretariat should have access to Aptika agenda
+        $this->assertTrue($staffSekretariat->hasAccessToAgenda($agendaAptika));
+
+        // Staff Sekretariat can view detail agenda page for Aptika agenda
+        $response = $this->actingAs($staffSekretariat)->get("/agenda/{$agendaAptika->id}");
+        $response->assertStatus(200);
+
+        // Staff Sekretariat can access notulensi edit page for Aptika agenda
+        $response = $this->actingAs($staffSekretariat)->get("/agenda/{$agendaAptika->id}/notulensi/edit");
+        $response->assertStatus(200);
     }
 }

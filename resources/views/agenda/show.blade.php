@@ -103,7 +103,7 @@
             this.signatureData = '';
         }
     }
-}" data-participants='@json(Auth::user()->role === "staff" ? [] : $participants)' class="space-y-6">
+}" data-participants='@json((Auth::user()->role === "staff" && !Auth::user()->isSekretariat()) ? [] : $participants)' class="space-y-6">
     
     <!-- Breadcrumbs / Back button -->
     <div class="flex items-center justify-between">
@@ -591,11 +591,11 @@
     </div>
 
     <!-- BOTTOM SECTION: Rekap Kehadiran (kiri) + Koreksi Presensi (kanan) -->
-    @if($agenda->butuh_presensi && ($isSecretaryOfAgenda || Auth::user()->role !== 'staff'))
+    @if($agenda->butuh_presensi && ($isSecretaryOfAgenda || Auth::user()->role !== 'staff' || Auth::user()->isSekretariat()))
         <div class="grid grid-cols-1 xl:grid-cols-2 gap-6 items-stretch">
 
             <!-- Kiri: Rekap Kehadiran Bidang -->
-            @if(Auth::user()->role !== 'staff')
+            @if(Auth::user()->role !== 'staff' || Auth::user()->isSekretariat())
                 <div class="bg-white border border-[#d4d1f5]/60 rounded-[32px] p-6 shadow-sm space-y-4 h-full">
                     <h3 class="text-xs font-bold uppercase tracking-wider text-[#2e2552]">Rekap Kehadiran Bidang</h3>
                     <div class="space-y-3">
@@ -696,7 +696,7 @@
     @endif
 
     <!-- DETAIL MODAL FOR ATTENDEES TABLE -->
-    @if(Auth::user()->role !== 'staff')
+    @if(Auth::user()->role !== 'staff' || Auth::user()->isSekretariat())
     <div x-show="openDetailModal" x-cloak class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/50 backdrop-blur-sm">
         <div @click.away="openDetailModal = false" class="bg-white border border-[#d4d1f5]/60 rounded-3xl w-full max-w-2xl shadow-2xl overflow-hidden relative text-[#2e2552]">
             <div class="absolute top-0 left-0 w-full h-[2px] bg-[#2e2552]"></div>
@@ -960,7 +960,7 @@
                 signaturePad: null,
                 selectedBidangName: '',
                 detailParticipants: [],
-                allParticipants: @json(Auth::user()->role === 'staff' ? [] : $participants),
+                allParticipants: @json((Auth::user()->role === 'staff' && !Auth::user()->isSekretariat()) ? [] : $participants),
                 init() {
                     this.$watch('status', value => {
                         if (value === 'hadir') {

@@ -157,8 +157,8 @@
                 @endforelse
             </div>
 
-            <!-- Quick Add Agenda Button (Secretaries only) -->
-            @if(Auth::user()->isSekretarisMaster() || Auth::user()->isSekretarisBidang())
+            <!-- Quick Add Agenda Button (Secretaries & Sekretariat staff) -->
+            @if(Auth::user()->isSekretarisMaster() || Auth::user()->isSekretarisBidang() || Auth::user()->isSekretariat())
                 <button @click="openAddModal = true; selectedDate = '{{ $selectedDate->toDateString() }}'; selectedTime = '07:15'" 
                         class="w-full py-3 bg-[#2e2552] hover:bg-[#3d326a] active:scale-[0.98] text-white font-bold rounded-2xl text-xs transition-all duration-200 shadow-md shadow-[#2e2552]/20 flex items-center justify-center gap-2">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">

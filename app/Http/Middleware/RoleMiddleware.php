@@ -25,6 +25,11 @@ class RoleMiddleware
             return $next($request);
         }
 
+        // Staff in Bidang Sekretariat can backup Sekretaris Master / Sekretaris actions
+        if ($user->isSekretariat() && (in_array('sekretaris_master', $roles) || in_array('sekretaris_bidang', $roles))) {
+            return $next($request);
+        }
+
         abort(403, 'Akses ditolak. Anda tidak memiliki wewenang untuk membuka halaman ini.');
     }
 }

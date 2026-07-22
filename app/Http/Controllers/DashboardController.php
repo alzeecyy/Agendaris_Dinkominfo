@@ -102,7 +102,7 @@ class DashboardController extends Controller
         $links = [];
         $todayStr = Carbon::today()->toDateString();
 
-        if ($user->role === 'staff') {
+        if ($user->role === 'staff' && !$user->isSekretariat()) {
             // Staff KPI 1: Accessible Agendas this week
             $startOfWeek = Carbon::today()->startOfWeek(Carbon::MONDAY);
             $endOfWeek = Carbon::today()->endOfWeek(Carbon::SUNDAY);
@@ -202,7 +202,7 @@ class DashboardController extends Controller
                 ];
             }
 
-        } elseif ($user->role === 'sekretaris_master') {
+        } elseif ($user->role === 'sekretaris_master' || $user->isSekretariat()) {
             // Sekre Master KPI 1: All bidangs agendas this month
             $kpi['master_month_agendas'] = Agenda::whereMonth('tanggal', $selectedMonth->month)
                 ->whereYear('tanggal', $selectedMonth->year)
@@ -436,8 +436,8 @@ class DashboardController extends Controller
             if ($a->tanggal !== $todayStr) {
                 return false;
             }
-            // Masters (sekretaris_master, ketua_master) can see all agendas regardless of bidang_id
-            if ($user->isSekretarisMaster() || $user->isKetuaMaster()) {
+            // Masters (sekretaris_master, ketua_master) and Sekretariat staff can see all agendas regardless of bidang_id
+            if ($user->isSekretarisMaster() || $user->isKetuaMaster() || $user->isSekretariat()) {
                 return true;
             }
             // Bidang-level roles: filter by their own bidang or semua_orang
