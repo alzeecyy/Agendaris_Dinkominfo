@@ -103,13 +103,13 @@
 }" data-participants='@json($participants)' class="space-y-6">
     
     <!-- Breadcrumbs / Back button -->
-    <div class="flex items-center justify-between">
+    <div class="flex items-center justify-between gap-2">
         <a href="{{ route('calendar', ['date' => $agenda->tanggal->toDateString()]) }}" 
-           class="inline-flex items-center gap-2 text-xs font-bold text-[#5a508f] hover:text-[#2e2552] transition-colors">
-            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+           class="inline-flex items-center gap-1.5 text-[11px] sm:text-xs font-bold text-[#5a508f] hover:text-[#2e2552] transition-colors min-w-0">
+            <svg class="w-3.5 h-3.5 sm:w-4 sm:h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 12H5m7 7l-7-7 7-7"></path>
             </svg>
-            <span>Kembali ke Kalender Rinci</span>
+            <span class="truncate">Kembali ke Kalender Rinci</span>
         </a>
         
         @if($isSecretaryOfAgenda)
@@ -122,15 +122,15 @@
                     return this.tempat === 'Lainnya' ? this.tempatLainnya : this.tempat;
                 }
             }">
-                <div class="flex items-center gap-2">
+                <div class="flex items-center gap-1.5 sm:gap-2">
                     <button @click="openEditModal = true" 
-                            class="px-4 py-2 bg-white border border-[#d4d1f5] hover:bg-[#8e88dd]/15 text-xs font-bold text-[#2e2552] rounded-xl transition-all shadow-sm">
+                            class="px-2.5 py-1.5 sm:px-4 sm:py-2 bg-white border border-[#d4d1f5] hover:bg-[#8e88dd]/15 text-[11px] sm:text-xs font-bold text-[#2e2552] rounded-xl transition-all shadow-sm shrink-0">
                         Edit Agenda
                     </button>
                     <form action="{{ route('agenda.destroy', $agenda->id) }}" method="POST" data-confirm="Apakah Anda yakin ingin menghapus agenda ini beserta seluruh presensi/notulensinya?">
                         @csrf
                         @method('DELETE')
-                        <button type="submit" class="px-4 py-2 bg-rose-50 hover:bg-rose-100 text-rose-600 border border-rose-200 text-xs font-bold rounded-xl transition-all shadow-sm">
+                        <button type="submit" class="px-2.5 py-1.5 sm:px-4 sm:py-2 bg-rose-50 hover:bg-rose-100 text-rose-600 border border-rose-200 text-[11px] sm:text-xs font-bold rounded-xl transition-all shadow-sm shrink-0">
                             Hapus Agenda
                         </button>
                     </form>
@@ -307,12 +307,12 @@
     </div>
 
     <!-- TOP GRID: Card Rapat (Left) vs Absensi/Notulensi/Rekap (Right) -->
-    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 items-stretch">
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-3.5 sm:gap-6 items-stretch">
         
         <!-- Left Column: Info Detail Agenda -->
-        <div class="space-y-6 min-w-0 flex flex-col">
-            <div class="bg-white border border-[#d4d1f5]/60 rounded-[32px] p-6 md:p-8 shadow-sm space-y-6 h-full flex flex-col justify-between">
-                <div class="space-y-6">
+        <div class="space-y-2.5 sm:space-y-6 min-w-0 flex flex-col">
+            <div class="bg-white border border-[#d4d1f5]/60 rounded-xl md:rounded-[32px] p-2.5 sm:p-6 md:p-8 shadow-sm space-y-2.5 sm:space-y-6 h-full flex flex-col justify-between">
+                <div class="space-y-2.5 sm:space-y-6">
                     <!-- Category badge -->
                     <div class="flex items-center justify-between">
                         @php
@@ -329,53 +329,53 @@
                                 'kegiatan_lainnya' => 'Kegiatan Lainnya',
                             ];
                         @endphp
-                        <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-bold border 
+                        <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[9px] sm:text-xs font-bold border 
                             {{ $badgeStyles[$agenda->kategori] ?? 'bg-slate-100 text-slate-700 border-slate-200' }}">
                             {{ $kategoriLabels[$agenda->kategori] ?? $agenda->kategori }}
                         </span>
-                        <span class="text-xs text-[#5a508f]">Dibuat oleh: <strong class="text-[#2e2552]">{{ $agenda->sekretaris->name }}</strong></span>
+                        <span class="text-[9.5px] sm:text-xs text-[#5a508f]">Dibuat oleh: <strong class="text-[#2e2552]">{{ $agenda->sekretaris->name }}</strong></span>
                     </div>
 
-                    <div class="space-y-2">
-                        <h1 class="text-2xl font-black text-[#2e2552] tracking-wide leading-snug">{{ $agenda->judul }}</h1>
-                        <p class="text-xs text-[#5a508f] leading-relaxed">{{ $agenda->deskripsi ?? 'Tidak ada deskripsi tambahan.' }}</p>
+                    <div class="space-y-1 sm:space-y-2">
+                        <h1 class="text-sm sm:text-2xl font-black text-[#2e2552] tracking-wide leading-snug">{{ $agenda->judul }}</h1>
+                        <p class="text-[10px] sm:text-xs text-[#5a508f] leading-relaxed">{{ $agenda->deskripsi ?? 'Tidak ada deskripsi tambahan.' }}</p>
                     </div>
 
-                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 py-4 border-t border-b border-[#d4d1f5]/40 text-sm">
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-2 sm:gap-4 py-2 sm:py-4 border-t border-b border-[#d4d1f5]/40 text-xs">
                         <!-- Tanggal -->
-                        <div class="flex items-center gap-3">
-                            <div class="p-2.5 bg-[#f3f2fe] border border-[#d4d1f5] rounded-2xl text-[#2e2552]">
-                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <div class="flex items-center gap-2 sm:gap-3">
+                            <div class="p-1.5 sm:p-2.5 bg-[#f3f2fe] border border-[#d4d1f5] rounded-lg sm:rounded-2xl text-[#2e2552] shrink-0">
+                                <svg class="w-3.5 h-3.5 sm:w-5 sm:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
                                 </svg>
                             </div>
                             <div>
-                                <p class="text-[10px] text-[#8e88dd] uppercase font-bold">Tanggal</p>
-                                <p class="text-xs font-bold text-[#2e2552] mt-0.5">{{ $agenda->tanggal->translatedFormat('d F Y') }}</p>
+                                <p class="text-[8.5px] sm:text-[10px] text-[#8e88dd] uppercase font-bold">Tanggal</p>
+                                <p class="text-[10.5px] sm:text-xs font-bold text-[#2e2552] mt-0.5">{{ $agenda->tanggal->translatedFormat('d F Y') }}</p>
                             </div>
                         </div>
                         <!-- Jam -->
-                        <div class="flex items-center gap-3">
-                            <div class="p-2.5 bg-[#f3f2fe] border border-[#d4d1f5] rounded-2xl text-[#2e2552]">
-                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <div class="flex items-center gap-2 sm:gap-3">
+                            <div class="p-1.5 sm:p-2.5 bg-[#f3f2fe] border border-[#d4d1f5] rounded-lg sm:rounded-2xl text-[#2e2552] shrink-0">
+                                <svg class="w-3.5 h-3.5 sm:w-5 sm:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
                                 </svg>
                             </div>
                             <div>
-                                <p class="text-[10px] text-[#8e88dd] uppercase font-bold">Waktu</p>
-                                <p class="text-xs font-bold text-[#2e2552] mt-0.5">{{ substr($agenda->jam_mulai, 0, 5) }} - {{ substr($agenda->jam_selesai, 0, 5) }} WIB</p>
+                                <p class="text-[8.5px] sm:text-[10px] text-[#8e88dd] uppercase font-bold">Waktu</p>
+                                <p class="text-[10.5px] sm:text-xs font-bold text-[#2e2552] mt-0.5">{{ substr($agenda->jam_mulai, 0, 5) }} - {{ substr($agenda->jam_selesai, 0, 5) }} WIB</p>
                             </div>
                         </div>
                         <!-- Lokasi -->
-                        <div class="flex items-center gap-3">
-                            <div class="p-2.5 bg-[#f3f2fe] border border-[#d4d1f5] rounded-2xl text-[#2e2552]">
-                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <div class="flex items-center gap-2 sm:gap-3">
+                            <div class="p-1.5 sm:p-2.5 bg-[#f3f2fe] border border-[#d4d1f5] rounded-lg sm:rounded-2xl text-[#2e2552] shrink-0">
+                                <svg class="w-3.5 h-3.5 sm:w-5 sm:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path>
                                 </svg>
                             </div>
                             <div>
-                                <p class="text-[10px] text-[#8e88dd] uppercase font-bold">Lokasi</p>
-                                <p class="text-xs font-bold text-[#2e2552] mt-0.5">{{ $agenda->lokasi }}</p>
+                                <p class="text-[8.5px] sm:text-[10px] text-[#8e88dd] uppercase font-bold">Lokasi</p>
+                                <p class="text-[10.5px] sm:text-xs font-bold text-[#2e2552] mt-0.5">{{ $agenda->lokasi }}</p>
                             </div>
                         </div>
                     </div>
@@ -395,7 +395,7 @@
         <div class="flex flex-col gap-6 min-w-0 h-full">
             <!-- 1. ABSENSI DIGITAL (Pegawai Internal Mandiri) -->
             @if($agenda->butuh_presensi)
-                <div class="bg-white border border-[#d4d1f5]/60 rounded-[32px] p-6 shadow-sm space-y-4">
+                <div class="bg-white border border-[#d4d1f5]/60 rounded-2xl md:rounded-[32px] p-3.5 sm:p-6 shadow-sm space-y-3 sm:space-y-4">
                     <div class="flex items-center justify-between border-b border-[#d4d1f5]/40 pb-3">
                         <h3 class="text-xs font-bold uppercase tracking-wider text-[#2e2552]">Absensi Digital</h3>
                         <span class="text-[10px] font-bold text-[#5a508f] bg-[#f3f2fe] px-2.5 py-0.5 rounded-full border border-[#d4d1f5]/40">
@@ -440,23 +440,23 @@
                     @else
                         @if($agenda->isPresensiNotStarted())
                             <!-- KONDISI 1: Sebelum waktu mulai rapat -->
-                            <div class="bg-amber-50/70 border border-amber-200/80 rounded-2xl p-4 space-y-3">
-                                <div class="flex items-start gap-2.5">
-                                    <div class="p-1.5 bg-amber-100 text-amber-700 rounded-xl shrink-0">
-                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <div class="bg-amber-50/70 border border-amber-200/80 rounded-xl p-2.5 sm:p-4 space-y-2">
+                                <div class="flex items-start gap-2">
+                                    <div class="p-1 bg-amber-100 text-amber-700 rounded-lg shrink-0">
+                                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
                                         </svg>
                                     </div>
                                     <div class="space-y-0.5 text-left">
-                                        <h4 class="text-[11px] font-bold text-amber-900 leading-tight">Absensi Belum Dibuka</h4>
-                                        <p class="text-[10px] text-amber-700/90 leading-relaxed font-medium">
+                                        <h4 class="text-[10.5px] font-bold text-amber-900 leading-tight">Absensi Belum Dibuka</h4>
+                                        <p class="text-[9.5px] text-amber-700/90 leading-relaxed font-medium">
                                             Absensi dapat dilakukan saat rapat dimulai ({{ $agenda->tanggal ? $agenda->tanggal->translatedFormat('d F Y') : '' }} jam {{ substr($agenda->jam_mulai, 0, 5) }} WIB).
                                         </p>
                                     </div>
                                 </div>
                                 <div class="border-t border-amber-200/40"></div>
-                                <button disabled class="w-full py-3 bg-slate-100 border border-slate-200 text-slate-400 font-bold text-xs rounded-xl cursor-not-allowed flex items-center justify-center gap-2">
-                                    <svg class="w-4 h-4 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <button disabled class="w-full py-1.5 sm:py-2.5 bg-slate-100 border border-slate-200 text-slate-400 font-bold text-[11px] sm:text-xs rounded-xl cursor-not-allowed flex items-center justify-center gap-1.5">
+                                    <svg class="w-3.5 h-3.5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/>
                                     </svg>
                                     <span>Absensi Belum Dibuka</span>
@@ -464,62 +464,62 @@
                             </div>
                         @elseif($agenda->isPresensiExpired())
                             <!-- KONDISI 4: Lebih dari 1 jam setelah rapat selesai -->
-                            <div class="bg-red-50/60 border border-red-200/80 rounded-2xl p-4 space-y-3">
-                                <div class="flex items-start gap-2.5">
+                            <div class="bg-red-50/60 border border-red-200/80 rounded-xl p-2.5 sm:p-4 space-y-2">
+                                <div class="flex items-start gap-2">
                                     <div class="p-1 bg-red-100 text-red-600 rounded-lg shrink-0">
-                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
                                                   d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
                                         </svg>
                                     </div>
                                     <div class="space-y-0.5 text-left">
-                                        <h4 class="text-[11px] font-bold text-red-800 leading-tight">Absensi Telah Ditutup</h4>
-                                        <p class="text-[10px] text-red-600/90 leading-relaxed font-medium">Batas waktu pengisian presensi mandiri (1 jam setelah rapat selesai) telah berakhir.</p>
+                                        <h4 class="text-[10.5px] font-bold text-red-800 leading-tight">Absensi Telah Ditutup</h4>
+                                        <p class="text-[9.5px] text-red-600/90 leading-relaxed font-medium">Batas waktu pengisian presensi mandiri (1 jam setelah rapat selesai) telah berakhir.</p>
                                     </div>
                                 </div>
                                 <div class="border-t border-red-200/40"></div>
-                                <div class="flex items-center justify-between text-xs bg-red-100/60 border border-red-200/50 rounded-xl px-3 py-2">
-                                    <span class="text-[9px] font-bold text-red-700 uppercase tracking-wider">Status Kehadiran:</span>
-                                    <span class="text-[10px] font-black text-white bg-red-600 px-2.5 py-0.5 rounded-md">ALFA</span>
+                                <div class="flex items-center justify-between text-xs bg-red-100/60 border border-red-200/50 rounded-xl px-2.5 py-1.5">
+                                    <span class="text-[8.5px] font-bold text-red-700 uppercase tracking-wider">Status Kehadiran:</span>
+                                    <span class="text-[9.5px] font-black text-white bg-red-600 px-2 py-0.5 rounded-md">ALFA</span>
                                 </div>
                             </div>
                         @elseif($agenda->isPresensiInGracePeriod())
                             <!-- KONDISI 3: Setelah rapat selesai tetapi masih dalam toleransi 1 jam -->
-                            <div class="space-y-3">
-                                <div class="p-3 bg-amber-50 border border-amber-200/80 rounded-2xl space-y-1.5 text-xs">
+                            <div class="space-y-2">
+                                <div class="p-2.5 bg-amber-50 border border-amber-200/80 rounded-xl space-y-1 text-xs">
                                     <div class="flex items-center justify-between">
-                                        <span class="text-amber-900 font-bold flex items-center gap-1.5">
-                                            <span class="w-2 h-2 rounded-full bg-amber-500 animate-pulse"></span>
+                                        <span class="text-amber-900 font-bold flex items-center gap-1 text-[10px]">
+                                            <span class="w-1.5 h-1.5 rounded-full bg-amber-500 animate-pulse"></span>
                                             <span>Masa Toleransi Absensi</span>
                                         </span>
-                                        <span class="px-2 py-0.5 rounded-lg bg-amber-100 text-amber-800 font-extrabold uppercase text-[9px] border border-amber-300">Toleransi 1 Jam</span>
+                                        <span class="px-1.5 py-0.5 rounded bg-amber-100 text-amber-800 font-extrabold uppercase text-[8px] border border-amber-300">Toleransi 1 Jam</span>
                                     </div>
-                                    <p class="text-[10px] text-amber-700 leading-relaxed font-medium">
+                                    <p class="text-[9.5px] text-amber-700 leading-relaxed font-medium">
                                         Jadwal rapat telah selesai ({{ substr($agenda->jam_selesai, 0, 5) }} WIB). Anda masih dapat melakukan absensi hingga jam {{ \Carbon\Carbon::parse($agenda->tanggal->toDateString() . ' ' . $agenda->jam_selesai)->addHour()->format('H:i') }} WIB.
                                     </p>
                                 </div>
                                 <button @click="openAbsenModal = true; initSignaturePad()" 
-                                        class="w-full py-3 bg-[#2e2552] hover:bg-[#3d326a] text-white font-bold text-xs rounded-xl shadow-lg transition-all flex items-center justify-center gap-2">
+                                        class="w-full py-1.5 sm:py-2.5 bg-[#2e2552] hover:bg-[#3d326a] text-white font-bold text-[11px] sm:text-xs rounded-xl shadow-md transition-all flex items-center justify-center gap-1.5">
                                     <span>Isi Presensi Kehadiran</span>
-                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
                                     </svg>
                                 </button>
                             </div>
                         @else
                             <!-- KONDISI 2: Berlangsung normal saat waktu rapat -->
-                            <div class="space-y-3">
-                                <div class="p-3 bg-emerald-50 border border-emerald-200 rounded-2xl flex items-center justify-between text-xs">
-                                    <span class="text-[#5a508f] font-medium flex items-center gap-1.5">
-                                        <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+                            <div class="space-y-2">
+                                <div class="p-2.5 bg-emerald-50 border border-emerald-200 rounded-xl flex items-center justify-between text-xs">
+                                    <span class="text-[#5a508f] font-medium flex items-center gap-1 text-[10px]">
+                                        <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
                                         <span>Status Kehadiran:</span>
                                     </span>
-                                    <span class="px-2.5 py-1 rounded-lg bg-emerald-100 text-emerald-700 font-extrabold uppercase text-[10px] border border-emerald-300">Belum Absen</span>
+                                    <span class="px-2 py-0.5 rounded bg-emerald-100 text-emerald-700 font-extrabold uppercase text-[9px] border border-emerald-300">Belum Absen</span>
                                 </div>
                                 <button @click="openAbsenModal = true; initSignaturePad()" 
-                                        class="w-full py-3 bg-[#2e2552] hover:bg-[#3d326a] text-white font-bold text-xs rounded-xl shadow-lg transition-all flex items-center justify-center gap-2">
+                                        class="w-full py-1.5 sm:py-2.5 bg-[#2e2552] hover:bg-[#3d326a] text-white font-bold text-[11px] sm:text-xs rounded-xl shadow-md transition-all flex items-center justify-center gap-1.5">
                                     <span>Isi Presensi Kehadiran</span>
-                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
                                     </svg>
                                 </button>
@@ -531,8 +531,8 @@
 
             <!-- 2. STATUS NOTULENSI AI (Hanya Rapat) ATAU REKAP KEHADIRAN BIDANG (Jika Non-Rapat / Tanpa Notulensi) -->
             @if($agenda->kategori === 'rapat' && $agenda->notulensi)
-                <div class="bg-white border border-[#d4d1f5]/60 rounded-[32px] p-6 shadow-sm space-y-4 flex-1 flex flex-col justify-between">
-                    <h3 class="text-xs font-bold uppercase tracking-wider text-[#2e2552]">Dokumentasi Notulensi</h3>
+                <div class="bg-white border border-[#d4d1f5]/60 rounded-xl md:rounded-[32px] p-2.5 sm:p-6 shadow-sm space-y-2.5 sm:space-y-4 flex-1 flex flex-col justify-between">
+                    <h3 class="text-[11px] sm:text-xs font-bold uppercase tracking-wider text-[#2e2552]">Dokumentasi Notulensi</h3>
                     
                     @php
                         $notulensi = $agenda->notulensi;
@@ -568,10 +568,10 @@
                         }
                     @endphp
                     
-                    <div class="flex flex-col gap-4">
-                        <div class="flex items-center justify-between border-b border-[#d4d1f5]/40 pb-3">
-                            <span class="text-xs text-[#5a508f]">Status Notulen:</span>
-                            <span class="text-[10px] px-2.5 py-0.5 rounded-full border font-bold uppercase {{ $notulenColor }}">
+                    <div class="flex flex-col gap-2.5 sm:gap-4">
+                        <div class="flex items-center justify-between border-b border-[#d4d1f5]/40 pb-2">
+                            <span class="text-[11px] sm:text-xs text-[#5a508f]">Status Notulen:</span>
+                            <span class="text-[9px] sm:text-[10px] px-2 py-0.5 rounded-full border font-bold uppercase {{ $notulenColor }}">
                                 {{ $notulenLabel }}
                             </span>
                         </div>
@@ -579,13 +579,13 @@
                         @if($agenda->notulensi->status === 'draft')
                             @if($isSecretaryOfAgenda)
                                 @if($agenda->notulensi->catatan_revisi)
-                                    <div class="bg-rose-50 border border-rose-200 text-rose-700 p-4 rounded-2xl text-xs space-y-1">
+                                    <div class="bg-rose-50 border border-rose-200 text-rose-700 p-2.5 sm:p-4 rounded-xl text-xs space-y-1">
                                         <p class="font-bold">Butuh Revisi / Perbaikan:</p>
                                         <p class="italic">"{{ $agenda->notulensi->catatan_revisi }}"</p>
                                     </div>
                                 @endif
                                 <a href="{{ route('notulensi.edit', $agenda->id) }}" 
-                                   class="w-full py-3.5 bg-[#2e2552] hover:bg-[#3d326a] text-white font-bold text-xs rounded-xl shadow-md transition-all flex items-center justify-center gap-2">
+                                   class="w-full py-1.5 sm:py-2.5 bg-[#2e2552] hover:bg-[#3d326a] text-white font-bold text-[11px] sm:text-xs rounded-xl shadow-md transition-all flex items-center justify-center gap-1.5">
                                     <span>Kelola Transkrip & AI Notulen</span>
                                 </a>
                             @else
@@ -596,33 +596,33 @@
                         @elseif($agenda->notulensi->status === 'menunggu_review')
                             @if($isApproverOfAgenda)
                                 <a href="{{ route('notulensi.review', $agenda->id) }}" 
-                                   class="w-full py-3.5 bg-gradient-to-r from-amber-600 to-orange-600 hover:from-amber-500 hover:to-orange-500 text-white font-bold text-xs rounded-xl shadow-lg transition-all flex items-center justify-center gap-2">
+                                   class="w-full py-1.5 sm:py-2.5 bg-gradient-to-r from-amber-600 to-orange-600 hover:from-amber-500 hover:to-orange-500 text-white font-bold text-[11px] sm:text-xs rounded-xl shadow-lg transition-all flex items-center justify-center gap-1.5">
                                     <span>Tinjau & Sahkan Notulensi</span>
                                 </a>
                             @endif
 
                             @if($isSecretaryOfAgenda)
-                                <div class="space-y-2">
+                                <div class="space-y-1.5 sm:space-y-2">
                                     <a href="{{ route('notulensi.edit', $agenda->id) }}" 
-                                       class="w-full py-3 bg-[#2e2552] hover:bg-[#3d326a] text-white font-bold text-xs rounded-xl shadow-md transition-all flex items-center justify-center gap-2">
+                                       class="w-full py-1.5 sm:py-2.5 bg-[#2e2552] hover:bg-[#3d326a] text-white font-bold text-[11px] sm:text-xs rounded-xl shadow-md transition-all flex items-center justify-center gap-1.5">
                                         <span>Kelola & Edit Notulensi</span>
                                     </a>
                                     <a href="{{ route('notulensi.review', $agenda->id) }}" 
-                                       class="w-full py-2.5 bg-slate-100 hover:bg-slate-200 text-[#5a508f] font-bold text-xs rounded-xl border border-[#d4d1f5] transition-all flex items-center justify-center gap-2">
+                                       class="w-full py-1.5 sm:py-2 bg-slate-100 hover:bg-slate-200 text-[#5a508f] font-bold text-[11px] sm:text-xs rounded-xl border border-[#d4d1f5] transition-all flex items-center justify-center gap-1.5">
                                         <span>Pratinjau Mode Baca</span>
                                     </a>
                                 </div>
                             @endif
 
                             @if(!$isApproverOfAgenda && !$isSecretaryOfAgenda)
-                                <p class="text-xs text-[#5a508f] text-center py-3 bg-[#f8f7ff] border border-[#d4d1f5]/40 rounded-2xl font-medium">
+                                <p class="text-xs text-[#5a508f] text-center py-2.5 bg-[#f8f7ff] border border-[#d4d1f5]/40 rounded-xl font-medium">
                                     Menunggu verifikasi dari pimpinan berwenang.
                                 </p>
                             @endif
                         @elseif($agenda->notulensi->status === 'disahkan')
                             <a href="{{ route('notulensi.review', $agenda->id) }}" 
-                               class="w-full py-3 bg-[#2e2552] hover:bg-[#3d326a] text-white font-bold text-xs rounded-xl shadow-md transition-all flex items-center justify-center gap-2">
-                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                               class="w-full py-1.5 sm:py-2.5 bg-[#2e2552] hover:bg-[#3d326a] text-white font-bold text-[11px] sm:text-xs rounded-xl shadow-md transition-all flex items-center justify-center gap-1.5">
+                                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path>
                                 </svg>
                                 <span>Lihat Notulensi Rapat Resmi</span>
@@ -631,31 +631,31 @@
                     </div>
                 </div>
             @elseif($agenda->butuh_presensi && (Auth::user()->role !== 'staff' || Auth::user()->isSekretariat()))
-                <div class="bg-white border border-[#d4d1f5]/60 rounded-[32px] p-6 shadow-sm space-y-4 flex-1 flex flex-col justify-between">
-                    <div class="flex items-center justify-between border-b border-[#d4d1f5]/40 pb-3">
-                        <h3 class="text-xs font-bold uppercase tracking-wider text-[#2e2552]">Rekap Kehadiran Bidang</h3>
-                        <span class="text-[10px] text-[#5a508f] font-bold">Klik untuk detail</span>
+                <div class="bg-white border border-[#d4d1f5]/60 rounded-xl md:rounded-[32px] p-2.5 sm:p-6 shadow-sm space-y-2.5 sm:space-y-4 flex-1 flex flex-col justify-between">
+                    <div class="flex items-center justify-between border-b border-[#d4d1f5]/40 pb-2">
+                        <h3 class="text-[11px] sm:text-xs font-bold uppercase tracking-wider text-[#2e2552]">Rekap Kehadiran Bidang</h3>
+                        <span class="text-[9.5px] text-[#5a508f] font-bold">Klik untuk detail</span>
                     </div>
                     
-                    <div class="space-y-2.5">
+                    <div class="space-y-2">
                         @foreach($recap as $rc)
                             <div @click="showBidangDetails({{ $rc->bidang_id }}, '{{ addslashes($rc->bidang_nama) }}')" 
-                                 class="p-3 bg-[#f8f7ff] border border-[#d4d1f5]/40 hover:border-[#8e88dd] hover:bg-[#f3f2fe] rounded-2xl text-xs space-y-2 cursor-pointer transition-all duration-200 shadow-sm group">
+                                 class="p-2.5 bg-[#f8f7ff] border border-[#d4d1f5]/40 hover:border-[#8e88dd] hover:bg-[#f3f2fe] rounded-xl text-xs space-y-1.5 cursor-pointer transition-all duration-200 shadow-sm group">
                                 <div class="font-bold text-[#2e2552] flex items-center justify-between gap-2">
-                                    <span class="truncate group-hover:text-[#1b3bbb] transition-colors font-extrabold">{{ $rc->bidang_nama }}</span>
-                                    <span class="text-[9px] text-[#8e88dd] font-bold uppercase tracking-wider flex items-center gap-0.5 shrink-0 bg-white px-2 py-0.5 rounded-lg border border-[#d4d1f5]/60 shadow-xs">
+                                    <span class="truncate group-hover:text-[#1b3bbb] transition-colors font-extrabold text-[11px] sm:text-xs">{{ $rc->bidang_nama }}</span>
+                                    <span class="text-[8.5px] text-[#8e88dd] font-bold uppercase tracking-wider flex items-center gap-0.5 shrink-0 bg-white px-1.5 py-0.5 rounded-md border border-[#d4d1f5]/60 shadow-xs">
                                         <span>Detail</span>
-                                        <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <svg class="w-2.5 h-2.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
                                         </svg>
                                     </span>
                                 </div>
-                                <div class="grid grid-cols-5 gap-1 text-center text-[9px] font-bold">
-                                    <div class="bg-emerald-50 text-emerald-600 py-1 rounded-lg border border-emerald-100">Hadir: {{ $rc->hadir }}</div>
-                                    <div class="bg-amber-50 text-amber-600 py-1 rounded-lg border border-amber-100">Izin: {{ $rc->izin }}</div>
-                                    <div class="bg-rose-50 text-rose-600 py-1 rounded-lg border border-rose-100">Sakit: {{ $rc->sakit }}</div>
-                                    <div class="bg-red-50 text-red-600 py-1 rounded-lg border border-red-100">Alfa: {{ $rc->alfa }}</div>
-                                    <div class="bg-slate-100 text-slate-500 py-1 rounded-lg border border-slate-200">Belum: {{ $rc->belum }}</div>
+                                <div class="grid grid-cols-5 gap-1 text-center text-[8.5px] font-bold">
+                                    <div class="bg-emerald-50 text-emerald-600 py-0.5 rounded border border-emerald-100">Hadir: {{ $rc->hadir }}</div>
+                                    <div class="bg-amber-50 text-amber-600 py-0.5 rounded border border-amber-100">Izin: {{ $rc->izin }}</div>
+                                    <div class="bg-rose-50 text-rose-600 py-0.5 rounded border border-rose-100">Sakit: {{ $rc->sakit }}</div>
+                                    <div class="bg-red-50 text-red-600 py-0.5 rounded border border-red-100">Alfa: {{ $rc->alfa }}</div>
+                                    <div class="bg-slate-100 text-slate-500 py-0.5 rounded border border-slate-200">Belum: {{ $rc->belum }}</div>
                                 </div>
                             </div>
                         @endforeach
@@ -667,15 +667,15 @@
 
     <!-- BOTTOM SECTION: FULL-WIDTH KOREKSI PRESENSI PEGAWAI -->
     @if($agenda->butuh_presensi && ($isSecretaryOfAgenda || Auth::user()->role !== 'staff' || Auth::user()->isSekretariat()))
-        <div class="bg-white border border-[#d4d1f5]/60 rounded-[32px] p-6 shadow-sm space-y-4">
-            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-[#d4d1f5]/40 pb-4">
+        <div class="bg-white border border-[#d4d1f5]/60 rounded-xl md:rounded-[32px] p-2.5 sm:p-6 shadow-sm space-y-2.5 sm:space-y-4">
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-[#d4d1f5]/40 pb-3">
                 <div>
-                    <h3 class="text-sm font-black uppercase tracking-wider text-[#2e2552]">Koreksi Presensi Pegawai</h3>
-                    <p class="text-xs text-[#5a508f] font-medium mt-0.5">Ubah status presensi pegawai atau tambahkan tamu eksternal secara manual.</p>
+                    <h3 class="text-xs sm:text-sm font-black uppercase tracking-wider text-[#2e2552]">Koreksi Presensi Pegawai</h3>
+                    <p class="text-[10.5px] sm:text-xs text-[#5a508f] font-medium mt-0.5">Ubah status presensi pegawai atau tambahkan tamu eksternal secara manual.</p>
                 </div>
                 @if($isSecretaryOfAgenda)
-                    <button @click="openGuestModal = true" class="px-4 py-2.5 bg-[#1b3bbb] hover:bg-[#09103c] text-white text-xs font-bold rounded-xl transition-all shadow-md shadow-[#1b3bbb]/20 flex items-center justify-center gap-1.5 shrink-0">
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <button @click="openGuestModal = true" class="px-3 py-1.5 sm:px-4 sm:py-2.5 bg-[#1b3bbb] hover:bg-[#09103c] text-white text-[11px] sm:text-xs font-bold rounded-xl transition-all shadow-md shadow-[#1b3bbb]/20 flex items-center justify-center gap-1.5 shrink-0">
+                        <svg class="w-3.5 h-3.5 sm:w-4 sm:h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z"></path>
                         </svg>
                         <span>+ Tamu Eksternal</span>

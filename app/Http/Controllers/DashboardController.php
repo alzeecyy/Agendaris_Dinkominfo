@@ -245,11 +245,15 @@ class DashboardController extends Controller
             }
 
         } elseif ($user->role === 'ketua_bidang') {
-            // Ketua Bidang KPI: Pending reviews in their bidang
+            // Ketua Bidang KPI: Pending reviews in their bidang or agendas involving their bidang
             $pendingReviews = Notulensi::where('status', 'menunggu_review')
                 ->whereHas('agenda', function($q) use ($user) {
-                    $q->whereHas('sekretaris', function($sq) use ($user) {
-                        $sq->where('bidang_id', $user->bidang_id);
+                    $q->where(function($subQ) use ($user) {
+                        $subQ->whereHas('sekretaris', function($sq) use ($user) {
+                            $sq->where('bidang_id', $user->bidang_id);
+                        })
+                        ->orWhereJsonContains('hak_akses', 'semua_orang')
+                        ->orWhereJsonContains('hak_akses', (string)$user->bidang_id);
                     });
                 })
                 ->with('agenda')
@@ -270,14 +274,8 @@ class DashboardController extends Controller
             }
 
         } elseif ($user->role === 'ketua_master') {
-            // Ketua Master (Kepala Dinas) KPI: Pending reviews of Dinas / Lintas Bidang (sekretaris is null or master)
+            // Ketua Master (Kepala Dinas) KPI: All pending reviews in the agency waiting for leadership signoff
             $pendingReviews = Notulensi::where('status', 'menunggu_review')
-                ->whereHas('agenda', function($q) {
-                    $q->whereNull('sekretaris_id')
-                      ->orWhereHas('sekretaris', function($sq) {
-                          $sq->whereNull('bidang_id');
-                      });
-                })
                 ->with('agenda')
                 ->get();
 

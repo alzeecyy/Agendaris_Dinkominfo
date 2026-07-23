@@ -127,10 +127,31 @@
                                    class="w-full px-4 py-2.5 bg-[#f8f7ff] border border-[#d4d1f5] rounded-2xl text-[#2e2552] text-sm font-bold focus:outline-none focus:ring-2 focus:ring-[#8e88dd] focus:bg-white transition-colors">
                         </div>
 
-                        <div class="space-y-1.5">
+                        <div class="space-y-1.5" id="container-nomor-surat">
                             <label for="nomor_surat_dasar" class="block text-xs font-bold uppercase tracking-wider text-[#2e2552]">Nomor Surat Dasar <span class="text-rose-500">*</span></label>
-                            <input type="text" name="nomor_surat_dasar" id="nomor_surat_dasar" required value="{{ old('nomor_surat_dasar', $agenda->nomor_surat_dasar) }}" placeholder="Contoh: 005/123/2026 Perihal Undangan Rapat Evaluasi SPBE"
-                                   class="w-full px-4 py-2.5 bg-[#f8f7ff] border border-[#d4d1f5] rounded-2xl text-[#2e2552] text-sm focus:outline-none focus:ring-2 focus:ring-[#8e88dd] focus:bg-white transition-colors">
+                            <input type="text" name="nomor_surat_dasar" id="nomor_surat_dasar" value="{{ old('nomor_surat_dasar', $agenda->nomor_surat_dasar) }}" placeholder="Contoh: 005/123/2026 Perihal Undangan Rapat Evaluasi SPBE"
+                                   class="w-full px-4 py-2.5 bg-[#f8f7ff] border @error('nomor_surat_dasar') border-rose-500 ring-2 ring-rose-200 @else border-[#d4d1f5] @enderror rounded-2xl text-[#2e2552] text-sm focus:outline-none focus:ring-2 focus:ring-[#8e88dd] focus:bg-white transition-colors">
+                            
+                            @error('nomor_surat_dasar')
+                                <p class="text-[11px] font-bold text-rose-600 mt-1.5 flex items-center gap-1.5">
+                                    <svg class="w-4 h-4 text-rose-500 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
+                                    </svg>
+                                    <span>{{ $message }}</span>
+                                </p>
+                            @enderror
+
+                            @if(empty($agenda->nomor_surat_dasar))
+                                <div id="alert-surat-kosong" class="p-3 bg-amber-50 border border-amber-300/80 rounded-2xl mt-2 text-amber-900 text-xs flex items-center gap-2.5 shadow-xs">
+                                    <svg class="w-5 h-5 text-amber-600 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
+                                    </svg>
+                                    <div>
+                                        <span class="font-extrabold block text-[10.5px] uppercase tracking-wider text-amber-900">PERINGATAN: NOMOR SURAT BELUM DIISI</span>
+                                        <p class="text-[10.5px] text-amber-800 leading-tight">Nomor Surat Dasar wajib diisi terlebih dahulu sebelum notulensi diajukan ke Pimpinan/Ketua.</p>
+                                    </div>
+                                </div>
+                            @endif
                         </div>
                     </div>
                 </div>
@@ -219,7 +240,7 @@
                                 </svg>
                                 <span>Simpan Progress Draft</span>
                             </button>
-                            <button type="submit" @click="isDirty = false" formaction="{{ route('notulensi.submit', $agenda->id) }}" formmethod="POST"
+                            <button type="button" @click="submitForReview($event)"
                                     class="w-full sm:w-auto px-6 py-2.5 bg-gradient-to-r from-[#1b3bbb] to-indigo-600 hover:from-[#09103c] hover:to-[#1b3bbb] text-white text-xs font-bold rounded-xl shadow-md shadow-[#1b3bbb]/20 transition-all flex items-center justify-center gap-2">
                                 <span>Ajukan untuk Persetujuan</span>
                                 <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -379,6 +400,44 @@
                             e.returnValue = 'Ada perubahan draf notulensi yang belum disimpan!';
                         }
                     });
+                },
+                submitForReview(event) {
+                    const nomorSuratInput = document.getElementById('nomor_surat_dasar');
+                    const nomorSuratValue = nomorSuratInput ? nomorSuratInput.value.trim() : '';
+
+                    if (!nomorSuratValue) {
+                        if (event) {
+                            event.preventDefault();
+                            event.stopPropagation();
+                        }
+
+                        if (nomorSuratInput) {
+                            nomorSuratInput.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                            nomorSuratInput.focus();
+                            nomorSuratInput.classList.remove('border-[#d4d1f5]');
+                            nomorSuratInput.classList.add('border-rose-500', 'ring-2', 'ring-rose-200');
+                        }
+
+                        if (typeof Swal !== 'undefined') {
+                            Swal.fire({
+                                icon: 'warning',
+                                title: 'Nomor Surat Belum Diisi!',
+                                text: 'Kolom Nomor Surat Dasar wajib diisi terlebih dahulu sebelum mengajukan notulensi ke Pimpinan.',
+                                confirmButtonText: 'Isi Nomor Surat Sekarang',
+                                confirmButtonColor: '#1b3bbb'
+                            });
+                        } else {
+                            alert('Nomor Surat Dasar wajib diisi sebelum mengajukan notulensi!');
+                        }
+                        return false;
+                    }
+
+                    this.isDirty = false;
+                    const form = document.getElementById('notulen-form');
+                    if (form) {
+                        form.action = '{{ route("notulensi.submit", $agenda->id) }}';
+                        form.submit();
+                    }
                 },
                 regenerateSummary() {
                     const transcript = document.getElementById('transkrip_raw').value;

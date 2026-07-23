@@ -332,7 +332,9 @@ class NotulensiController extends Controller
             abort(403, 'Akses ditolak. Notulensi sedang dalam proses peninjauan oleh pimpinan.');
         }
 
-        return view('notulensi.review', compact('agenda', 'notulensi', 'isApprover'));
+        $approverInfo = $this->getApproverSignatureInfo($agenda, $notulensi);
+
+        return view('notulensi.review', compact('agenda', 'notulensi', 'isApprover', 'approverInfo'));
     }
 
     /**
@@ -346,17 +348,24 @@ class NotulensiController extends Controller
             return back()->with('error', 'Akses ditolak.');
         }
 
+        $request->validate([
+            'tanda_tangan_approver' => 'nullable|string',
+        ]);
+
+        $tandaTangan = $request->input('tanda_tangan_approver');
+
         $notulensi = $agenda->notulensi;
         if ($notulensi) {
             $notulensi->update([
                 'status' => 'disahkan',
                 'catatan_revisi' => null,
                 'approver_id' => $user->id,
+                'tanda_tangan_approver' => $tandaTangan,
             ]);
         }
 
-        return redirect()->route('agenda.show', $agenda->id)
-            ->with('success', 'Notulensi rapat berhasil disahkan.');
+        return redirect()->route('notulensi.review', $agenda->id)
+            ->with('success', 'Notulensi rapat berhasil disahkan dengan tanda tangan digital Pimpinan.');
     }
 
     /**
@@ -527,7 +536,10 @@ class NotulensiController extends Controller
             $logoBase64 = 'data:image/png;base64,' . base64_encode($logoData);
         }
 
-        $pdf = Pdf::loadView('notulensi.export_pdf', compact('agenda', 'notulensi', 'attendees', 'recap', 'logoBase64'));
+        // Get designated approver signature info according to scope rule
+        $approverInfo = $this->getApproverSignatureInfo($agenda, $notulensi);
+
+        $pdf = Pdf::loadView('notulensi.export_pdf', compact('agenda', 'notulensi', 'attendees', 'recap', 'logoBase64', 'approverInfo'));
         
         return $pdf->download('notulensi-rapat-' . $agenda->id . '.pdf');
     }
@@ -558,6 +570,7 @@ class NotulensiController extends Controller
         $attendanceRecords = Presensi::where('agenda_id', $agenda->id)->get()->keyBy('user_id');
 
         $attendees = [];
+        $isExpired = $agenda->isPresensiExpired();
         
         foreach ($internalUsers as $emp) {
             $record = $attendanceRecords->get($emp->id);
@@ -595,14 +608,64 @@ class NotulensiController extends Controller
             ];
         }
 
+        // Get designated approver signature info according to scope rule
+        $approverInfo = $this->getApproverSignatureInfo($agenda, $notulensi);
+
         // Generate clean document layout
-        $viewContent = view('notulensi.export_docx', compact('agenda', 'notulensi', 'attendees'))->render();
+        $viewContent = view('notulensi.export_docx', compact('agenda', 'notulensi', 'attendees', 'approverInfo'))->render();
         
         $filename = 'notulensi-rapat-' . $agenda->id . '.doc';
 
         return response($viewContent)
             ->header('Content-Type', 'application/msword')
             ->header('Content-Disposition', 'attachment; filename="' . $filename . '"');
+    }
+
+    /**
+     * Get signature block info (Title, Name, NIP) according to scope.
+     */
+    private function getApproverSignatureInfo(Agenda $agenda, Notulensi $notulensi)
+    {
+        $hakAkses = $agenda->hak_akses ?? [];
+        $isLintasDinas = in_array('semua_orang', $hakAkses) || count($hakAkses) > 1 || count($hakAkses) === 0;
+
+        $actualApprover = $notulensi->approver;
+
+        if ($isLintasDinas) {
+            $jabatan = "Kepala Dinas Komunikasi dan Informatika";
+            $subJabatan = "Kabupaten Banyumas";
+            if ($actualApprover && $actualApprover->isKetuaMaster()) {
+                $name = $actualApprover->name;
+                $nip = $actualApprover->nip;
+            } else {
+                $ketuaMaster = \App\Models\User::where('role', 'ketua_master')->first();
+                $name = $ketuaMaster ? $ketuaMaster->name : ($actualApprover ? $actualApprover->name : 'Kepala Dinas');
+                $nip = $ketuaMaster ? $ketuaMaster->nip : ($actualApprover ? $actualApprover->nip : '-');
+            }
+        } else {
+            $singleBidangId = $hakAkses[0] ?? null;
+            $bidang = $singleBidangId ? \App\Models\Bidang::find($singleBidangId) : null;
+            $bidangNama = $bidang ? $bidang->nama : 'Bidang';
+            $jabatan = "Kepala " . $bidangNama;
+            $subJabatan = "";
+
+            if ($actualApprover && $actualApprover->isKetuaBidang()) {
+                $name = $actualApprover->name;
+                $nip = $actualApprover->nip;
+            } else {
+                $ketuaBidangUser = \App\Models\User::where('role', 'ketua_bidang')->where('bidang_id', $singleBidangId)->first();
+                $name = $ketuaBidangUser ? $ketuaBidangUser->name : ($actualApprover ? $actualApprover->name : "Kepala " . $bidangNama);
+                $nip = $ketuaBidangUser ? $ketuaBidangUser->nip : ($actualApprover ? $actualApprover->nip : '-');
+            }
+        }
+
+        return (object) [
+            'jabatan' => $jabatan,
+            'sub_jabatan' => $subJabatan,
+            'name' => $name,
+            'nip' => $nip,
+            'is_lintas_dinas' => $isLintasDinas,
+        ];
     }
 
     /**

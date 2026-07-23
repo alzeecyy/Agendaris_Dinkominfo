@@ -57,74 +57,98 @@
         .hover\:bg-\[\#f8f7ff\]:hover { background-color: #f1f5f9 !important; }
         .hover\:bg-\[\#3d326a\]:hover { background-color: #0d228c !important; }
 
-        /* Custom SweetAlert2 Premium Modern Glassmorphic Styling */
+        /* Custom SweetAlert2 Premium Compact Responsive Styling */
         .swal2-popup {
-            border-radius: 28px !important;
-            background: rgba(255, 255, 255, 0.95) !important;
+            border-radius: 20px !important;
+            background: rgba(255, 255, 255, 0.98) !important;
             backdrop-filter: blur(20px) !important;
             -webkit-backdrop-filter: blur(20px) !important;
-            border: 1px solid rgba(203, 213, 225, 0.5) !important;
-            box-shadow: 0 25px 50px -12px rgba(9, 16, 60, 0.18) !important;
-            padding: 2.25rem 2rem !important;
+            border: 1px solid rgba(203, 213, 225, 0.6) !important;
+            box-shadow: 0 15px 35px -5px rgba(9, 16, 60, 0.15) !important;
+            padding: 1.25rem 1rem !important;
+            width: 88vw !important;
+            max-width: 320px !important;
             font-family: 'Plus Jakarta Sans', sans-serif !important;
+        }
+        @media (min-width: 640px) {
+            .swal2-popup {
+                border-radius: 24px !important;
+                padding: 1.75rem 1.5rem !important;
+                max-width: 400px !important;
+                width: auto !important;
+            }
         }
         .swal2-title {
             color: #09103c !important;
-            font-size: 1.15rem !important;
+            font-size: 0.95rem !important;
             font-weight: 800 !important;
-            line-height: 1.4 !important;
-            margin-bottom: 0.75rem !important;
+            line-height: 1.35 !important;
+            margin-bottom: 0.35rem !important;
+        }
+        @media (min-width: 640px) {
+            .swal2-title {
+                font-size: 1.1rem !important;
+            }
         }
         .swal2-html-container {
             color: #475569 !important;
-            font-size: 0.85rem !important;
+            font-size: 0.8rem !important;
             font-weight: 500 !important;
-            line-height: 1.6 !important;
+            line-height: 1.45 !important;
             margin: 0 !important;
         }
         .swal2-actions {
-            margin-top: 1.75rem !important;
-            gap: 0.75rem !important;
+            margin-top: 1rem !important;
+            gap: 0.5rem !important;
             width: 100% !important;
             justify-content: center !important;
         }
         .swal2-confirm {
             background: linear-gradient(135deg, #1b3bbb 0%, #3b82f6 100%) !important;
             color: white !important;
-            border-radius: 14px !important;
+            border-radius: 12px !important;
             font-weight: 700 !important;
-            font-size: 0.8rem !important;
-            padding: 0.65rem 1.75rem !important;
+            font-size: 0.75rem !important;
+            padding: 0.5rem 1.15rem !important;
             box-shadow: 0 4px 10px rgba(27, 59, 187, 0.2) !important;
             transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1) !important;
             border: none !important;
             outline: none !important;
         }
-        .swal2-confirm:hover {
-            transform: translateY(-1px) !important;
-            box-shadow: 0 6px 14px rgba(27, 59, 187, 0.35) !important;
-        }
-        .swal2-confirm:focus {
-            box-shadow: 0 0 0 3px rgba(27, 59, 187, 0.3) !important;
+        @media (min-width: 640px) {
+            .swal2-confirm {
+                font-size: 0.8rem !important;
+                padding: 0.6rem 1.5rem !important;
+            }
         }
         .swal2-cancel {
             background: #f1f5f9 !important;
             color: #475569 !important;
-            border-radius: 14px !important;
+            border-radius: 12px !important;
             font-weight: 700 !important;
-            font-size: 0.8rem !important;
-            padding: 0.65rem 1.75rem !important;
+            font-size: 0.75rem !important;
+            padding: 0.5rem 1.15rem !important;
             transition: all 0.2s ease !important;
             border: 1px solid #cbd5e1 !important;
             outline: none !important;
         }
-        .swal2-cancel:hover {
-            background: #e2e8f0 !important;
-            color: #0f172a !important;
+        @media (min-width: 640px) {
+            .swal2-cancel {
+                font-size: 0.8rem !important;
+                padding: 0.6rem 1.5rem !important;
+            }
         }
         .swal2-icon {
-            scale: 0.85 !important;
-            margin-bottom: 0.5rem !important;
+            scale: 0.6 !important;
+            margin-top: -0.75rem !important;
+            margin-bottom: -0.25rem !important;
+        }
+        @media (min-width: 640px) {
+            .swal2-icon {
+                scale: 0.75 !important;
+                margin-top: 0 !important;
+                margin-bottom: 0.25rem !important;
+            }
         }
         .swal2-icon.swal2-warning {
             border-color: #f59e0b !important;
@@ -160,25 +184,29 @@
     <!-- AlpineJS for interactive elements -->
     <script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
 </head>
-<body class="h-screen text-[#2e2552] overflow-hidden antialiased">
+<body class="min-h-screen md:h-screen text-[#2e2552] bg-[#eef2ff] antialiased">
 
     <!-- Outer Page App Window -->
-    <div class="h-screen flex flex-col p-4 md:p-6 gap-6 max-w-[1600px] w-full mx-auto overflow-hidden">
+    <div x-data="{ mobileNavOpen: false, profileMenuOpen: false }" class="min-h-screen md:h-screen flex flex-col p-1.5 sm:p-4 md:p-6 gap-2.5 md:gap-6 max-w-[1600px] w-full mx-auto md:overflow-hidden bg-[#eef2ff]">
         
-        <!-- TOP NAVBAR (Header) -->
-        <header class="w-full bg-white/80 backdrop-blur-md rounded-3xl border border-slate-200/60 px-6 py-4 flex items-center justify-between shadow-md relative z-50 text-[#09103c]">
-            <!-- Left Logo -->
-            <div class="flex items-center gap-3 select-none">
-                <img src="{{ asset('images/logo-banyumas-crest.png') }}" alt="Logo Banyumas" class="h-9 w-auto hover:scale-105 transition-transform duration-300">
-                <div class="flex flex-col justify-center">
-                    <h1 class="text-[11px] font-extrabold leading-none text-[#09103c] tracking-tight">Dinas Komunikasi dan Informatika</h1>
-                    <span class="text-[9px] text-slate-500 font-semibold tracking-tight mt-1 leading-none">Pemerintah Kabupaten Banyumas</span>
+        <!-- TOP NAVBAR (Sticky Header on Mobile, Top Header on Desktop) -->
+        <header class="w-full bg-white/95 backdrop-blur-md rounded-xl sm:rounded-2xl md:rounded-3xl border border-slate-200/80 px-2.5 sm:px-4 md:px-6 py-1.5 sm:py-2.5 md:py-4 flex items-center justify-between shadow-sm md:shadow-md sticky top-0 md:relative z-50 text-[#09103c]">
+            <!-- Left Logo & Mobile Hamburger Toggle -->
+            <div class="flex items-center gap-2 sm:gap-3 select-none min-w-0">
+                <button type="button" @click="mobileNavOpen = !mobileNavOpen" class="md:hidden p-1.5 rounded-lg text-slate-700 hover:bg-slate-100 focus:outline-none transition-colors shrink-0" aria-label="Toggle Navigation">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
+                    </svg>
+                </button>
+
+                <img src="{{ asset('images/logo-banyumas-crest.png') }}" alt="Logo Banyumas" class="h-6 sm:h-8 md:h-9 w-auto hover:scale-105 transition-transform duration-300 shrink-0">
+                <div class="flex flex-col justify-center min-w-0">
+                    <h1 class="text-[9.5px] sm:text-[10.5px] md:text-[11px] font-extrabold leading-tight text-[#09103c] tracking-tight truncate">Dinas Komunikasi dan Informatika</h1>
+                    <span class="text-[7.5px] sm:text-[8.5px] md:text-[9px] text-slate-500 font-semibold tracking-tight leading-none truncate">Pemerintah Kabupaten Banyumas</span>
                 </div>
             </div>
 
-
-
-            <!-- Right Profile Drodown -->
+            <!-- Right Profile Dropdown -->
             @if(Auth::check())
                 @php
                     $bidSuffix = Auth::user()->bidang ? ' ' . (Auth::user()->bidang->singkatan ?? Auth::user()->bidang->nama) : '';
@@ -199,76 +227,121 @@
                         'staff' => 'bg-blue-50 text-blue-700 border-blue-100',
                     ];
                 @endphp
-                @if(Auth::user()->isAdmin())
-                    <div x-data="{ openAdminMenu: false }" class="relative shrink-0 select-none">
-                        <button type="button" @click="openAdminMenu = !openAdminMenu" class="text-[#09103c] flex items-center gap-3 p-1.5 rounded-2xl hover:bg-slate-50 transition-colors text-right cursor-pointer focus:outline-none">
-                            <div class="hidden md:block text-right" style="margin: 0; padding: 0; display: flex; flex-direction: column; justify-content: center; gap: 4px;">
-                                <div class="text-xs font-black text-[#09103c]" style="line-height: 1; margin: 0; padding: 0;">{{ Auth::user()->name }}</div>
-                                <div style="line-height: 1; margin: 0; padding: 0;">
-                                    <span class="inline-block text-[8px] font-extrabold px-2 py-0.5 rounded-full border {{ $roleColors[Auth::user()->role] ?? 'bg-slate-100 border-slate-200 text-slate-700' }} uppercase tracking-wider" style="line-height: 1; vertical-align: middle;">
-                                        {{ $roleLabels[Auth::user()->role] ?? 'User' }}
-                                    </span>
-                                </div>
-                                <div class="text-[9px] text-slate-500 font-bold font-mono" style="line-height: 1; margin: 0; padding: 0;">NIP. {{ Auth::user()->nip }}</div>
-                            </div>
-                            <div class="w-10 h-10 bg-[#1b3bbb]/10 rounded-2xl flex items-center justify-center font-bold text-[#1b3bbb] border border-[#1b3bbb]/20 shadow-sm transition-colors">
-                                {{ substr(Auth::user()->name, 0, 2) }}
-                            </div>
-                        </button>
-
-                        <!-- COMPACT FLOATING ADMIN DROPDOWN MENU -->
-                        <div x-show="openAdminMenu" 
-                             @click.away="openAdminMenu = false" 
-                             x-cloak
-                             x-transition:enter="transition ease-out duration-150 transform"
-                             x-transition:enter-start="opacity-0 scale-95 -translate-y-1"
-                             x-transition:enter-end="opacity-100 scale-100 translate-y-0"
-                             class="absolute right-0 mt-2 w-60 bg-white border border-[#d4d1f5]/80 rounded-2xl shadow-xl z-50 p-3.5 space-y-3 text-[#2e2552]">
-                            
-                            <div class="pb-2.5 border-b border-[#d4d1f5]/50 flex items-center gap-2.5">
-                                <div class="w-8 h-8 bg-red-50 text-red-600 rounded-xl flex items-center justify-center font-black text-xs border border-red-100 shrink-0">
-                                    Ad
-                                </div>
-                                <div class="min-w-0 flex-1">
-                                    <div class="text-xs font-black text-[#2e2552] truncate">{{ Auth::user()->name }}</div>
-                                    <div class="text-[10px] text-[#5a508f] font-mono truncate">NIP. {{ Auth::user()->nip }}</div>
-                                </div>
-                            </div>
-
+                <div class="relative shrink-0 select-none">
+                    <button type="button" @click="profileMenuOpen = !profileMenuOpen" class="text-[#09103c] flex items-center gap-2 p-1 rounded-xl hover:bg-slate-50 transition-colors text-right cursor-pointer focus:outline-none">
+                        <div class="hidden lg:flex flex-col justify-center gap-0.5 text-right">
+                            <div class="text-xs font-black text-[#09103c] leading-tight">{{ Auth::user()->name }}</div>
                             <div>
-                                <a href="{{ route('password.change') }}" class="w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-bold text-[#2e2552] hover:bg-[#1b3bbb]/5 hover:text-[#1b3bbb] transition-colors">
-                                    <svg class="w-4 h-4 text-[#8e88dd]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path>
-                                    </svg>
-                                    <span>Ubah Kata Sandi</span>
-                                </a>
-                            </div>
-                        </div>
-                    </div>
-                @else
-                    <a href="{{ route('profile') }}" class="relative shrink-0 select-none text-[#09103c] flex items-center gap-3 p-1.5 rounded-2xl hover:bg-slate-50 transition-colors">
-                        <div class="hidden md:block text-right" style="margin: 0; padding: 0; display: flex; flex-direction: column; justify-content: center; gap: 4px;">
-                            <div class="text-xs font-black text-[#09103c]" style="line-height: 1; margin: 0; padding: 0;">{{ Auth::user()->name }}</div>
-                            <div style="line-height: 1; margin: 0; padding: 0;">
-                                <span class="inline-block text-[8px] font-extrabold px-2 py-0.5 rounded-full border {{ $roleColors[Auth::user()->role] ?? 'bg-slate-100 border-slate-200 text-slate-700' }} uppercase tracking-wider" style="line-height: 1; vertical-align: middle;">
+                                <span class="inline-block text-[8px] font-extrabold px-2 py-0.5 rounded-full border {{ $roleColors[Auth::user()->role] ?? 'bg-slate-100 border-slate-200 text-slate-700' }} uppercase tracking-wider">
                                     {{ $roleLabels[Auth::user()->role] ?? 'User' }}
                                 </span>
                             </div>
-                            <div class="text-[9px] text-slate-500 font-bold font-mono" style="line-height: 1; margin: 0; padding: 0;">NIP. {{ Auth::user()->nip }}</div>
+                            <div class="text-[9px] text-slate-500 font-bold font-mono">NIP. {{ Auth::user()->nip }}</div>
                         </div>
-                        <div class="w-10 h-10 bg-[#1b3bbb]/10 rounded-2xl flex items-center justify-center font-bold text-[#1b3bbb] border border-[#1b3bbb]/20 shadow-sm transition-colors">
+                        <div class="w-7 h-7 sm:w-8 sm:h-8 md:w-10 md:h-10 bg-[#1b3bbb]/10 rounded-xl md:rounded-2xl flex items-center justify-center font-bold text-[#1b3bbb] text-[10px] sm:text-xs md:text-sm border border-[#1b3bbb]/20 shadow-sm shrink-0">
                             {{ substr(Auth::user()->name, 0, 2) }}
                         </div>
-                    </a>
-                @endif
+                    </button>
+
+                    <!-- Compact Floating Dropdown Menu -->
+                    <div x-show="profileMenuOpen" 
+                         @click.away="profileMenuOpen = false" 
+                         x-cloak
+                         x-transition:enter="transition ease-out duration-150 transform"
+                         x-transition:enter-start="opacity-0 scale-95 -translate-y-1"
+                         x-transition:enter-end="opacity-100 scale-100 translate-y-0"
+                         class="absolute right-0 mt-2 w-56 sm:w-60 bg-white border border-[#d4d1f5]/80 rounded-2xl shadow-xl z-50 p-3 space-y-2.5 text-[#2e2552]">
+                        
+                        <div class="pb-2 border-b border-[#d4d1f5]/50 flex items-center gap-2">
+                            <div class="w-7 h-7 bg-[#1b3bbb]/10 text-[#1b3bbb] rounded-xl flex items-center justify-center font-black text-xs border border-[#1b3bbb]/20 shrink-0">
+                                {{ substr(Auth::user()->name, 0, 2) }}
+                            </div>
+                            <div class="min-w-0 flex-1">
+                                <div class="text-xs font-black text-[#2e2552] truncate">{{ Auth::user()->name }}</div>
+                                <div class="text-[9px] text-[#5a508f] font-mono truncate">NIP. {{ Auth::user()->nip }}</div>
+                            </div>
+                        </div>
+
+                        <div class="space-y-1">
+                            <a href="{{ route('profile') }}" class="w-full flex items-center gap-2 px-2.5 py-1.5 rounded-xl text-xs font-bold text-[#2e2552] hover:bg-[#1b3bbb]/5 hover:text-[#1b3bbb] transition-colors">
+                                <svg class="w-4 h-4 text-[#8e88dd]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
+                                </svg>
+                                <span>Kelola Profil</span>
+                            </a>
+                            <a href="{{ route('password.change') }}" class="w-full flex items-center gap-2 px-2.5 py-1.5 rounded-xl text-xs font-bold text-[#2e2552] hover:bg-[#1b3bbb]/5 hover:text-[#1b3bbb] transition-colors">
+                                <svg class="w-4 h-4 text-[#8e88dd]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path>
+                                </svg>
+                                <span>Ubah Kata Sandi</span>
+                            </a>
+                        </div>
+
+                        <div class="border-t border-[#d4d1f5]/40 pt-1.5">
+                            <form action="{{ route('logout') }}" method="POST">
+                                @csrf
+                                <button type="submit" class="w-full flex items-center gap-2 px-2.5 py-1.5 rounded-xl text-xs font-bold text-rose-600 hover:bg-rose-50 transition-colors">
+                                    <svg class="w-4 h-4 text-rose-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"></path>
+                                    </svg>
+                                    <span>Keluar Sistem</span>
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
             @endif
         </header>
 
+        <!-- COMPACT MOBILE NAVIGATION DRAWER (Collapsible on Mobile) -->
+        <div id="mobile-nav-drawer" 
+             x-show="mobileNavOpen" 
+             x-cloak 
+             @click.away="mobileNavOpen = false" 
+             x-transition:enter="transition ease-out duration-200 transform"
+             x-transition:enter-start="opacity-0 -translate-y-2"
+             x-transition:enter-end="opacity-100 translate-y-0"
+             class="md:hidden bg-white/95 backdrop-blur-md rounded-xl border border-slate-200/80 p-2.5 shadow-lg sticky top-12 z-40 space-y-1 text-[#09103c]">
+            @if(Auth::check() && !Auth::user()->isAdmin())
+                <a href="{{ route('dashboard') }}" class="flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-bold {{ request()->routeIs('dashboard') ? 'bg-[#1b3bbb] text-white shadow-md' : 'text-slate-700 hover:bg-[#1b3bbb]/10' }}">
+                    <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"></path></svg>
+                    <span>Dashboard Utama</span>
+                </a>
+                <a href="{{ route('calendar') }}" class="flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-bold {{ request()->routeIs('calendar') && !request()->has('open_add') ? 'bg-[#1b3bbb] text-white shadow-md' : 'text-slate-700 hover:bg-[#1b3bbb]/10' }}">
+                    <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
+                    <span>Kalender Rinci</span>
+                </a>
+                @if(Auth::user()->isSekretarisMaster() || Auth::user()->isSekretarisBidang() || Auth::user()->isSekretariat())
+                    <a href="{{ route('calendar', ['open_add' => 1]) }}" class="flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-bold {{ request()->routeIs('calendar') && request()->has('open_add') ? 'bg-[#1b3bbb] text-white shadow-md' : 'text-slate-700 hover:bg-[#1b3bbb]/10' }}">
+                        <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
+                        <span>Tambah Agenda</span>
+                    </a>
+                @endif
+                <a href="{{ route('riwayat') }}" class="flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-bold {{ request()->routeIs('riwayat') ? 'bg-[#1b3bbb] text-white shadow-md' : 'text-slate-700 hover:bg-[#1b3bbb]/10' }}">
+                    <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                    <span>Riwayat Rapat</span>
+                </a>
+            @elseif(Auth::check() && Auth::user()->isAdmin())
+                <a href="{{ route('dashboard') }}" class="flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-bold {{ request()->routeIs('dashboard') ? 'bg-[#1b3bbb] text-white shadow-md' : 'text-slate-700 hover:bg-[#1b3bbb]/10' }}">
+                    <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"></path></svg>
+                    <span>Dashboard Admin</span>
+                </a>
+                <a href="{{ route('admin.users.index') }}" class="flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-bold {{ request()->routeIs('admin.users.index') ? 'bg-[#1b3bbb] text-white shadow-md' : 'text-slate-700 hover:bg-[#1b3bbb]/10' }}">
+                    <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"></path></svg>
+                    <span>Kelola Pegawai</span>
+                </a>
+                <a href="{{ route('admin.bidang.index') }}" class="flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-bold {{ request()->routeIs('admin.bidang.index') ? 'bg-[#1b3bbb] text-white shadow-md' : 'text-slate-700 hover:bg-[#1b3bbb]/10' }}">
+                    <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path></svg>
+                    <span>Kelola Bidang</span>
+                </a>
+            @endif
+        </div>
+
         <!-- MAIN LAYOUT WRAPPER (Sidebar + Content Panel) -->
-        <div class="flex-1 min-h-0 min-w-0 flex flex-col md:flex-row gap-6 items-stretch">
+        <div class="flex-1 min-h-0 min-w-0 flex flex-col md:flex-row gap-4 md:gap-6 items-stretch">
             
-            <!-- LEFT NAVBAR (Sidebar) -->
-            <aside class="w-full md:w-60 bg-white/80 backdrop-blur-md rounded-3xl border border-slate-200/60 flex flex-col py-6 shrink-0 z-20 shadow-md text-[#09103c]">
+            <!-- LEFT NAVBAR (Desktop Sidebar Only) -->
+            <aside class="hidden md:flex w-60 bg-white/80 backdrop-blur-md rounded-3xl border border-slate-200/60 flex-col py-6 shrink-0 z-20 shadow-md text-[#09103c]">
                 <div class="px-5 mb-4">
                     <span class="text-[9px] font-black uppercase tracking-wider text-slate-500">Menu Navigasi</span>
                 </div>
@@ -381,7 +454,7 @@
             </aside>
 
             <!-- MAIN CONTENT AREA CONTAINER -->
-            <main id="main-content" class="flex-1 min-w-0 bg-slate-50 rounded-[32px] p-6 md:p-8 flex flex-col gap-6 shadow-2xl relative {{ request()->routeIs('profile') ? 'overflow-hidden' : 'overflow-auto' }} text-[#090c24] border border-white/10">
+            <main id="main-content" class="flex-1 min-w-0 bg-[#f8f9fd] sm:bg-slate-50 rounded-xl sm:rounded-2xl md:rounded-[32px] p-2.5 sm:p-5 md:p-8 pb-24 md:pb-8 flex flex-col gap-3 sm:gap-6 shadow-sm md:shadow-2xl relative overflow-y-auto text-[#090c24] border border-white/10">
                 
                 <!-- Floating Toast Notifications -->
                 @if(session('success') || session('error') || session('warning'))
@@ -429,28 +502,83 @@
                     @yield('content')
                 </div>
 
-                <footer class="mt-2 border-t border-[#d4d1f5]/60 pt-3 text-center text-slate-500 text-[10px] font-bold uppercase tracking-wider">
+                <footer class="mt-2 border-t border-[#d4d1f5]/60 pt-2 text-center text-slate-400 text-[8.5px] sm:text-[9.5px] font-medium tracking-wider mb-14 md:mb-0">
                     &copy; 2026 Dinas Komunikasi dan Informatika Kabupaten Banyumas.
                 </footer>
             </main>
         </div>
     </div>
 
+    <!-- GOJEK-STYLE FLOATING BOTTOM NAVIGATION BAR (Mobile Native UX) -->
+    @if(Auth::check())
+        <nav id="mobile-bottom-nav" class="md:hidden fixed bottom-0 left-0 right-0 z-40 bg-white/95 backdrop-blur-md border-t border-slate-200/80 px-2 py-1.5 flex items-center justify-around shadow-[0_-4px_16px_rgba(0,0,0,0.06)] text-[#09103c]">
+            @if(!Auth::user()->isAdmin())
+                <!-- Beranda -->
+                <a href="{{ route('dashboard') }}" class="flex flex-col items-center justify-center gap-0.5 px-3 py-1 rounded-xl transition-all {{ request()->routeIs('dashboard') ? 'text-[#1b3bbb] font-extrabold' : 'text-slate-500 font-medium hover:text-[#1b3bbb]' }}">
+                    <svg class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"></path></svg>
+                    <span class="text-[9px] leading-none">Beranda</span>
+                </a>
+
+                <!-- Kalender -->
+                <a href="{{ route('calendar') }}" class="flex flex-col items-center justify-center gap-0.5 px-3 py-1 rounded-xl transition-all {{ request()->routeIs('calendar') && !request()->has('open_add') ? 'text-[#1b3bbb] font-extrabold' : 'text-slate-500 font-medium hover:text-[#1b3bbb]' }}">
+                    <svg class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
+                    <span class="text-[9px] leading-none">Kalender</span>
+                </a>
+
+                <!-- Quick Add Action (For Secretaries) -->
+                @if(Auth::user()->isSekretarisMaster() || Auth::user()->isSekretarisBidang() || Auth::user()->isSekretariat())
+                    <a href="{{ route('calendar', ['open_add' => 1]) }}" class="flex flex-col items-center justify-center gap-0.5 -mt-3">
+                        <div class="w-10 h-10 rounded-full bg-[#1b3bbb] text-white flex items-center justify-center shadow-lg shadow-[#1b3bbb]/30 active:scale-95 transition-transform">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4"></path></svg>
+                        </div>
+                        <span class="text-[9px] font-extrabold text-[#1b3bbb] leading-none mt-0.5">Tambah</span>
+                    </a>
+                @endif
+
+                <!-- Riwayat -->
+                <a href="{{ route('riwayat') }}" class="flex flex-col items-center justify-center gap-0.5 px-3 py-1 rounded-xl transition-all {{ request()->routeIs('riwayat') ? 'text-[#1b3bbb] font-extrabold' : 'text-slate-500 font-medium hover:text-[#1b3bbb]' }}">
+                    <svg class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                    <span class="text-[9px] leading-none">Riwayat</span>
+                </a>
+
+                <!-- Profil -->
+                <a href="{{ route('profile') }}" class="flex flex-col items-center justify-center gap-0.5 px-3 py-1 rounded-xl transition-all {{ request()->routeIs('profile') ? 'text-[#1b3bbb] font-extrabold' : 'text-slate-500 font-medium hover:text-[#1b3bbb]' }}">
+                    <svg class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path></svg>
+                    <span class="text-[9px] leading-none">Profil</span>
+                </a>
+            @else
+                <!-- Admin Links -->
+                <a href="{{ route('dashboard') }}" class="flex flex-col items-center justify-center gap-0.5 px-3 py-1 rounded-xl transition-all {{ request()->routeIs('dashboard') ? 'text-[#1b3bbb] font-extrabold' : 'text-slate-500 font-medium hover:text-[#1b3bbb]' }}">
+                    <svg class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"></path></svg>
+                    <span class="text-[9px] leading-none">Beranda</span>
+                </a>
+                <a href="{{ route('admin.users.index') }}" class="flex flex-col items-center justify-center gap-0.5 px-3 py-1 rounded-xl transition-all {{ request()->routeIs('admin.users.index') ? 'text-[#1b3bbb] font-extrabold' : 'text-slate-500 font-medium hover:text-[#1b3bbb]' }}">
+                    <svg class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"></path></svg>
+                    <span class="text-[9px] leading-none">Pegawai</span>
+                </a>
+                <a href="{{ route('admin.bidang.index') }}" class="flex flex-col items-center justify-center gap-0.5 px-3 py-1 rounded-xl transition-all {{ request()->routeIs('admin.bidang.index') ? 'text-[#1b3bbb] font-extrabold' : 'text-slate-500 font-medium hover:text-[#1b3bbb]' }}">
+                    <svg class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path></svg>
+                    <span class="text-[9px] leading-none">Bidang</span>
+                </a>
+            @endif
+        </nav>
+    @endif
+
     <!-- Heavy Process Loading Overlay Modal -->
     <div id="heavy-loading-overlay" class="fixed inset-0 z-[99999] bg-slate-900/50 backdrop-blur-md hidden items-center justify-center p-4 transition-all duration-300">
-        <div class="bg-white/95 rounded-[32px] p-8 max-w-sm w-full text-center shadow-2xl border border-slate-200/80 flex flex-col items-center gap-5 transform transition-transform duration-300">
+        <div class="bg-white/95 rounded-2xl sm:rounded-[28px] p-4 sm:p-6 max-w-[280px] sm:max-w-sm w-full text-center shadow-2xl border border-slate-200/80 flex flex-col items-center gap-3 sm:gap-4 transform transition-transform duration-300">
             <!-- Spinner Icon Container -->
-            <div class="relative w-16 h-16 flex items-center justify-center">
-                <div class="absolute inset-0 rounded-full border-4 border-[#1b3bbb]/15 border-t-[#1b3bbb] animate-spin"></div>
-                <div class="w-8 h-8 rounded-2xl bg-[#1b3bbb]/10 flex items-center justify-center text-[#1b3bbb]">
-                    <svg class="w-5 h-5 animate-pulse" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <div class="relative w-12 h-12 sm:w-14 sm:h-14 flex items-center justify-center">
+                <div class="absolute inset-0 rounded-full border-3 sm:border-4 border-[#1b3bbb]/15 border-t-[#1b3bbb] animate-spin"></div>
+                <div class="w-7 h-7 sm:w-8 sm:h-8 rounded-xl sm:rounded-2xl bg-[#1b3bbb]/10 flex items-center justify-center text-[#1b3bbb]">
+                    <svg class="w-4 h-4 sm:w-5 sm:h-5 animate-pulse" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
                     </svg>
                 </div>
             </div>
-            <div class="space-y-1.5">
-                <h3 id="heavy-loading-title" class="text-base font-extrabold text-[#09103c]">Memproses...</h3>
-                <p id="heavy-loading-message" class="text-xs text-slate-500 font-medium">Mohon tunggu sejenak...</p>
+            <div class="space-y-1">
+                <h3 id="heavy-loading-title" class="text-sm sm:text-base font-extrabold text-[#09103c]">Memproses...</h3>
+                <p id="heavy-loading-message" class="text-[11px] sm:text-xs text-slate-500 font-medium">Mohon tunggu sejenak...</p>
             </div>
         </div>
     </div>
@@ -589,12 +717,14 @@
                     document.title = doc.title;
                     history.pushState({ url: url }, doc.title, url);
                     
-                    // Synchronize the sidebar active status dynamically
-                    const currentNav = document.querySelector('aside nav');
-                    const newNav = doc.querySelector('aside nav');
-                    if (currentNav && newNav) {
-                        currentNav.innerHTML = newNav.innerHTML;
-                    }
+                    // Synchronize all navigation elements dynamically (Desktop Sidebar, Mobile Drawer, Bottom Bar)
+                    ['aside nav', '#mobile-nav-drawer', '#mobile-bottom-nav'].forEach(sel => {
+                        const cur = document.querySelector(sel);
+                        const updated = doc.querySelector(sel);
+                        if (cur && updated) {
+                            cur.innerHTML = updated.innerHTML;
+                        }
+                    });
                     
                     // Synchronize header breadcrumb
                     const currentTitle = document.querySelector('.hidden.sm\\:flex.items-center.gap-2.text-xs.font-bold');

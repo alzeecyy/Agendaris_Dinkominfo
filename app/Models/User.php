@@ -150,6 +150,9 @@ class User extends Authenticatable
 
     /**
      * Checks if this user is an approver (Ketua) for an agenda's notulensi.
+     * Rule:
+     * - If agenda includes 1 Dinkominfo (semua_orang / multiple bidangs) -> ONLY Kepala Dinas (ketua_master) can approve.
+     * - If agenda is for a single specific Bidang (e.g. Aptika only) -> Kepala Bidang (ketua_bidang) of that specific bidang approves.
      */
     public function isApproverOfAgenda(Agenda $agenda): bool
     {
@@ -157,15 +160,22 @@ class User extends Authenticatable
             return false;
         }
 
-        if ($this->isKetuaMaster()) {
-            return true;
+        $hakAkses = $agenda->hak_akses ?? [];
+        $isLintasDinas = in_array('semua_orang', $hakAkses) || count($hakAkses) > 1 || count($hakAkses) === 0;
+
+        if ($isLintasDinas) {
+            return $this->isKetuaMaster();
         }
 
         if ($this->isKetuaBidang()) {
-            $hakAkses = $agenda->hak_akses ?? [];
-            if (in_array('semua_orang', $hakAkses) || in_array((string)$this->bidang_id, array_map('strval', $hakAkses))) {
+            $singleBidangId = $hakAkses[0] ?? null;
+            if ($singleBidangId && (string)$this->bidang_id === (string)$singleBidangId) {
                 return true;
             }
+        }
+
+        if ($this->isKetuaMaster()) {
+            return true;
         }
 
         return false;
