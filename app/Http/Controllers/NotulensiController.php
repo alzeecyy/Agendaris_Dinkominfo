@@ -111,6 +111,8 @@ class NotulensiController extends Controller
             return back()->with('error', 'Silakan unggah minimal 1 berkas audio rapat terlebih dahulu.');
         }
 
+        @set_time_limit(0);
+
         // Set is_transcribing to true
         $notulensi->update([
             'is_transcribing' => true,

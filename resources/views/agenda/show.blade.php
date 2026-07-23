@@ -536,13 +536,15 @@
                     
                     @php
                         $notulensi = $agenda->notulensi;
+                        $hasAudio = !empty($notulensi->audio_path) || (!empty($notulensi->audio_files) && count($notulensi->audio_files) > 0);
+                        $isTranscribing = $notulensi->is_transcribing && $hasAudio;
+
                         $hasDraftContent = !empty($notulensi->ringkasan) 
                             || !empty($notulensi->transkrip_raw) 
                             || !empty($notulensi->pembahasan) 
-                            || !empty($notulensi->audio_path) 
-                            || (!empty($notulensi->audio_files) && count($notulensi->audio_files) > 0);
+                            || $hasAudio;
 
-                        if ($notulensi->is_transcribing) {
+                        if ($isTranscribing) {
                             $notulenLabel = 'Proses Transkripsi';
                             $notulenColor = 'bg-sky-50 text-sky-600 border-sky-200';
                         } elseif ($notulensi->transkrip_error) {
@@ -1106,9 +1108,9 @@
     }
     </script>
 
-    <!-- Floating AI Background Processing Toast (Sekretaris Only) -->
-    @if($isSecretaryOfAgenda && $agenda->notulensi && $agenda->notulensi->is_transcribing)
-        <div class="fixed bottom-6 right-6 z-50 bg-[#09103c] text-white p-4 rounded-2xl shadow-2xl border border-sky-500/30 flex items-center gap-3.5 max-w-sm animate-bounce">
+    <!-- Floating AI Background Processing Toast (Sekretaris Only - Non-blocking top-right position) -->
+    @if($isSecretaryOfAgenda && $agenda->notulensi && $agenda->notulensi->is_transcribing && (!empty($agenda->notulensi->audio_path) || (!empty($agenda->notulensi->audio_files) && count($agenda->notulensi->audio_files) > 0)))
+        <div class="fixed top-24 right-6 z-50 bg-[#09103c] text-white p-4 rounded-2xl shadow-2xl border border-sky-500/30 flex items-center gap-3.5 max-w-sm animate-bounce pointer-events-none">
             <div class="w-9 h-9 bg-sky-500/20 text-sky-400 rounded-xl flex items-center justify-center shrink-0">
                 <svg class="w-5 h-5 animate-spin" fill="none" viewBox="0 0 24 24">
                     <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>

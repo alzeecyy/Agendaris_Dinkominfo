@@ -115,6 +115,15 @@ class AgendaController extends Controller
         // Eager load relations for high performance
         $agenda->load(['sekretaris.bidang', 'notulensi', 'externalParticipants']);
 
+        // Auto-heal stale is_transcribing status if no audio file exists
+        if ($agenda->notulensi && $agenda->notulensi->is_transcribing) {
+            $notulensi = $agenda->notulensi;
+            $hasAudio = !empty($notulensi->audio_path) || (!empty($notulensi->audio_files) && count($notulensi->audio_files) > 0);
+            if (!$hasAudio) {
+                $notulensi->update(['is_transcribing' => false]);
+            }
+        }
+
         // Get own presensi status
         $ownPresensi = Presensi::where('agenda_id', $agenda->id)
             ->where('user_id', $user->id)

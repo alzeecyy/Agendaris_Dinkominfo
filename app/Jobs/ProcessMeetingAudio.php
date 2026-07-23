@@ -35,6 +35,9 @@ class ProcessMeetingAudio implements ShouldQueue
      */
     public function handle(): void
     {
+        @set_time_limit(0);
+        @ini_set('memory_limit', '512M');
+
         try {
             Log::info("ProcessMeetingAudio job started for notulensi ID: " . $this->notulensi->id);
             
@@ -72,7 +75,9 @@ class ProcessMeetingAudio implements ShouldQueue
                 
                 if (!$audioPath) continue;
 
-                $audioFile = Storage::disk('public')->path($audioPath);
+                $audioFile = str_replace(['/', '\\'], DIRECTORY_SEPARATOR, Storage::disk('public')->path($audioPath));
+                $scriptPath = str_replace(['/', '\\'], DIRECTORY_SEPARATOR, base_path('transcribe_whisper_cpp.py'));
+
                 if (!file_exists($audioFile)) {
                     Log::error("ProcessMeetingAudio: Audio file not found at " . $audioFile);
                     continue;
@@ -80,8 +85,26 @@ class ProcessMeetingAudio implements ShouldQueue
 
                 try {
                     Log::info("ProcessMeetingAudio: Transcribing audio file #" . ($index + 1) . " ({$audioName})...");
-                    $cmd = (str_contains($pythonPath, ' ') ? '"' . $pythonPath . '"' : $pythonPath) . " " . escapeshellarg($scriptPath) . " " . escapeshellarg($audioFile) . " 2>&1";
-                    $output = shell_exec($cmd);
+                    
+                    $cmd = '"' . $pythonPath . '" "' . $scriptPath . '" "' . $audioFile . '"';
+                    $descriptors = [
+                        0 => ["pipe", "r"],
+                        1 => ["pipe", "w"],
+                        2 => ["pipe", "w"],
+                    ];
+
+                    $process = proc_open($cmd, $descriptors, $pipes, base_path());
+                    $output = '';
+                    $stderr = '';
+
+                    if (is_resource($process)) {
+                        fclose($pipes[0]);
+                        $output = stream_get_contents($pipes[1]);
+                        $stderr = stream_get_contents($pipes[2]);
+                        fclose($pipes[1]);
+                        fclose($pipes[2]);
+                        $returnCode = proc_close($process);
+                    }
 
                     if ($output) {
                         $data = json_decode($output, true);
@@ -95,8 +118,10 @@ class ProcessMeetingAudio implements ShouldQueue
                                 }
                             }
                         } else {
-                            Log::error("ProcessMeetingAudio: Whisper error on file " . $audioName . ": " . $output);
+                            Log::error("ProcessMeetingAudio: Whisper error on file " . $audioName . ": Output: " . $output . " Stderr: " . $stderr);
                         }
+                    } else {
+                        Log::error("ProcessMeetingAudio: Empty output from Python process. Stderr: " . $stderr);
                     }
                 } catch (\Exception $e) {
                     Log::error("ProcessMeetingAudio exception for " . $audioName . ": " . $e->getMessage());
