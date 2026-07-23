@@ -244,7 +244,10 @@ class="w-full flex flex-col gap-5 select-none">
 
                 </div>
             @endforeach
-         <!-- ========================================== -->
+        </div>
+    @endif
+
+    <!-- ========================================== -->
     <!-- 📺 FULL SCREEN TV DISPLAY MODE OVERLAY    -->
     <!-- ========================================== -->
     <div x-show="tvMode" x-cloak 
