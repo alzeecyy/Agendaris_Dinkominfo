@@ -58,7 +58,7 @@ class="w-full flex flex-col gap-5 select-none">
                     <svg class="w-3.5 h-3.5 text-slate-950 animate-bounce" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path>
                     </svg>
-                    <span>📺 Mode Papan TV (Full Screen)</span>
+                    <span>Mode Papan TV (Full Screen)</span>
                 </button>
             </div>
 
