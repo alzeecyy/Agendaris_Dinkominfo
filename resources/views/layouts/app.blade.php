@@ -199,10 +199,10 @@
                     </svg>
                 </button>
 
-                <img src="{{ asset('images/logo-banyumas-crest.png') }}" alt="Logo Banyumas" class="h-6 sm:h-8 md:h-9 w-auto hover:scale-105 transition-transform duration-300 shrink-0">
+                <img src="{{ asset('images/logo-banyumas-crest.png') }}" alt="Logo Banyumas" class="h-6 sm:h-8 md:h-10 w-auto hover:scale-105 transition-transform duration-300 shrink-0">
                 <div class="flex flex-col justify-center min-w-0">
-                    <h1 class="text-[9.5px] sm:text-[10.5px] md:text-[11px] font-extrabold leading-tight text-[#09103c] tracking-tight truncate">Dinas Komunikasi dan Informatika</h1>
-                    <span class="text-[7.5px] sm:text-[8.5px] md:text-[9px] text-slate-500 font-semibold tracking-tight leading-none truncate">Pemerintah Kabupaten Banyumas</span>
+                    <h1 class="text-xs sm:text-sm md:text-base font-extrabold leading-tight text-[#09103c] tracking-tight truncate">Dinas Komunikasi dan Informatika</h1>
+                    <span class="text-[9px] sm:text-[10px] md:text-xs text-slate-500 font-semibold tracking-tight leading-none truncate">Pemerintah Kabupaten Banyumas</span>
                 </div>
             </div>
 
@@ -228,15 +228,15 @@
                     ];
                 @endphp
                 <div class="relative shrink-0 select-none">
-                    <button type="button" @click="profileMenuOpen = !profileMenuOpen" class="text-[#09103c] flex items-center gap-2 p-1 rounded-xl hover:bg-slate-50 transition-colors text-right cursor-pointer focus:outline-none">
-                        <div class="hidden lg:flex flex-col justify-center gap-0.5 text-right">
-                            <div class="text-xs font-black text-[#09103c] leading-tight">{{ Auth::user()->name }}</div>
+                    <button type="button" @click="profileMenuOpen = !profileMenuOpen" class="text-[#09103c] flex items-center gap-2.5 p-1 sm:p-1.5 rounded-xl hover:bg-slate-50 transition-colors text-right cursor-pointer focus:outline-none">
+                        <div class="hidden sm:flex flex-col justify-center gap-0.5 text-right">
+                            <div class="text-xs sm:text-sm font-black text-[#09103c] leading-tight">{{ Auth::user()->name }}</div>
                             <div>
-                                <span class="inline-block text-[8px] font-extrabold px-2 py-0.5 rounded-full border {{ $roleColors[Auth::user()->role] ?? 'bg-slate-100 border-slate-200 text-slate-700' }} uppercase tracking-wider">
+                                <span class="inline-block text-[8.5px] sm:text-[9px] font-extrabold px-2 py-0.5 rounded-full border {{ $roleColors[Auth::user()->role] ?? 'bg-slate-100 border-slate-200 text-slate-700' }} uppercase tracking-wider">
                                     {{ $roleLabels[Auth::user()->role] ?? 'User' }}
                                 </span>
                             </div>
-                            <div class="text-[9px] text-slate-500 font-bold font-mono">NIP. {{ Auth::user()->nip }}</div>
+                            <div class="text-[9.5px] sm:text-[10px] text-slate-500 font-bold font-mono">NIP. {{ Auth::user()->nip }}</div>
                         </div>
                         <div class="w-7 h-7 sm:w-8 sm:h-8 md:w-10 md:h-10 bg-[#1b3bbb]/10 rounded-xl md:rounded-2xl flex items-center justify-center font-bold text-[#1b3bbb] text-[10px] sm:text-xs md:text-sm border border-[#1b3bbb]/20 shadow-sm shrink-0">
                             {{ substr(Auth::user()->name, 0, 2) }}
