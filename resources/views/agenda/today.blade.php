@@ -54,9 +54,9 @@ class="w-full flex flex-col gap-5 select-none">
                 <!-- TV DISPLAY BUTTON -->
                 <button @click="toggleTvMode()" 
                         type="button"
-                        class="inline-flex items-center gap-1.5 px-3 py-1 bg-emerald-400/20 hover:bg-emerald-400/30 text-emerald-300 border border-emerald-400/40 rounded-full text-[10px] font-extrabold tracking-wider uppercase transition-all cursor-pointer shadow-xs active:scale-95">
-                    <svg class="w-3.5 h-3.5 text-emerald-300 animate-bounce" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path>
+                        class="inline-flex items-center gap-1.5 px-3.5 py-1 bg-amber-400 hover:bg-amber-300 text-slate-950 font-black rounded-full text-[10px] tracking-wider uppercase transition-all cursor-pointer shadow-md hover:scale-105 active:scale-95 border border-amber-300">
+                    <svg class="w-3.5 h-3.5 text-slate-950 animate-bounce" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path>
                     </svg>
                     <span>📺 Mode Papan TV (Full Screen)</span>
                 </button>
