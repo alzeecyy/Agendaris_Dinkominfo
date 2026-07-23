@@ -430,8 +430,10 @@ class DashboardController extends Controller
             $agendasByDate[$dateStr] = $this->calculateOverlaps($agendasByDate[$dateStr]);
         }
 
-        // Get list of all Bidangs to pass to "Tambah Agenda" form
-        $bidangs = Bidang::orderBy('nama')->get();
+        // Get list of all Bidangs with active users to pass to "Tambah Agenda" form
+        $bidangs = Bidang::with(['users' => function($q) {
+            $q->where('role', '!=', 'admin')->where('active', true)->orderBy('name');
+        }])->orderBy('nama')->get();
 
         // Find today's events for the highlighting/side summary panel, filtered by bidang if not master
         $todayStr = Carbon::today()->toDateString();

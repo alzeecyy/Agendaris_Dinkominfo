@@ -457,13 +457,9 @@ class NotulensiController extends Controller
             abort(400, 'Dokumen belum disahkan.');
         }
 
-        // Get internal attendees
+        // Get internal attendees (only invited meeting_participants)
         $hakAkses = $agenda->hak_akses;
-        $participantsQuery = \App\Models\User::where('role', '!=', 'admin')->where('active', true);
-        if (!in_array('semua_orang', $hakAkses)) {
-            $participantsQuery->whereIn('bidang_id', $hakAkses);
-        }
-        $internalUsers = $participantsQuery->orderBy('name')->get();
+        $internalUsers = $agenda->getInternalParticipants();
         $attendanceRecords = Presensi::where('agenda_id', $agenda->id)->get()->keyBy('user_id');
 
         $attendees = [];
@@ -560,13 +556,9 @@ class NotulensiController extends Controller
             abort(400, 'Dokumen belum disahkan.');
         }
 
-        // Get internal attendees
+        // Get internal attendees (only invited meeting_participants)
         $hakAkses = $agenda->hak_akses;
-        $participantsQuery = \App\Models\User::where('role', '!=', 'admin')->where('active', true);
-        if (!in_array('semua_orang', $hakAkses)) {
-            $participantsQuery->whereIn('bidang_id', $hakAkses);
-        }
-        $internalUsers = $participantsQuery->orderBy('name')->get();
+        $internalUsers = $agenda->getInternalParticipants();
         $attendanceRecords = Presensi::where('agenda_id', $agenda->id)->get()->keyBy('user_id');
 
         $attendees = [];

@@ -530,11 +530,27 @@
                     </div>
                 </div>
 
-                <!-- Hak Akses (Audience) -->
+                <!-- Hak Akses & Kelola Peserta -->
                 @php
                     $allBidangIds = $bidangs->pluck('id')->map(fn($id) => (string)$id)->toArray();
                     $totalBidangCount = count($allBidangIds);
+                    $bidangsUserData = $bidangs->map(function($b) {
+                        return [
+                            'id' => (string)$b->id,
+                            'nama' => $b->nama,
+                            'singkatan' => $b->singkatan,
+                            'users' => $b->users->map(function($u) {
+                                return [
+                                    'id' => (string)$u->id,
+                                    'name' => $u->name,
+                                    'nip' => $u->nip ?? '-',
+                                    'jabatan' => $u->jabatan ?? '-',
+                                ];
+                            })->values()->toArray(),
+                        ];
+                    })->values()->toArray();
                 @endphp
+
                 <div x-data='{
                     semuaOrang: false,
                     allBidangIds: {{ json_encode(array_values($allBidangIds)) }},
@@ -542,13 +558,23 @@
                     bidangs: {{ Auth::user()->isSekretarisBidang() ? json_encode([(string)Auth::user()->bidang_id]) : "[]" }},
                     isSekBid: {{ Auth::user()->isSekretarisBidang() ? "true" : "false" }},
                     ownBidangId: "{{ Auth::user()->bidang_id }}",
+                    bidangsUserData: {{ json_encode($bidangsUserData) }},
+                    selectedParticipants: [],
+                    participantModalOpen: false,
+
+                    init() {
+                        this.syncParticipants();
+                    },
+
                     toggleSemua() {
                         if (this.semuaOrang) {
                             this.bidangs = Array.from(this.allBidangIds);
                         } else {
                             this.bidangs = [];
                         }
+                        this.syncParticipants();
                     },
+
                     checkBidang(id) {
                         if (this.isSekBid) {
                             if (!this.bidangs.includes(this.ownBidangId)) {
@@ -560,16 +586,61 @@
                             }
                         }
                         this.semuaOrang = (this.bidangs.length === this.totalCount);
+                        this.syncParticipants();
+                    },
+
+                    syncParticipants() {
+                        let activeUserIds = [];
+                        this.bidangsUserData.forEach(b => {
+                            if (this.bidangs.includes(b.id)) {
+                                b.users.forEach(u => {
+                                    activeUserIds.push(u.id);
+                                });
+                            }
+                        });
+                        let newSelection = this.selectedParticipants.filter(id => activeUserIds.includes(id));
+                        activeUserIds.forEach(id => {
+                            if (!newSelection.includes(id)) {
+                                newSelection.push(id);
+                            }
+                        });
+                        this.selectedParticipants = newSelection;
+                    },
+
+                    toggleBidangUsers(bidangId) {
+                        let b = this.bidangsUserData.find(item => item.id === bidangId);
+                        if (!b) return;
+                        let bUserIds = b.users.map(u => u.id);
+                        let allChecked = bUserIds.every(id => this.selectedParticipants.includes(id));
+
+                        if (!allChecked) {
+                            bUserIds.forEach(id => {
+                                if (!this.selectedParticipants.includes(id)) {
+                                    this.selectedParticipants.push(id);
+                                }
+                            });
+                        } else {
+                            this.selectedParticipants = this.selectedParticipants.filter(id => !bUserIds.includes(id));
+                        }
+                    },
+
+                    isBidangAllChecked(bidangId) {
+                        let b = this.bidangsUserData.find(item => item.id === bidangId);
+                        if (!b || b.users.length === 0) return false;
+                        return b.users.every(u => this.selectedParticipants.includes(u.id));
                     }
                 }' class="space-y-1.5 border-t border-slate-100 pt-2.5">
-                    <label class="block text-[10.5px] font-bold text-slate-600 uppercase tracking-wider">Hak Akses / Peserta Rapat <span class="text-rose-500 font-bold">*</span></label>
+                    <label class="block text-[10.5px] font-bold text-slate-600 uppercase tracking-wider">Bidang & Peserta Rapat <span class="text-rose-500 font-bold">*</span></label>
 
-                    <div class="bg-slate-50/70 border border-slate-200/80 rounded-xl p-2 space-y-1">
+                    <!-- Hidden Inputs for Selected Participants -->
+                    <template x-for="userId in selectedParticipants" :key="userId">
+                        <input type="hidden" name="participants[]" :value="userId">
+                    </template>
+
+                    <div class="bg-slate-50/70 border border-slate-200/80 rounded-xl p-2.5 space-y-2">
                         @if(Auth::user()->isSekretarisBidang())
-                            <!-- Enforce own bidang submission -->
                             <input type="hidden" name="bidangs[]" value="{{ Auth::user()->bidang_id }}">
                         @else
-                            <!-- Semua orang checkbox -->
                             <label class="flex items-center gap-2 px-2 py-1 bg-white rounded-lg border border-slate-200/60 hover:border-indigo-200 transition-all cursor-pointer select-none">
                                 <input type="checkbox" name="semua_orang" value="1" x-model="semuaOrang" @change="toggleSemua()"
                                        class="w-3.5 h-3.5 rounded border-slate-300 text-indigo-600 focus:ring-indigo-500 focus:ring-offset-0 transition-all">
@@ -577,7 +648,6 @@
                             </label>
                         @endif
                         
-                        <!-- Individual Bidangs in 1-Column Vertical List -->
                         <div class="grid grid-cols-1 gap-1">
                             @foreach($bidangs as $bid)
                                 <label class="flex items-center justify-between px-2.5 py-1 rounded-lg border border-transparent hover:border-slate-200 hover:bg-white transition-all cursor-pointer select-none">
@@ -596,6 +666,101 @@
                                     @endif
                                 </label>
                             @endforeach
+                        </div>
+
+                        <!-- Kelola Peserta Button Bar -->
+                        <div class="pt-2 border-t border-slate-200/60 flex items-center justify-between">
+                            <button type="button" @click="participantModalOpen = true" 
+                                    :class="selectedParticipants.length === 0 ? 'bg-rose-50 border-rose-300 text-rose-700' : 'bg-indigo-50 hover:bg-indigo-100 text-[#1b3bbb] border-indigo-200'"
+                                    class="inline-flex items-center gap-1.5 px-3 py-1.5 border rounded-xl text-xs font-bold transition-all shadow-2xs cursor-pointer active:scale-95">
+                                <svg class="w-4 h-4" :class="selectedParticipants.length === 0 ? 'text-rose-600' : 'text-[#1b3bbb]'" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"></path>
+                                </svg>
+                                <span>Kelola Peserta</span>
+                                <span class="px-1.5 py-0.5 rounded-full text-[10px] font-extrabold" :class="selectedParticipants.length === 0 ? 'bg-rose-600 text-white animate-pulse' : 'bg-[#1b3bbb] text-white'" x-text="selectedParticipants.length"></span>
+                            </button>
+                            <span :class="selectedParticipants.length === 0 ? 'text-rose-600 font-extrabold animate-pulse' : 'text-slate-500 font-medium'" class="text-[11px]" x-text="selectedParticipants.length === 0 ? '⚠️ Minimal 1 peserta!' : selectedParticipants.length + ' peserta diundang'"></span>
+                        </div>
+                    </div>
+
+                    <!-- KELOLA PESERTA MODAL -->
+                    <div x-show="participantModalOpen" x-cloak class="fixed inset-0 z-[99999] flex items-center justify-center p-4 sm:p-6 bg-slate-900/60 backdrop-blur-xs select-none">
+                        <div @click.away="participantModalOpen = false" class="bg-white rounded-2xl md:rounded-3xl shadow-2xl border border-slate-200/80 w-full max-w-xl flex flex-col max-h-[85vh] overflow-hidden animate-in fade-in zoom-in duration-200">
+                            
+                            <div class="px-5 py-4 bg-gradient-to-r from-[#09103c] via-[#1b3bbb] to-[#09103c] text-white flex items-center justify-between shrink-0">
+                                <div class="flex items-center gap-2.5">
+                                    <div class="p-2 bg-white/10 rounded-xl border border-white/15">
+                                        <svg class="w-5 h-5 text-amber-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"></path>
+                                        </svg>
+                                    </div>
+                                    <div>
+                                        <h3 class="text-base font-extrabold text-white">Kelola Peserta Rapat</h3>
+                                        <p class="text-[11px] text-indigo-100 font-medium">Hilangkan centang jika terdapat anggota bidang yang tidak diundang</p>
+                                    </div>
+                                </div>
+                                <button @click="participantModalOpen = false" type="button" class="p-1.5 bg-white/10 hover:bg-rose-500 rounded-xl text-white transition-all cursor-pointer">
+                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                                    </svg>
+                                </button>
+                            </div>
+
+                            <div class="p-5 overflow-y-auto space-y-4 flex-1">
+                                <template x-if="bidangs.length === 0">
+                                    <div class="p-8 text-center bg-slate-50 rounded-2xl border border-dashed border-slate-200">
+                                        <p class="text-xs text-slate-500 font-bold">Pilih minimal satu bidang di atas terlebih dahulu untuk mengelola peserta.</p>
+                                    </div>
+                                </template>
+
+                                <template x-for="bidang in bidangsUserData.filter(b => bidangs.includes(b.id))" :key="bidang.id">
+                                    <div class="bg-slate-50 border border-slate-200/80 rounded-2xl p-3.5 space-y-2.5">
+                                        <div class="flex items-center justify-between pb-2 border-b border-slate-200/60">
+                                            <div class="flex items-center gap-2">
+                                                <span class="w-2.5 h-2.5 rounded-full bg-[#1b3bbb]"></span>
+                                                <span class="text-xs font-black text-[#09103c]" x-text="bidang.nama + ' (' + bidang.singkatan + ')'"></span>
+                                            </div>
+                                            <button type="button" @click="toggleBidangUsers(bidang.id)" class="text-[10.5px] font-extrabold text-[#1b3bbb] hover:underline cursor-pointer">
+                                                <span x-text="isBidangAllChecked(bidang.id) ? 'Hapus Centang Semua' : 'Centang Semua'"></span>
+                                            </button>
+                                        </div>
+
+                                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-1.5">
+                                            <template x-for="user in bidang.users" :key="user.id">
+                                                <label class="flex items-start gap-2.5 p-2 bg-white rounded-xl border border-slate-200/60 hover:border-indigo-200 cursor-pointer select-none transition-all">
+                                                    <input type="checkbox" :value="user.id" x-model="selectedParticipants" class="w-4 h-4 rounded border-slate-300 text-indigo-600 focus:ring-indigo-500 mt-0.5 shrink-0">
+                                                    <div class="min-w-0">
+                                                        <div class="text-xs font-bold text-slate-800 leading-tight truncate" x-text="user.name"></div>
+                                                        <div class="text-[10px] text-slate-500 font-medium truncate" x-text="user.jabatan"></div>
+                                                    </div>
+                                                </label>
+                                            </template>
+                                        </div>
+                                    </div>
+                                </template>
+                            <!-- Modal Footer -->
+                            <div class="px-5 py-3.5 bg-slate-50 border-t border-slate-200 flex flex-col sm:flex-row items-center justify-between gap-3 shrink-0">
+                                <div class="text-xs font-bold text-slate-600 flex items-center gap-1">
+                                    <template x-if="selectedParticipants.length === 0">
+                                        <span class="text-rose-600 font-black flex items-center gap-1">⚠️ Pilih minimal 1 peserta!</span>
+                                    </template>
+                                    <template x-if="selectedParticipants.length > 0">
+                                        <span>Total Terpilih: <span class="text-[#1b3bbb] font-black" x-text="selectedParticipants.length"></span> Peserta</span>
+                                    </template>
+                                </div>
+                                <div class="flex items-center gap-2 w-full sm:w-auto justify-end">
+                                    <button type="button" @click="participantModalOpen = false" class="px-4 py-2 bg-slate-200 hover:bg-slate-300 text-slate-700 text-xs font-bold rounded-xl transition-all cursor-pointer">
+                                        Tutup
+                                    </button>
+                                    <button type="button" 
+                                            @click="if(selectedParticipants.length === 0) { alert('Pilih minimal 1 peserta rapat.'); } else { participantModalOpen = false; }" 
+                                            :class="selectedParticipants.length === 0 ? 'bg-slate-300 text-slate-500 cursor-not-allowed' : 'bg-[#1b3bbb] hover:bg-indigo-700 text-white shadow-md cursor-pointer'"
+                                            class="px-5 py-2 text-xs font-extrabold rounded-xl transition-all">
+                                        Simpan Peserta
+                                    </button>
+                                </div>
+                            </div>
+
                         </div>
                     </div>
                 </div>

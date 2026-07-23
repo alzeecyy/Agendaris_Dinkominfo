@@ -108,8 +108,13 @@ class User extends Authenticatable
             return true; // Masters & Sekretariat staff can view all agendas across all bidangs
         }
 
-        // For Bidang roles & Staff:
-        $hakAkses = $agenda->hak_akses; // array of bidang_ids or ['semua_orang']
+        // If specific meeting_participants are saved for this agenda, check if user is invited
+        if ($agenda->participants()->exists()) {
+            return $agenda->participants()->where('users.id', $this->id)->exists();
+        }
+
+        // For Bidang roles & Staff fallback:
+        $hakAkses = $agenda->hak_akses ?? [];
         
         if (in_array('semua_orang', $hakAkses)) {
             return true;

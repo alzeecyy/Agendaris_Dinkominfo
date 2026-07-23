@@ -140,6 +140,28 @@ class AgendaController extends Controller
             'sekretaris_id' => $user->id,
         ]);
 
+        // Determine participants to attach
+        $allowedUsersQuery = \App\Models\User::where('role', '!=', 'admin')->where('active', true);
+        if (!in_array('semua_orang', $hakAkses)) {
+            $allowedUsersQuery->whereIn('bidang_id', $hakAkses);
+        }
+        $allowedUserIds = $allowedUsersQuery->pluck('id')->toArray();
+
+        if ($request->has('participants')) {
+            $submittedParticipants = array_map('intval', (array) $request->input('participants', []));
+            $targetUserIds = array_values(array_intersect($submittedParticipants, $allowedUserIds));
+            if (count($targetUserIds) === 0) {
+                return back()->withErrors(['bidangs' => 'Pilih minimal 1 peserta rapat yang diundang.'])->withInput();
+            }
+        } else {
+            $targetUserIds = $allowedUserIds;
+            if (count($targetUserIds) === 0) {
+                return back()->withErrors(['bidangs' => 'Bidang yang dipilih tidak memiliki anggota aktif.'])->withInput();
+            }
+        }
+
+        $agenda->participants()->sync($targetUserIds);
+
         // If it needs presensi, automatically initialize an empty notulensi record
         if ($butuhPresensi && $agenda->kategori === 'rapat') {
             Notulensi::create([
@@ -165,24 +187,15 @@ class AgendaController extends Controller
         }
 
         // Eager load relations for high performance
-        $agenda->load(['sekretaris.bidang', 'notulensi', 'externalParticipants']);
+        $agenda->load(['sekretaris.bidang', 'notulensi', 'externalParticipants', 'participants']);
 
         // Get own presensi status
         $ownPresensi = Presensi::where('agenda_id', $agenda->id)
             ->where('user_id', $user->id)
             ->first();
 
-        // Get internal participants lists
-        // Internal participants are users from the bidang(s) that have access to this agenda
-        $hakAkses = $agenda->hak_akses; // array of bidang_ids or ['semua_orang']
-        
-        $participantsQuery = \App\Models\User::where('role', '!=', 'admin')->where('active', true);
-        
-        if (!in_array('semua_orang', $hakAkses)) {
-            $participantsQuery->whereIn('bidang_id', $hakAkses);
-        }
-        
-        $internalUsers = $participantsQuery->orderBy('name')->get();
+        // Get internal participants using helper (only invited meeting_participants)
+        $internalUsers = $agenda->getInternalParticipants();
 
         // Get actual attendance records
         $attendanceRecords = Presensi::where('agenda_id', $agenda->id)
@@ -208,6 +221,7 @@ class AgendaController extends Controller
 
         // Calculate attendance recap per bidang
         $recap = [];
+        $hakAkses = $agenda->hak_akses;
         $allowedBidangs = [];
         
         if (in_array('semua_orang', $hakAkses)) {
@@ -253,6 +267,11 @@ class AgendaController extends Controller
         $initialTempat = in_array($agenda->lokasi, $stdLocations) ? $agenda->lokasi : 'Lainnya';
         $initialTempatLainnya = $initialTempat === 'Lainnya' ? $agenda->lokasi : '';
 
+        // Load bidangs with active non-admin users for edit modal participant management
+        $bidangsWithUsers = Bidang::with(['users' => function($q) {
+            $q->where('role', '!=', 'admin')->where('active', true)->orderBy('name');
+        }])->orderBy('nama')->get();
+
         return view('agenda.show', compact(
             'agenda', 
             'ownPresensi', 
@@ -262,7 +281,8 @@ class AgendaController extends Controller
             'isSecretaryOfAgenda',
             'isApproverOfAgenda',
             'initialTempat',
-            'initialTempatLainnya'
+            'initialTempatLainnya',
+            'bidangsWithUsers'
         ));
     }
 
@@ -345,6 +365,33 @@ class AgendaController extends Controller
             'nomor_surat_dasar' => $validated['nomor_surat_dasar'] ?? null,
         ]);
 
+        // Sync participants
+        $allowedUsersQuery = \App\Models\User::where('role', '!=', 'admin')->where('active', true);
+        if (!in_array('semua_orang', $newHakAkses)) {
+            $allowedUsersQuery->whereIn('bidang_id', $newHakAkses);
+        }
+        $allowedUserIds = $allowedUsersQuery->pluck('id')->toArray();
+
+        if ($request->has('participants')) {
+            $submittedParticipants = array_map('intval', (array) $request->input('participants', []));
+            $targetUserIds = array_values(array_intersect($submittedParticipants, $allowedUserIds));
+            if (count($targetUserIds) === 0) {
+                return back()->withErrors(['bidangs' => 'Pilih minimal 1 peserta rapat yang diundang.'])->withInput();
+            }
+        } else {
+            $targetUserIds = $allowedUserIds;
+            if (count($targetUserIds) === 0) {
+                return back()->withErrors(['bidangs' => 'Bidang yang dipilih tidak memiliki anggota aktif.'])->withInput();
+            }
+        }
+
+        $agenda->participants()->sync($targetUserIds);
+
+        // Cleanup presensi of uninvited users if any
+        Presensi::where('agenda_id', $agenda->id)
+            ->whereNotIn('user_id', $targetUserIds)
+            ->delete();
+
         // Manage notulensi instantiation based on updated toggles
         if ($butuhPresensi && $agenda->kategori === 'rapat') {
             if (!$agenda->notulensi) {
@@ -354,9 +401,6 @@ class AgendaController extends Controller
                 ]);
             }
         } else {
-            // If toggle turned off, we can optionally keep or delete the notulensi.
-            // Let's delete it if it is still a draft and empty, or keep it if they want.
-            // Deleting is fine to avoid orphan data.
             if ($agenda->notulensi && $agenda->notulensi->status === 'draft') {
                 $agenda->notulensi->delete();
             }
