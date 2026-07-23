@@ -96,6 +96,24 @@ class User extends Authenticatable
     }
 
     /**
+     * Checks if this user can view the Agenda Hari Ini (TV / Monitoring Board) page.
+     * Allowed: Pimpinan (Ketua Master/Bidang), Sekretaris (Master/Bidang), and Sekretariat Staff.
+     * Regular staff of Aptika, IKP, Statistika, etc. are excluded to avoid confusion.
+     */
+    public function canViewAgendaToday(): bool
+    {
+        if ($this->isAdmin()) {
+            return false;
+        }
+
+        return $this->isSekretarisMaster() 
+            || $this->isKetuaMaster() 
+            || $this->isSekretarisBidang() 
+            || $this->isKetuaBidang() 
+            || $this->isSekretariat();
+    }
+
+    /**
      * Checks if this user has access to view/participate in an agenda.
      */
     public function hasAccessToAgenda(Agenda $agenda): bool

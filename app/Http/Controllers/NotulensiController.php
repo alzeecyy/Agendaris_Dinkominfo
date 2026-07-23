@@ -316,7 +316,11 @@ class NotulensiController extends Controller
         $user = Auth::user();
 
         if (!$user->hasAccessToAgenda($agenda)) {
-            abort(403, 'Akses ditolak. Anda tidak memiliki wewenang untuk membuka agenda ini.');
+            $prevUrl = url()->previous();
+            if (empty($prevUrl) || $prevUrl === url()->current()) {
+                return redirect()->route('agenda.today')->with('warning', 'Akses ditolak. Anda tidak terdaftar sebagai peserta dalam rapat ini.');
+            }
+            return redirect()->back()->with('warning', 'Akses ditolak. Anda tidak terdaftar sebagai peserta dalam rapat ini.');
         }
 
         $notulensi = $agenda->notulensi;

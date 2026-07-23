@@ -23,6 +23,10 @@ class AgendaController extends Controller
             return redirect()->route('admin.users.index');
         }
 
+        if (!$user->canViewAgendaToday()) {
+            return redirect()->route('dashboard');
+        }
+
         $todayDate = Carbon::today()->format('Y-m-d');
 
         $query = Agenda::with(['sekretaris', 'notulensi', 'presensis.user'])
@@ -183,7 +187,11 @@ class AgendaController extends Controller
 
         // Check if user has access to this agenda
         if (!$user->hasAccessToAgenda($agenda)) {
-            abort(403, 'Akses ditolak. Anda tidak memiliki wewenang untuk membuka agenda ini.');
+            $prevUrl = url()->previous();
+            if (empty($prevUrl) || $prevUrl === url()->current()) {
+                return redirect()->route('agenda.today')->with('warning', 'Akses ditolak. Anda tidak terdaftar sebagai peserta dalam rapat ini.');
+            }
+            return redirect()->back()->with('warning', 'Akses ditolak. Anda tidak terdaftar sebagai peserta dalam rapat ini.');
         }
 
         // Eager load relations for high performance

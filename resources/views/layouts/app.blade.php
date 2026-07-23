@@ -394,18 +394,20 @@
                             <span>Dashboard Utama</span>
                         </a>
 
-                        <!-- Today's Agendas Link -->
-                        <a href="{{ route('agenda.today') }}" 
-                           class="flex items-center justify-between px-4 py-3 rounded-2xl font-bold text-xs transition-all duration-200 
-                           {{ request()->routeIs('agenda.today') ? 'bg-[#1b3bbb] text-white shadow-lg shadow-[#1b3bbb]/20' : 'text-slate-600 hover:bg-[#1b3bbb]/5 hover:text-[#1b3bbb]' }}">
-                            <div class="flex items-center gap-3">
-                                <svg class="w-5 h-5 shrink-0 text-rose-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                                </svg>
-                                <span>Agenda Hari Ini</span>
-                            </div>
-                            <span class="w-2 h-2 rounded-full bg-rose-500 animate-pulse shrink-0"></span>
-                        </a>
+                        @if(Auth::user()->canViewAgendaToday())
+                            <!-- Today's Agendas Link -->
+                            <a href="{{ route('agenda.today') }}" 
+                               class="flex items-center justify-between px-4 py-3 rounded-2xl font-bold text-xs transition-all duration-200 
+                               {{ request()->routeIs('agenda.today') ? 'bg-[#1b3bbb] text-white shadow-lg shadow-[#1b3bbb]/20' : 'text-slate-600 hover:bg-[#1b3bbb]/5 hover:text-[#1b3bbb]' }}">
+                                <div class="flex items-center gap-3">
+                                    <svg class="w-5 h-5 shrink-0 text-rose-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                    </svg>
+                                    <span>Agenda Hari Ini</span>
+                                </div>
+                                <span class="w-2 h-2 rounded-full bg-rose-500 animate-pulse shrink-0"></span>
+                            </a>
+                        @endif
 
                         <!-- Calendar Link -->
                         <a href="{{ route('calendar') }}" 
@@ -546,6 +548,34 @@
                     </div>
                 @endif
 
+                <!-- SweetAlert2 Warning Popup Modal -->
+                @if(session('warning'))
+                    <script>
+                        (function() {
+                            function fireWarningSwal() {
+                                if (typeof Swal !== 'undefined') {
+                                    Swal.fire({
+                                        title: 'Akses Ditolak',
+                                        text: "{{ session('warning') }}",
+                                        icon: 'warning',
+                                        confirmButtonText: 'Mengerti',
+                                        confirmButtonColor: '#1b3bbb',
+                                        customClass: {
+                                            popup: 'rounded-3xl p-6',
+                                            confirmButton: 'rounded-xl px-6 py-2.5 font-bold'
+                                        }
+                                    });
+                                }
+                            }
+                            if (document.readyState === 'loading') {
+                                document.addEventListener('DOMContentLoaded', fireWarningSwal);
+                            } else {
+                                fireWarningSwal();
+                            }
+                        })();
+                    </script>
+                @endif
+
                 <!-- Dynamic Page Content -->
                 <div id="pjax-container" class="flex-1 min-w-0 w-full flex flex-col">
                     @yield('content')
@@ -568,14 +598,16 @@
                     <span class="text-[9px] leading-none">Beranda</span>
                 </a>
 
-                <!-- Hari Ini Shortcut -->
-                <a href="{{ route('agenda.today') }}" class="flex flex-col items-center justify-center gap-0.5 px-2.5 py-1 rounded-xl transition-all relative {{ request()->routeIs('agenda.today') ? 'text-[#1b3bbb] font-extrabold' : 'text-slate-500 font-medium hover:text-[#1b3bbb]' }}">
-                    <div class="relative">
-                        <svg class="w-5 h-5 shrink-0 text-rose-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-                        <span class="absolute -top-0.5 -right-0.5 w-1.5 h-1.5 rounded-full bg-rose-500 animate-pulse"></span>
-                    </div>
-                    <span class="text-[9px] leading-none">Hari Ini</span>
-                </a>
+                @if(Auth::user()->canViewAgendaToday())
+                    <!-- Hari Ini Shortcut -->
+                    <a href="{{ route('agenda.today') }}" class="flex flex-col items-center justify-center gap-0.5 px-2.5 py-1 rounded-xl transition-all relative {{ request()->routeIs('agenda.today') ? 'text-[#1b3bbb] font-extrabold' : 'text-slate-500 font-medium hover:text-[#1b3bbb]' }}">
+                        <div class="relative">
+                            <svg class="w-5 h-5 shrink-0 text-rose-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                            <span class="absolute -top-0.5 -right-0.5 w-1.5 h-1.5 rounded-full bg-rose-500 animate-pulse"></span>
+                        </div>
+                        <span class="text-[9px] leading-none">Hari Ini</span>
+                    </a>
+                @endif
 
                 <!-- Kalender -->
                 <a href="{{ route('calendar') }}" class="flex flex-col items-center justify-center gap-0.5 px-3 py-1 rounded-xl transition-all {{ request()->routeIs('calendar') && !request()->has('open_add') ? 'text-[#1b3bbb] font-extrabold' : 'text-slate-500 font-medium hover:text-[#1b3bbb]' }}">
