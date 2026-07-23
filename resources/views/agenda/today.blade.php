@@ -53,8 +53,8 @@ class="w-full flex flex-col gap-5 select-none">
                 <!-- TV DISPLAY BUTTON -->
                 <button @click="toggleTvMode()" 
                         type="button"
-                        class="inline-flex items-center gap-1.5 px-3 py-1 bg-amber-400/20 hover:bg-amber-400/30 text-amber-300 border border-amber-400/40 rounded-full text-[10px] font-extrabold tracking-wider uppercase transition-all cursor-pointer shadow-xs active:scale-95">
-                    <svg class="w-3.5 h-3.5 text-amber-300 animate-bounce" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        class="inline-flex items-center gap-1.5 px-3 py-1 bg-emerald-400/20 hover:bg-emerald-400/30 text-emerald-300 border border-emerald-400/40 rounded-full text-[10px] font-extrabold tracking-wider uppercase transition-all cursor-pointer shadow-xs active:scale-95">
+                    <svg class="w-3.5 h-3.5 text-emerald-300 animate-bounce" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path>
                     </svg>
                     <span>📺 Mode Papan TV (Full Screen)</span>
@@ -69,16 +69,16 @@ class="w-full flex flex-col gap-5 select-none">
 
         <!-- Realtime Live Status Stats -->
         <div class="relative z-10 flex flex-wrap items-center gap-2.5 sm:gap-3 shrink-0">
-            <div class="bg-white/10 backdrop-blur-md border border-white/15 rounded-2xl px-4 py-2.5 text-center min-w-[90px]">
-                <div class="text-xs font-bold text-rose-300 uppercase tracking-wider">Berlangsung</div>
+            <div class="bg-emerald-500/20 backdrop-blur-md border border-emerald-400/30 rounded-2xl px-4 py-2.5 text-center min-w-[95px]">
+                <div class="text-xs font-bold text-emerald-300 uppercase tracking-wider">Berlangsung</div>
                 <div class="text-lg sm:text-xl font-black text-white">{{ $ongoingAgendas->count() }}</div>
             </div>
-            <div class="bg-white/10 backdrop-blur-md border border-white/15 rounded-2xl px-4 py-2.5 text-center min-w-[90px]">
-                <div class="text-xs font-bold text-amber-300 uppercase tracking-wider">Mendatang</div>
+            <div class="bg-indigo-500/20 backdrop-blur-md border border-indigo-400/30 rounded-2xl px-4 py-2.5 text-center min-w-[95px]">
+                <div class="text-xs font-bold text-indigo-200 uppercase tracking-wider">Mendatang</div>
                 <div class="text-lg sm:text-xl font-black text-white">{{ $upcomingAgendas->count() }}</div>
             </div>
-            <div class="bg-white/10 backdrop-blur-md border border-white/15 rounded-2xl px-4 py-2.5 text-center min-w-[90px]">
-                <div class="text-xs font-bold text-emerald-300 uppercase tracking-wider">Selesai</div>
+            <div class="bg-white/10 backdrop-blur-md border border-white/15 rounded-2xl px-4 py-2.5 text-center min-w-[95px]">
+                <div class="text-xs font-bold text-slate-300 uppercase tracking-wider">Selesai</div>
                 <div class="text-lg sm:text-xl font-black text-white">{{ $completedAgendas->count() }}</div>
             </div>
         </div>
@@ -94,25 +94,25 @@ class="w-full flex flex-col gap-5 select-none">
         </button>
 
         <button @click="activeTab = 'ongoing'"
-                :class="activeTab === 'ongoing' ? 'bg-rose-600 text-white shadow-md shadow-rose-600/20' : 'bg-white text-slate-600 hover:bg-rose-50 border border-slate-200/80'"
+                :class="activeTab === 'ongoing' ? 'bg-emerald-600 text-white shadow-md shadow-emerald-600/20' : 'bg-white text-slate-600 hover:bg-emerald-50 border border-slate-200/80'"
                 class="px-4 py-2 rounded-xl text-xs font-bold transition-all shrink-0 flex items-center gap-2">
-            <span class="w-2 h-2 rounded-full bg-rose-500 animate-ping"></span>
+            <span class="w-2 h-2 rounded-full bg-emerald-500 animate-ping"></span>
             <span>Sedang Berlangsung</span>
-            <span class="px-2 py-0.5 rounded-full text-[10px] bg-rose-100 text-rose-800 font-black">{{ $ongoingAgendas->count() }}</span>
+            <span class="px-2 py-0.5 rounded-full text-[10px] bg-emerald-100 text-emerald-800 font-black">{{ $ongoingAgendas->count() }}</span>
         </button>
 
         <button @click="activeTab = 'upcoming'"
-                :class="activeTab === 'upcoming' ? 'bg-amber-600 text-white shadow-md shadow-amber-600/20' : 'bg-white text-slate-600 hover:bg-amber-50 border border-slate-200/80'"
+                :class="activeTab === 'upcoming' ? 'bg-[#1b3bbb] text-white shadow-md shadow-[#1b3bbb]/20' : 'bg-white text-slate-600 hover:bg-indigo-50 border border-slate-200/80'"
                 class="px-4 py-2 rounded-xl text-xs font-bold transition-all shrink-0 flex items-center gap-2">
             <span>Mendatang</span>
-            <span class="px-2 py-0.5 rounded-full text-[10px] bg-amber-100 text-amber-800 font-black">{{ $upcomingAgendas->count() }}</span>
+            <span class="px-2 py-0.5 rounded-full text-[10px] bg-indigo-100 text-indigo-800 font-black">{{ $upcomingAgendas->count() }}</span>
         </button>
 
         <button @click="activeTab = 'completed'"
-                :class="activeTab === 'completed' ? 'bg-emerald-600 text-white shadow-md shadow-emerald-600/20' : 'bg-white text-slate-600 hover:bg-emerald-50 border border-slate-200/80'"
+                :class="activeTab === 'completed' ? 'bg-slate-700 text-white shadow-md' : 'bg-white text-slate-600 hover:bg-slate-100 border border-slate-200/80'"
                 class="px-4 py-2 rounded-xl text-xs font-bold transition-all shrink-0 flex items-center gap-2">
             <span>Selesai</span>
-            <span class="px-2 py-0.5 rounded-full text-[10px] bg-emerald-100 text-emerald-800 font-black">{{ $completedAgendas->count() }}</span>
+            <span class="px-2 py-0.5 rounded-full text-[10px] bg-slate-100 text-slate-700 font-black">{{ $completedAgendas->count() }}</span>
         </button>
     </div>
 
@@ -141,11 +141,12 @@ class="w-full flex flex-col gap-5 select-none">
 
                     $tabCategory = $isOngoing ? 'ongoing' : ($isUpcoming ? 'upcoming' : 'completed');
                     
-                    $statusColor = $isOngoing ? 'border-rose-500 bg-rose-50/30' : ($isUpcoming ? 'border-amber-400 bg-amber-50/20' : 'border-emerald-400 bg-white');
+                    // Ongoing = GREEN (Emerald), Upcoming = BLUE (Indigo), Completed = SLATE (Grey)
+                    $statusColor = $isOngoing ? 'border-emerald-500 bg-emerald-50/20' : ($isUpcoming ? 'border-[#1b3bbb] bg-indigo-50/10' : 'border-slate-300 bg-white');
                     $statusBadge = $isOngoing 
-                        ? 'bg-rose-100 text-rose-700 border-rose-200' 
-                        : ($isUpcoming ? 'bg-amber-100 text-amber-700 border-amber-200' : 'bg-emerald-100 text-emerald-700 border-emerald-200');
-                    $statusText = $isOngoing ? '🔴 Sedang Berlangsung' : ($isUpcoming ? '🟡 Mendatang' : '🟢 Selesai');
+                        ? 'bg-emerald-100 text-emerald-800 border-emerald-300 font-extrabold' 
+                        : ($isUpcoming ? 'bg-indigo-100 text-indigo-800 border-indigo-200 font-extrabold' : 'bg-slate-100 text-slate-600 border-slate-200 font-semibold');
+                    $statusText = $isOngoing ? '🟢 SEDANG BERLANGSUNG' : ($isUpcoming ? '🔵 MENDATANG' : '⚪ SELESAI');
 
                     $isAbsen = $agenda->presensis->contains('user_id', Auth::id());
                 @endphp
@@ -157,14 +158,14 @@ class="w-full flex flex-col gap-5 select-none">
                         <div class="flex flex-wrap items-center gap-2">
                             <!-- Time Badge -->
                             <span class="px-3 py-1 rounded-xl bg-slate-100 text-[#09103c] font-mono text-xs font-bold flex items-center gap-1.5">
-                                <svg class="w-3.5 h-3.5 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <svg class="w-3.5 h-3.5 text-[#1b3bbb]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
                                 </svg>
                                 <span>{{ \Carbon\Carbon::parse($agenda->jam_mulai)->format('H:i') }} - {{ \Carbon\Carbon::parse($agenda->jam_selesai)->format('H:i') }} WIB</span>
                             </span>
 
                             <!-- Status Badge -->
-                            <span class="px-3 py-1 rounded-xl text-xs font-extrabold border {{ $statusBadge }}">
+                            <span class="px-3 py-1 rounded-xl text-xs border {{ $statusBadge }}">
                                 {{ $statusText }}
                             </span>
 
@@ -201,7 +202,7 @@ class="w-full flex flex-col gap-5 select-none">
                             </div>
 
                             <div class="flex items-center gap-1.5">
-                                <svg class="w-4 h-4 text-indigo-500 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <svg class="w-4 h-4 text-[#1b3bbb] shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"></path>
                                 </svg>
                                 <span>Peserta Hadir: <strong class="text-emerald-600 font-bold">{{ $agenda->presensis->count() }} Orang</strong></span>
@@ -263,7 +264,7 @@ class="w-full flex flex-col gap-5 select-none">
 
             <!-- TV Center Title -->
             <div class="hidden lg:flex flex-col items-center">
-                <div class="px-4 py-1 bg-white/10 backdrop-blur-md border border-white/20 rounded-full text-xs font-extrabold text-amber-300 tracking-widest uppercase flex items-center gap-2 mb-1">
+                <div class="px-4 py-1 bg-white/10 backdrop-blur-md border border-white/20 rounded-full text-xs font-extrabold text-emerald-300 tracking-widest uppercase flex items-center gap-2 mb-1">
                     <span class="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-ping"></span>
                     PAPAN INFORMASI REALTIME
                 </div>
@@ -274,7 +275,7 @@ class="w-full flex flex-col gap-5 select-none">
             <div class="flex items-center gap-4">
                 <div class="text-right bg-white/10 backdrop-blur-md border border-white/20 rounded-2xl px-5 py-2.5 shadow-lg">
                     <div class="text-xs font-bold text-indigo-200 uppercase tracking-wider" x-text="currentDate"></div>
-                    <div class="text-2xl lg:text-3xl font-black text-amber-300 font-mono tracking-tight drop-shadow-sm" x-text="currentTime"></div>
+                    <div class="text-2xl lg:text-3xl font-black text-emerald-300 font-mono tracking-tight drop-shadow-sm" x-text="currentTime"></div>
                 </div>
 
                 <button @click="toggleTvMode()" type="button" 
@@ -309,16 +310,19 @@ class="w-full flex flex-col gap-5 select-none">
                             $isOngoing = $nowTime >= $startTime && $nowTime <= $endTime;
                             $isUpcoming = $nowTime < $startTime;
 
+                            // Ongoing = GREEN (Emerald), Upcoming = ROYAL BLUE (Indigo), Completed = SLATE (Grey)
                             $tvCardBorder = $isOngoing 
-                                ? 'border-4 border-rose-500 bg-white ring-4 ring-rose-500/30 shadow-[0_10px_35px_rgba(244,63,94,0.35)]' 
-                                : ($isUpcoming ? 'border-2 border-amber-400 bg-white shadow-xl' : 'border-2 border-emerald-400 bg-white/95 shadow-lg');
+                                ? 'border-4 border-emerald-500 bg-white ring-4 ring-emerald-500/30 shadow-[0_10px_35px_rgba(16,185,129,0.35)]' 
+                                : ($isUpcoming ? 'border-2 border-[#1b3bbb] bg-white shadow-xl' : 'border-2 border-slate-300 bg-slate-100/95 opacity-80 shadow-xs');
                             
                             $tvStatusBadge = $isOngoing
-                                ? 'bg-rose-600 text-white animate-pulse'
-                                : ($isUpcoming ? 'bg-amber-500 text-slate-950 font-black' : 'bg-emerald-600 text-white font-black');
+                                ? 'bg-emerald-600 text-white animate-pulse font-black'
+                                : ($isUpcoming ? 'bg-[#1b3bbb] text-white font-black' : 'bg-slate-300 text-slate-800 font-bold');
 
-                            $tvStatusLabel = $isOngoing ? '🔴 SEDANG BERLANGSUNG' : ($isUpcoming ? '🟡 MENDATANG' : '🟢 SELESAI');
-                            $timeBadgeBg = $isOngoing ? 'bg-rose-50 text-rose-800 border-rose-200' : ($isUpcoming ? 'bg-amber-50 text-amber-900 border-amber-200' : 'bg-emerald-50 text-emerald-800 border-emerald-200');
+                            $tvStatusLabel = $isOngoing ? '🟢 SEDANG BERLANGSUNG' : ($isUpcoming ? '🔵 MENDATANG' : '⚪ SELESAI');
+                            $timeBadgeBg = $isOngoing 
+                                ? 'bg-emerald-50 text-emerald-900 border-emerald-200' 
+                                : ($isUpcoming ? 'bg-indigo-50 text-[#1b3bbb] border-indigo-200' : 'bg-slate-200 text-slate-700 border-slate-300');
                         @endphp
 
                         <div class="{{ $tvCardBorder }} rounded-3xl p-6 lg:p-8 flex flex-col justify-between gap-6 transition-all text-[#09103c]">
@@ -354,7 +358,7 @@ class="w-full flex flex-col gap-5 select-none">
                                     </div>
 
                                     <div class="flex items-center gap-2.5">
-                                        <svg class="w-5 h-5 text-[#1b3bbb] shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <svg class="w-5 h-5 text-emerald-600 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"></path>
                                         </svg>
                                         <span>Kehadiran Peserta: <strong class="text-emerald-600 font-extrabold">{{ $agenda->presensis->count() }} Terpresensi</strong></span>
@@ -362,7 +366,7 @@ class="w-full flex flex-col gap-5 select-none">
                                 </div>
                             </div>
 
-                            <div class="pt-4 border-t border-slate-100 flex items-center justify-between text-xs lg:text-sm font-bold text-slate-500">
+                            <div class="pt-4 border-t border-slate-200 flex items-center justify-between text-xs lg:text-sm font-bold text-slate-500">
                                 <span>Kategori: <strong class="text-[#1b3bbb] uppercase font-extrabold">{{ $agenda->kategori }}</strong></span>
                                 <span>Akses: <strong class="text-purple-700 font-extrabold">{{ in_array('semua_orang', $agenda->hak_akses) ? 'Lintas Dinas' : 'Internal Bidang' }}</strong></span>
                             </div>
@@ -374,7 +378,7 @@ class="w-full flex flex-col gap-5 select-none">
 
         <!-- TV Bottom Running Text Marquee -->
         <div class="shrink-0 bg-white/10 backdrop-blur-md border-t border-white/15 -mx-6 lg:-mx-10 -mb-6 lg:-mb-10 px-6 py-3 flex items-center gap-4 overflow-hidden">
-            <div class="px-3.5 py-1 rounded-xl bg-rose-600 text-white font-black text-xs uppercase tracking-wider shrink-0 flex items-center gap-1.5 shadow-md">
+            <div class="px-3.5 py-1 rounded-xl bg-emerald-600 text-white font-black text-xs uppercase tracking-wider shrink-0 flex items-center gap-1.5 shadow-md">
                 <span class="w-2 h-2 rounded-full bg-white animate-pulse"></span>
                 <span>PENGUMUMAN</span>
             </div>
