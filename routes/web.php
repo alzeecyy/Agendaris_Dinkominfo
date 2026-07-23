@@ -48,7 +48,8 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/calendar', [DashboardController::class, 'calendar'])->name('calendar');
     Route::get('/dashboard/events', [DashboardController::class, 'getEvents'])->name('dashboard.events');
 
-    // Agenda Details
+    // Agenda Details & Today's Agendas
+    Route::get('/kegiatan-hari-ini', [AgendaController::class, 'today'])->name('agenda.today');
     Route::get('/agenda/{agenda}', [AgendaController::class, 'show'])->name('agenda.show');
 
     // Presensi Mandiri

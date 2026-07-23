@@ -13,6 +13,58 @@ use Carbon\Carbon;
 class AgendaController extends Controller
 {
     /**
+     * Display today's activities & agendas page.
+     */
+    public function today(Request $request)
+    {
+        $user = Auth::user();
+
+        if ($user->isAdmin()) {
+            return redirect()->route('admin.users.index');
+        }
+
+        $todayDate = Carbon::today()->format('Y-m-d');
+
+        $query = Agenda::with(['bidangs', 'sekretaris', 'notulensi', 'presensis.user'])
+            ->whereDate('tanggal', $todayDate);
+
+        if (!$user->isSekretarisMaster() && !$user->isKetuaMaster() && !$user->isSekretariat()) {
+            $query->where(function ($q) use ($user) {
+                $q->whereJsonContains('hak_akses', 'semua_orang')
+                  ->orWhereJsonContains('hak_akses', (string)$user->bidang_id);
+            });
+        }
+
+        $agendas = $query->orderBy('jam_mulai', 'asc')->get();
+
+        $nowTime = Carbon::now()->format('H:i:s');
+
+        $ongoingAgendas = $agendas->filter(function($a) use ($nowTime) {
+            $start = Carbon::parse($a->jam_mulai)->format('H:i:s');
+            $end = Carbon::parse($a->jam_selesai)->format('H:i:s');
+            return $nowTime >= $start && $nowTime <= $end;
+        });
+
+        $upcomingAgendas = $agendas->filter(function($a) use ($nowTime) {
+            $start = Carbon::parse($a->jam_mulai)->format('H:i:s');
+            return $nowTime < $start;
+        });
+
+        $completedAgendas = $agendas->filter(function($a) use ($nowTime) {
+            $end = Carbon::parse($a->jam_selesai)->format('H:i:s');
+            return $nowTime > $end;
+        });
+
+        return view('agenda.today', compact(
+            'agendas',
+            'ongoingAgendas',
+            'upcomingAgendas',
+            'completedAgendas',
+            'todayDate'
+        ));
+    }
+
+    /**
      * Store a newly created agenda in storage.
      */
     public function store(Request $request)
