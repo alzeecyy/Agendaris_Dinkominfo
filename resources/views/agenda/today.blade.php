@@ -386,7 +386,7 @@ class="w-full flex flex-col gap-5 select-none">
 
                             <div class="pt-3 border-t border-slate-200 flex items-center justify-between text-xs lg:text-sm font-bold text-slate-500">
                                 <span>Kategori: <strong class="text-[#1b3bbb] uppercase font-extrabold">{{ $agenda->kategori }}</strong></span>
-                                <span>Akses: <strong class="text-purple-700 font-extrabold">{{ in_array('semua_orang', $agenda->hak_akses) ? 'Lintas Dinas' : 'Internal Bidang' }}</strong></span>
+                                <span>Lingkup: <strong class="text-purple-700 font-extrabold">{{ in_array('semua_orang', $agenda->hak_akses) ? 'Lintas Dinas' : 'Internal Bidang' }}</strong></span>
                             </div>
                         </div>
                     @endforeach
