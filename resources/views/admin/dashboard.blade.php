@@ -97,32 +97,39 @@
                         <h3 class="text-sm font-black text-[#2e2552] uppercase tracking-wider">Pegawai Terdaftar Terbaru</h3>
                         <p class="text-[10px] text-[#5a508f] mt-0.5">5 akun pegawai yang terakhir kali ditambahkan ke sistem</p>
                     </div>
-                    <a href="{{ route('admin.users.index') }}" class="text-xs font-bold text-[#8e88dd] hover:text-[#2e2552] transition-colors inline-flex items-center gap-1.5">
-                        <span>Semua Pegawai</span>
-                        <span>&rarr;</span>
+                    <a href="{{ route('admin.users.index') }}" 
+                       class="w-9 h-9 sm:w-auto sm:h-auto sm:px-3 sm:py-1.5 bg-[#f3f2fe] hover:bg-[#8e88dd]/20 border border-[#d4d1f5]/80 text-[#5a508f] hover:text-[#2e2552] rounded-xl text-xs font-bold transition-all duration-200 inline-flex items-center justify-center gap-1.5 shrink-0 shadow-2xs group"
+                       title="Semua Pegawai"
+                       aria-label="Lihat Semua Pegawai">
+                        <span class="hidden sm:inline">Semua Pegawai</span>
+                        <svg class="w-4 h-4 text-[#5a508f] group-hover:text-[#2e2552] transition-transform group-hover:translate-x-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7-7 7"></path>
+                        </svg>
                     </a>
                 </div>
                 
                 <div class="overflow-x-auto">
-                    <table class="w-full text-left text-xs text-[#2e2552]" style="table-layout: fixed">
+                    <table class="w-full min-w-[550px] sm:min-w-0 table-auto sm:table-fixed text-left text-xs text-[#2e2552]">
                         <thead class="text-[10px] font-bold uppercase tracking-wider text-[#5a508f] border-b border-[#d4d1f5]/30">
                             <tr>
-                                <th class="py-3 px-2" style="width: 35%;">Nama</th>
-                                <th class="py-3 px-2" style="width: 25%;">Bidang</th>
-                                <th class="py-3 px-2" style="width: 25%;">Role</th>
-                                <th class="py-3 px-2 text-center" style="width: 15%;">Status</th>
+                                <th class="py-3 px-3 sm:px-2 sm:w-[35%] whitespace-nowrap">Nama</th>
+                                <th class="py-3 px-3 sm:px-2 sm:hidden text-center whitespace-nowrap">NIP</th>
+                                <th class="py-3 px-3 sm:px-2 text-center sm:w-[25%] whitespace-nowrap">Bidang</th>
+                                <th class="py-3 px-3 sm:px-2 text-center sm:w-[25%] whitespace-nowrap">Role</th>
+                                <th class="py-3 px-3 sm:px-2 text-center sm:w-[15%] whitespace-nowrap">Status</th>
                             </tr>
                         </thead>
                         <tbody class="divide-y divide-[#d4d1f5]/20">
                             @forelse($recentUsers as $user)
                                 <tr class="hover:bg-[#f8f7ff] transition-colors">
-                                    <td class="py-3 px-2 font-bold">
+                                    <td class="py-3 px-3 sm:px-2 font-bold">
                                         <div class="font-bold text-[#2e2552]">{{ $user->name }}</div>
-                                        <div class="text-[10px] text-[#5a508f] font-mono mt-0.5">{{ $user->nip }}</div>
+                                        <div class="hidden sm:block text-[10px] text-[#5a508f] font-mono mt-0.5">{{ $user->nip }}</div>
                                     </td>
-                                    <td class="py-3 px-2 font-semibold text-[#5a508f]">{{ $user->bidang->singkatan ?? 'Master' }}</td>
-                                    <td class="py-3 px-2 font-bold text-slate-700 capitalize">{{ str_replace('_', ' ', $user->role) }}</td>
-                                    <td class="py-3 px-2 text-center">
+                                    <td class="py-3 px-3 sm:px-2 sm:hidden text-center text-xs text-[#5a508f] font-mono font-bold whitespace-nowrap">{{ $user->nip }}</td>
+                                    <td class="py-3 px-3 sm:px-2 text-center font-semibold text-[#5a508f] whitespace-nowrap">{{ $user->bidang->singkatan ?? 'Master' }}</td>
+                                    <td class="py-3 px-3 sm:px-2 text-center font-bold text-slate-700 capitalize whitespace-nowrap">{{ str_replace('_', ' ', $user->role) }}</td>
+                                    <td class="py-3 px-3 sm:px-2 text-center whitespace-nowrap">
                                         @if($user->active)
                                             <span class="inline-block text-[8px] font-black px-1.5 py-0.5 uppercase rounded bg-emerald-50 text-emerald-600 border border-emerald-100">Aktif</span>
                                         @else
@@ -132,7 +139,7 @@
                                 </tr>
                             @empty
                                 <tr>
-                                    <td colspan="4" class="py-6 text-center text-[#8e88dd] italic">Tidak ada pegawai terdaftar.</td>
+                                    <td colspan="5" class="py-6 text-center text-[#8e88dd] italic">Tidak ada pegawai terdaftar.</td>
                                 </tr>
                             @endforelse
                         </tbody>
@@ -142,39 +149,53 @@
         </div>
 
         <!-- Card: Recent Agendas -->
-        <div class="bg-white border border-[#d4d1f5]/60 rounded-[32px] p-6 shadow-sm flex flex-col justify-between text-[#2e2552]">
+        <div class="bg-white border border-[#d4d1f5]/60 rounded-[24px] sm:rounded-[32px] p-4 sm:p-6 shadow-sm flex flex-col justify-between text-[#2e2552]">
             <div>
                 <div class="flex items-center justify-between border-b border-[#d4d1f5]/40 pb-4 mb-4">
                     <div>
-                        <h3 class="text-sm font-black text-[#2e2552] uppercase tracking-wider">Agenda Rapat Terkini</h3>
+                        <h3 class="text-xs sm:text-sm font-black text-[#2e2552] uppercase tracking-wider">Agenda Rapat Terkini</h3>
                         <p class="text-[10px] text-[#5a508f] mt-0.5">5 agenda rapat dinas terbaru yang terjadwal di sistem</p>
                     </div>
                 </div>
                 
                 <div class="overflow-x-auto">
-                    <table class="w-full text-left text-xs text-[#2e2552]" style="table-layout: fixed">
+                    <table class="w-full min-w-[550px] sm:min-w-0 table-auto sm:table-fixed text-left text-xs text-[#2e2552]">
                         <thead class="text-[10px] font-bold uppercase tracking-wider text-[#5a508f] border-b border-[#d4d1f5]/30">
                             <tr>
-                                <th class="py-3 px-2" style="width: 40%;">Judul Rapat</th>
-                                <th class="py-3 px-2" style="width: 25%;">Tanggal / Waktu</th>
-                                <th class="py-3 px-2" style="width: 20%;">Penyelenggara</th>
-                                <th class="py-3 px-2 text-center" style="width: 15%;">Kategori</th>
+                                <th class="py-3 px-3 sm:px-2 sm:w-[40%] whitespace-nowrap">Judul Rapat</th>
+                                <th class="py-3 px-3 sm:px-2 sm:w-[25%] whitespace-nowrap">Tanggal / Waktu</th>
+                                <th class="py-3 px-3 sm:px-2 text-center sm:text-left sm:w-[20%] whitespace-nowrap">Penyelenggara</th>
+                                <th class="py-3 px-3 sm:px-2 text-center sm:w-[15%] whitespace-nowrap">Kategori</th>
                             </tr>
                         </thead>
                         <tbody class="divide-y divide-[#d4d1f5]/20">
                             @forelse($recentAgendas as $agenda)
                                 <tr class="hover:bg-[#f8f7ff] transition-colors">
-                                    <td class="py-3 px-2 font-bold text-[#2e2552]">{{ $agenda->judul }}</td>
-                                    <td class="py-3 px-2">
+                                    <td class="py-3 px-3 sm:px-2 font-bold text-[#2e2552]">{{ $agenda->judul }}</td>
+                                    <td class="py-3 px-3 sm:px-2 whitespace-nowrap">
                                         <div class="font-semibold text-slate-700">{{ $agenda->tanggal->format('d M Y') }}</div>
                                         <div class="text-[10px] text-[#5a508f] mt-0.5">{{ substr($agenda->jam_mulai, 0, 5) }} - {{ substr($agenda->jam_selesai, 0, 5) }} WIB</div>
                                     </td>
-                                    <td class="py-3 px-2 font-bold text-[#8e88dd]">
+                                    <td class="py-3 px-3 sm:px-2 text-center sm:text-left font-bold text-[#8e88dd] whitespace-nowrap">
                                         {{ $agenda->sekretaris->bidang->singkatan ?? 'Dinkominfo (Master)' }}
                                     </td>
-                                    <td class="py-3 px-2 text-center">
-                                        <span class="inline-block text-[8px] font-black px-2 py-0.5 rounded-full border {{ $agenda->kategori === 'rutin' ? 'bg-blue-50 text-blue-700 border-blue-200' : 'bg-rose-50 text-rose-700 border-rose-200' }} uppercase">
-                                            {{ $agenda->kategori }}
+                                    <td class="py-3 px-3 sm:px-2 text-center whitespace-nowrap">
+                                        @php
+                                            $kategoriBadgeStyles = [
+                                                'rapat' => 'bg-rose-50 text-rose-700 border-rose-200',
+                                                'sosialisasi' => 'bg-blue-50 text-blue-700 border-blue-200',
+                                                'pelatihan' => 'bg-emerald-50 text-emerald-700 border-emerald-200',
+                                                'kegiatan_lainnya' => 'bg-slate-100 text-slate-700 border-slate-200',
+                                            ];
+                                            $kategoriLabels = [
+                                                'rapat' => 'Rapat',
+                                                'sosialisasi' => 'Sosialisasi',
+                                                'pelatihan' => 'Pelatihan',
+                                                'kegiatan_lainnya' => 'Kegiatan Lainnya',
+                                            ];
+                                        @endphp
+                                        <span class="inline-block text-[8px] font-black px-2 py-0.5 rounded-full border {{ $kategoriBadgeStyles[$agenda->kategori] ?? 'bg-rose-50 text-rose-700 border-rose-200' }} uppercase">
+                                            {{ $kategoriLabels[$agenda->kategori] ?? $agenda->kategori }}
                                         </span>
                                     </td>
                                 </tr>
