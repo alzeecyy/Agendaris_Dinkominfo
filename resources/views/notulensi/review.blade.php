@@ -102,34 +102,41 @@
                         </a>
                     </div>
 
-                    @if($notulensi->approver)
+                    @if(isset($approverInfo))
                         <div class="p-3.5 bg-slate-50 border border-slate-200/60 rounded-2xl text-xs space-y-1">
-                            <p class="text-[9px] font-bold text-[#8e88dd] uppercase tracking-wider">Disahkan Oleh:</p>
-                            <p class="font-bold text-[#2e2552]">{{ $notulensi->approver->name }}</p>
-                            <p class="text-[10px] text-[#5a508f]">{{ $notulensi->approver->jabatan ?? '-' }}</p>
+                            <p class="text-[9px] font-bold text-[#8e88dd] uppercase tracking-wider">Pejabat Pengesah Notulensi:</p>
+                            <p class="font-bold text-[#2e2552]">{{ $approverInfo->name }}</p>
+                            <p class="text-[10px] text-[#5a508f]">{{ $approverInfo->jabatan }} {{ $approverInfo->sub_jabatan ?? '' }}</p>
+                            <p class="text-[9px] text-slate-400 font-mono">NIP. {{ $approverInfo->nip }}</p>
+                            @if(!empty($notulensi->tanda_tangan_approver))
+                                <div class="pt-2 mt-2 border-t border-slate-200/60">
+                                    <p class="text-[9px] font-bold text-emerald-600 flex items-center gap-1 mb-1">
+                                        <span>✓ Tanda Tangan Digital Tersimpan:</span>
+                                    </p>
+                                    <img src="{{ $notulensi->tanda_tangan_approver }}" class="h-10 border border-slate-200 bg-white rounded-lg p-1" />
+                                </div>
+                            @endif
                         </div>
                     @endif
+
                 </div>
             @elseif($isApprover)
                 <!-- Approval Control Card -->
-                <div class="bg-white border border-[#d4d1f5]/60 rounded-[32px] p-6 shadow-sm space-y-6">
+                <div class="bg-white border border-[#d4d1f5]/60 rounded-[32px] p-6 shadow-sm space-y-6" x-data="approverSignatureApp()">
                     <div>
                         <h3 class="text-xs font-bold uppercase tracking-wider text-[#2e2552]">Persetujuan Dokumen</h3>
                         <p class="text-[10px] text-[#5a508f] mt-1.5 leading-relaxed font-medium">Harap tinjau draf di sebelah kiri secara saksama sebelum mengambil keputusan.</p>
                     </div>
 
                     <div class="space-y-3">
-                        <!-- 1. APPROVE ACTION -->
-                        <form action="{{ route('notulensi.review.approve', $agenda->id) }}" method="POST" data-confirm="Apakah Anda yakin ingin mengesahkan notulensi rapat ini?">
-                            @csrf
-                            <button type="submit" 
-                                    class="w-full py-3 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 active:scale-[0.98] text-white font-bold text-xs uppercase tracking-wider rounded-xl shadow-md shadow-emerald-600/10 transition-all flex items-center justify-center gap-2">
-                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                                </svg>
-                                <span>Sahkan & Setujui Dokumen</span>
-                            </button>
-                        </form>
+                        <!-- 1. APPROVE ACTION BUTTON (Triggers Modal) -->
+                        <button type="button" @click="openSignatureModal()" 
+                                class="w-full py-3 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 active:scale-[0.98] text-white font-bold text-xs uppercase tracking-wider rounded-xl shadow-md shadow-emerald-600/10 transition-all flex items-center justify-center gap-2">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                            </svg>
+                            <span>Sahkan & Setujui Dokumen</span>
+                        </button>
 
                         <!-- 2. REVISE SWITCH BUTTON -->
                         <button @click="openRevisiPanel = !openRevisiPanel" 
@@ -140,6 +147,148 @@
                             <span>Tolak & Minta Perbaikan</span>
                         </button>
                     </div>
+
+                    <!-- Hidden Form for Approval -->
+                    <form action="{{ route('notulensi.review.approve', $agenda->id) }}" method="POST" id="approval-form">
+                        @csrf
+                        <input type="hidden" name="tanda_tangan_approver" id="tanda_tangan_approver_input" x-model="signatureData">
+                    </form>
+
+                    <!-- DIGITAL SIGNATURE MODAL -->
+                    <div x-show="showModal" x-cloak x-transition.opacity
+                         class="fixed inset-0 z-[99999] bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4">
+                        
+                        <div class="bg-white rounded-3xl p-5 sm:p-6 max-w-md w-full shadow-2xl border border-slate-200 space-y-4 transform transition-all">
+                            
+                            <div class="flex items-center justify-between border-b border-slate-100 pb-3">
+                                <div class="flex items-center gap-2.5">
+                                    <div class="w-8 h-8 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center font-bold">
+                                        <svg class="w-4.5 h-4.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"></path>
+                                        </svg>
+                                    </div>
+                                    <div>
+                                        <h3 class="text-sm font-extrabold text-[#09103c]">Tanda Tangan Digital Pimpinan</h3>
+                                        <p class="text-[10.5px] text-slate-500 font-medium">Goreskan tanda tangan Anda sebelum mengesahkan.</p>
+                                    </div>
+                                </div>
+                                <button type="button" @click="closeSignatureModal()" class="text-slate-400 hover:text-slate-600 p-1 rounded-lg">
+                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                                    </svg>
+                                </button>
+                            </div>
+
+                            <!-- Canvas Container -->
+                            <div class="space-y-2 bg-slate-50 border border-slate-200/80 rounded-2xl p-3">
+                                <div class="flex items-center justify-between">
+                                    <span class="text-[10px] font-extrabold text-slate-500 uppercase tracking-wider">Area Tanda Tangan <span class="text-rose-500">*</span></span>
+                                    <button type="button" @click="clearSignature()" class="text-[10px] font-bold text-rose-500 hover:underline">Reset / Hapus</button>
+                                </div>
+                                <div class="border-2 border-dashed border-indigo-200 hover:border-indigo-400 rounded-xl p-1 bg-white transition-all">
+                                    <canvas id="approver-sig-canvas" class="w-full h-36 rounded-lg cursor-crosshair touch-none"></canvas>
+                                </div>
+                                <p class="text-[9.5px] text-slate-400 italic">Gunakan jari (layar sentuh HP) atau kursor mouse (komputer) untuk tanda tangan.</p>
+                            </div>
+
+                            <!-- Modal Action Buttons -->
+                            <div class="flex items-center justify-end gap-3 pt-2">
+                                <button type="button" @click="closeSignatureModal()"
+                                        class="px-4 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-600 font-bold text-xs rounded-xl transition-colors">
+                                    Batal
+                                </button>
+                                <button type="button" @click="confirmAndSubmit()"
+                                        class="px-5 py-2.5 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white font-bold text-xs rounded-xl shadow-md shadow-emerald-600/20 transition-all flex items-center gap-1.5">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                                    </svg>
+                                    <span>Sahkan & Simpan Tanda Tangan</span>
+                                </button>
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                    <!-- Script definition -->
+                    <script>
+                        function approverSignatureApp() {
+                            return {
+                                showModal: false,
+                                signatureData: '',
+                                openSignatureModal() {
+                                    this.showModal = true;
+                                    setTimeout(() => {
+                                        this.initCanvas();
+                                    }, 100);
+                                },
+                                closeSignatureModal() {
+                                    this.showModal = false;
+                                },
+                                initCanvas() {
+                                    const canvas = document.getElementById('approver-sig-canvas');
+                                    if (!canvas) return;
+
+                                    if (window.approverSigPad) {
+                                        window.approverSigPad.off();
+                                        window.approverSigPad = null;
+                                    }
+
+                                    const ratio = Math.max(window.devicePixelRatio || 1, 1);
+                                    const rect = canvas.getBoundingClientRect();
+                                    
+                                    canvas.width = rect.width * ratio;
+                                    canvas.height = rect.height * ratio;
+
+                                    const ctx = canvas.getContext('2d');
+                                    ctx.scale(ratio, ratio);
+
+                                    window.approverSigPad = new SignaturePad(canvas, {
+                                        penColor: '#09103c',
+                                        minWidth: 1.5,
+                                        maxWidth: 3.5,
+                                    });
+                                },
+                                clearSignature() {
+                                    if (window.approverSigPad) {
+                                        window.approverSigPad.clear();
+                                        this.signatureData = '';
+                                    }
+                                },
+                                confirmAndSubmit() {
+                                    if (!window.approverSigPad || window.approverSigPad.isEmpty()) {
+                                        if (typeof Swal !== 'undefined') {
+                                            Swal.fire({
+                                                icon: 'warning',
+                                                title: 'Tanda Tangan Masih Kosong!',
+                                                text: 'Mohon goreskan tanda tangan digital Anda terlebih dahulu pada kotak di atas sebelum mengesahkan.',
+                                                confirmButtonText: 'Mengerti'
+                                            });
+                                        } else {
+                                            alert('Mohon goreskan tanda tangan digital Anda terlebih dahulu!');
+                                        }
+                                        return;
+                                    }
+
+                                    const dataUrl = window.approverSigPad.toDataURL('image/png');
+                                    this.signatureData = dataUrl;
+                                    
+                                    const hiddenInput = document.getElementById('tanda_tangan_approver_input');
+                                    if (hiddenInput) {
+                                        hiddenInput.value = dataUrl;
+                                    }
+
+                                    this.closeSignatureModal();
+
+                                    if (typeof window.showHeavyLoading === 'function') {
+                                        window.showHeavyLoading('Mengesahkan Notulensi', 'Sistem sedang memproses pengesahan dokumen dan tanda tangan digital Pimpinan...');
+                                    }
+
+                                    document.getElementById('approval-form').submit();
+                                }
+                            }
+                        }
+                    </script>
 
                     <!-- 3. REVISION INPUT PANEL -->
                     <div x-show="openRevisiPanel" x-cloak x-transition

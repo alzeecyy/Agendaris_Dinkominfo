@@ -108,8 +108,13 @@ class User extends Authenticatable
             return true; // Masters & Sekretariat staff can view all agendas across all bidangs
         }
 
-        // For Bidang roles & Staff:
-        $hakAkses = $agenda->hak_akses; // array of bidang_ids or ['semua_orang']
+        // If specific meeting_participants are saved for this agenda, check if user is invited
+        if ($agenda->participants()->exists()) {
+            return $agenda->participants()->where('users.id', $this->id)->exists();
+        }
+
+        // For Bidang roles & Staff fallback:
+        $hakAkses = $agenda->hak_akses ?? [];
         
         if (in_array('semua_orang', $hakAkses)) {
             return true;
@@ -150,6 +155,9 @@ class User extends Authenticatable
 
     /**
      * Checks if this user is an approver (Ketua) for an agenda's notulensi.
+     * Rule:
+     * - If agenda includes 1 Dinkominfo (semua_orang / multiple bidangs) -> ONLY Kepala Dinas (ketua_master) can approve.
+     * - If agenda is for a single specific Bidang (e.g. Aptika only) -> Kepala Bidang (ketua_bidang) of that specific bidang approves.
      */
     public function isApproverOfAgenda(Agenda $agenda): bool
     {
@@ -157,15 +165,22 @@ class User extends Authenticatable
             return false;
         }
 
-        if ($this->isKetuaMaster()) {
-            return true;
+        $hakAkses = $agenda->hak_akses ?? [];
+        $isLintasDinas = in_array('semua_orang', $hakAkses) || count($hakAkses) > 1 || count($hakAkses) === 0;
+
+        if ($isLintasDinas) {
+            return $this->isKetuaMaster();
         }
 
         if ($this->isKetuaBidang()) {
-            $hakAkses = $agenda->hak_akses ?? [];
-            if (in_array('semua_orang', $hakAkses) || in_array((string)$this->bidang_id, array_map('strval', $hakAkses))) {
+            $singleBidangId = $hakAkses[0] ?? null;
+            if ($singleBidangId && (string)$this->bidang_id === (string)$singleBidangId) {
                 return true;
             }
+        }
+
+        if ($this->isKetuaMaster()) {
+            return true;
         }
 
         return false;

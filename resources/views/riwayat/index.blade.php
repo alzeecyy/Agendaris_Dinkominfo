@@ -126,80 +126,83 @@ class="space-y-6">
     </div>
 
     <!-- History Table Card -->
-    <div class="bg-white border border-[#d4d1f5]/60 rounded-[32px] p-6 shadow-sm overflow-hidden">
+    <div class="bg-white border border-[#d4d1f5]/60 rounded-xl md:rounded-[32px] p-2.5 sm:p-6 shadow-sm overflow-hidden">
         
-        <!-- Filter Bar -->
-        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
-            <!-- Search Agenda Name -->
-            <div class="relative">
-                <input type="text" x-model="searchQuery" placeholder="Cari nama agenda..."
-                       class="w-full pl-10 pr-4 py-2.5 bg-[#f3f2fe] border border-[#d4d1f5] rounded-2xl text-xs text-[#2e2552] focus:outline-none focus:ring-2 focus:ring-[#8e88dd]">
-                <div class="absolute left-3.5 top-1/2 -translate-y-1/2 text-[#5a508f]/60">
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <!-- Searchbar Top & Filters Below (Compact 1 Horizontal Row on Mobile) -->
+        <div class="space-y-2 sm:space-y-4 mb-3 sm:mb-6">
+            <!-- Row 1: Searchbar -->
+            <div class="relative w-full">
+                <input type="text" x-model="searchQuery" placeholder="Cari nama agenda kegiatan..."
+                       class="w-full pl-8 sm:pl-10 pr-3 sm:pr-4 py-1.5 sm:py-2.5 bg-[#f3f2fe] border border-[#d4d1f5] rounded-lg sm:rounded-2xl text-[11px] sm:text-xs text-[#2e2552] focus:outline-none focus:ring-2 focus:ring-[#8e88dd]">
+                <div class="absolute left-2.5 sm:left-3.5 top-1/2 -translate-y-1/2 text-[#5a508f]/60">
+                    <svg class="w-3.5 h-3.5 sm:w-4 sm:h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
                     </svg>
                 </div>
             </div>
             
-            <!-- Kategori Filter -->
-            <div>
-                <select x-model="filterKategori" 
-                        class="w-full px-4 py-2.5 bg-[#f3f2fe] border border-[#d4d1f5] rounded-2xl text-xs text-[#2e2552] focus:outline-none">
-                    <option value="">Semua Kategori</option>
-                    <option value="rapat">Rapat</option>
-                    <option value="sosialisasi">Sosialisasi</option>
-                    <option value="pelatihan">Pelatihan</option>
-                    <option value="kegiatan_lainnya">Kegiatan Lainnya</option>
-                </select>
-            </div>
-            
-            <!-- Tanggal Filter -->
-            <div>
-                <input type="date" x-model="filterTanggal" 
-                       class="w-full px-4 py-2.5 bg-[#f3f2fe] border border-[#d4d1f5] rounded-2xl text-xs text-[#2e2552] focus:outline-none">
-            </div>
-            
-            <!-- Status Filter -->
-            <div>
-                <select x-model="filterStatus" 
-                        class="w-full px-4 py-2.5 bg-[#f3f2fe] border border-[#d4d1f5] rounded-2xl text-xs text-[#2e2552] focus:outline-none">
-                    <option value="">Semua Kehadiran</option>
-                    <option value="hadir">Hadir</option>
-                    <option value="izin">Izin</option>
-                    <option value="sakit">Sakit</option>
-                    <option value="alfa">Alfa</option>
-                    <option value="none">Belum Absen (-)</option>
-                </select>
+            <!-- Row 2: 3 Dropdown Filters split evenly in 1 row on mobile -->
+            <div class="grid grid-cols-3 gap-1.5 sm:gap-4">
+                <!-- Kategori Filter -->
+                <div>
+                    <select x-model="filterKategori" 
+                            class="w-full px-1.5 sm:px-4 py-1.5 sm:py-2.5 bg-[#f3f2fe] border border-[#d4d1f5] rounded-lg sm:rounded-2xl text-[10px] sm:text-xs text-[#2e2552] focus:outline-none truncate">
+                        <option value="">Kategori</option>
+                        <option value="rapat">Rapat</option>
+                        <option value="sosialisasi">Sosialisasi</option>
+                        <option value="pelatihan">Pelatihan</option>
+                        <option value="kegiatan_lainnya">Kegiatan Lainnya</option>
+                    </select>
+                </div>
+                
+                <!-- Tanggal Filter -->
+                <div>
+                    <input type="date" x-model="filterTanggal" 
+                           class="w-full px-1 sm:px-4 py-1.5 sm:py-2.5 bg-[#f3f2fe] border border-[#d4d1f5] rounded-lg sm:rounded-2xl text-[9.5px] sm:text-xs text-[#2e2552] focus:outline-none">
+                </div>
+                
+                <!-- Status Filter -->
+                <div>
+                    <select x-model="filterStatus" 
+                            class="w-full px-1.5 sm:px-4 py-1.5 sm:py-2.5 bg-[#f3f2fe] border border-[#d4d1f5] rounded-lg sm:rounded-2xl text-[10px] sm:text-xs text-[#2e2552] focus:outline-none truncate">
+                        <option value="">Kehadiran</option>
+                        <option value="hadir">Hadir</option>
+                        <option value="izin">Izin</option>
+                        <option value="sakit">Sakit</option>
+                        <option value="alfa">Alfa</option>
+                        <option value="none">Belum Absen (-)</option>
+                    </select>
+                </div>
             </div>
         </div>
 
         <div class="overflow-x-auto">
-            <table class="w-full text-left text-xs text-[#2e2552]">
-                <thead class="text-[11px] font-bold uppercase tracking-wider text-[#5a508f] border-b border-[#d4d1f5]/40 select-none">
+            <table class="w-full text-left text-[10.5px] sm:text-sm text-[#2e2552]">
+                <thead class="text-[9px] sm:text-xs font-bold uppercase tracking-wider text-[#5a508f] border-b border-[#d4d1f5]/40 select-none">
                     <tr>
-                        <th class="py-3.5 px-3">Nama Agenda Kegiatan</th>
-                        <th class="py-3.5 px-3 text-center">Kategori</th>
-                        <th class="py-3.5 px-3 whitespace-nowrap">Tanggal & Jam</th>
-                        <th class="py-3.5 px-3">Lokasi</th>
-                        <th class="py-3.5 px-3 text-center leading-tight">Status<br>Kehadiran</th>
-                        <th class="py-3.5 px-3 text-center whitespace-nowrap">Notulensi</th>
+                        <th class="py-2 sm:py-4 px-2 sm:px-4">Nama Agenda Kegiatan</th>
+                        <th class="py-2 sm:py-4 px-2 sm:px-4 text-center">Kategori</th>
+                        <th class="py-2 sm:py-4 px-2 sm:px-4 whitespace-nowrap">Tanggal & Jam</th>
+                        <th class="py-2 sm:py-4 px-2 sm:px-4">Lokasi</th>
+                        <th class="py-2 sm:py-4 px-2 sm:px-4 text-center leading-tight">Status<br>Kehadiran</th>
+                        <th class="py-2 sm:py-4 px-2 sm:px-4 text-center whitespace-nowrap">Notulensi</th>
                     </tr>
                 </thead>
                 <tbody class="divide-y divide-[#d4d1f5]/30">
                     <!-- Client-side Empty State for filters -->
                     <tr x-show="filteredAgendas.length === 0" class="hover:bg-transparent">
-                        <td colspan="6" class="py-8 px-3 text-center text-[#8e88dd] italic font-medium">Tidak ada riwayat kegiatan yang cocok dengan kriteria filter.</td>
+                        <td colspan="6" class="py-6 px-4 text-center text-[#8e88dd] italic font-medium">Tidak ada riwayat kegiatan yang cocok dengan kriteria filter.</td>
                     </tr>
                     @forelse($riwayatData as $item)
                         <tr class="agenda-row hover:bg-[#f8f7ff] cursor-pointer transition-colors"
                             onclick="if (!event.target.closest('a')) { window.loadPage('{{ route('agenda.show', $item->id) }}', this) }"
                             x-show="matchesFilter('{{ addslashes($item->judul) }}', '{{ $item->kategori }}', '{{ $item->tanggal->toDateString() }}', '{{ $item->status_kehadiran }}') && isAgendaVisible({{ $item->id }})">
-                            <td class="py-3 px-3 font-bold text-xs text-[#2e2552]">
+                            <td class="py-2 sm:py-4 px-2 sm:px-4 font-bold text-[#2e2552]">
                                 <a href="{{ route('agenda.show', $item->id) }}" class="hover:text-[#8e88dd] transition-colors leading-snug">
                                     {{ $item->judul }}
                                 </a>
                             </td>
-                            <td class="py-3 px-3 text-center whitespace-nowrap">
+                            <td class="py-2 sm:py-4 px-2 sm:px-4 text-center whitespace-nowrap">
                                 @php
                                     $badgeStyles = [
                                         'rapat' => 'bg-rose-50 text-rose-700 border-rose-200',
@@ -214,29 +217,29 @@ class="space-y-6">
                                         'kegiatan_lainnya' => 'Kegiatan Lainnya',
                                     ];
                                 @endphp
-                                <span class="inline-block text-[9.5px] px-2 py-0.5 font-bold uppercase rounded-lg border 
+                                <span class="inline-block text-[8.5px] sm:text-[10px] px-2 py-0.5 font-bold uppercase rounded-md sm:rounded-lg border 
                                     {{ $badgeStyles[$item->kategori] ?? 'bg-slate-100 text-slate-700 border-slate-200' }}">
                                     {{ $kategoriLabels[$item->kategori] ?? $item->kategori }}
                                 </span>
                             </td>
-                            <td class="py-3 px-3 text-xs font-semibold whitespace-nowrap">
+                            <td class="py-2 sm:py-4 px-2 sm:px-4 text-[10px] sm:text-xs font-semibold">
                                 <div>{{ $item->tanggal->translatedFormat('d M Y') }}</div>
                                 <div class="text-[#8e88dd] mt-0.5 font-bold whitespace-nowrap">{{ substr($item->jam_mulai, 0, 5) }} - {{ substr($item->jam_selesai, 0, 5) }}</div>
                             </td>
-                            <td class="py-3 px-3 text-xs text-[#5a508f] font-medium whitespace-nowrap" title="{{ $item->lokasi }}">
+                            <td class="py-2 sm:py-4 px-2 sm:px-4 text-[10px] sm:text-xs text-[#5a508f] font-medium truncate max-w-[120px] sm:max-w-[150px]" title="{{ $item->lokasi }}">
                                 {{ $item->lokasi }}
                             </td>
-                            <td class="py-3 px-3 text-center text-xs whitespace-nowrap">
+                            <td class="py-2 sm:py-4 px-2 sm:px-4 text-center text-[10px] sm:text-xs">
                                 @if($item->status_kehadiran === 'hadir')
-                                    <span class="inline-block px-2 py-0.5 rounded-lg bg-emerald-50 text-emerald-600 border border-emerald-200 font-bold text-xs">Hadir ✓</span>
+                                    <span class="inline-block px-2 py-0.5 sm:px-2.5 sm:py-1 rounded-md sm:rounded-lg bg-emerald-50 text-emerald-600 border border-emerald-200 font-bold">Hadir ✓</span>
                                 @elseif($item->status_kehadiran === 'izin')
-                                    <span class="inline-block px-2 py-0.5 rounded-lg bg-amber-50 text-amber-600 border border-amber-200 font-bold text-xs">Izin</span>
+                                    <span class="inline-block px-2 py-0.5 sm:px-2.5 sm:py-1 rounded-md sm:rounded-lg bg-amber-50 text-amber-600 border border-amber-200 font-bold">Izin</span>
                                 @elseif($item->status_kehadiran === 'sakit')
-                                    <span class="inline-block px-2 py-0.5 rounded-lg bg-rose-50 text-rose-600 border border-rose-200 font-bold text-xs">Sakit</span>
+                                    <span class="inline-block px-2 py-0.5 sm:px-2.5 sm:py-1 rounded-md sm:rounded-lg bg-rose-50 text-rose-600 border border-rose-200 font-bold">Sakit</span>
                                 @elseif($item->status_kehadiran === 'alfa')
-                                    <span class="inline-block px-2 py-0.5 rounded-lg bg-red-50 text-red-600 border border-red-200 font-extrabold text-xs">Alfa</span>
+                                    <span class="inline-block px-2 py-0.5 sm:px-2.5 sm:py-1 rounded-md sm:rounded-lg bg-red-50 text-red-600 border border-red-200 font-extrabold">Alfa</span>
                                 @else
-                                    <span class="inline-block px-2 py-0.5 rounded-lg bg-slate-100 text-slate-400 border border-slate-200 font-semibold text-xs">-</span>
+                                    <span class="inline-block px-2 py-0.5 sm:px-2.5 sm:py-1 rounded-md sm:rounded-lg bg-slate-100 text-slate-400 border border-slate-200 font-semibold">-</span>
                                 @endif
                             </td>
                             <td class="py-3 px-3 text-center text-xs whitespace-nowrap">
@@ -258,7 +261,7 @@ class="space-y-6">
                                         </a>
                                     </div>
                                 @else
-                                    <span class="text-[#8e88dd] italic font-medium">Belum Disahkan</span>
+                                    <span class="inline-block px-2 py-0.5 rounded-md bg-slate-100/70 text-slate-400 border border-slate-200/50 text-[9.5px] font-semibold italic">Belum Disahkan</span>
                                 @endif
                             </td>
                         </tr>

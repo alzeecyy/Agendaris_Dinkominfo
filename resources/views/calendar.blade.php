@@ -171,18 +171,18 @@
     </div>
 
     <!-- RIGHT PANEL: 7-Day Weekly Agenda Grid -->
-    <div class="flex-1 bg-white border border-[#d4d1f5]/60 rounded-3xl p-6 shadow-sm flex flex-col overflow-x-auto">
+    <div class="flex-1 bg-white border border-[#d4d1f5]/60 rounded-xl md:rounded-3xl p-2.5 sm:p-6 shadow-sm flex flex-col overflow-x-auto">
         <!-- Calendar Navigation Header -->
-        <div class="flex items-center justify-between mb-6 gap-4 border-b border-[#d4d1f5]/40 pb-4">
-            <div>
-                <h2 class="text-lg font-bold text-[#2e2552] tracking-wide">Kalender Rinci Mingguan</h2>
-                <p class="text-xs text-[#5a508f] mt-0.5">Menampilkan jam kerja resmi dinas (07:15 - 15:30 WIB)</p>
+        <div class="flex items-center justify-between mb-3 sm:mb-6 gap-2 sm:gap-4 border-b border-[#d4d1f5]/40 pb-2 sm:pb-4">
+            <div class="min-w-0">
+                <h2 class="text-sm sm:text-lg font-bold text-[#2e2552] tracking-wide truncate">Kalender Rinci Mingguan</h2>
+                <p class="text-[9.5px] sm:text-xs text-[#5a508f] mt-0.5 hidden sm:block">Menampilkan jam kerja resmi dinas (07:15 - 15:30 WIB)</p>
             </div>
             
-            <div class="flex items-center gap-2">
+            <div class="flex items-center gap-1.5 sm:gap-2 shrink-0">
                 <a href="{{ route('calendar', ['date' => $selectedDate->copy()->subWeek()->toDateString()]) }}" 
-                   class="p-2.5 bg-[#f3f2fe] border border-[#d4d1f5] rounded-xl hover:bg-[#8e88dd]/20 text-[#2e2552] transition-all duration-200">
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                   class="p-1.5 sm:p-2.5 bg-[#f3f2fe] border border-[#d4d1f5] rounded-lg sm:rounded-xl hover:bg-[#8e88dd]/20 text-[#2e2552] transition-all duration-200">
+                    <svg class="w-3.5 h-3.5 sm:w-4 sm:h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
                     </svg>
                 </a>
@@ -194,13 +194,13 @@
                     $weekNum = (int) ($diffDays / 7) + 1;
                 @endphp
                 <a href="{{ route('calendar', ['date' => now()->toDateString()]) }}" 
-                   class="px-4 py-2 bg-[#f3f2fe] border border-[#d4d1f5] rounded-xl hover:bg-[#8e88dd]/20 text-xs font-semibold text-[#2e2552] transition-all duration-200"
+                   class="px-2.5 py-1 sm:px-4 sm:py-2 bg-[#f3f2fe] border border-[#d4d1f5] rounded-lg sm:rounded-xl hover:bg-[#8e88dd]/20 text-[10px] sm:text-xs font-semibold text-[#2e2552] transition-all duration-200 whitespace-nowrap"
                    title="Kembali ke Minggu Ini">
                     Minggu ke-{{ $weekNum }}
                 </a>
                 <a href="{{ route('calendar', ['date' => $selectedDate->copy()->addWeek()->toDateString()]) }}" 
-                   class="p-2.5 bg-[#f3f2fe] border border-[#d4d1f5] rounded-xl hover:bg-[#8e88dd]/20 text-[#2e2552] transition-all duration-200">
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                   class="p-1.5 sm:p-2.5 bg-[#f3f2fe] border border-[#d4d1f5] rounded-lg sm:rounded-xl hover:bg-[#8e88dd]/20 text-[#2e2552] transition-all duration-200">
+                    <svg class="w-3.5 h-3.5 sm:w-4 sm:h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
                     </svg>
                 </a>
@@ -208,11 +208,12 @@
         </div>
 
         <!-- Weekly Grid Layout -->
-        <div class="flex-1 w-full min-w-0 flex flex-col relative" style="height: 660px;">
+        <div class="flex-1 w-full overflow-x-auto custom-scrollbar">
+            <div class="min-w-[620px] sm:min-w-full flex flex-col relative h-[480px] sm:h-[660px]">
             <!-- Dates columns header -->
-            <div class="grid grid-cols-8 border-b border-[#d4d1f5]/40 pb-3 relative z-0">
+            <div class="grid grid-cols-8 border-b border-[#d4d1f5]/40 pb-2 sm:pb-3 relative z-0">
                 <!-- Time axes column -->
-                <div class="text-center text-xs font-bold text-[#5a508f] flex items-center justify-center">Waktu</div>
+                <div class="text-center text-[10px] sm:text-xs font-bold text-[#5a508f] flex items-center justify-center">Waktu</div>
                 <!-- 7 days columns -->
                 @foreach($dates as $date)
                     @php
@@ -222,8 +223,8 @@
                         $isSaturday = $date->isSaturday();
                     @endphp
                     <div class="text-center flex flex-col items-center justify-center">
-                        <span class="text-[9px] uppercase font-bold {{ $isSunday ? 'text-rose-500 font-extrabold' : ($isSaturday ? 'text-indigo-500 font-extrabold' : 'text-[#8e88dd]') }}">{{ $date->translatedFormat('D') }}</span>
-                        <span class="text-xs font-bold mt-0.5 px-3 py-1 rounded-xl transition-all duration-200 
+                        <span class="text-[8.5px] sm:text-[9px] uppercase font-bold {{ $isSunday ? 'text-rose-500 font-extrabold' : ($isSaturday ? 'text-indigo-500 font-extrabold' : 'text-[#8e88dd]') }}">{{ $date->translatedFormat('D') }}</span>
+                        <span class="text-[10px] sm:text-xs font-bold mt-0.5 px-2 py-0.5 sm:px-3 sm:py-1 rounded-lg sm:rounded-xl transition-all duration-200 
                             {{ $isDateToday ? 'bg-[#2e2552] text-white shadow-sm' : ($isDateSelected ? 'bg-[#8e88dd]/20 text-[#2e2552]' : ($isSunday ? 'text-rose-600 font-black' : ($isSaturday ? 'text-indigo-600 font-black' : 'text-[#5a508f]'))) }}">
                             {{ $date->day }}
                         </span>
@@ -232,7 +233,7 @@
             </div>
 
             <!-- Grid container with time axes rows & events overlay -->
-            <div class="h-[600px] grid grid-cols-8 relative z-10 select-none pb-3">
+            <div class="h-[420px] sm:h-[600px] grid grid-cols-8 relative z-10 select-none pb-2 sm:pb-3">
                 @php
                     $labelTimes = [
                         '07:15' => 0.0,
@@ -431,76 +432,55 @@
 
     <!-- MODAL: ADD AGENDA FORM -->
     <div x-show="openAddModal" x-cloak 
-         class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/50 backdrop-blur-sm">
+         class="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-slate-950/60 backdrop-blur-md transition-all duration-300">
         
         <div @click.away="openAddModal = false" 
-             class="bg-white border border-[#d4d1f5]/60 rounded-3xl w-full max-w-lg shadow-2xl overflow-hidden relative"
+             class="bg-white border border-slate-200/80 rounded-[24px] w-full max-w-xl shadow-2xl overflow-hidden relative text-slate-800"
              x-transition:enter="transition ease-out duration-300 transform"
-             x-transition:enter-start="opacity-0 scale-95"
-             x-transition:enter-end="opacity-100 scale-100">
+             x-transition:enter-start="opacity-0 scale-95 translate-y-2"
+             x-transition:enter-end="opacity-100 scale-100 translate-y-0"
+             x-transition:leave="transition ease-in duration-200 transform"
+             x-transition:leave-start="opacity-100 scale-100 translate-y-0"
+             x-transition:leave-end="opacity-0 scale-95 translate-y-2">
             
-            <div class="absolute top-0 left-0 w-full h-[2px] bg-gradient-to-r from-[#2e2552] to-[#8e88dd]"></div>
+            <!-- Top Gradient Accent -->
+            <div class="h-1.5 w-full bg-gradient-to-r from-indigo-500 via-indigo-600 to-violet-600"></div>
 
-            <div class="p-6 border-b border-[#d4d1f5]/40 flex items-center justify-between">
-                <div>
-                    <h3 class="text-base font-bold text-[#2e2552]">Buat Agenda Kegiatan Baru</h3>
-                    <p class="text-xs text-[#5a508f]">Jadwalkan rapat atau kegiatan Dinkominfo</p>
+            <!-- Modal Header -->
+            <div class="px-5 py-3 border-b border-slate-100 flex items-center justify-between bg-gradient-to-b from-slate-50/60 to-white">
+                <div class="flex items-center gap-2.5">
+                    <div class="w-8 h-8 rounded-xl bg-indigo-50 border border-indigo-100/80 text-indigo-600 flex items-center justify-center shrink-0 shadow-xs">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+                        </svg>
+                    </div>
+                    <div>
+                        <h3 class="text-base font-extrabold text-slate-800 tracking-tight leading-tight">Buat Agenda Kegiatan Baru</h3>
+                        <p class="text-[11px] text-slate-500 font-medium">Jadwalkan rapat atau kegiatan Dinkominfo</p>
+                    </div>
                 </div>
-                <button @click="openAddModal = false" class="text-[#5a508f] hover:text-[#2e2552] transition-colors">
-                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <button @click="openAddModal = false" class="w-7 h-7 rounded-full bg-slate-100/80 hover:bg-slate-200/80 text-slate-400 hover:text-slate-600 transition-all flex items-center justify-center shrink-0">
+                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
                     </svg>
                 </button>
             </div>
 
-            <form action="{{ route('agenda.store') }}" method="POST" class="p-6 space-y-4 max-h-[75vh] overflow-y-auto text-[#2e2552]">
+            <!-- Form Content (Responsive & Scrollable on Mobile) -->
+            <form action="{{ route('agenda.store') }}" method="POST" class="p-4 sm:px-5 sm:py-3.5 space-y-2.5 max-h-[80vh] sm:max-h-none overflow-y-auto">
                 @csrf
 
-                <!-- Title Input -->
-                <div class="space-y-1">
-                    <label for="judul" class="block text-xs font-bold text-[#5a508f] uppercase">Judul Kegiatan / Rapat <span class="text-rose-500">*</span></label>
-                    <input type="text" name="judul" id="judul" required placeholder="Contoh: Rapat Koordinasi Layanan SPBE"
-                           class="w-full px-4 py-2.5 bg-[#f3f2fe] border border-[#d4d1f5] rounded-2xl text-[#2e2552] text-sm focus:outline-none focus:ring-2 focus:ring-[#8e88dd]">
-                </div>
-
-                <!-- Date & Hours Row -->
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                    <div class="space-y-1">
-                        <label for="tanggal" class="block text-xs font-bold text-[#5a508f] uppercase">Tanggal <span class="text-rose-500">*</span></label>
-                        <input type="date" name="tanggal" id="tanggal" required x-model="selectedDate"
-                               min="{{ now()->subMonths(6)->toDateString() }}"
-                               max="{{ now()->addMonths(6)->toDateString() }}"
-                               class="w-full px-4 py-2.5 bg-[#f3f2fe] border border-[#d4d1f5] rounded-2xl text-[#2e2552] text-sm focus:outline-none focus:ring-2 focus:ring-[#8e88dd]">
+                <!-- Title & Category Row -->
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
+                    <div class="sm:col-span-2 space-y-1">
+                        <label for="judul" class="block text-[10.5px] font-bold text-slate-600 uppercase tracking-wider">Judul Kegiatan / Rapat <span class="text-rose-500 font-bold">*</span></label>
+                        <input type="text" name="judul" id="judul" required placeholder="Contoh: Rapat Koordinasi Layanan SPBE"
+                               class="w-full px-3 py-2 sm:py-1.5 bg-slate-50/80 hover:bg-slate-50 border border-slate-200 rounded-lg text-slate-800 text-xs placeholder-slate-400 focus:bg-white focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/10 transition-all font-medium">
                     </div>
                     <div class="space-y-1">
-                        <label for="jam_mulai" class="block text-xs font-bold text-[#5a508f] uppercase">Jam Mulai <span class="text-rose-500">*</span></label>
-                        <input type="time" name="jam_mulai" id="jam_mulai" required x-model="selectedTime"
-                               class="w-full px-4 py-2.5 bg-[#f3f2fe] border border-[#d4d1f5] rounded-2xl text-[#2e2552] text-sm focus:outline-none focus:ring-2 focus:ring-[#8e88dd]">
-                    </div>
-                    <div class="space-y-1">
-                        <label for="jam_selesai" class="block text-xs font-bold text-[#5a508f] uppercase">Jam Selesai <span class="text-rose-500">*</span></label>
-                        <input type="time" name="jam_selesai" id="jam_selesai" required value="15:30"
-                               class="w-full px-4 py-2.5 bg-[#f3f2fe] border border-[#d4d1f5] rounded-2xl text-[#2e2552] text-sm focus:outline-none focus:ring-2 focus:ring-[#8e88dd]">
-                    </div>
-                </div>
-
-                <!-- Tempat / Ruangan Dropdown & Kategori Row -->
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div class="space-y-1">
-                        <label for="tempat" class="block text-xs font-bold text-[#5a508f] uppercase">Tempat / Ruangan <span class="text-rose-500">*</span></label>
-                        <select id="tempat" name="lokasi" required
-                                class="w-full px-4 py-2.5 bg-[#f3f2fe] border border-[#d4d1f5] rounded-2xl text-[#2e2552] text-sm focus:outline-none focus:ring-2 focus:ring-[#8e88dd]">
-                            <option value="" disabled selected>Pilih Lokasi / Ruangan</option>
-                            <option value="Aula Rapat Dinkominfo">Aula Rapat Dinkominfo</option>
-                            <option value="Ruang Pelatihan">Ruang Pelatihan</option>
-                            <option value="Smart Room Graha Satria">Smart Room Graha Satria</option>
-                        </select>
-                    </div>
-
-                    <div class="space-y-1">
-                        <label for="kategori" class="block text-xs font-bold text-[#5a508f] uppercase">Kategori <span class="text-rose-500">*</span></label>
+                        <label for="kategori" class="block text-[10.5px] font-bold text-slate-600 uppercase tracking-wider">Kategori <span class="text-rose-500 font-bold">*</span></label>
                         <select name="kategori" id="kategori" required x-model="kategori"
-                                class="w-full px-4 py-2.5 bg-[#f3f2fe] border border-[#d4d1f5] rounded-2xl text-[#2e2552] text-sm focus:outline-none focus:ring-2 focus:ring-[#8e88dd]">
+                                class="w-full px-2.5 py-2 sm:py-1.5 bg-slate-50/80 hover:bg-slate-50 border border-slate-200 rounded-lg text-slate-800 text-xs focus:bg-white focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/10 transition-all font-medium">
                             <option value="" disabled selected>Pilih Kategori</option>
                             <option value="rapat">Rapat</option>
                             <option value="sosialisasi">Sosialisasi</option>
@@ -510,19 +490,67 @@
                     </div>
                 </div>
 
-                <!-- Description -->
-                <div class="space-y-1">
-                    <label for="deskripsi" class="block text-xs font-bold text-[#5a508f] uppercase">Deskripsi (Opsional)</label>
-                    <textarea name="deskripsi" id="deskripsi" rows="3" placeholder="Masukkan rincian singkat agenda kegiatan..."
-                              class="w-full px-4 py-2.5 bg-[#f3f2fe] border border-[#d4d1f5] rounded-2xl text-[#2e2552] text-sm focus:outline-none focus:ring-2 focus:ring-[#8e88dd]"></textarea>
+                <!-- Date & Hours Row (Responsive Grid: Tanggal full on mobile, times 2-col) -->
+                <div class="grid grid-cols-2 sm:grid-cols-3 gap-2.5">
+                    <div class="col-span-2 sm:col-span-1 space-y-1">
+                        <label for="tanggal" class="block text-[10.5px] font-bold text-slate-600 uppercase tracking-wider">Tanggal <span class="text-rose-500 font-bold">*</span></label>
+                        <input type="date" name="tanggal" id="tanggal" required x-model="selectedDate"
+                               min="{{ now()->subMonths(6)->toDateString() }}"
+                               max="{{ now()->addMonths(6)->toDateString() }}"
+                               class="w-full px-3 py-2 sm:py-1.5 bg-slate-50/80 hover:bg-slate-50 border border-slate-200 rounded-lg text-slate-800 text-xs focus:bg-white focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/10 transition-all font-medium">
+                    </div>
+                    <div class="space-y-1">
+                        <label for="jam_mulai" class="block text-[10.5px] font-bold text-slate-600 uppercase tracking-wider">Jam Mulai <span class="text-rose-500 font-bold">*</span></label>
+                        <input type="time" name="jam_mulai" id="jam_mulai" required x-model="selectedTime"
+                               class="w-full px-2.5 py-2 sm:py-1.5 bg-slate-50/80 hover:bg-slate-50 border border-slate-200 rounded-lg text-slate-800 text-xs focus:bg-white focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/10 transition-all font-medium">
+                    </div>
+                    <div class="space-y-1">
+                        <label for="jam_selesai" class="block text-[10.5px] font-bold text-slate-600 uppercase tracking-wider">Jam Selesai <span class="text-rose-500 font-bold">*</span></label>
+                        <input type="time" name="jam_selesai" id="jam_selesai" required value="15:30"
+                               class="w-full px-2.5 py-2 sm:py-1.5 bg-slate-50/80 hover:bg-slate-50 border border-slate-200 rounded-lg text-slate-800 text-xs focus:bg-white focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/10 transition-all font-medium">
+                    </div>
                 </div>
 
+                <!-- Location & Description Row -->
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+                    <div class="space-y-1">
+                        <label for="tempat" class="block text-[10.5px] font-bold text-slate-600 uppercase tracking-wider">Tempat / Ruangan <span class="text-rose-500 font-bold">*</span></label>
+                        <select id="tempat" name="lokasi" required
+                                class="w-full px-2.5 py-2 sm:py-1.5 bg-slate-50/80 hover:bg-slate-50 border border-slate-200 rounded-lg text-slate-800 text-xs focus:bg-white focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/10 transition-all font-medium">
+                            <option value="" disabled selected>Pilih Lokasi / Ruangan</option>
+                            <option value="Aula Rapat Dinkominfo">Aula Rapat Dinkominfo</option>
+                            <option value="Ruang Pelatihan">Ruang Pelatihan</option>
+                            <option value="Smart Room Graha Satria">Smart Room Graha Satria</option>
+                        </select>
+                    </div>
+                    <div class="space-y-1">
+                        <label for="deskripsi" class="block text-[10.5px] font-bold text-slate-600 uppercase tracking-wider">Deskripsi (Opsional)</label>
+                        <input type="text" name="deskripsi" id="deskripsi" placeholder="Masukkan rincian singkat agenda..."
+                               class="w-full px-3 py-2 sm:py-1.5 bg-slate-50/80 hover:bg-slate-50 border border-slate-200 rounded-lg text-slate-800 text-xs placeholder-slate-400 focus:bg-white focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/10 transition-all font-medium">
+                    </div>
+                </div>
 
-                <!-- Hak Akses (Audience) -->
+                <!-- Hak Akses & Kelola Peserta -->
                 @php
                     $allBidangIds = $bidangs->pluck('id')->map(fn($id) => (string)$id)->toArray();
                     $totalBidangCount = count($allBidangIds);
+                    $bidangsUserData = $bidangs->map(function($b) {
+                        return [
+                            'id' => (string)$b->id,
+                            'nama' => $b->nama,
+                            'singkatan' => $b->singkatan,
+                            'users' => $b->users->map(function($u) {
+                                return [
+                                    'id' => (string)$u->id,
+                                    'name' => $u->name,
+                                    'nip' => $u->nip ?? '-',
+                                    'jabatan' => $u->jabatan ?? '-',
+                                ];
+                            })->values()->toArray(),
+                        ];
+                    })->values()->toArray();
                 @endphp
+
                 <div x-data='{
                     semuaOrang: false,
                     allBidangIds: {{ json_encode(array_values($allBidangIds)) }},
@@ -530,13 +558,23 @@
                     bidangs: {{ Auth::user()->isSekretarisBidang() ? json_encode([(string)Auth::user()->bidang_id]) : "[]" }},
                     isSekBid: {{ Auth::user()->isSekretarisBidang() ? "true" : "false" }},
                     ownBidangId: "{{ Auth::user()->bidang_id }}",
+                    bidangsUserData: {{ json_encode($bidangsUserData) }},
+                    selectedParticipants: [],
+                    participantModalOpen: false,
+
+                    init() {
+                        this.syncParticipants();
+                    },
+
                     toggleSemua() {
                         if (this.semuaOrang) {
                             this.bidangs = Array.from(this.allBidangIds);
                         } else {
                             this.bidangs = [];
                         }
+                        this.syncParticipants();
                     },
+
                     checkBidang(id) {
                         if (this.isSekBid) {
                             if (!this.bidangs.includes(this.ownBidangId)) {
@@ -548,62 +586,213 @@
                             }
                         }
                         this.semuaOrang = (this.bidangs.length === this.totalCount);
+                        this.syncParticipants();
+                    },
+
+                    syncParticipants() {
+                        let activeUserIds = [];
+                        this.bidangsUserData.forEach(b => {
+                            if (this.bidangs.includes(b.id)) {
+                                b.users.forEach(u => {
+                                    activeUserIds.push(u.id);
+                                });
+                            }
+                        });
+                        let newSelection = this.selectedParticipants.filter(id => activeUserIds.includes(id));
+                        activeUserIds.forEach(id => {
+                            if (!newSelection.includes(id)) {
+                                newSelection.push(id);
+                            }
+                        });
+                        this.selectedParticipants = newSelection;
+                    },
+
+                    toggleBidangUsers(bidangId) {
+                        let b = this.bidangsUserData.find(item => item.id === bidangId);
+                        if (!b) return;
+                        let bUserIds = b.users.map(u => u.id);
+                        let allChecked = bUserIds.every(id => this.selectedParticipants.includes(id));
+
+                        if (!allChecked) {
+                            bUserIds.forEach(id => {
+                                if (!this.selectedParticipants.includes(id)) {
+                                    this.selectedParticipants.push(id);
+                                }
+                            });
+                        } else {
+                            this.selectedParticipants = this.selectedParticipants.filter(id => !bUserIds.includes(id));
+                        }
+                    },
+
+                    isBidangAllChecked(bidangId) {
+                        let b = this.bidangsUserData.find(item => item.id === bidangId);
+                        if (!b || b.users.length === 0) return false;
+                        return b.users.every(u => this.selectedParticipants.includes(u.id));
                     }
-                }' class="space-y-2 border-t border-[#d4d1f5]/40 pt-3">
-                    <label class="block text-xs font-bold text-[#5a508f] uppercase">Hak Akses / Peserta Rapat <span class="text-rose-500">*</span></label>
-                    
-                    @if(Auth::user()->isSekretarisBidang())
-                        <!-- Enforce own bidang submission -->
-                        <input type="hidden" name="bidangs[]" value="{{ Auth::user()->bidang_id }}">
-                    @else
-                        <!-- Semua orang checkbox -->
-                        <label class="flex items-center text-xs text-[#2e2552] cursor-pointer select-none font-bold">
-                            <input type="checkbox" name="semua_orang" value="1" x-model="semuaOrang" @change="toggleSemua()"
-                                   class="w-4 h-4 rounded border-[#d4d1f5] bg-[#f3f2fe] text-[#8e88dd] focus:ring-[#8e88dd] mr-2">
-                            <span>Semua Orang (LINTAS DINAS)</span>
-                        </label>
-                    @endif
-                    
-                    <!-- Individual Bidangs -->
-                    <div class="grid grid-cols-1 gap-2 {{ Auth::user()->isSekretarisBidang() ? '' : 'pl-6' }} mt-1">
-                        @foreach($bidangs as $bid)
-                            <label class="flex items-center text-xs text-[#5a508f] cursor-pointer select-none font-medium">
-                                <input type="checkbox" name="bidangs[]" value="{{ $bid->id }}" x-model="bidangs" @change="checkBidang('{{ $bid->id }}')"
-                                       @if(Auth::user()->isSekretarisBidang() && Auth::user()->bidang_id == $bid->id) disabled @endif
-                                       class="w-4 h-4 rounded border-[#d4d1f5] bg-[#f3f2fe] text-[#8e88dd] focus:ring-[#8e88dd] mr-2">
-                                <span class="{{ Auth::user()->isSekretarisBidang() && Auth::user()->bidang_id == $bid->id ? 'font-bold text-[#2e2552]' : '' }}">
-                                    {{ $bid->nama }} ({{ $bid->singkatan }})
-                                    @if(Auth::user()->isSekretarisBidang() && Auth::user()->bidang_id == $bid->id)
-                                        <span class="text-[9px] text-[#5a508f] lowercase ml-1">(Wajib hadir / Tidak dapat dibatalkan)</span>
-                                    @endif
-                                </span>
+                }' class="space-y-1.5 border-t border-slate-100 pt-2.5">
+                    <label class="block text-[10.5px] font-bold text-slate-600 uppercase tracking-wider">Bidang & Peserta Rapat <span class="text-rose-500 font-bold">*</span></label>
+
+                    <!-- Hidden Inputs for Selected Participants -->
+                    <template x-for="userId in selectedParticipants" :key="userId">
+                        <input type="hidden" name="participants[]" :value="userId">
+                    </template>
+
+                    <div class="bg-slate-50/70 border border-slate-200/80 rounded-xl p-2.5 space-y-2">
+                        @if(Auth::user()->isSekretarisBidang())
+                            <input type="hidden" name="bidangs[]" value="{{ Auth::user()->bidang_id }}">
+                        @else
+                            <label class="flex items-center gap-2 px-2 py-1 bg-white rounded-lg border border-slate-200/60 hover:border-indigo-200 transition-all cursor-pointer select-none">
+                                <input type="checkbox" name="semua_orang" value="1" x-model="semuaOrang" @change="toggleSemua()"
+                                       class="w-3.5 h-3.5 rounded border-slate-300 text-indigo-600 focus:ring-indigo-500 focus:ring-offset-0 transition-all">
+                                <span class="text-[11px] font-bold text-slate-800">Semua Orang (LINTAS DINAS)</span>
                             </label>
-                        @endforeach
+                        @endif
+                        
+                        <div class="grid grid-cols-1 gap-1">
+                            @foreach($bidangs as $bid)
+                                <label class="flex items-center justify-between px-2.5 py-1 rounded-lg border border-transparent hover:border-slate-200 hover:bg-white transition-all cursor-pointer select-none">
+                                    <div class="flex items-center gap-2.5">
+                                        <input type="checkbox" name="bidangs[]" value="{{ $bid->id }}" x-model="bidangs" @change="checkBidang('{{ $bid->id }}')"
+                                               @if(Auth::user()->isSekretarisBidang() && Auth::user()->bidang_id == $bid->id) disabled @endif
+                                               class="w-3.5 h-3.5 rounded border-slate-300 text-indigo-600 focus:ring-indigo-500 focus:ring-offset-0 transition-all shrink-0">
+                                        <span class="text-xs text-slate-700 font-medium {{ Auth::user()->isSekretarisBidang() && Auth::user()->bidang_id == $bid->id ? 'font-bold text-slate-900' : '' }}">
+                                            {{ $bid->nama }} <span class="text-slate-400 font-normal">({{ $bid->singkatan }})</span>
+                                        </span>
+                                    </div>
+                                    @if(Auth::user()->isSekretarisBidang() && Auth::user()->bidang_id == $bid->id)
+                                        <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold bg-amber-50 text-amber-700 border border-amber-200/70 shrink-0 ml-2">
+                                            Wajib Hadir
+                                        </span>
+                                    @endif
+                                </label>
+                            @endforeach
+                        </div>
+
+                        <!-- Kelola Peserta Button Bar -->
+                        <div class="pt-2 border-t border-slate-200/60 flex items-center justify-between">
+                            <button type="button" @click="participantModalOpen = true" 
+                                    :class="selectedParticipants.length === 0 ? 'bg-rose-50 border-rose-300 text-rose-700' : 'bg-indigo-50 hover:bg-indigo-100 text-[#1b3bbb] border-indigo-200'"
+                                    class="inline-flex items-center gap-1.5 px-3 py-1.5 border rounded-xl text-xs font-bold transition-all shadow-2xs cursor-pointer active:scale-95">
+                                <svg class="w-4 h-4" :class="selectedParticipants.length === 0 ? 'text-rose-600' : 'text-[#1b3bbb]'" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"></path>
+                                </svg>
+                                <span>Kelola Peserta</span>
+                                <span class="px-1.5 py-0.5 rounded-full text-[10px] font-extrabold" :class="selectedParticipants.length === 0 ? 'bg-rose-600 text-white animate-pulse' : 'bg-[#1b3bbb] text-white'" x-text="selectedParticipants.length"></span>
+                            </button>
+                            <span :class="selectedParticipants.length === 0 ? 'text-rose-600 font-extrabold animate-pulse' : 'text-slate-500 font-medium'" class="text-[11px]" x-text="selectedParticipants.length === 0 ? '⚠️ Minimal 1 peserta!' : selectedParticipants.length + ' peserta diundang'"></span>
+                        </div>
+                    </div>
+
+                    <!-- KELOLA PESERTA MODAL -->
+                    <div x-show="participantModalOpen" x-cloak class="fixed inset-0 z-[99999] flex items-center justify-center p-4 sm:p-6 bg-slate-900/60 backdrop-blur-xs select-none">
+                        <div @click.away="participantModalOpen = false" class="bg-white rounded-2xl md:rounded-3xl shadow-2xl border border-slate-200/80 w-full max-w-xl flex flex-col max-h-[85vh] overflow-hidden animate-in fade-in zoom-in duration-200">
+                            
+                            <div class="px-5 py-4 bg-gradient-to-r from-[#09103c] via-[#1b3bbb] to-[#09103c] text-white flex items-center justify-between shrink-0">
+                                <div class="flex items-center gap-2.5">
+                                    <div class="p-2 bg-white/10 rounded-xl border border-white/15">
+                                        <svg class="w-5 h-5 text-amber-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"></path>
+                                        </svg>
+                                    </div>
+                                    <div>
+                                        <h3 class="text-base font-extrabold text-white">Kelola Peserta Rapat</h3>
+                                        <p class="text-[11px] text-indigo-100 font-medium">Hilangkan centang jika terdapat anggota bidang yang tidak diundang</p>
+                                    </div>
+                                </div>
+                                <button @click="participantModalOpen = false" type="button" class="p-1.5 bg-white/10 hover:bg-rose-500 rounded-xl text-white transition-all cursor-pointer">
+                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                                    </svg>
+                                </button>
+                            </div>
+
+                            <div class="p-5 overflow-y-auto space-y-4 flex-1">
+                                <template x-if="bidangs.length === 0">
+                                    <div class="p-8 text-center bg-slate-50 rounded-2xl border border-dashed border-slate-200">
+                                        <p class="text-xs text-slate-500 font-bold">Pilih minimal satu bidang di atas terlebih dahulu untuk mengelola peserta.</p>
+                                    </div>
+                                </template>
+
+                                <template x-for="bidang in bidangsUserData.filter(b => bidangs.includes(b.id))" :key="bidang.id">
+                                    <div class="bg-slate-50 border border-slate-200/80 rounded-2xl p-3.5 space-y-2.5">
+                                        <div class="flex items-center justify-between pb-2 border-b border-slate-200/60">
+                                            <div class="flex items-center gap-2">
+                                                <span class="w-2.5 h-2.5 rounded-full bg-[#1b3bbb]"></span>
+                                                <span class="text-xs font-black text-[#09103c]" x-text="bidang.nama + ' (' + bidang.singkatan + ')'"></span>
+                                            </div>
+                                            <button type="button" @click="toggleBidangUsers(bidang.id)" class="text-[10.5px] font-extrabold text-[#1b3bbb] hover:underline cursor-pointer">
+                                                <span x-text="isBidangAllChecked(bidang.id) ? 'Hapus Centang Semua' : 'Centang Semua'"></span>
+                                            </button>
+                                        </div>
+
+                                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-1.5">
+                                            <template x-for="user in bidang.users" :key="user.id">
+                                                <label class="flex items-start gap-2.5 p-2 bg-white rounded-xl border border-slate-200/60 hover:border-indigo-200 cursor-pointer select-none transition-all">
+                                                    <input type="checkbox" :value="user.id" x-model="selectedParticipants" class="w-4 h-4 rounded border-slate-300 text-indigo-600 focus:ring-indigo-500 mt-0.5 shrink-0">
+                                                    <div class="min-w-0">
+                                                        <div class="text-xs font-bold text-slate-800 leading-tight truncate" x-text="user.name"></div>
+                                                        <div class="text-[10px] text-slate-500 font-medium truncate" x-text="user.jabatan"></div>
+                                                    </div>
+                                                </label>
+                                            </template>
+                                        </div>
+                                    </div>
+                                </template>
+                            <!-- Modal Footer -->
+                            <div class="px-5 py-3.5 bg-slate-50 border-t border-slate-200 flex flex-col sm:flex-row items-center justify-between gap-3 shrink-0">
+                                <div class="text-xs font-bold text-slate-600 flex items-center gap-1">
+                                    <template x-if="selectedParticipants.length === 0">
+                                        <span class="text-rose-600 font-black flex items-center gap-1">⚠️ Pilih minimal 1 peserta!</span>
+                                    </template>
+                                    <template x-if="selectedParticipants.length > 0">
+                                        <span>Total Terpilih: <span class="text-[#1b3bbb] font-black" x-text="selectedParticipants.length"></span> Peserta</span>
+                                    </template>
+                                </div>
+                                <div class="flex items-center gap-2 w-full sm:w-auto justify-end">
+                                    <button type="button" @click="participantModalOpen = false" class="px-4 py-2 bg-slate-200 hover:bg-slate-300 text-slate-700 text-xs font-bold rounded-xl transition-all cursor-pointer">
+                                        Tutup
+                                    </button>
+                                    <button type="button" 
+                                            @click="if(selectedParticipants.length === 0) { alert('Pilih minimal 1 peserta rapat.'); } else { participantModalOpen = false; }" 
+                                            :class="selectedParticipants.length === 0 ? 'bg-slate-300 text-slate-500 cursor-not-allowed' : 'bg-[#1b3bbb] hover:bg-indigo-700 text-white shadow-md cursor-pointer'"
+                                            class="px-5 py-2 text-xs font-extrabold rounded-xl transition-all">
+                                        Simpan Peserta
+                                    </button>
+                                </div>
+                            </div>
+
+                        </div>
                     </div>
                 </div>
 
-                <!-- Toggle Butuh Presensi -->
-                <div class="flex items-center justify-between p-3 bg-[#f8f7ff] border border-[#d4d1f5]/40 rounded-2xl">
-                    <div class="space-y-0.5">
-                        <label for="butuh_presensi" class="block text-xs font-bold text-[#2e2552]">Memerlukan Presensi Digital?</label>
-                        <p class="text-[10px] text-[#5a508f]">Mengaktifkan pencatatan kehadiran mandiri pegawai serta pembuatan dokumen notulensi rapat.</p>
+                <!-- Presensi Toggle & Action Footer combined in bottom area -->
+                <div class="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-2.5 border-t border-slate-100 pt-2.5">
+                    <div class="flex items-center justify-between p-2 px-3 bg-gradient-to-r from-indigo-50/70 via-slate-50/70 to-indigo-50/30 border border-indigo-100/80 rounded-xl grow">
+                        <div class="flex items-center gap-2">
+                            <svg class="w-3.5 h-3.5 text-indigo-600 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                            </svg>
+                            <label for="butuh_presensi" class="text-[11px] font-bold text-slate-800 cursor-pointer">Memerlukan Presensi Digital?</label>
+                        </div>
+                        <label class="relative inline-flex items-center cursor-pointer select-none ml-2 shrink-0">
+                            <input type="checkbox" name="butuh_presensi" id="butuh_presensi" checked value="1" class="sr-only peer">
+                            <div class="w-8 h-4.5 bg-slate-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-3.5 after:w-3.5 after:transition-all peer-checked:bg-indigo-600"></div>
+                        </label>
                     </div>
-                    <label class="relative inline-flex items-center cursor-pointer select-none">
-                        <input type="checkbox" name="butuh_presensi" id="butuh_presensi" checked value="1" class="sr-only peer">
-                        <div class="w-9 h-5 bg-slate-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-slate-400 after:border-slate-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-[#2e2552] peer-checked:after:bg-white"></div>
-                    </label>
-                </div>
 
-                <!-- Footer buttons -->
-                <div class="flex items-center justify-end gap-2 border-t border-[#d4d1f5]/40 pt-4">
-                    <button type="button" @click="openAddModal = false"
-                            class="px-4 py-2.5 bg-slate-100 hover:bg-slate-200 text-[#5a508f] text-xs font-bold rounded-2xl transition-colors">
-                        Batalkan
-                    </button>
-                    <button type="submit"
-                            class="px-5 py-2.5 bg-[#2e2552] hover:bg-[#3d326a] text-white text-xs font-bold rounded-2xl shadow-lg shadow-[#2e2552]/25 transition-all">
-                        Simpan Agenda
-                    </button>
+                    <div class="flex items-center justify-end gap-2 shrink-0">
+                        <button type="button" @click="openAddModal = false"
+                                class="px-3.5 py-2 sm:py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-600 text-xs font-semibold rounded-lg transition-all active:scale-[0.98]">
+                            Batalkan
+                        </button>
+                        <button type="submit"
+                                class="px-4 py-2 sm:py-1.5 bg-gradient-to-r from-indigo-600 to-indigo-700 hover:from-indigo-700 hover:to-indigo-800 text-white text-xs font-bold rounded-lg shadow-md shadow-indigo-500/20 hover:shadow-indigo-500/35 transition-all active:scale-[0.98] flex items-center gap-1.5">
+                            <span>Simpan Agenda</span>
+                            <svg class="w-3.5 h-3.5 text-indigo-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                            </svg>
+                        </button>
+                    </div>
                 </div>
             </form>
         </div>

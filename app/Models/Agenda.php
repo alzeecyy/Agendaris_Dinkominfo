@@ -55,6 +55,29 @@ class Agenda extends Model
         return $this->hasOne(Notulensi::class, 'agenda_id');
     }
 
+    public function participants(): \Illuminate\Database\Eloquent\Relations\BelongsToMany
+    {
+        return $this->belongsToMany(User::class, 'meeting_participants', 'agenda_id', 'user_id')->withTimestamps();
+    }
+
+    /**
+     * Get internal participants of this meeting.
+     * Returns meeting_participants users if defined; falls back to all active bidang users if legacy agenda.
+     */
+    public function getInternalParticipants()
+    {
+        if ($this->participants()->exists()) {
+            return $this->participants()->where('active', true)->where('role', '!=', 'admin')->orderBy('name')->get();
+        }
+
+        $hakAkses = $this->hak_akses ?? [];
+        $query = User::where('role', '!=', 'admin')->where('active', true);
+        if (!in_array('semua_orang', $hakAkses)) {
+            $query->whereIn('bidang_id', $hakAkses);
+        }
+        return $query->orderBy('name')->get();
+    }
+
     /**
      * Check if presensi period has not started yet (before tanggal & jam_mulai).
      */

@@ -3,59 +3,62 @@
 @section('title', 'Profil Saya')
 
 @section('content')
-<div class="flex flex-col gap-4 select-none">
-    <!-- Header Page -->
-    <div class="flex flex-col">
-        <a href="{{ route('dashboard') }}" 
-           class="inline-flex items-center text-slate-500 hover:text-[#1b3bbb] transition-colors duration-200 -mt-2.5 mb-4 p-1 -ml-1">
-            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
-            </svg>
-        </a>
-        <div>
-            <h1 class="text-lg font-black text-[#09103c] tracking-tight leading-none">PROFIL SAYA</h1>
-            <p class="text-slate-500 text-[10px] font-semibold mt-1.5 leading-none">Detail informasi kepegawaian Anda di sistem Sirena</p>
+<div class="w-full bg-white rounded-2xl md:rounded-[28px] p-4 sm:p-5 md:p-6 shadow-xs border border-slate-100/80 space-y-4">
+    <!-- Top Row: Back Arrow, Title, Subtitle -->
+    <div class="flex items-center justify-between gap-4">
+        <div class="flex items-center gap-3">
+            <a href="{{ route('dashboard') }}" class="p-1.5 sm:p-2 rounded-xl bg-slate-100/80 hover:bg-slate-200 text-slate-600 transition-all shrink-0">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
+                </svg>
+            </a>
+            <div>
+                <h1 class="text-base sm:text-lg font-black text-[#09103c] tracking-tight leading-tight">PROFIL SAYA</h1>
+                <p class="text-slate-500 text-[10px] sm:text-xs font-semibold">Detail informasi kepegawaian Anda di sistem Sirena</p>
+            </div>
         </div>
     </div>
 
-    <!-- Main Content Container -->
-    <div class="bg-white rounded-[32px] p-6 shadow-md border border-slate-100/60 space-y-4">
-        <div class="flex items-center justify-between border-b border-slate-100 pb-3 flex-wrap gap-3">
-            <h3 class="text-xs font-black text-[#09103c] uppercase tracking-wider">Informasi Kepegawaian</h3>
-            
-            <a href="{{ route('password.change') }}" 
-               class="px-3.5 py-2 bg-[#1b3bbb]/5 hover:bg-[#1b3bbb]/10 text-[#1b3bbb] rounded-2xl text-[11px] font-bold transition-all duration-200 flex items-center gap-2">
-                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+    <!-- Section Card: INFORMASI KEPEGAWAIAN -->
+    <div class="space-y-4">
+        <div class="flex items-center justify-between border-b border-slate-100 pb-3">
+            <h2 class="text-xs sm:text-sm font-extrabold text-[#09103c] uppercase tracking-wider">INFORMASI KEPEGAWAIAN</h2>
+            <a href="{{ route('password.change') }}" class="px-3 py-1.5 bg-indigo-50/80 hover:bg-indigo-100 text-indigo-700 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 border border-indigo-100/80 shrink-0">
+                <svg class="w-3.5 h-3.5 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path>
                 </svg>
-                Ubah Kata Sandi
+                <span>Ubah Kata Sandi</span>
             </a>
         </div>
 
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <!-- NIP -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3.5 sm:gap-4">
+            <!-- Row 1: NIP & Nama Lengkap -->
             <div class="space-y-1">
-                <span class="text-[9px] font-bold text-slate-400 uppercase tracking-wider block">Nomor Induk Pegawai (NIP)</span>
-                <div class="text-xs font-bold text-[#09103c] bg-slate-50 border border-slate-100 rounded-2xl px-4 py-2 font-mono">{{ Auth::user()->nip }}</div>
+                <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">NOMOR INDUK PEGAWAI (NIP)</span>
+                <div class="text-xs sm:text-sm font-bold text-[#09103c] bg-slate-50/80 border border-slate-200/70 rounded-xl px-3.5 py-2 font-mono shadow-xs">
+                    {{ Auth::user()->nip }}
+                </div>
             </div>
 
-            <!-- Nama Lengkap -->
             <div class="space-y-1">
-                <span class="text-[9px] font-bold text-slate-400 uppercase tracking-wider block">Nama Lengkap</span>
-                <div class="text-xs font-bold text-[#09103c] bg-slate-50 border border-slate-100 rounded-2xl px-4 py-2">{{ Auth::user()->name }}</div>
+                <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">NAMA LENGKAP</span>
+                <div class="text-xs sm:text-sm font-bold text-[#09103c] bg-slate-50/80 border border-slate-200/70 rounded-xl px-3.5 py-2 shadow-xs">
+                    {{ Auth::user()->name }}
+                </div>
             </div>
 
-            <!-- Jabatan -->
+            <!-- Row 2: Jabatan & Bidang -->
             <div class="space-y-1">
-                <span class="text-[9px] font-bold text-slate-400 uppercase tracking-wider block">Jabatan / Fungsi</span>
-                <div class="text-xs font-bold text-[#09103c] bg-slate-50 border border-slate-100 rounded-2xl px-4 py-2">{{ Auth::user()->jabatan }}</div>
+                <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">JABATAN / FUNGSI</span>
+                <div class="text-xs sm:text-sm font-bold text-[#09103c] bg-slate-50/80 border border-slate-200/70 rounded-xl px-3.5 py-2 shadow-xs">
+                    {{ Auth::user()->jabatan }}
+                </div>
             </div>
 
-            <!-- Bidang -->
             <div class="space-y-1">
-                <span class="text-[9px] font-bold text-slate-400 uppercase tracking-wider block">Bidang / Unit Kerja</span>
-                <div class="text-xs font-bold text-[#09103c] bg-slate-50 border border-slate-100 rounded-2xl px-4 py-2">
-                    {{ Auth::user()->bidang->nama ?? 'Dinas Komunikasi dan Informatika (Master)' }}
+                <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">BIDANG / UNIT KERJA</span>
+                <div class="text-xs sm:text-sm font-bold text-[#09103c] bg-slate-50/80 border border-slate-200/70 rounded-xl px-3.5 py-2 shadow-xs">
+                    {{ Auth::user()->bidang->nama ?? 'Sekretariat' }}
                     @if(Auth::user()->bidang->singkatan ?? false)
                         ({{ Auth::user()->bidang->singkatan }})
                     @endif
@@ -74,20 +77,19 @@
                 ];
             @endphp
 
-            <!-- Role Sistem -->
+            <!-- Row 3: Hak Akses & Status Akun -->
             <div class="space-y-1">
-                <span class="text-[9px] font-bold text-slate-400 uppercase tracking-wider block">Hak Akses Sistem</span>
-                <div class="text-xs font-bold text-[#09103c] bg-slate-50 border border-slate-100 rounded-2xl px-4 py-2">
+                <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">HAK AKSES SISTEM</span>
+                <div class="text-xs sm:text-sm font-bold text-[#09103c] bg-slate-50/80 border border-slate-200/70 rounded-xl px-3.5 py-2 shadow-xs">
                     {{ $roleLabels[Auth::user()->role] ?? Auth::user()->role }}
                 </div>
             </div>
 
-            <!-- Status Akun -->
             <div class="space-y-1">
-                <span class="text-[9px] font-bold text-slate-400 uppercase tracking-wider block">Status Akun</span>
-                <div class="text-xs font-bold text-emerald-600 bg-emerald-50/50 border border-emerald-100 rounded-2xl px-4 py-2 flex items-center gap-1.5">
-                    <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
-                    Aktif
+                <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">STATUS AKUN</span>
+                <div class="text-xs sm:text-sm font-bold text-emerald-600 bg-slate-50/80 border border-slate-200/70 rounded-xl px-3.5 py-2 shadow-xs flex items-center gap-2">
+                    <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+                    <span>Aktif</span>
                 </div>
             </div>
         </div>

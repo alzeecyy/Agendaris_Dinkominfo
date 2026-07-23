@@ -25,6 +25,7 @@ class Notulensi extends Model
         'status',
         'catatan_revisi',
         'approver_id',
+        'tanda_tangan_approver',
         'last_edited_by_id',
         'pembahasan_title',
         'keputusan_title',

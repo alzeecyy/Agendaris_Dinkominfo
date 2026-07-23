@@ -281,11 +281,23 @@
                 <td></td>
                 <td>
                     <div class="sig-box">
-                        <p>Purwokerto, {{ $notulensi->updated_at->locale('id')->translatedFormat('d F Y') }}</p>
+                        <p>Purwokerto, {{ $notulensi->updated_at ? $notulensi->updated_at->locale('id')->translatedFormat('d F Y') : now()->locale('id')->translatedFormat('d F Y') }}</p>
                         <p>Mengesahkan,</p>
-                        <p style="font-weight: bold; margin-bottom: 60px;">{{ $notulensi->approver->jabatan ?? 'Pimpinan Rapat' }}</p>
-                        <p style="font-weight: bold; text-decoration: underline; margin-bottom: 2px;">{{ $notulensi->approver->name ?? '-' }}</p>
-                        <p>NIP. {{ $notulensi->approver->nip ?? '-' }}</p>
+                        <p style="font-weight: bold; margin-bottom: 2px;">{{ $approverInfo->jabatan }}</p>
+                        @if(!empty($approverInfo->sub_jabatan))
+                            <p style="font-weight: bold; margin-bottom: 5px;">{{ $approverInfo->sub_jabatan }}</p>
+                        @endif
+                        <div style="height: 60px; margin: 4px 0;">
+                            @if($notulensi->tanda_tangan_approver)
+                                <img src="{{ $notulensi->tanda_tangan_approver }}" style="height: 60px; max-width: 180px;" />
+                            @else
+                                <div style="font-size: 8.5pt; font-style: italic; color: #1e293b; border: 1px dashed #94a3b8; padding: 6px 12px; display: inline-block; margin-top: 10px; border-radius: 6px; background-color: #f8fafc;">
+                                    ✓ [Dokumen Disahkan Digital]
+                                </div>
+                            @endif
+                        </div>
+                        <p style="font-weight: bold; text-decoration: underline; margin-bottom: 2px;">{{ $approverInfo->name }}</p>
+                        <p>NIP. {{ $approverInfo->nip }}</p>
                     </div>
                 </td>
             </tr>
