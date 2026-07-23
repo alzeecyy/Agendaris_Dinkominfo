@@ -67,6 +67,7 @@ Route::middleware(['auth'])->group(function () {
         // Agenda CRUD
         Route::post('/agenda', [AgendaController::class, 'store'])->name('agenda.store');
         Route::put('/agenda/{agenda}', [AgendaController::class, 'update'])->name('agenda.update');
+        Route::patch('/agenda/{agenda}/nomor-surat', [AgendaController::class, 'updateNomorSurat'])->name('agenda.update-nomor-surat');
         Route::delete('/agenda/{agenda}', [AgendaController::class, 'destroy'])->name('agenda.destroy');
 
         // Presensi Manual Corrections

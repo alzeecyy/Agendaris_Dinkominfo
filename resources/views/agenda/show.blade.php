@@ -18,6 +18,7 @@
     openDetailModal: false,
     openAbsenModal: false,
     openGuestModal: false,
+    openNomorSuratModal: false,
     status: 'hadir',
     keterangan: '',
     signatureData: '',
@@ -217,6 +218,11 @@
                             <div class="space-y-1">
                                 <label class="block text-xs font-bold text-[#5a508f] uppercase">Deskripsi</label>
                                 <textarea name="deskripsi" rows="3" class="w-full px-4 py-2.5 bg-[#f3f2fe] border border-[#d4d1f5] rounded-2xl text-[#2e2552] text-sm focus:outline-none">{{ $agenda->deskripsi }}</textarea>
+                            </div>
+
+                            <div class="space-y-1">
+                                <label class="block text-xs font-bold text-[#5a508f] uppercase">Nomor Surat Dasar</label>
+                                <input type="text" name="nomor_surat_dasar" value="{{ old('nomor_surat_dasar', $agenda->nomor_surat_dasar) }}" placeholder="Contoh: 005/123/2026 Perihal Undangan Rapat" class="w-full px-4 py-2.5 bg-[#f3f2fe] border border-[#d4d1f5] rounded-2xl text-[#2e2552] text-sm focus:outline-none">
                             </div>
                             
 
@@ -560,14 +566,86 @@
                 </div>
 
                 <!-- Nomor Surat -->
-                <div class="p-4 bg-[#f8f7ff] border border-[#d4d1f5]/40 rounded-2xl space-y-2 mt-4">
-                    <h3 class="text-xs font-bold uppercase tracking-wider text-[#5a508f]">Nomor Surat</h3>
+                <div class="p-4 bg-[#f8f7ff] border border-[#d4d1f5]/40 rounded-2xl space-y-2.5 mt-4">
+                    <div class="flex items-center justify-between gap-2">
+                        <h3 class="text-xs font-bold uppercase tracking-wider text-[#5a508f]">Nomor Surat</h3>
+                        @if($isSecretaryOfAgenda || Auth::user()->isAdmin())
+                            <button type="button" @click="openNomorSuratModal = true" class="text-[10.5px] font-extrabold text-[#1b3bbb] hover:text-indigo-800 flex items-center gap-1 bg-[#1b3bbb]/10 hover:bg-[#1b3bbb]/20 px-2.5 py-1 rounded-xl border border-[#1b3bbb]/20 transition-all cursor-pointer shrink-0">
+                                <svg class="w-3.5 h-3.5 text-[#1b3bbb]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"></path>
+                                </svg>
+                                <span>{{ $agenda->nomor_surat_dasar ? 'Edit Nomor Surat' : '+ Isi Nomor Surat' }}</span>
+                            </button>
+                        @endif
+                    </div>
                     <p class="text-xs text-[#2e2552] font-semibold leading-relaxed">
-                        {!! $agenda->nomor_surat_dasar ? e($agenda->nomor_surat_dasar) : '<span class="text-[#8e88dd] italic">Belum diisi oleh Sekretaris.</span>' !!}
+                        @if($agenda->nomor_surat_dasar)
+                            {{ $agenda->nomor_surat_dasar }}
+                        @else
+                            @if($isSecretaryOfAgenda || Auth::user()->isAdmin())
+                                <button type="button" @click="openNomorSuratModal = true" class="text-[#8e88dd] hover:text-[#1b3bbb] italic cursor-pointer hover:underline text-left">
+                                    Belum diisi oleh Sekretaris. Klik untuk mengisi...
+                                </button>
+                            @else
+                                <span class="text-[#8e88dd] italic">Belum diisi oleh Sekretaris.</span>
+                            @endif
+                        @endif
                     </p>
                 </div>
             </div>
         </div>
+
+    <!-- QUICK MODAL: EDIT NOMOR SURAT -->
+    @if($isSecretaryOfAgenda || Auth::user()->isAdmin())
+        <div x-show="openNomorSuratModal" x-cloak class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/50 backdrop-blur-sm">
+            <div @click.away="openNomorSuratModal = false" class="bg-white border border-[#d4d1f5]/60 rounded-3xl w-full max-w-md shadow-2xl overflow-hidden relative text-[#2e2552] animate-in fade-in zoom-in duration-200">
+                <div class="h-1.5 w-full bg-gradient-to-r from-[#1b3bbb] to-indigo-600"></div>
+                <div class="p-5 border-b border-[#d4d1f5]/40 flex items-center justify-between bg-slate-50/60">
+                    <div class="flex items-center gap-2.5">
+                        <div class="w-8 h-8 rounded-xl bg-[#1b3bbb]/10 text-[#1b3bbb] border border-[#1b3bbb]/20 flex items-center justify-center font-bold shrink-0">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                            </svg>
+                        </div>
+                        <div>
+                            <h3 class="text-sm font-extrabold text-[#09103c]">Isi / Ubah Nomor Surat</h3>
+                            <p class="text-[10.5px] text-slate-500 font-medium">Lengkapi nomor surat pelaksanaan agenda</p>
+                        </div>
+                    </div>
+                    <button type="button" @click="openNomorSuratModal = false" class="w-7 h-7 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-400 hover:text-slate-600 flex items-center justify-center transition-all cursor-pointer">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                        </svg>
+                    </button>
+                </div>
+                <form action="{{ route('agenda.update-nomor-surat', $agenda->id) }}" method="POST" class="p-5 space-y-4">
+                    @csrf
+                    @method('PATCH')
+                    <div class="space-y-1.5">
+                        <label for="quick_nomor_surat_dasar" class="block text-xs font-bold uppercase tracking-wider text-[#5a508f]">
+                            Nomor Surat Dasar <span class="text-rose-500">*</span>
+                        </label>
+                        <input type="text" name="nomor_surat_dasar" id="quick_nomor_surat_dasar" required 
+                               value="{{ old('nomor_surat_dasar', $agenda->nomor_surat_dasar) }}" 
+                               placeholder="Contoh: 005/123/2026 Perihal Undangan Rapat Evaluasi SPBE" 
+                               class="w-full px-3.5 py-2.5 bg-[#f8f7ff] border border-[#d4d1f5] rounded-xl text-xs font-medium text-[#2e2552] focus:ring-2 focus:ring-[#1b3bbb] focus:bg-white focus:outline-none transition-all">
+                        <p class="text-[10px] text-slate-500 font-medium">Nomor surat ini otomatis dicantumkan di notulensi & dokumen PDF/Word.</p>
+                    </div>
+                    <div class="flex items-center justify-end gap-2 pt-3 border-t border-slate-100">
+                        <button type="button" @click="openNomorSuratModal = false" class="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-600 text-xs font-semibold rounded-xl transition-all cursor-pointer">
+                            Batal
+                        </button>
+                        <button type="submit" class="px-5 py-2 bg-[#1b3bbb] hover:bg-indigo-700 text-white text-xs font-bold rounded-xl shadow-md shadow-[#1b3bbb]/20 transition-all flex items-center gap-1.5 active:scale-95 cursor-pointer">
+                            <svg class="w-3.5 h-3.5 text-indigo-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                            </svg>
+                            <span>Simpan Nomor Surat</span>
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    @endif
 
         <!-- Right Column: Absensi Digital, Notulensi & Rekap Kehadiran Bidang -->
         <div class="flex flex-col gap-6 min-w-0 h-full">
