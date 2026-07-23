@@ -260,27 +260,28 @@ class="w-full flex flex-col gap-5 select-none">
         <div :class="tvTheme === 'cerah' 
                 ? 'bg-gradient-to-r from-[#09103c] via-[#1b3bbb] to-[#09103c] text-white border-white/20' 
                 : 'bg-[#131b2e] text-white border-slate-800'"
-             class="flex items-center justify-between rounded-3xl p-4 sm:p-5 lg:p-6 shadow-xl border shrink-0 transition-all">
+             class="grid grid-cols-1 lg:grid-cols-3 items-center justify-between gap-4 rounded-3xl p-4 sm:p-5 lg:p-6 shadow-xl border shrink-0 transition-all">
             
-            <div class="flex items-center gap-3 sm:gap-4">
-                <img src="{{ asset('images/logo-banyumas-crest.png') }}" alt="Logo Banyumas" class="h-12 sm:h-14 lg:h-16 w-auto drop-shadow-md">
+            <!-- Left Branding -->
+            <div class="flex items-center gap-3 sm:gap-4 justify-start">
+                <img src="{{ asset('images/logo-banyumas-crest.png') }}" alt="Logo Banyumas" class="h-12 sm:h-14 lg:h-16 w-auto drop-shadow-md shrink-0">
                 <div>
-                    <h2 class="text-xs sm:text-base lg:text-xl font-extrabold text-amber-300 tracking-wider uppercase">PEMERINTAH KABUPATEN BANYUMAS</h2>
-                    <h1 class="text-sm sm:text-lg lg:text-2xl font-black text-white tracking-wide">DINAS KOMUNIKASI DAN INFORMATIKA</h1>
+                    <h2 class="text-xs sm:text-sm lg:text-base font-extrabold text-amber-300 tracking-wider uppercase leading-tight">PEMERINTAH KABUPATEN BANYUMAS</h2>
+                    <h1 class="text-sm sm:text-base lg:text-xl font-black text-white tracking-wide leading-tight">DINAS KOMUNIKASI DAN INFORMATIKA</h1>
                 </div>
             </div>
 
-            <!-- TV Center Title -->
-            <div class="hidden lg:flex flex-col items-center">
-                <div class="px-4 py-1 bg-white/10 backdrop-blur-md border border-white/20 rounded-full text-xs font-extrabold text-emerald-300 tracking-widest uppercase flex items-center gap-2 mb-1">
+            <!-- TV Center Title (Dead Center) -->
+            <div class="flex flex-col items-center justify-center text-center">
+                <div class="px-3.5 py-1 bg-white/10 backdrop-blur-md border border-white/20 rounded-full text-[10px] sm:text-xs font-extrabold text-emerald-300 tracking-widest uppercase flex items-center gap-2 mb-1">
                     <span class="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-ping"></span>
                     PAPAN INFORMASI DIGITAL REALTIME
                 </div>
-                <div class="text-xl lg:text-3xl font-black tracking-tight text-white uppercase drop-shadow-md">AGENDA HARI INI</div>
+                <div class="text-xl sm:text-2xl lg:text-3xl font-black tracking-tight text-white uppercase drop-shadow-md">AGENDA HARI INI</div>
             </div>
 
             <!-- TV Right Controls: Theme Toggle Symbol, Clock, Exit -->
-            <div class="flex items-center gap-2.5 sm:gap-3">
+            <div class="flex items-center gap-2.5 sm:gap-3 justify-end">
                 <!-- Theme Switcher Symbol Button -->
                 <button @click="tvTheme = (tvTheme === 'cerah' ? 'gelap' : 'cerah')" 
                         type="button" 
@@ -291,7 +292,7 @@ class="w-full flex flex-col gap-5 select-none">
                 </button>
 
                 <!-- Clock Badge -->
-                <div class="text-right bg-white/10 backdrop-blur-md border border-white/20 rounded-2xl px-3.5 py-1.5 sm:px-4 sm:py-2 shadow-lg">
+                <div class="text-right bg-white/10 backdrop-blur-md border border-white/20 rounded-2xl px-3.5 py-1.5 sm:px-4 sm:py-2 shadow-lg shrink-0">
                     <div class="text-[10px] sm:text-[11px] font-bold text-indigo-100 uppercase tracking-wider" x-text="currentDate"></div>
                     <div class="text-lg sm:text-xl lg:text-2xl font-black text-amber-300 font-mono tracking-tight" x-text="currentTime"></div>
                 </div>
