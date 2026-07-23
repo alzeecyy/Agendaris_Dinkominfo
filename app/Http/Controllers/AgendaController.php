@@ -411,6 +411,30 @@ class AgendaController extends Controller
     }
 
     /**
+     * Quick update for agenda's nomor_surat_dasar.
+     */
+    public function updateNomorSurat(Request $request, Agenda $agenda)
+    {
+        $user = Auth::user();
+
+        if (!$user->isSecretaryOfAgenda($agenda) && !$user->isAdmin()) {
+            abort(403, 'Akses ditolak. Anda tidak memiliki wewenang untuk mengubah nomor surat agenda ini.');
+        }
+
+        $validated = $request->validate([
+            'nomor_surat_dasar' => 'nullable|string|max:255',
+        ], [
+            'nomor_surat_dasar.max' => 'Nomor surat dasar maksimal 255 karakter.',
+        ]);
+
+        $agenda->update([
+            'nomor_surat_dasar' => $validated['nomor_surat_dasar'],
+        ]);
+
+        return back()->with('success', 'Nomor surat dasar berhasil diperbarui.');
+    }
+
+    /**
      * Remove the specified agenda from storage.
      */
     public function destroy(Agenda $agenda)
