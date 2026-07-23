@@ -208,8 +208,9 @@
         </div>
 
         <!-- Weekly Grid Layout -->
-        <div class="flex-1 w-full flex flex-col min-h-0 overflow-hidden">
-            <div class="flex-1 min-w-0 flex flex-col relative h-full">
+        <div class="flex-1 w-full flex flex-col overflow-hidden">
+            <div class="flex-1 min-w-0 flex flex-col relative h-full overflow-x-auto overflow-y-hidden">
+                <div class="min-w-[540px] sm:min-w-full flex-1 flex flex-col h-full">
             <!-- Dates columns header -->
             <div class="grid grid-cols-8 border-b border-[#d4d1f5]/40 pb-1.5 sm:pb-2 relative z-0 shrink-0">
                 <!-- Time axes column -->
@@ -233,7 +234,7 @@
             </div>
 
             <!-- Grid container with time axes rows & events overlay -->
-            <div class="flex-1 grid grid-cols-8 relative z-10 select-none min-h-0">
+            <div class="h-[360px] sm:h-[420px] lg:h-full lg:flex-1 grid grid-cols-8 relative z-10 select-none border-b border-[#d4d1f5]/40">
                 @php
                     $labelTimes = [
                         '07:15' => 0.0,
@@ -299,7 +300,9 @@
                                 // Constrain coordinate visually
                                 $clampedStart = max($eventStartMin, $gridStartMin);
                                 $clampedEnd = min($eventEndMin, $gridEndMin);
-                                $duration = max($clampedEnd - $clampedStart, 30); // minimum height
+                                $rawDuration = max($clampedEnd - $clampedStart, 15);
+                                $maxAllowedDuration = max($gridEndMin - $clampedStart, 1);
+                                $duration = min($rawDuration, $maxAllowedDuration);
 
                                 $topPct = (($clampedStart - $gridStartMin) / $gridTotalMin) * 100;
                                 $heightPct = ($duration / $gridTotalMin) * 100;
@@ -421,14 +424,15 @@
                  <!-- 3. Horizontal Grid Lines (visual representation spanning all columns) -->
                  <div class="absolute inset-0 pointer-events-none opacity-40 z-0">
                      @foreach($labelTimes as $timeStr => $topPct)
-                         @if($topPct > 0 && $topPct < 100)
+                         @if($topPct > 0 && $topPct <= 100)
                              <div class="absolute w-full border-b border-[#d4d1f5]/30 h-0" style="top: {{ number_format($topPct, 2, '.', '') }}%;"></div>
                          @endif
                      @endforeach
                  </div>
-            </div>
-        </div>
-    </div>
+             </div>
+         </div>
+     </div>
+ </div>
 </div>
 
     <!-- MODAL: ADD AGENDA FORM -->

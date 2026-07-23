@@ -408,7 +408,7 @@
                            class="flex items-center gap-3 px-4 py-3 rounded-2xl font-bold text-xs transition-all duration-200 
                            {{ request()->routeIs('riwayat') ? 'bg-[#1b3bbb] text-white shadow-lg shadow-[#1b3bbb]/20' : 'text-slate-600 hover:bg-[#1b3bbb]/5 hover:text-[#1b3bbb]' }}">
                             <svg class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"></path>
                             </svg>
                             <span>Riwayat Rapat</span>
                         </a>
@@ -559,17 +559,15 @@
 
                 <!-- Quick Add Action (For Secretaries) -->
                 @if(Auth::user()->isSekretarisMaster() || Auth::user()->isSekretarisBidang() || Auth::user()->isSekretariat())
-                    <a href="{{ route('calendar', ['open_add' => 1]) }}" class="flex flex-col items-center justify-center gap-0.5 -mt-3">
-                        <div class="w-10 h-10 rounded-full bg-[#1b3bbb] text-white flex items-center justify-center shadow-lg shadow-[#1b3bbb]/30 active:scale-95 transition-transform">
-                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4"></path></svg>
-                        </div>
-                        <span class="text-[9px] font-extrabold text-[#1b3bbb] leading-none mt-0.5">Tambah</span>
+                    <a href="{{ route('calendar', ['open_add' => 1]) }}" class="flex flex-col items-center justify-center gap-0.5 px-2.5 py-1 rounded-xl transition-all {{ request()->has('open_add') ? 'text-[#1b3bbb] font-extrabold' : 'text-slate-500 font-medium hover:text-[#1b3bbb]' }}">
+                        <svg class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
+                        <span class="text-[9px] leading-none">Tambah</span>
                     </a>
                 @endif
 
                 <!-- Riwayat -->
                 <a href="{{ route('riwayat') }}" class="flex flex-col items-center justify-center gap-0.5 px-3 py-1 rounded-xl transition-all {{ request()->routeIs('riwayat') ? 'text-[#1b3bbb] font-extrabold' : 'text-slate-500 font-medium hover:text-[#1b3bbb]' }}">
-                    <svg class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                    <svg class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"></path></svg>
                     <span class="text-[9px] leading-none">Riwayat</span>
                 </a>
 
