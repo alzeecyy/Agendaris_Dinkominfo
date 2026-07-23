@@ -25,7 +25,7 @@ class AgendaController extends Controller
 
         $todayDate = Carbon::today()->format('Y-m-d');
 
-        $query = Agenda::with(['bidangs', 'sekretaris', 'notulensi', 'presensis.user'])
+        $query = Agenda::with(['sekretaris', 'notulensi', 'presensis.user'])
             ->whereDate('tanggal', $todayDate);
 
         if (!$user->isSekretarisMaster() && !$user->isKetuaMaster() && !$user->isSekretariat()) {
