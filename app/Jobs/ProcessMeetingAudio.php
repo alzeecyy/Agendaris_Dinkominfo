@@ -212,6 +212,7 @@ class ProcessMeetingAudio implements ShouldQueue
                                 'pembahasan' => null,
                                 'keputusan' => null,
                                 'kesimpulan' => null,
+                                'transkrip_error' => null,
                                 'last_edited_by_id' => $this->secretaryId,
                                 'status' => 'draft'
                             ]);
@@ -257,6 +258,7 @@ class ProcessMeetingAudio implements ShouldQueue
                                 'pembahasan' => null,
                                 'keputusan' => null,
                                 'kesimpulan' => null,
+                                'transkrip_error' => null,
                                 'last_edited_by_id' => $this->secretaryId,
                                 'status' => 'draft'
                             ]);
@@ -359,6 +361,7 @@ class ProcessMeetingAudio implements ShouldQueue
                     'pembahasan' => $pembahasan,
                     'keputusan' => $keputusan,
                     'kesimpulan' => $kesimpulan,
+                    'transkrip_error' => null,
                     'last_edited_by_id' => $this->secretaryId,
                     'status' => 'draft'
                 ]);
