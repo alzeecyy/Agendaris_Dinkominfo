@@ -218,19 +218,20 @@ class AgendarisTest extends TestCase
     }
 
     /**
-     * Test agenda CRUD restricts Bidang Secretary from choosing more than 2 bidangs.
+     * Test agenda CRUD restricts Bidang Secretary from choosing more than 3 bidangs.
      */
-    public function test_bidang_secretary_cannot_select_more_than_two_bidangs(): void
+    public function test_bidang_secretary_cannot_select_more_than_three_bidangs(): void
     {
         $this->sekretarisAptika->must_change_password = false;
         $this->sekretarisAptika->save();
         $this->actingAs($this->sekretarisAptika);
 
-        // Try to post agenda with 3 bidangs (Aptika, IKP, and another mock one)
         $bidangStatistik = \App\Models\Bidang::create(['nama' => 'Statistik', 'singkatan' => 'Statistik']);
+        $bidangPersandian = \App\Models\Bidang::create(['nama' => 'Persandian', 'singkatan' => 'Persandian']);
         
-        $response = $this->post('/agenda', [
-            'judul' => 'Rapat Tiga Bidang',
+        // 3 Bidangs is allowed
+        $responseSuccess = $this->post('/agenda', [
+            'judul' => 'Rapat Tiga Bidang Valid',
             'tanggal' => '2026-07-15',
             'jam_mulai' => '09:00',
             'jam_selesai' => '10:30',
@@ -243,8 +244,25 @@ class AgendarisTest extends TestCase
                 $bidangStatistik->id
             ]
         ]);
+        $responseSuccess->assertSessionHasNoErrors();
 
-        $response->assertSessionHasErrors('bidangs');
+        // 4 Bidangs is blocked (max 3 allowed)
+        $responseFail = $this->post('/agenda', [
+            'judul' => 'Rapat Empat Bidang Invalid',
+            'tanggal' => '2026-07-15',
+            'jam_mulai' => '09:00',
+            'jam_selesai' => '10:30',
+            'lokasi' => 'Ruang Rapat',
+            'kategori' => 'rapat',
+            'butuh_presensi' => '1',
+            'bidangs' => [
+                $this->sekretarisAptika->bidang_id,
+                $this->bidangIKP->id,
+                $bidangStatistik->id,
+                $bidangPersandian->id
+            ]
+        ]);
+        $responseFail->assertSessionHasErrors('bidangs');
     }
 
     /**

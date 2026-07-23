@@ -295,9 +295,19 @@
                                             if (!this.bidangs.includes(this.ownBidangId)) {
                                                 this.bidangs.push(this.ownBidangId);
                                             }
-                                            if (this.bidangs.length > 2) {
-                                                alert("Admin Bidang hanya dapat memilih maksimal 1 bidang tambahan.");
-                                                this.bidangs = [this.ownBidangId, id];
+                                            if (this.bidangs.length > 3) {
+                                                Swal.fire({
+                                                    title: 'Batas Maksimal Bidang',
+                                                    text: 'Sekretaris / Admin Bidang hanya dapat memilih maksimal 3 bidang (bidang Anda + maksimal 2 bidang tambahan).',
+                                                    icon: 'warning',
+                                                    confirmButtonText: 'Mengerti',
+                                                    confirmButtonColor: '#1b3bbb',
+                                                    customClass: {
+                                                        popup: 'rounded-3xl shadow-2xl border border-[#d4d1f5]',
+                                                        confirmButton: 'px-5 py-2.5 bg-[#1b3bbb] text-white text-xs font-bold rounded-xl shadow-md'
+                                                    }
+                                                });
+                                                this.bidangs = this.bidangs.filter(bId => String(bId) !== String(id));
                                             }
                                         }
                                         this.semua = (this.bidangs.length === this.totalCount);

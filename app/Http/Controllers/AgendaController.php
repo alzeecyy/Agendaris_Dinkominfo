@@ -110,9 +110,9 @@ class AgendaController extends Controller
             if (!in_array((string)$user->bidang_id, array_map('strval', $bidangs))) {
                 $bidangs[] = (string)$user->bidang_id;
             }
-            // Max 2 bidangs allowed
-            if (count($bidangs) > 2) {
-                return back()->withErrors(['bidangs' => 'Admin Bidang hanya diperbolehkan memilih bidangnya sendiri dan maksimal 1 bidang tambahan.'])->withInput();
+            // Max 3 bidangs allowed
+            if (count($bidangs) > 3) {
+                return back()->withErrors(['bidangs' => 'Admin Bidang / Sekretaris hanya diperbolehkan memilih bidangnya sendiri dan maksimal 2 bidang tambahan (maksimal 3 bidang).'])->withInput();
             }
             $hakAkses = $bidangs;
         } else {
@@ -345,9 +345,9 @@ class AgendaController extends Controller
             if (!in_array((string)$user->bidang_id, array_map('strval', $bidangs))) {
                 $bidangs[] = (string)$user->bidang_id;
             }
-            // Max 2 bidangs allowed
-            if (count($bidangs) > 2) {
-                return back()->withErrors(['bidangs' => 'Admin Bidang hanya diperbolehkan memilih bidangnya sendiri dan maksimal 1 bidang tambahan.'])->withInput();
+            // Max 3 bidangs allowed
+            if (count($bidangs) > 3) {
+                return back()->withErrors(['bidangs' => 'Admin Bidang / Sekretaris hanya diperbolehkan memilih bidangnya sendiri dan maksimal 2 bidang tambahan (maksimal 3 bidang).'])->withInput();
             }
             $newHakAkses = $bidangs;
         } else {
