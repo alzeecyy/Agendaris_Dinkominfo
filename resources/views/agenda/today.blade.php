@@ -244,60 +244,59 @@ class="w-full flex flex-col gap-5 select-none">
 
                 </div>
             @endforeach
-        </div>
-    @endif
-
-    <!-- ========================================== -->
+         <!-- ========================================== -->
     <!-- 📺 FULL SCREEN TV DISPLAY MODE OVERLAY    -->
     <!-- ========================================== -->
     <div x-show="tvMode" x-cloak 
          :class="tvTheme === 'cerah' 
             ? 'bg-gradient-to-br from-[#eef2ff] via-[#f8fafc] to-[#e0e7ff] text-[#09103c]' 
             : 'bg-gradient-to-br from-[#090d1a] via-[#0f172a] to-[#1e1b4b] text-white'"
-         class="fixed inset-0 z-[9999] flex flex-col p-6 lg:p-10 overflow-hidden select-none transition-colors duration-300">
+         class="fixed inset-0 z-[9999] flex flex-col p-4 sm:p-6 lg:p-8 overflow-hidden select-none transition-colors duration-300">
         
         <!-- TV Top Header Bar -->
         <div :class="tvTheme === 'cerah' 
                 ? 'bg-gradient-to-r from-[#09103c] via-[#1b3bbb] to-[#09103c] text-white border-white/20' 
                 : 'bg-[#131b2e] text-white border-slate-800'"
-             class="flex items-center justify-between rounded-3xl p-5 lg:p-6 shadow-xl border shrink-0 transition-all">
+             class="flex items-center justify-between rounded-3xl p-4 sm:p-5 lg:p-6 shadow-xl border shrink-0 transition-all">
             
-            <div class="flex items-center gap-4">
-                <img src="{{ asset('images/logo-banyumas-crest.png') }}" alt="Logo Banyumas" class="h-14 lg:h-16 w-auto drop-shadow-md">
+            <div class="flex items-center gap-3 sm:gap-4">
+                <img src="{{ asset('images/logo-banyumas-crest.png') }}" alt="Logo Banyumas" class="h-12 sm:h-14 lg:h-16 w-auto drop-shadow-md">
                 <div>
-                    <h2 class="text-base lg:text-xl font-extrabold text-amber-300 tracking-wider uppercase">PEMERINTAH KABUPATEN BANYUMAS</h2>
-                    <h1 class="text-lg lg:text-2xl font-black text-white tracking-wide">DINAS KOMUNIKASI DAN INFORMATIKA</h1>
+                    <h2 class="text-xs sm:text-base lg:text-xl font-extrabold text-amber-300 tracking-wider uppercase">PEMERINTAH KABUPATEN BANYUMAS</h2>
+                    <h1 class="text-sm sm:text-lg lg:text-2xl font-black text-white tracking-wide">DINAS KOMUNIKASI DAN INFORMATIKA</h1>
                 </div>
             </div>
 
-            <!-- TV Center Title & Theme Switcher -->
+            <!-- TV Center Title -->
             <div class="hidden lg:flex flex-col items-center">
                 <div class="px-4 py-1 bg-white/10 backdrop-blur-md border border-white/20 rounded-full text-xs font-extrabold text-emerald-300 tracking-widest uppercase flex items-center gap-2 mb-1">
                     <span class="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-ping"></span>
                     PAPAN INFORMASI DIGITAL REALTIME
                 </div>
-                <div class="text-2xl lg:text-3xl font-black tracking-tight text-white uppercase drop-shadow-md">AGENDA HARI INI</div>
+                <div class="text-xl lg:text-3xl font-black tracking-tight text-white uppercase drop-shadow-md">AGENDA HARI INI</div>
             </div>
 
-            <!-- TV Right Controls: Theme Toggle, Clock, Exit -->
-            <div class="flex items-center gap-3">
-                <!-- Theme Switcher Button -->
+            <!-- TV Right Controls: Theme Toggle Symbol, Clock, Exit -->
+            <div class="flex items-center gap-2.5 sm:gap-3">
+                <!-- Theme Switcher Symbol Button -->
                 <button @click="tvTheme = (tvTheme === 'cerah' ? 'gelap' : 'cerah')" 
                         type="button" 
-                        class="px-3.5 py-2 bg-white/10 hover:bg-white/20 rounded-2xl border border-white/20 text-xs font-bold flex items-center gap-1.5 transition-all cursor-pointer">
-                    <span x-text="tvTheme === 'cerah' ? '🌙 Mode Gelap' : '☀️ Mode Cerah'"></span>
+                        :title="tvTheme === 'cerah' ? 'Ganti ke Mode Gelap' : 'Ganti ke Mode Cerah'"
+                        class="p-2.5 bg-white/10 hover:bg-white/20 rounded-2xl border border-white/20 text-base sm:text-lg transition-all cursor-pointer shadow-md active:scale-95 shrink-0 flex items-center justify-center">
+                    <span x-show="tvTheme === 'cerah'">🌙</span>
+                    <span x-show="tvTheme === 'gelap'">☀️</span>
                 </button>
 
                 <!-- Clock Badge -->
-                <div class="text-right bg-white/10 backdrop-blur-md border border-white/20 rounded-2xl px-4 py-2 shadow-lg">
-                    <div class="text-[11px] font-bold text-indigo-100 uppercase tracking-wider" x-text="currentDate"></div>
-                    <div class="text-xl lg:text-2xl font-black text-amber-300 font-mono tracking-tight" x-text="currentTime"></div>
+                <div class="text-right bg-white/10 backdrop-blur-md border border-white/20 rounded-2xl px-3.5 py-1.5 sm:px-4 sm:py-2 shadow-lg">
+                    <div class="text-[10px] sm:text-[11px] font-bold text-indigo-100 uppercase tracking-wider" x-text="currentDate"></div>
+                    <div class="text-lg sm:text-xl lg:text-2xl font-black text-amber-300 font-mono tracking-tight" x-text="currentTime"></div>
                 </div>
 
                 <!-- Exit Button -->
                 <button @click="toggleTvMode()" type="button" 
-                        class="p-3 bg-white/10 hover:bg-rose-600 text-white rounded-2xl transition-all border border-white/20 hover:border-rose-500 cursor-pointer shadow-lg active:scale-95">
-                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        class="p-2.5 sm:p-3 bg-white/10 hover:bg-rose-600 text-white rounded-2xl transition-all border border-white/20 hover:border-rose-500 cursor-pointer shadow-lg active:scale-95 shrink-0">
+                    <svg class="w-5 h-5 sm:w-6 sm:h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12"></path>
                     </svg>
                 </button>
@@ -305,20 +304,20 @@ class="w-full flex flex-col gap-5 select-none">
         </div>
 
         <!-- TV Main Content Display Grid -->
-        <div class="flex-1 min-h-0 py-6 overflow-y-auto space-y-6 scrollbar-none">
+        <div class="flex-1 min-h-0 py-4 sm:py-5 overflow-y-auto space-y-4 sm:space-y-6 scrollbar-none">
             @if($agendas->isEmpty())
                 <div class="h-full flex flex-col items-center justify-center text-center space-y-4">
                     <div :class="tvTheme === 'cerah' ? 'bg-white text-slate-400 border-slate-200' : 'bg-white/5 text-slate-400 border-white/10'" 
-                         class="w-24 h-24 rounded-full flex items-center justify-center border shadow-lg">
-                        <svg class="w-12 h-12" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                         class="w-20 h-20 sm:w-24 sm:h-24 rounded-full flex items-center justify-center border shadow-lg">
+                        <svg class="w-10 h-10 sm:w-12 sm:h-12" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
                         </svg>
                     </div>
-                    <h3 :class="tvTheme === 'cerah' ? 'text-[#09103c]' : 'text-white'" class="text-2xl lg:text-3xl font-black">TIDAK ADA AGENDA RAPAT HARI INI</h3>
-                    <p :class="tvTheme === 'cerah' ? 'text-slate-500' : 'text-indigo-200'" class="text-base max-w-lg font-medium">Seluruh kegiatan dinas berjalan lancar. Belum ada jadwal rapat baru untuk hari ini.</p>
+                    <h3 :class="tvTheme === 'cerah' ? 'text-[#09103c]' : 'text-white'" class="text-xl sm:text-2xl lg:text-3xl font-black">TIDAK ADA AGENDA RAPAT HARI INI</h3>
+                    <p :class="tvTheme === 'cerah' ? 'text-slate-500' : 'text-indigo-200'" class="text-sm sm:text-base max-w-lg font-medium">Seluruh kegiatan dinas berjalan lancar. Belum ada jadwal rapat baru untuk hari ini.</p>
                 </div>
             @else
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
                     @foreach($agendas as $agenda)
                         @php
                             $nowTime = \Carbon\Carbon::now()->format('H:i:s');
@@ -348,40 +347,40 @@ class="w-full flex flex-col gap-5 select-none">
                         @endphp
 
                         <div :class="tvTheme === 'cerah' ? '{{ $tvCardStyleCerah }}' : '{{ $tvCardStyleGelap }}'" 
-                             class="rounded-3xl p-6 lg:p-8 flex flex-col justify-between gap-6 transition-all">
-                            <div class="space-y-4">
+                             class="rounded-3xl p-5 sm:p-6 lg:p-7 flex flex-col justify-between gap-5 transition-all">
+                            <div class="space-y-3.5">
                                 <div class="flex items-center justify-between gap-3">
                                     <!-- Time Range Badge -->
-                                    <div class="px-4 py-2 rounded-2xl {{ $timeBadgeBg }} font-mono text-base lg:text-lg font-black tracking-wide border flex items-center gap-2">
-                                        <svg class="w-5 h-5 text-[#1b3bbb]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <div class="px-3.5 py-1.5 rounded-2xl {{ $timeBadgeBg }} font-mono text-sm sm:text-base lg:text-lg font-black tracking-wide border flex items-center gap-2">
+                                        <svg class="w-4 h-4 sm:w-5 sm:h-5 text-[#1b3bbb]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
                                         </svg>
                                         <span>{{ \Carbon\Carbon::parse($agenda->jam_mulai)->format('H:i') }} - {{ \Carbon\Carbon::parse($agenda->jam_selesai)->format('H:i') }} WIB</span>
                                     </div>
 
                                     <!-- Status Badge -->
-                                    <div class="px-4 py-1.5 rounded-2xl text-xs lg:text-sm font-extrabold tracking-wider uppercase {{ $tvStatusBadge }}">
+                                    <div class="px-3.5 py-1 rounded-2xl text-xs lg:text-sm font-extrabold tracking-wider uppercase {{ $tvStatusBadge }}">
                                         {{ $tvStatusLabel }}
                                     </div>
                                 </div>
 
                                 <!-- Agenda Title -->
-                                <h3 :class="tvTheme === 'cerah' ? 'text-[#09103c]' : 'text-white'" class="text-xl lg:text-2xl font-black leading-snug tracking-tight">
+                                <h3 :class="tvTheme === 'cerah' ? 'text-[#09103c]' : 'text-white'" class="text-lg sm:text-xl lg:text-2xl font-black leading-snug tracking-tight">
                                     {{ $agenda->judul }}
                                 </h3>
 
                                 <!-- Location & Attendance -->
-                                <div class="space-y-2 pt-2 text-sm lg:text-base font-bold" :class="tvTheme === 'cerah' ? 'text-slate-600' : 'text-slate-300'">
-                                    <div class="flex items-center gap-2.5">
-                                        <svg class="w-5 h-5 text-rose-500 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <div class="space-y-1.5 pt-1 text-xs sm:text-sm lg:text-base font-bold" :class="tvTheme === 'cerah' ? 'text-slate-600' : 'text-slate-300'">
+                                    <div class="flex items-center gap-2">
+                                        <svg class="w-4.5 h-4.5 text-rose-500 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path>
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path>
                                         </svg>
                                         <span>Lokasi / Ruangan: <strong :class="tvTheme === 'cerah' ? 'text-[#09103c]' : 'text-white'" class="font-extrabold">{{ $agenda->lokasi }}</strong></span>
                                     </div>
 
-                                    <div class="flex items-center gap-2.5">
-                                        <svg class="w-5 h-5 text-emerald-600 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <div class="flex items-center gap-2">
+                                        <svg class="w-4.5 h-4.5 text-emerald-600 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"></path>
                                         </svg>
                                         <span>Kehadiran Peserta: <strong class="text-emerald-600 font-extrabold">{{ $agenda->presensis->count() }} Terpresensi</strong></span>
@@ -389,7 +388,7 @@ class="w-full flex flex-col gap-5 select-none">
                                 </div>
                             </div>
 
-                            <div class="pt-4 border-t border-slate-200 flex items-center justify-between text-xs lg:text-sm font-bold text-slate-500">
+                            <div class="pt-3 border-t border-slate-200 flex items-center justify-between text-xs lg:text-sm font-bold text-slate-500">
                                 <span>Kategori: <strong class="text-[#1b3bbb] uppercase font-extrabold">{{ $agenda->kategori }}</strong></span>
                                 <span>Akses: <strong class="text-purple-700 font-extrabold">{{ in_array('semua_orang', $agenda->hak_akses) ? 'Lintas Dinas' : 'Internal Bidang' }}</strong></span>
                             </div>
@@ -400,14 +399,14 @@ class="w-full flex flex-col gap-5 select-none">
         </div>
 
         <!-- TV Bottom Running Text Marquee -->
-        <div :class="tvTheme === 'cerah' ? 'bg-[#09103c] text-white shadow-xl' : 'bg-[#131b2e] text-white border-t border-slate-800'"
-             class="shrink-0 -mx-6 lg:-mx-10 -mb-6 lg:-mb-10 px-6 py-3.5 flex items-center gap-4 overflow-hidden rounded-t-2xl transition-all">
-            <div class="px-3.5 py-1 rounded-xl bg-emerald-600 text-white font-black text-xs uppercase tracking-wider shrink-0 flex items-center gap-1.5 shadow-md">
+        <div :class="tvTheme === 'cerah' ? 'bg-[#09103c] text-white shadow-xl border border-white/10' : 'bg-[#131b2e] text-white border border-slate-800'"
+             class="shrink-0 mt-auto rounded-2xl p-3 sm:p-3.5 flex items-center gap-3.5 overflow-hidden transition-all">
+            <div class="px-3 py-1 rounded-xl bg-emerald-600 text-white font-black text-xs uppercase tracking-wider shrink-0 flex items-center gap-1.5 shadow-md">
                 <span class="w-2 h-2 rounded-full bg-white animate-pulse"></span>
                 <span>PENGUMUMAN</span>
             </div>
             <div class="overflow-hidden whitespace-nowrap w-full">
-                <p class="inline-block animate-marquee text-sm lg:text-base font-bold text-white tracking-wide">
+                <p class="inline-block animate-marquee text-xs sm:text-sm lg:text-base font-bold text-white tracking-wide">
                     📢 Selamat Datang di Dinas Komunikasi dan Informatika Kabupaten Banyumas &nbsp;•&nbsp; Harap melakukan Presensi Mandiri pada aplikasi Agendaris sebelum rapat dimulai &nbsp;•&nbsp; Jagalah ketertiban dan kebersihan ruang rapat demi kenyamanan bersama &nbsp;•&nbsp; Terima kasih.
                 </p>
             </div>
