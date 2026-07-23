@@ -10,13 +10,13 @@
     kategori: '',
     showMonthPicker: false,
     pickerYear: {{ $selectedDate->year }}
-}" class="h-full flex flex-col xl:flex-row gap-6">
+}" class="h-full flex flex-col lg:flex-row gap-4 sm:gap-6">
     
     <!-- LEFT PANEL: Mini Calendar & Quick Add -->
-    <div class="w-full xl:w-80 space-y-6 shrink-0">
+    <div class="w-full lg:w-72 xl:w-80 space-y-4 sm:space-y-6 shrink-0">
         
         <!-- Mini Calendar Card -->
-        <div class="bg-white border border-[#d4d1f5]/60 rounded-3xl p-5 shadow-sm">
+        <div class="bg-white border border-[#d4d1f5]/60 rounded-3xl p-4 sm:p-5 shadow-sm">
             <div class="flex items-center justify-between mb-4 border-b border-[#d4d1f5]/30 pb-2">
                 <!-- Prev Button -->
                 <button type="button" 
@@ -116,7 +116,7 @@
         </div>
 
         <!-- Today's Highlights Panel -->
-        <div class="bg-white border border-[#d4d1f5]/60 rounded-3xl p-5 shadow-sm space-y-4">
+        <div class="bg-white border border-[#d4d1f5]/60 rounded-3xl p-4 sm:p-5 shadow-sm space-y-3 sm:space-y-4">
             <div class="flex items-center justify-between">
                 <h3 class="text-xs font-bold uppercase tracking-wider text-[#2e2552]">Kegiatan Hari Ini</h3>
                 <span class="text-[10px] bg-[#2e2552]/10 text-[#2e2552] px-2.5 py-0.5 rounded-full border border-[#2e2552]/20 font-bold">
@@ -124,7 +124,7 @@
                 </span>
             </div>
             
-            <div class="space-y-3 max-h-64 overflow-y-auto pr-1">
+            <div class="space-y-3 max-h-52 lg:max-h-64 overflow-y-auto pr-1">
                 @forelse($todayAgendas as $ta)
                     <div class="p-3 bg-[#f8f7ff] border border-[#d4d1f5]/40 rounded-2xl hover:border-[#8e88dd]/40 transition-all duration-200">
                         <div class="flex items-center justify-between gap-2">
@@ -153,14 +153,14 @@
                         @endif
                     </div>
                 @empty
-                    <p class="text-xs text-slate-400 text-center py-6 italic">Tidak ada agenda untuk hari ini.</p>
+                    <p class="text-xs text-slate-400 text-center py-4 italic">Tidak ada agenda untuk hari ini.</p>
                 @endforelse
             </div>
 
             <!-- Quick Add Agenda Button (Secretaries & Sekretariat staff) -->
             @if(Auth::user()->isSekretarisMaster() || Auth::user()->isSekretarisBidang() || Auth::user()->isSekretariat())
                 <button @click="openAddModal = true; selectedDate = '{{ $selectedDate->toDateString() }}'; selectedTime = '07:15'" 
-                        class="w-full py-3 bg-[#2e2552] hover:bg-[#3d326a] active:scale-[0.98] text-white font-bold rounded-2xl text-xs transition-all duration-200 shadow-md shadow-[#2e2552]/20 flex items-center justify-center gap-2">
+                        class="w-full py-2.5 bg-[#2e2552] hover:bg-[#3d326a] active:scale-[0.98] text-white font-bold rounded-2xl text-xs transition-all duration-200 shadow-md shadow-[#2e2552]/20 flex items-center justify-center gap-2">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
                     </svg>
@@ -171,17 +171,17 @@
     </div>
 
     <!-- RIGHT PANEL: 7-Day Weekly Agenda Grid -->
-    <div class="flex-1 bg-white border border-[#d4d1f5]/60 rounded-xl md:rounded-3xl p-2.5 sm:p-6 shadow-sm flex flex-col overflow-x-auto">
+    <div class="flex-1 min-w-0 bg-white border border-[#d4d1f5]/60 rounded-xl md:rounded-3xl p-3 sm:p-5 shadow-sm flex flex-col overflow-hidden">
         <!-- Calendar Navigation Header -->
-        <div class="flex items-center justify-between mb-3 sm:mb-6 gap-2 sm:gap-4 border-b border-[#d4d1f5]/40 pb-2 sm:pb-4">
+        <div class="flex items-center justify-between mb-3 sm:mb-4 gap-2 sm:gap-4 border-b border-[#d4d1f5]/40 pb-2 sm:pb-3 shrink-0">
             <div class="min-w-0">
-                <h2 class="text-sm sm:text-lg font-bold text-[#2e2552] tracking-wide truncate">Kalender Rinci Mingguan</h2>
-                <p class="text-[9.5px] sm:text-xs text-[#5a508f] mt-0.5 hidden sm:block">Menampilkan jam kerja resmi dinas (07:15 - 15:30 WIB)</p>
+                <h2 class="text-sm sm:text-base font-extrabold text-[#2e2552] tracking-wide truncate">Kalender Rinci Mingguan</h2>
+                <p class="text-[9.5px] sm:text-xs text-[#5a508f] mt-0.5 hidden sm:block">Jam kerja resmi (07:15 - 15:30 WIB)</p>
             </div>
             
             <div class="flex items-center gap-1.5 sm:gap-2 shrink-0">
                 <a href="{{ route('calendar', ['date' => $selectedDate->copy()->subWeek()->toDateString()]) }}" 
-                   class="p-1.5 sm:p-2.5 bg-[#f3f2fe] border border-[#d4d1f5] rounded-lg sm:rounded-xl hover:bg-[#8e88dd]/20 text-[#2e2552] transition-all duration-200">
+                   class="p-1.5 sm:p-2 bg-[#f3f2fe] border border-[#d4d1f5] rounded-lg sm:rounded-xl hover:bg-[#8e88dd]/20 text-[#2e2552] transition-all duration-200">
                     <svg class="w-3.5 h-3.5 sm:w-4 sm:h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
                     </svg>
@@ -194,12 +194,12 @@
                     $weekNum = (int) ($diffDays / 7) + 1;
                 @endphp
                 <a href="{{ route('calendar', ['date' => now()->toDateString()]) }}" 
-                   class="px-2.5 py-1 sm:px-4 sm:py-2 bg-[#f3f2fe] border border-[#d4d1f5] rounded-lg sm:rounded-xl hover:bg-[#8e88dd]/20 text-[10px] sm:text-xs font-semibold text-[#2e2552] transition-all duration-200 whitespace-nowrap"
+                   class="px-2.5 py-1 sm:px-3.5 sm:py-1.5 bg-[#f3f2fe] border border-[#d4d1f5] rounded-lg sm:rounded-xl hover:bg-[#8e88dd]/20 text-[10px] sm:text-xs font-semibold text-[#2e2552] transition-all duration-200 whitespace-nowrap"
                    title="Kembali ke Minggu Ini">
                     Minggu ke-{{ $weekNum }}
                 </a>
                 <a href="{{ route('calendar', ['date' => $selectedDate->copy()->addWeek()->toDateString()]) }}" 
-                   class="p-1.5 sm:p-2.5 bg-[#f3f2fe] border border-[#d4d1f5] rounded-lg sm:rounded-xl hover:bg-[#8e88dd]/20 text-[#2e2552] transition-all duration-200">
+                   class="p-1.5 sm:p-2 bg-[#f3f2fe] border border-[#d4d1f5] rounded-lg sm:rounded-xl hover:bg-[#8e88dd]/20 text-[#2e2552] transition-all duration-200">
                     <svg class="w-3.5 h-3.5 sm:w-4 sm:h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
                     </svg>
@@ -208,10 +208,10 @@
         </div>
 
         <!-- Weekly Grid Layout -->
-        <div class="flex-1 w-full overflow-x-auto custom-scrollbar">
-            <div class="min-w-[620px] sm:min-w-full flex flex-col relative h-[480px] sm:h-[660px]">
+        <div class="flex-1 w-full flex flex-col min-h-0 overflow-hidden">
+            <div class="flex-1 min-w-0 flex flex-col relative h-full">
             <!-- Dates columns header -->
-            <div class="grid grid-cols-8 border-b border-[#d4d1f5]/40 pb-2 sm:pb-3 relative z-0">
+            <div class="grid grid-cols-8 border-b border-[#d4d1f5]/40 pb-1.5 sm:pb-2 relative z-0 shrink-0">
                 <!-- Time axes column -->
                 <div class="text-center text-[10px] sm:text-xs font-bold text-[#5a508f] flex items-center justify-center">Waktu</div>
                 <!-- 7 days columns -->
@@ -224,7 +224,7 @@
                     @endphp
                     <div class="text-center flex flex-col items-center justify-center">
                         <span class="text-[8.5px] sm:text-[9px] uppercase font-bold {{ $isSunday ? 'text-rose-500 font-extrabold' : ($isSaturday ? 'text-indigo-500 font-extrabold' : 'text-[#8e88dd]') }}">{{ $date->translatedFormat('D') }}</span>
-                        <span class="text-[10px] sm:text-xs font-bold mt-0.5 px-2 py-0.5 sm:px-3 sm:py-1 rounded-lg sm:rounded-xl transition-all duration-200 
+                        <span class="text-[10px] sm:text-xs font-bold mt-0.5 px-2 py-0.5 rounded-lg sm:rounded-xl transition-all duration-200 
                             {{ $isDateToday ? 'bg-[#2e2552] text-white shadow-sm' : ($isDateSelected ? 'bg-[#8e88dd]/20 text-[#2e2552]' : ($isSunday ? 'text-rose-600 font-black' : ($isSaturday ? 'text-indigo-600 font-black' : 'text-[#5a508f]'))) }}">
                             {{ $date->day }}
                         </span>
@@ -233,7 +233,7 @@
             </div>
 
             <!-- Grid container with time axes rows & events overlay -->
-            <div class="h-[420px] sm:h-[600px] grid grid-cols-8 relative z-10 select-none pb-2 sm:pb-3">
+            <div class="flex-1 grid grid-cols-8 relative z-10 select-none min-h-0">
                 @php
                     $labelTimes = [
                         '07:15' => 0.0,
@@ -429,6 +429,7 @@
             </div>
         </div>
     </div>
+</div>
 
     <!-- MODAL: ADD AGENDA FORM -->
     <div x-show="openAddModal" x-cloak 
@@ -797,6 +798,7 @@
             </form>
         </div>
     </div>
+</div>
 </div>
 @endsection
 
