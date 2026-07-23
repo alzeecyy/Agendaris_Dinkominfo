@@ -187,10 +187,10 @@
 <body class="min-h-screen md:h-screen text-[#2e2552] bg-[#eef2ff] antialiased">
 
     <!-- Outer Page App Window -->
-    <div x-data="{ mobileNavOpen: false, profileMenuOpen: false }" class="min-h-screen md:h-screen flex flex-col p-1.5 sm:p-4 md:p-6 gap-2.5 md:gap-6 max-w-[1600px] w-full mx-auto md:overflow-hidden bg-[#eef2ff]">
+    <div x-data="{ mobileNavOpen: false, profileMenuOpen: false }" class="min-h-screen md:h-screen flex flex-col p-2.5 sm:p-4 md:p-6 pt-3 sm:pt-4 gap-2.5 md:gap-6 max-w-[1600px] w-full mx-auto md:overflow-hidden bg-[#eef2ff]">
         
         <!-- TOP NAVBAR (Sticky Header on Mobile, Top Header on Desktop) -->
-        <header class="w-full bg-white/95 backdrop-blur-md rounded-xl sm:rounded-2xl md:rounded-3xl border border-slate-200/80 px-2.5 sm:px-4 md:px-6 py-1.5 sm:py-2.5 md:py-4 flex items-center justify-between shadow-sm md:shadow-md sticky top-0 md:relative z-50 text-[#09103c]">
+        <header class="w-full bg-white/95 backdrop-blur-md rounded-2xl sm:rounded-2xl md:rounded-3xl border border-slate-200/80 px-3 sm:px-4 md:px-6 py-2 sm:py-2.5 md:py-4 flex items-center justify-between shadow-sm md:shadow-md sticky top-2 sm:top-3 md:relative z-50 text-[#09103c]">
             <!-- Left Logo & Mobile Hamburger Toggle -->
             <div class="flex items-center gap-2 sm:gap-3 select-none min-w-0">
                 <button type="button" @click="mobileNavOpen = !mobileNavOpen" class="md:hidden p-1.5 rounded-lg text-slate-700 hover:bg-slate-100 focus:outline-none transition-colors shrink-0" aria-label="Toggle Navigation">
