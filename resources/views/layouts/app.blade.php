@@ -454,7 +454,7 @@
             </aside>
 
             <!-- MAIN CONTENT AREA CONTAINER -->
-            <main id="main-content" class="flex-1 min-w-0 bg-[#f8f9fd] sm:bg-slate-50 rounded-xl sm:rounded-2xl md:rounded-[32px] p-2.5 sm:p-5 md:p-8 pb-24 md:pb-8 flex flex-col gap-3 sm:gap-6 shadow-sm md:shadow-2xl relative overflow-y-auto text-[#090c24] border border-white/10">
+            <main id="main-content" class="flex-1 min-w-0 bg-[#f8f9fd] sm:bg-slate-50 rounded-xl sm:rounded-2xl md:rounded-[32px] p-2.5 sm:p-5 md:p-8 pb-16 md:pb-6 flex flex-col gap-3 sm:gap-6 shadow-sm md:shadow-2xl relative overflow-y-auto text-[#090c24] border border-white/10">
                 
                 <!-- Floating Toast Notifications -->
                 @if(session('success') || session('error') || session('warning'))
@@ -502,7 +502,7 @@
                     @yield('content')
                 </div>
 
-                <footer class="mt-2 border-t border-[#d4d1f5]/60 pt-2 text-center text-slate-400 text-[8.5px] sm:text-[9.5px] font-medium tracking-wider mb-14 md:mb-0">
+                <footer class="mt-auto border-t border-[#d4d1f5]/60 pt-3 pb-2 text-center text-slate-400 text-[8.5px] sm:text-[9.5px] font-medium tracking-wider mb-0">
                     &copy; 2026 Dinas Komunikasi dan Informatika Kabupaten Banyumas.
                 </footer>
             </main>
