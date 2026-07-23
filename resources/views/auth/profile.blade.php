@@ -31,32 +31,38 @@
             </a>
         </div>
 
-        <div class="grid grid-cols-1 sm:grid-cols-2 gap-6 sm:gap-8 pt-1">
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6 pt-1">
             <!-- Row 1: NIP & Nama Lengkap -->
             <div class="space-y-1.5">
                 <span class="text-[10px] sm:text-[11px] font-bold text-slate-400 uppercase tracking-wider block">NOMOR INDUK PEGAWAI (NIP)</span>
-                <p class="text-sm sm:text-base font-bold text-[#09103c] font-mono">{{ Auth::user()->nip }}</p>
+                <div class="text-xs sm:text-sm font-bold text-[#09103c] bg-slate-50/80 border border-slate-200/80 rounded-2xl px-4 py-3 font-mono shadow-xs">
+                    {{ Auth::user()->nip }}
+                </div>
             </div>
 
             <div class="space-y-1.5">
                 <span class="text-[10px] sm:text-[11px] font-bold text-slate-400 uppercase tracking-wider block">NAMA LENGKAP</span>
-                <p class="text-sm sm:text-base font-bold text-[#09103c]">{{ Auth::user()->name }}</p>
+                <div class="text-xs sm:text-sm font-bold text-[#09103c] bg-slate-50/80 border border-slate-200/80 rounded-2xl px-4 py-3 shadow-xs">
+                    {{ Auth::user()->name }}
+                </div>
             </div>
 
             <!-- Row 2: Jabatan & Bidang -->
             <div class="space-y-1.5">
                 <span class="text-[10px] sm:text-[11px] font-bold text-slate-400 uppercase tracking-wider block">JABATAN / FUNGSI</span>
-                <p class="text-sm sm:text-base font-bold text-[#09103c]">{{ Auth::user()->jabatan }}</p>
+                <div class="text-xs sm:text-sm font-bold text-[#09103c] bg-slate-50/80 border border-slate-200/80 rounded-2xl px-4 py-3 shadow-xs">
+                    {{ Auth::user()->jabatan }}
+                </div>
             </div>
 
             <div class="space-y-1.5">
                 <span class="text-[10px] sm:text-[11px] font-bold text-slate-400 uppercase tracking-wider block">BIDANG / UNIT KERJA</span>
-                <p class="text-sm sm:text-base font-bold text-[#09103c]">
+                <div class="text-xs sm:text-sm font-bold text-[#09103c] bg-slate-50/80 border border-slate-200/80 rounded-2xl px-4 py-3 shadow-xs">
                     {{ Auth::user()->bidang->nama ?? 'Sekretariat' }}
                     @if(Auth::user()->bidang->singkatan ?? false)
                         ({{ Auth::user()->bidang->singkatan }})
                     @endif
-                </p>
+                </div>
             </div>
 
             @php
@@ -74,15 +80,15 @@
             <!-- Row 3: Hak Akses & Status Akun -->
             <div class="space-y-1.5">
                 <span class="text-[10px] sm:text-[11px] font-bold text-slate-400 uppercase tracking-wider block">HAK AKSES SISTEM</span>
-                <p class="text-sm sm:text-base font-bold text-[#09103c]">
+                <div class="text-xs sm:text-sm font-bold text-[#09103c] bg-slate-50/80 border border-slate-200/80 rounded-2xl px-4 py-3 shadow-xs">
                     {{ $roleLabels[Auth::user()->role] ?? Auth::user()->role }}
-                </p>
+                </div>
             </div>
 
             <div class="space-y-1.5">
                 <span class="text-[10px] sm:text-[11px] font-bold text-slate-400 uppercase tracking-wider block">STATUS AKUN</span>
-                <div class="flex items-center gap-2 text-sm sm:text-base font-bold text-emerald-600">
-                    <span class="w-2.5 h-2.5 rounded-full bg-emerald-500 inline-block"></span>
+                <div class="text-xs sm:text-sm font-bold text-emerald-600 bg-slate-50/80 border border-slate-200/80 rounded-2xl px-4 py-3 shadow-xs flex items-center gap-2">
+                    <span class="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse"></span>
                     <span>Aktif</span>
                 </div>
             </div>
