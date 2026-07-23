@@ -6,6 +6,7 @@
 <div x-data="{ 
     activeTab: 'semua', 
     tvMode: false,
+    tvTheme: 'cerah',
     currentTime: '',
     currentDate: '',
     toggleTvMode() {
@@ -250,34 +251,50 @@ class="w-full flex flex-col gap-5 select-none">
     <!-- 📺 FULL SCREEN TV DISPLAY MODE OVERLAY    -->
     <!-- ========================================== -->
     <div x-show="tvMode" x-cloak 
-         class="fixed inset-0 z-[9999] bg-gradient-to-br from-[#09103c] via-[#0d1645] to-[#1b3bbb] text-white flex flex-col p-6 lg:p-10 overflow-hidden select-none">
+         :class="tvTheme === 'cerah' 
+            ? 'bg-gradient-to-br from-[#eef2ff] via-[#f8fafc] to-[#e0e7ff] text-[#09103c]' 
+            : 'bg-gradient-to-br from-[#090d1a] via-[#0f172a] to-[#1e1b4b] text-white'"
+         class="fixed inset-0 z-[9999] flex flex-col p-6 lg:p-10 overflow-hidden select-none transition-colors duration-300">
         
-        <!-- TV Top Header -->
-        <div class="flex items-center justify-between border-b border-white/15 pb-6 shrink-0">
+        <!-- TV Top Header Bar -->
+        <div :class="tvTheme === 'cerah' 
+                ? 'bg-gradient-to-r from-[#09103c] via-[#1b3bbb] to-[#09103c] text-white border-white/20' 
+                : 'bg-[#131b2e] text-white border-slate-800'"
+             class="flex items-center justify-between rounded-3xl p-5 lg:p-6 shadow-xl border shrink-0 transition-all">
+            
             <div class="flex items-center gap-4">
-                <img src="{{ asset('images/logo-banyumas-crest.png') }}" alt="Logo Banyumas" class="h-14 lg:h-16 w-auto">
+                <img src="{{ asset('images/logo-banyumas-crest.png') }}" alt="Logo Banyumas" class="h-14 lg:h-16 w-auto drop-shadow-md">
                 <div>
-                    <h2 class="text-base lg:text-xl font-extrabold text-indigo-200 tracking-wider uppercase">PEMERINTAH KABUPATEN BANYUMAS</h2>
+                    <h2 class="text-base lg:text-xl font-extrabold text-amber-300 tracking-wider uppercase">PEMERINTAH KABUPATEN BANYUMAS</h2>
                     <h1 class="text-lg lg:text-2xl font-black text-white tracking-wide">DINAS KOMUNIKASI DAN INFORMATIKA</h1>
                 </div>
             </div>
 
-            <!-- TV Center Title -->
+            <!-- TV Center Title & Theme Switcher -->
             <div class="hidden lg:flex flex-col items-center">
                 <div class="px-4 py-1 bg-white/10 backdrop-blur-md border border-white/20 rounded-full text-xs font-extrabold text-emerald-300 tracking-widest uppercase flex items-center gap-2 mb-1">
                     <span class="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-ping"></span>
-                    PAPAN INFORMASI REALTIME
+                    PAPAN INFORMASI DIGITAL REALTIME
                 </div>
                 <div class="text-2xl lg:text-3xl font-black tracking-tight text-white uppercase drop-shadow-md">AGENDA HARI INI</div>
             </div>
 
-            <!-- TV Right Clock & Exit -->
-            <div class="flex items-center gap-4">
-                <div class="text-right bg-white/10 backdrop-blur-md border border-white/20 rounded-2xl px-5 py-2.5 shadow-lg">
-                    <div class="text-xs font-bold text-indigo-200 uppercase tracking-wider" x-text="currentDate"></div>
-                    <div class="text-2xl lg:text-3xl font-black text-emerald-300 font-mono tracking-tight drop-shadow-sm" x-text="currentTime"></div>
+            <!-- TV Right Controls: Theme Toggle, Clock, Exit -->
+            <div class="flex items-center gap-3">
+                <!-- Theme Switcher Button -->
+                <button @click="tvTheme = (tvTheme === 'cerah' ? 'gelap' : 'cerah')" 
+                        type="button" 
+                        class="px-3.5 py-2 bg-white/10 hover:bg-white/20 rounded-2xl border border-white/20 text-xs font-bold flex items-center gap-1.5 transition-all cursor-pointer">
+                    <span x-text="tvTheme === 'cerah' ? '🌙 Mode Gelap' : '☀️ Mode Cerah'"></span>
+                </button>
+
+                <!-- Clock Badge -->
+                <div class="text-right bg-white/10 backdrop-blur-md border border-white/20 rounded-2xl px-4 py-2 shadow-lg">
+                    <div class="text-[11px] font-bold text-indigo-100 uppercase tracking-wider" x-text="currentDate"></div>
+                    <div class="text-xl lg:text-2xl font-black text-amber-300 font-mono tracking-tight" x-text="currentTime"></div>
                 </div>
 
+                <!-- Exit Button -->
                 <button @click="toggleTvMode()" type="button" 
                         class="p-3 bg-white/10 hover:bg-rose-600 text-white rounded-2xl transition-all border border-white/20 hover:border-rose-500 cursor-pointer shadow-lg active:scale-95">
                     <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -291,13 +308,14 @@ class="w-full flex flex-col gap-5 select-none">
         <div class="flex-1 min-h-0 py-6 overflow-y-auto space-y-6 scrollbar-none">
             @if($agendas->isEmpty())
                 <div class="h-full flex flex-col items-center justify-center text-center space-y-4">
-                    <div class="w-24 h-24 bg-white/10 backdrop-blur-md rounded-full flex items-center justify-center border border-white/20 text-indigo-200">
+                    <div :class="tvTheme === 'cerah' ? 'bg-white text-slate-400 border-slate-200' : 'bg-white/5 text-slate-400 border-white/10'" 
+                         class="w-24 h-24 rounded-full flex items-center justify-center border shadow-lg">
                         <svg class="w-12 h-12" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
                         </svg>
                     </div>
-                    <h3 class="text-2xl lg:text-3xl font-black text-white">TIDAK ADA AGENDA RAPAT HARI INI</h3>
-                    <p class="text-base text-indigo-100 max-w-lg font-medium">Seluruh kegiatan dinas berjalan lancar. Belum ada jadwal rapat baru untuk hari ini.</p>
+                    <h3 :class="tvTheme === 'cerah' ? 'text-[#09103c]' : 'text-white'" class="text-2xl lg:text-3xl font-black">TIDAK ADA AGENDA RAPAT HARI INI</h3>
+                    <p :class="tvTheme === 'cerah' ? 'text-slate-500' : 'text-indigo-200'" class="text-base max-w-lg font-medium">Seluruh kegiatan dinas berjalan lancar. Belum ada jadwal rapat baru untuk hari ini.</p>
                 </div>
             @else
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -311,21 +329,26 @@ class="w-full flex flex-col gap-5 select-none">
                             $isUpcoming = $nowTime < $startTime;
 
                             // Ongoing = GREEN (Emerald), Upcoming = ROYAL BLUE (Indigo), Completed = SLATE (Grey)
-                            $tvCardBorder = $isOngoing 
-                                ? 'border-4 border-emerald-500 bg-white ring-4 ring-emerald-500/30 shadow-[0_10px_35px_rgba(16,185,129,0.35)]' 
-                                : ($isUpcoming ? 'border-2 border-[#1b3bbb] bg-white shadow-xl' : 'border-2 border-slate-300 bg-slate-100/95 opacity-80 shadow-xs');
+                            $tvCardStyleCerah = $isOngoing 
+                                ? 'bg-white border-4 border-emerald-500 ring-4 ring-emerald-500/20 shadow-[0_10px_35px_rgba(16,185,129,0.25)] text-[#09103c]' 
+                                : ($isUpcoming ? 'bg-white border-2 border-[#1b3bbb] shadow-xl text-[#09103c]' : 'bg-white/80 border-2 border-slate-300 opacity-85 shadow-sm text-[#09103c]');
                             
+                            $tvCardStyleGelap = $isOngoing 
+                                ? 'bg-[#131c2e] border-4 border-emerald-500 ring-4 ring-emerald-500/30 shadow-[0_10px_35px_rgba(16,185,129,0.35)] text-white' 
+                                : ($isUpcoming ? 'bg-[#131c2e] border-2 border-[#1b3bbb] shadow-xl text-white' : 'bg-[#131c2e]/70 border-2 border-slate-800 opacity-75 text-slate-300');
+
                             $tvStatusBadge = $isOngoing
                                 ? 'bg-emerald-600 text-white animate-pulse font-black'
-                                : ($isUpcoming ? 'bg-[#1b3bbb] text-white font-black' : 'bg-slate-300 text-slate-800 font-bold');
+                                : ($isUpcoming ? 'bg-[#1b3bbb] text-white font-black' : 'bg-slate-200 text-slate-800 font-bold');
 
                             $tvStatusLabel = $isOngoing ? '🟢 SEDANG BERLANGSUNG' : ($isUpcoming ? '🔵 MENDATANG' : '⚪ SELESAI');
                             $timeBadgeBg = $isOngoing 
                                 ? 'bg-emerald-50 text-emerald-900 border-emerald-200' 
-                                : ($isUpcoming ? 'bg-indigo-50 text-[#1b3bbb] border-indigo-200' : 'bg-slate-200 text-slate-700 border-slate-300');
+                                : ($isUpcoming ? 'bg-indigo-50 text-[#1b3bbb] border-indigo-200' : 'bg-slate-100 text-slate-700 border-slate-200');
                         @endphp
 
-                        <div class="{{ $tvCardBorder }} rounded-3xl p-6 lg:p-8 flex flex-col justify-between gap-6 transition-all text-[#09103c]">
+                        <div :class="tvTheme === 'cerah' ? '{{ $tvCardStyleCerah }}' : '{{ $tvCardStyleGelap }}'" 
+                             class="rounded-3xl p-6 lg:p-8 flex flex-col justify-between gap-6 transition-all">
                             <div class="space-y-4">
                                 <div class="flex items-center justify-between gap-3">
                                     <!-- Time Range Badge -->
@@ -343,18 +366,18 @@ class="w-full flex flex-col gap-5 select-none">
                                 </div>
 
                                 <!-- Agenda Title -->
-                                <h3 class="text-xl lg:text-2xl font-black text-[#09103c] leading-snug tracking-tight">
+                                <h3 :class="tvTheme === 'cerah' ? 'text-[#09103c]' : 'text-white'" class="text-xl lg:text-2xl font-black leading-snug tracking-tight">
                                     {{ $agenda->judul }}
                                 </h3>
 
                                 <!-- Location & Attendance -->
-                                <div class="space-y-2 pt-2 text-sm lg:text-base font-bold text-slate-600">
+                                <div class="space-y-2 pt-2 text-sm lg:text-base font-bold" :class="tvTheme === 'cerah' ? 'text-slate-600' : 'text-slate-300'">
                                     <div class="flex items-center gap-2.5">
                                         <svg class="w-5 h-5 text-rose-500 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path>
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path>
                                         </svg>
-                                        <span>Lokasi / Ruangan: <strong class="text-[#09103c] font-extrabold">{{ $agenda->lokasi }}</strong></span>
+                                        <span>Lokasi / Ruangan: <strong :class="tvTheme === 'cerah' ? 'text-[#09103c]' : 'text-white'" class="font-extrabold">{{ $agenda->lokasi }}</strong></span>
                                     </div>
 
                                     <div class="flex items-center gap-2.5">
@@ -377,7 +400,8 @@ class="w-full flex flex-col gap-5 select-none">
         </div>
 
         <!-- TV Bottom Running Text Marquee -->
-        <div class="shrink-0 bg-white/10 backdrop-blur-md border-t border-white/15 -mx-6 lg:-mx-10 -mb-6 lg:-mb-10 px-6 py-3 flex items-center gap-4 overflow-hidden">
+        <div :class="tvTheme === 'cerah' ? 'bg-[#09103c] text-white shadow-xl' : 'bg-[#131b2e] text-white border-t border-slate-800'"
+             class="shrink-0 -mx-6 lg:-mx-10 -mb-6 lg:-mb-10 px-6 py-3.5 flex items-center gap-4 overflow-hidden rounded-t-2xl transition-all">
             <div class="px-3.5 py-1 rounded-xl bg-emerald-600 text-white font-black text-xs uppercase tracking-wider shrink-0 flex items-center gap-1.5 shadow-md">
                 <span class="w-2 h-2 rounded-full bg-white animate-pulse"></span>
                 <span>PENGUMUMAN</span>
