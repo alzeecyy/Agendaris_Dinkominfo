@@ -514,7 +514,19 @@
                 </div>
             </div>
         @endif
-    </div>
+    <!-- STICKY MOBILE PROMPT: ABSEN SEKARANG (Only on mobile when eligible & hasn't filled presensi) -->
+    @if($agenda->butuh_presensi && !$ownPresensi && $agenda->canPresensiBeFilled() && Auth::user()->hasAccessToAgenda($agenda))
+        <div class="lg:hidden sticky top-14 z-30 p-3 bg-gradient-to-r from-[#1b3bbb] to-indigo-700 text-white rounded-2xl shadow-lg flex items-center justify-between gap-3 border border-indigo-500/30 animate-pulse">
+            <div class="flex items-center gap-2 min-w-0">
+                <span class="w-2.5 h-2.5 rounded-full bg-emerald-400 shrink-0"></span>
+                <span class="text-xs font-black truncate">Presensi Digital Dibuka!</span>
+            </div>
+            <button @click="openAbsenModal = true; initSignaturePad()" 
+                    class="px-3.5 py-1.5 bg-white text-[#1b3bbb] hover:bg-indigo-50 font-black text-xs rounded-xl shadow-xs shrink-0 transition-all active:scale-95 cursor-pointer">
+                Absen Sekarang
+            </button>
+        </div>
+    @endif
 
     <!-- TOP GRID: Card Rapat (Left) vs Absensi/Notulensi/Rekap (Right) -->
     <div class="grid grid-cols-1 lg:grid-cols-2 gap-3.5 sm:gap-6 items-stretch">

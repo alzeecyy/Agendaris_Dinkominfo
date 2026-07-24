@@ -236,7 +236,7 @@
                                     {{ $roleLabels[Auth::user()->role] ?? 'User' }}
                                 </span>
                             </div>
-                            <div class="text-[9.5px] sm:text-[10px] text-slate-500 font-bold font-mono">NIP. {{ Auth::user()->nip }}</div>
+                            <div class="text-[9.5px] sm:text-[10px] text-slate-700 font-extrabold font-mono">NIP. {{ Auth::user()->nip }}</div>
                         </div>
                         <div class="w-7 h-7 sm:w-8 sm:h-8 md:w-10 md:h-10 bg-[#1b3bbb]/10 rounded-xl md:rounded-2xl flex items-center justify-center font-bold text-[#1b3bbb] text-[10px] sm:text-xs md:text-sm border border-[#1b3bbb]/20 shadow-sm shrink-0">
                             {{ substr(Auth::user()->name, 0, 2) }}
@@ -258,7 +258,7 @@
                             </div>
                             <div class="min-w-0 flex-1">
                                 <div class="text-xs font-black text-[#2e2552] truncate">{{ Auth::user()->name }}</div>
-                                <div class="text-[9px] text-[#5a508f] font-mono truncate">NIP. {{ Auth::user()->nip }}</div>
+                                <div class="text-[9.5px] text-slate-700 font-mono font-bold truncate">NIP. {{ Auth::user()->nip }}</div>
                             </div>
                         </div>
 
@@ -309,20 +309,26 @@
              x-transition:enter-end="opacity-100 translate-y-0"
              class="md:hidden bg-white/95 backdrop-blur-md rounded-xl border border-slate-200/80 p-2.5 shadow-lg sticky top-12 z-40 space-y-1 text-[#09103c]">
             @if(Auth::check() && !Auth::user()->isAdmin())
-                <a href="{{ route('dashboard') }}" class="flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-bold {{ request()->routeIs('dashboard') ? 'bg-[#1b3bbb] text-white shadow-md' : 'text-slate-700 hover:bg-[#1b3bbb]/10' }}">
-                    <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"></path></svg>
-                    <span>Dashboard Utama</span>
+                <a href="{{ route('dashboard') }}" title="Ringkasan & Overview Agenda Bulanan" class="flex items-center justify-between px-3 py-2 rounded-xl text-xs font-bold {{ request()->routeIs('dashboard') ? 'bg-[#1b3bbb] text-white shadow-md' : 'text-slate-700 hover:bg-[#1b3bbb]/10' }}">
+                    <div class="flex items-center gap-2.5">
+                        <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"></path></svg>
+                        <span>Dashboard Utama</span>
+                    </div>
+                    <span class="text-[8.5px] font-semibold opacity-80 uppercase tracking-wider">Ringkasan</span>
                 </a>
                 <a href="{{ route('agenda.today') }}" class="flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-bold {{ request()->routeIs('agenda.today') ? 'bg-[#1b3bbb] text-white shadow-md' : 'text-slate-700 hover:bg-[#1b3bbb]/10' }}">
                     <svg class="w-4 h-4 shrink-0 text-rose-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
                     <span>Agenda Hari Ini</span>
                 </a>
-                <a href="{{ route('calendar') }}" class="flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-bold {{ request()->routeIs('calendar') && !request()->has('open_add') ? 'bg-[#1b3bbb] text-white shadow-md' : 'text-slate-700 hover:bg-[#1b3bbb]/10' }}">
-                    <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
-                    <span>Kalender Rinci</span>
+                <a href="{{ route('calendar') }}" title="Jadwal Rapat Grid Mingguan Jam-demi-Jam" class="flex items-center justify-between px-3 py-2 rounded-xl text-xs font-bold {{ request()->routeIs('calendar') && !request()->has('open_add') ? 'bg-[#1b3bbb] text-white shadow-md' : 'text-slate-700 hover:bg-[#1b3bbb]/10' }}">
+                    <div class="flex items-center gap-2.5">
+                        <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
+                        <span>Kalender Rinci</span>
+                    </div>
+                    <span class="text-[8.5px] font-semibold opacity-80 uppercase tracking-wider">Grid Detail</span>
                 </a>
                 @if(Auth::user()->isSekretarisMaster() || Auth::user()->isSekretarisBidang() || Auth::user()->isSekretariat())
-                    <a href="{{ route('calendar', ['open_add' => 1]) }}" class="flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-bold {{ request()->routeIs('calendar') && request()->has('open_add') ? 'bg-[#1b3bbb] text-white shadow-md' : 'text-slate-700 hover:bg-[#1b3bbb]/10' }}">
+                    <a href="{{ route('calendar', ['open_add' => 1]) }}" title="Buka Form Tambah Agenda Baru" class="flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-bold {{ request()->routeIs('calendar') && request()->has('open_add') ? 'bg-[#1b3bbb] text-white shadow-md' : 'text-slate-700 hover:bg-[#1b3bbb]/10' }}">
                         <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
                         <span>Tambah Agenda</span>
                     </a>
@@ -402,13 +408,16 @@
                 <nav class="flex-1 w-full flex flex-col gap-1 px-3">
                     @if(Auth::check() && !Auth::user()->isAdmin())
                         <!-- Dashboard Link -->
-                        <a href="{{ route('dashboard') }}" 
-                           class="flex items-center gap-3 px-4 py-3 rounded-2xl font-bold text-xs transition-all duration-200 
+                        <a href="{{ route('dashboard') }}" title="Overview & Ringkasan Agenda Bulanan" 
+                           class="flex items-center justify-between px-4 py-3 rounded-2xl font-bold text-xs transition-all duration-200 
                            {{ request()->routeIs('dashboard') ? 'bg-[#1b3bbb] text-white shadow-lg shadow-[#1b3bbb]/20' : 'text-slate-600 hover:bg-[#1b3bbb]/5 hover:text-[#1b3bbb]' }}">
-                            <svg class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"></path>
-                            </svg>
-                            <span>Dashboard Utama</span>
+                            <div class="flex items-center gap-3">
+                                <svg class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"></path>
+                                </svg>
+                                <span>Dashboard Utama</span>
+                            </div>
+                            <span class="text-[8.5px] font-semibold opacity-75 uppercase tracking-wider">Ringkasan</span>
                         </a>
 
                         @if(Auth::user()->canViewAgendaToday())
@@ -427,18 +436,21 @@
                         @endif
 
                         <!-- Calendar Link -->
-                        <a href="{{ route('calendar') }}" 
-                           class="flex items-center gap-3 px-4 py-3 rounded-2xl font-bold text-xs transition-all duration-200 
+                        <a href="{{ route('calendar') }}" title="Jadwal Rapat Grid Mingguan Jam-demi-Jam" 
+                           class="flex items-center justify-between px-4 py-3 rounded-2xl font-bold text-xs transition-all duration-200 
                            {{ request()->routeIs('calendar') && !request()->has('open_add') ? 'bg-[#1b3bbb] text-white shadow-lg shadow-[#1b3bbb]/20' : 'text-slate-600 hover:bg-[#1b3bbb]/5 hover:text-[#1b3bbb]' }}">
-                            <svg class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
-                            </svg>
-                            <span>Kalender Rinci</span>
+                            <div class="flex items-center gap-3">
+                                <svg class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+                                </svg>
+                                <span>Kalender Rinci</span>
+                            </div>
+                            <span class="text-[8.5px] font-semibold opacity-75 uppercase tracking-wider">Grid Detail</span>
                         </a>
 
                         @if(Auth::user()->isSekretarisMaster() || Auth::user()->isSekretarisBidang() || Auth::user()->isSekretariat())
                             <!-- Tambah Agenda Link (Sekretaris Only - Shortcut to Open Add Agenda Modal) -->
-                            <a href="{{ route('calendar', ['open_add' => 1]) }}" 
+                            <a href="{{ route('calendar', ['open_add' => 1]) }}" title="Buka Form Tambah Agenda Baru" 
                                class="flex items-center gap-3 px-4 py-3 rounded-2xl font-bold text-xs transition-all duration-200 
                                {{ request()->routeIs('calendar') && request()->has('open_add') ? 'bg-[#1b3bbb] text-white shadow-lg shadow-[#1b3bbb]/20' : 'text-slate-600 hover:bg-[#1b3bbb]/5 hover:text-[#1b3bbb]' }}">
                                 <svg class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
