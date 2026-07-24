@@ -62,12 +62,27 @@ class Agenda extends Model
 
     /**
      * Get internal participants of this meeting.
-     * Returns meeting_participants users if defined; falls back to all active bidang users if legacy agenda.
+     * Returns meeting_participants users if defined (merged with any users who have recorded presensi history);
+     * falls back to all active bidang users if legacy agenda.
      */
     public function getInternalParticipants()
     {
         if ($this->participants()->exists()) {
-            return $this->participants()->where('active', true)->where('role', '!=', 'admin')->orderBy('name')->get();
+            $invited = $this->participants()->where('active', true)->where('role', '!=', 'admin')->get();
+            $attendedUserIds = Presensi::where('agenda_id', $this->id)
+                ->whereIn('status', ['hadir', 'izin', 'sakit', 'alfa'])
+                ->pluck('user_id');
+
+            if ($attendedUserIds->isNotEmpty()) {
+                $attendedUsers = User::whereIn('id', $attendedUserIds)
+                    ->where('active', true)
+                    ->where('role', '!=', 'admin')
+                    ->get();
+                $merged = $invited->concat($attendedUsers)->unique('id')->values();
+                return $merged->sortBy('name')->values();
+            }
+
+            return $invited->sortBy('name')->values();
         }
 
         $hakAkses = $this->hak_akses ?? [];

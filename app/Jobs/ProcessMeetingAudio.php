@@ -31,6 +31,16 @@ class ProcessMeetingAudio implements ShouldQueue
     }
 
     /**
+     * The number of times the job may be attempted.
+     */
+    public $tries = 1;
+
+    /**
+     * The maximum number of seconds the job can run before timing out.
+     */
+    public $timeout = 300;
+
+    /**
      * Execute the job.
      */
     public function handle(): void
@@ -41,8 +51,22 @@ class ProcessMeetingAudio implements ShouldQueue
         try {
             Log::info("ProcessMeetingAudio job started for notulensi ID: " . $this->notulensi->id);
             
-            // Refresh model from DB to get the latest audio_files array
+            // Refresh model from DB to get the latest state
             $this->notulensi->refresh();
+
+            // Idempotency guard: if is_transcribing was already reset (e.g., by a concurrent job),
+            // or if the notulensi has been deleted, bail out gracefully
+            if (!$this->notulensi->is_transcribing) {
+                Log::warning("ProcessMeetingAudio: is_transcribing is already false. Skipping duplicate job for notulensi ID: " . $this->notulensi->id);
+                return;
+            }
+
+            // Guard: if notulensi has been approved/signed off since job was dispatched, don't overwrite
+            if ($this->notulensi->status === 'disahkan') {
+                Log::warning("ProcessMeetingAudio: Notulensi ID " . $this->notulensi->id . " was already disahkan. Skipping.");
+                $this->notulensi->update(['is_transcribing' => false]);
+                return;
+            }
             
             $agenda = $this->notulensi->agenda;
             $apiKey = env('GEMINI_API_KEY');
@@ -479,5 +503,24 @@ class ProcessMeetingAudio implements ShouldQueue
         }
 
         return trim($text);
+    }
+
+    /**
+     * Handle a job failure.
+     * Safety net to ensure is_transcribing is always reset even if the job fails
+     * outside the try/finally block (e.g., serialization errors, timeout kills).
+     */
+    public function failed(\Throwable $exception): void
+    {
+        Log::error("ProcessMeetingAudio FAILED for notulensi ID: " . $this->notulensi->id . " - " . $exception->getMessage());
+
+        try {
+            $this->notulensi->update([
+                'is_transcribing' => false,
+                'transkrip_error' => 'Proses transkripsi gagal secara tidak terduga. Silakan coba lagi.',
+            ]);
+        } catch (\Exception $e) {
+            Log::error("ProcessMeetingAudio failed() cleanup error: " . $e->getMessage());
+        }
     }
 }

@@ -197,16 +197,31 @@ class AgendaController extends Controller
         // Eager load relations for high performance
         $agenda->load(['sekretaris.bidang', 'notulensi', 'externalParticipants', 'participants']);
 
-        // Auto-heal stale is_transcribing status if no audio file exists or process timed out (>15 mins)
+        // Auto-heal stale is_transcribing status based on queue job lifecycle and audio availability
         if ($agenda->notulensi && $agenda->notulensi->is_transcribing) {
             $notulensi = $agenda->notulensi;
             $hasAudio = !empty($notulensi->audio_path) || (!empty($notulensi->audio_files) && count($notulensi->audio_files) > 0);
-            $isTimedOut = $notulensi->updated_at && $notulensi->updated_at->diffInMinutes(now()) > 15;
             
-            if (!$hasAudio || $isTimedOut) {
+            // Check if a queue job is currently pending or active in the jobs table for this notulensi
+            $jobPendingOrRunning = false;
+            try {
+                $jobPendingOrRunning = \Illuminate\Support\Facades\DB::table('jobs')
+                    ->where('payload', 'like', '%ProcessMeetingAudio%')
+                    ->where(function ($q) use ($notulensi) {
+                        $q->where('payload', 'like', '%"id";i:' . $notulensi->id . '%')
+                          ->orWhere('payload', 'like', '%"id";s:' . strlen((string)$notulensi->id) . ':"' . $notulensi->id . '"%');
+                    })
+                    ->exists();
+            } catch (\Exception $e) {
+                // In case queue table isn't accessible, fallback safely
+                $jobPendingOrRunning = false;
+            }
+
+            // Only heal if no audio file exists OR if no job is actively running/pending in queue
+            if (!$hasAudio || !$jobPendingOrRunning) {
                 $notulensi->update([
                     'is_transcribing' => false,
-                    'transkrip_error' => $isTimedOut ? 'Proses transkripsi AI melebihi batas waktu (timeout). Silakan coba lagi.' : null,
+                    'transkrip_error' => !$hasAudio ? null : ($notulensi->transkrip_error ?: 'Proses transkripsi terhenti. Silakan coba lagi.'),
                 ]);
             }
         }
@@ -319,6 +334,10 @@ class AgendaController extends Controller
             abort(403, 'Akses ditolak. Anda tidak memiliki wewenang untuk mengubah agenda ini.');
         }
 
+        // --- Fix #2: Backend validation - lock butuh_presensi & kategori when notulensi is beyond draft ---
+        $notulensi = $agenda->notulensi;
+        $notulensiLocked = $notulensi && in_array($notulensi->status, ['menunggu_review', 'disahkan']);
+
         $rules = [
             'judul' => 'required|string|max:255',
             'tanggal' => 'required|date',
@@ -351,6 +370,19 @@ class AgendaController extends Controller
             'semua_orang.prohibited' => 'Admin Bidang tidak diperbolehkan membuat rapat Lintas Dinas (Semua Orang).',
         ]);
 
+        // --- Fix #2: Reject changes to kategori/butuh_presensi if notulensi workflow is locked ---
+        if ($notulensiLocked) {
+            $requestedKategori = $validated['kategori'];
+            $requestedButuhPresensi = $request->has('butuh_presensi');
+
+            if ($requestedKategori !== $agenda->kategori) {
+                return back()->withErrors(['kategori' => 'Kategori agenda tidak dapat diubah karena notulensi sudah dalam proses review atau telah disahkan.'])->withInput();
+            }
+            if ($requestedButuhPresensi !== (bool) $agenda->butuh_presensi) {
+                return back()->withErrors(['butuh_presensi' => 'Pengaturan presensi tidak dapat diubah karena notulensi sudah dalam proses review atau telah disahkan.'])->withInput();
+            }
+        }
+
         // Determine hak_akses
         if ($user->isSekretarisBidang()) {
             $bidangs = $request->input('bidangs', []);
@@ -373,21 +405,7 @@ class AgendaController extends Controller
 
         $butuhPresensi = $request->has('butuh_presensi');
 
-        // Update the agenda
-        $agenda->update([
-            'judul' => $validated['judul'],
-            'tanggal' => $validated['tanggal'],
-            'jam_mulai' => $validated['jam_mulai'],
-            'jam_selesai' => $validated['jam_selesai'],
-            'lokasi' => $validated['lokasi'],
-            'deskripsi' => $validated['deskripsi'] ?? null,
-            'kategori' => $validated['kategori'],
-            'hak_akses' => $newHakAkses,
-            'butuh_presensi' => $butuhPresensi,
-            'nomor_surat_dasar' => $validated['nomor_surat_dasar'] ?? null,
-        ]);
-
-        // Sync participants
+        // Pre-compute target participant list for validation before entering transaction
         $allowedUsersQuery = \App\Models\User::where('role', '!=', 'admin')->where('active', true);
         if (!in_array('semua_orang', $newHakAkses)) {
             $allowedUsersQuery->whereIn('bidang_id', $newHakAkses);
@@ -407,26 +425,59 @@ class AgendaController extends Controller
             }
         }
 
-        $agenda->participants()->sync($targetUserIds);
+        // Wrap the entire update in a transaction for atomicity
+        \Illuminate\Support\Facades\DB::transaction(function () use ($request, $agenda, $validated, $newHakAkses, $butuhPresensi, $notulensiLocked, $targetUserIds) {
+            // Update the agenda
+            $agenda->update([
+                'judul' => $validated['judul'],
+                'tanggal' => $validated['tanggal'],
+                'jam_mulai' => $validated['jam_mulai'],
+                'jam_selesai' => $validated['jam_selesai'],
+                'lokasi' => $validated['lokasi'],
+                'deskripsi' => $validated['deskripsi'] ?? null,
+                'kategori' => $validated['kategori'],
+                'hak_akses' => $newHakAkses,
+                'butuh_presensi' => $butuhPresensi,
+                'nomor_surat_dasar' => $validated['nomor_surat_dasar'] ?? null,
+            ]);
 
-        // Cleanup presensi of uninvited users if any
-        Presensi::where('agenda_id', $agenda->id)
-            ->whereNotIn('user_id', $targetUserIds)
-            ->delete();
+            $agenda->participants()->sync($targetUserIds);
 
-        // Manage notulensi instantiation based on updated toggles
-        if ($butuhPresensi && $agenda->kategori === 'rapat') {
-            if (!$agenda->notulensi) {
-                Notulensi::create([
-                    'agenda_id' => $agenda->id,
-                    'status' => 'draft',
-                ]);
+            // --- Fix #1: Only delete presensi records for uninvited users that have NO recorded attendance ---
+            // Preserve presensi records with status hadir/izin/sakit to protect attendance history
+            Presensi::where('agenda_id', $agenda->id)
+                ->whereNotIn('user_id', $targetUserIds)
+                ->whereNull('status')
+                ->delete();
+
+            // For users removed from invite list who DO have attendance records,
+            // keep their presensi data intact for historical integrity.
+            // Only remove records that are completely empty (no status recorded yet).
+            $emptyPresensiIds = Presensi::where('agenda_id', $agenda->id)
+                ->whereNotIn('user_id', $targetUserIds)
+                ->whereNotIn('status', ['hadir', 'izin', 'sakit', 'alfa'])
+                ->pluck('id');
+            if ($emptyPresensiIds->isNotEmpty()) {
+                Presensi::whereIn('id', $emptyPresensiIds)->delete();
             }
-        } else {
-            if ($agenda->notulensi && $agenda->notulensi->status === 'draft') {
-                $agenda->notulensi->delete();
+
+            // Manage notulensi instantiation based on updated toggles
+            // Only allow notulensi creation/deletion when workflow is not locked
+            if (!$notulensiLocked) {
+                if ($butuhPresensi && $agenda->kategori === 'rapat') {
+                    if (!$agenda->notulensi) {
+                        Notulensi::create([
+                            'agenda_id' => $agenda->id,
+                            'status' => 'draft',
+                        ]);
+                    }
+                } else {
+                    if ($agenda->notulensi && $agenda->notulensi->status === 'draft') {
+                        $agenda->notulensi->delete();
+                    }
+                }
             }
-        }
+        });
 
         return redirect()->route('agenda.show', $agenda->id)
             ->with('success', 'Agenda berhasil diperbarui.');

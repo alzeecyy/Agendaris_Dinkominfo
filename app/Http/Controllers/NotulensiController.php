@@ -75,6 +75,16 @@ class NotulensiController extends Controller
             ]);
         }
 
+        // Block upload during active transcription
+        if ($notulensi->is_transcribing) {
+            return back()->with('error', 'Tidak dapat mengunggah berkas saat proses transkripsi AI sedang berjalan.');
+        }
+
+        // Block upload if notulensi is under review
+        if ($notulensi->status === 'menunggu_review') {
+            return back()->with('error', 'Tidak dapat mengunggah berkas saat notulensi sedang dalam proses review pimpinan.');
+        }
+
         // Handle up to 3 audio files
         $audioFiles = $notulensi->audio_files ?? [];
         if (count($audioFiles) >= 3) {
@@ -106,6 +116,7 @@ class NotulensiController extends Controller
 
     /**
      * Trigger AI audio transcription process manually.
+     * Uses atomic locking to prevent race condition from double-click or concurrent requests.
      */
     public function processAudio(Agenda $agenda)
     {
@@ -124,19 +135,55 @@ class NotulensiController extends Controller
             return back()->with('error', 'Silakan unggah minimal 1 berkas audio rapat terlebih dahulu.');
         }
 
-        if ($notulensi->is_transcribing) {
+        // --- Fix #3: Atomic locking to prevent race condition (double-click / concurrent requests) ---
+        $dispatched = \Illuminate\Support\Facades\DB::transaction(function () use ($notulensi, $user) {
+            // Lock the notulensi row for update to prevent concurrent reads
+            $locked = Notulensi::where('id', $notulensi->id)->lockForUpdate()->first();
+
+            if (!$locked) {
+                return false;
+            }
+
+            // If already transcribing, reject duplicate dispatch
+            if ($locked->is_transcribing) {
+                return false;
+            }
+
+            // Validate audio files still exist on disk before dispatching
+            $audioFiles = $locked->audio_files ?? [];
+            $hasValidAudio = false;
+            foreach ($audioFiles as $audioItem) {
+                $audioPath = $audioItem['path'] ?? null;
+                if ($audioPath && Storage::disk('public')->exists($audioPath)) {
+                    $hasValidAudio = true;
+                    break;
+                }
+            }
+
+            if (!$hasValidAudio) {
+                return 'no_audio';
+            }
+
+            // Atomically set is_transcribing = true within the transaction
+            $locked->update([
+                'is_transcribing' => true,
+                'transkrip_error' => null,
+            ]);
+
+            return true;
+        });
+
+        if ($dispatched === false) {
             return back()->with('error', 'Proses transkripsi AI sedang berjalan. Mohon tunggu sejenak...');
+        }
+
+        if ($dispatched === 'no_audio') {
+            return back()->with('error', 'Berkas audio tidak ditemukan di server. Silakan unggah ulang berkas audio rapat.');
         }
 
         @set_time_limit(0);
 
-        // Set is_transcribing to true
-        $notulensi->update([
-            'is_transcribing' => true,
-            'transkrip_error' => null,
-        ]);
-
-        // Dispatch background job for AI transcription
+        // Dispatch background job for AI transcription (outside transaction to avoid long lock)
         $audioFiles = $notulensi->audio_files ?? [];
         $lastFile = !empty($audioFiles) ? end($audioFiles) : null;
         $path = is_array($lastFile) ? ($lastFile['path'] ?? $notulensi->audio_path) : $notulensi->audio_path;
@@ -179,6 +226,11 @@ class NotulensiController extends Controller
 
         if ($notulensi->status === 'disahkan') {
             return back()->with('error', 'Akses ditolak. Notulensi telah disahkan dan tidak dapat diubah lagi.');
+        }
+
+        // Block delete during active transcription to prevent missing files mid-job
+        if ($notulensi->is_transcribing) {
+            return back()->with('error', 'Tidak dapat menghapus berkas saat proses transkripsi AI sedang berjalan.');
         }
 
         $audioFiles = $notulensi->audio_files ?? [];
@@ -235,8 +287,8 @@ class NotulensiController extends Controller
             abort(404, 'Notulensi tidak ditemukan.');
         }
 
-        if ($notulensi->status === 'disahkan') {
-            return back()->with('error', 'Akses ditolak. Notulensi telah disahkan dan tidak dapat diubah lagi.');
+        if (in_array($notulensi->status, ['menunggu_review', 'disahkan'])) {
+            return back()->with('error', 'Akses ditolak. Notulensi sedang dalam proses review atau telah disahkan dan tidak dapat diubah.');
         }
 
         $validated = $request->validate([
@@ -280,6 +332,7 @@ class NotulensiController extends Controller
 
     /**
      * Submit minutes draft for Ketua's review and approval.
+     * Uses atomic state transition to prevent double-submit or submit from invalid state.
      */
     public function submitForReview(Request $request, Agenda $agenda)
     {
@@ -294,8 +347,17 @@ class NotulensiController extends Controller
             return back()->with('error', 'Notulensi belum dibuat.');
         }
 
-        if ($notulensi->status === 'disahkan') {
+        // Validate state: only draft can be submitted for review
+        if ($notulensi->status !== 'draft') {
+            if ($notulensi->status === 'menunggu_review') {
+                return back()->with('error', 'Notulensi sudah diajukan untuk review. Menunggu keputusan pimpinan.');
+            }
             return back()->with('error', 'Akses ditolak. Notulensi telah disahkan dan tidak dapat diubah lagi.');
+        }
+
+        // Block submit while AI is still transcribing
+        if ($notulensi->is_transcribing) {
+            return back()->with('error', 'Tidak dapat mengajukan notulensi saat proses transkripsi AI masih berjalan.');
         }
 
         // Save current inputs first & validate judul & nomor_surat_dasar
@@ -314,24 +376,27 @@ class NotulensiController extends Controller
             'nomor_surat_dasar.required' => 'Nomor Surat Pelaksanaan wajib diisi sebelum mengajukan notulensi.',
         ]);
 
-        $agenda->update([
-            'judul' => $validated['judul'],
-            'nomor_surat_dasar' => $validated['nomor_surat_dasar'],
-        ]);
+        // Atomic state transition with DB transaction
+        \Illuminate\Support\Facades\DB::transaction(function () use ($agenda, $notulensi, $validated, $user) {
+            $agenda->update([
+                'judul' => $validated['judul'],
+                'nomor_surat_dasar' => $validated['nomor_surat_dasar'],
+            ]);
 
-        $ringkasanClean = isset($validated['ringkasan']) ? trim(preg_replace('/```(?:markdown)?/i', '', $validated['ringkasan'])) : null;
+            $ringkasanClean = isset($validated['ringkasan']) ? trim(preg_replace('/```(?:markdown)?/i', '', $validated['ringkasan'])) : null;
 
-        $notulensi->update([
-            'transkrip_raw' => $validated['transkrip_raw'] ?? null,
-            'ringkasan' => $ringkasanClean,
-            'pembahasan' => $validated['pembahasan'] ?? null,
-            'keputusan' => $validated['keputusan'] ?? null,
-            'kesimpulan' => $validated['kesimpulan'] ?? null,
-            'pembahasan_title' => $validated['pembahasan_title'] ?? null,
-            'keputusan_title' => $validated['keputusan_title'] ?? null,
-            'status' => 'menunggu_review',
-            'last_edited_by_id' => $user->id,
-        ]);
+            $notulensi->update([
+                'transkrip_raw' => $validated['transkrip_raw'] ?? null,
+                'ringkasan' => $ringkasanClean,
+                'pembahasan' => $validated['pembahasan'] ?? null,
+                'keputusan' => $validated['keputusan'] ?? null,
+                'kesimpulan' => $validated['kesimpulan'] ?? null,
+                'pembahasan_title' => $validated['pembahasan_title'] ?? null,
+                'keputusan_title' => $validated['keputusan_title'] ?? null,
+                'status' => 'menunggu_review',
+                'last_edited_by_id' => $user->id,
+            ]);
+        });
 
         return redirect()->route('agenda.show', $agenda->id)
             ->with('success', 'Notulensi berhasil diajukan untuk persetujuan pimpinan.');
@@ -374,6 +439,7 @@ class NotulensiController extends Controller
 
     /**
      * Approve and sign off minutes (status = disahkan).
+     * Uses lockForUpdate to prevent concurrent approval by two tabs/users.
      */
     public function approve(Request $request, Agenda $agenda)
     {
@@ -389,17 +455,27 @@ class NotulensiController extends Controller
 
         $tandaTangan = $request->input('tanda_tangan_approver');
 
-        $notulensi = $agenda->notulensi;
-        if (!$notulensi || $notulensi->status !== 'menunggu_review') {
-            return back()->with('error', 'Akses ditolak. Notulensi belum diajukan untuk persetujuan pimpinan.');
-        }
+        // Atomic approval with row lock to prevent concurrent approval race condition
+        $approved = \Illuminate\Support\Facades\DB::transaction(function () use ($agenda, $user, $tandaTangan) {
+            $notulensi = Notulensi::where('agenda_id', $agenda->id)->lockForUpdate()->first();
 
-        $notulensi->update([
-            'status' => 'disahkan',
-            'catatan_revisi' => null,
-            'approver_id' => $user->id,
-            'tanda_tangan_approver' => $tandaTangan,
-        ]);
+            if (!$notulensi || $notulensi->status !== 'menunggu_review') {
+                return false;
+            }
+
+            $notulensi->update([
+                'status' => 'disahkan',
+                'catatan_revisi' => null,
+                'approver_id' => $user->id,
+                'tanda_tangan_approver' => $tandaTangan,
+            ]);
+
+            return true;
+        });
+
+        if (!$approved) {
+            return back()->with('error', 'Notulensi tidak dapat disahkan. Status notulensi mungkin sudah berubah.');
+        }
 
         return redirect()->route('notulensi.review', $agenda->id)
             ->with('success', 'Notulensi rapat berhasil disahkan dengan tanda tangan digital Pimpinan.');
@@ -407,6 +483,7 @@ class NotulensiController extends Controller
 
     /**
      * Reject and request revision for minutes.
+     * Uses lockForUpdate to prevent concurrent revision/approval race condition.
      */
     public function requestRevision(Request $request, Agenda $agenda)
     {
@@ -422,14 +499,26 @@ class NotulensiController extends Controller
             'catatan_revisi.required' => 'Catatan revisi wajib diisi jika Anda menolak draf.',
         ]);
 
-        $notulensi = $agenda->notulensi;
-        if ($notulensi) {
+        // Atomic revision with row lock to prevent concurrent approval/revision race condition
+        $revised = \Illuminate\Support\Facades\DB::transaction(function () use ($agenda, $validated) {
+            $notulensi = Notulensi::where('agenda_id', $agenda->id)->lockForUpdate()->first();
+
+            if (!$notulensi || $notulensi->status !== 'menunggu_review') {
+                return false;
+            }
+
             $notulensi->update([
                 'status' => 'draft',
                 'catatan_revisi' => $validated['catatan_revisi'],
                 'approver_id' => null,
                 'tanda_tangan_approver' => null,
             ]);
+
+            return true;
+        });
+
+        if (!$revised) {
+            return back()->with('error', 'Notulensi tidak dapat dikembalikan. Status notulensi mungkin sudah berubah.');
         }
 
         return redirect()->route('agenda.show', $agenda->id)
@@ -445,6 +534,11 @@ class NotulensiController extends Controller
 
         if (!$user->isSecretaryOfAgenda($agenda)) {
             return back()->with('error', 'Akses ditolak.');
+        }
+
+        $notulensi = $agenda->notulensi;
+        if ($notulensi && in_array($notulensi->status, ['menunggu_review', 'disahkan'])) {
+            return back()->with('error', 'Akses ditolak. Notulensi sedang dalam proses review atau telah disahkan dan data peserta eksternal tidak dapat diubah.');
         }
 
         $validated = $request->validate([
@@ -473,6 +567,11 @@ class NotulensiController extends Controller
 
         if (!$user->isSecretaryOfAgenda($agenda)) {
             return back()->with('error', 'Akses ditolak.');
+        }
+
+        $notulensi = $agenda->notulensi;
+        if ($notulensi && in_array($notulensi->status, ['menunggu_review', 'disahkan'])) {
+            return back()->with('error', 'Akses ditolak. Notulensi sedang dalam proses review atau telah disahkan dan data peserta eksternal tidak dapat dihapus.');
         }
 
         $participant->delete();
