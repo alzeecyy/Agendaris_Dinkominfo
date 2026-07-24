@@ -377,4 +377,73 @@ class AgendarisTest extends TestCase
         $response = $this->actingAs($staffSekretariat)->get("/agenda/{$agendaAptika->id}/notulensi/edit");
         $response->assertStatus(200);
     }
+
+    /**
+     * Test IDOR protection: Staff of non-permitted bidang cannot view another bidang's private agenda.
+     */
+    public function test_unauthorized_user_cannot_view_other_bidang_agenda_idor(): void
+    {
+        $bidangLain = Bidang::create([
+            'nama' => 'Bidang Statistik',
+            'singkatan' => 'Statistik'
+        ]);
+
+        $staffStatistik = User::create([
+            'name' => 'Staff Statistik',
+            'nip' => 'staff.statistik',
+            'jabatan' => 'Staff',
+            'bidang_id' => $bidangLain->id,
+            'role' => 'staff',
+            'password' => Hash::make('password'),
+            'must_change_password' => false,
+            'active' => true,
+        ]);
+
+        $agendaAptika = Agenda::create([
+            'judul' => 'Rapat Internal Aptika Rahasia',
+            'tanggal' => '2026-07-25',
+            'jam_mulai' => '09:00',
+            'jam_selesai' => '10:00',
+            'lokasi' => 'Ruang Aptika',
+            'kategori' => 'rapat',
+            'hak_akses' => [(string)$this->bidangAptika->id],
+            'butuh_presensi' => true,
+            'sekretaris_id' => $this->sekretarisAptika->id,
+        ]);
+
+        // Attempting to access agenda page via direct ID URL must return 403 Forbidden
+        $response = $this->actingAs($staffStatistik)->get("/agenda/{$agendaAptika->id}");
+        $response->assertStatus(403);
+    }
+
+    /**
+     * Test State Machine & Role Security: Staff cannot approve notulensi.
+     */
+    public function test_staff_cannot_approve_notulensi(): void
+    {
+        $agenda = Agenda::create([
+            'judul' => 'Rapat Koordinasi Evaluasi',
+            'tanggal' => '2026-07-25',
+            'jam_mulai' => '09:00',
+            'jam_selesai' => '10:00',
+            'lokasi' => 'Ruang Rapat',
+            'kategori' => 'rapat',
+            'hak_akses' => ['semua_orang'],
+            'butuh_presensi' => true,
+            'sekretaris_id' => $this->sekretarisMaster->id,
+        ]);
+
+        $notulensi = Notulensi::create([
+            'agenda_id' => $agenda->id,
+            'status' => 'menunggu_review',
+        ]);
+
+        // Staff attempts to approve notulensi
+        $response = $this->actingAs($this->staffAptika)->post("/agenda/{$agenda->id}/notulensi/review/approve", [
+            'tanda_tangan_approver' => 'data:image/png;base64,sample',
+        ]);
+
+        // Must be blocked by role middleware (403 Forbidden or redirect back with error)
+        $this->assertNotEquals('disahkan', $notulensi->fresh()->status);
+    }
 }

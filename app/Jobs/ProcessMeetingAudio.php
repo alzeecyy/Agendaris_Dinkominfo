@@ -179,20 +179,20 @@ class ProcessMeetingAudio implements ShouldQueue
 
             $llmApiBase = env('LLM_API_BASE');
             $llmApiKey = env('LLM_API_KEY') ?: $apiKey;
-            $llmModel = env('LLM_MODEL') ?: 'gemini-3.5-flash';
+            $llmModel = env('LLM_MODEL') ?: 'qwen2.5:1.5b';
 
             // Try custom OpenAI-compatible API first (e.g. local Qwen, Ollama, LM Studio)
             if ($llmApiBase) {
                 try {
                     Log::info("ProcessMeetingAudio: calling custom OpenAI-compatible API ({$llmApiBase}) with model: {$llmModel}...");
                     $url = rtrim($llmApiBase, '/') . '/chat/completions';
-                    $response = Http::timeout(15)->withHeaders([
+                    $response = Http::timeout(45)->withHeaders([
                         'Authorization' => 'Bearer ' . $llmApiKey,
                         'Content-Type' => 'application/json'
                     ])->post($url, [
                         'model' => $llmModel,
-                        'temperature' => 0.0,
-                        'max_tokens' => 3000,
+                        'temperature' => 0.1,
+                        'max_tokens' => 1200,
                         'messages' => [
                             [
                                 'role' => 'user',
@@ -224,50 +224,6 @@ class ProcessMeetingAudio implements ShouldQueue
                     }
                 } catch (\Exception $e) {
                     Log::error("ProcessMeetingAudio exception during custom LLM API call: " . $e->getMessage());
-                }
-            }
-
-            // Fallback to Google Gemini API if custom API is not used but key is present
-            if (!$summarized && $apiKey) {
-                try {
-                    Log::info("ProcessMeetingAudio: calling Gemini API to summarize...");
-                    $url = "https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash:generateContent?key=" . $apiKey;
-                    $responseSummary = Http::timeout(45)->post($url, [
-                        'contents' => [
-                            [
-                                'parts' => [
-                                    [
-                                        'text' => $prompt
-                                    ]
-                                ]
-                            ]
-                        ],
-                        'generationConfig' => [
-                            'temperature' => 0.0
-                        ]
-                    ]);
-                    
-                    if ($responseSummary->successful()) {
-                        $sumResult = $responseSummary->json();
-                        $sumText = $sumResult['candidates'][0]['content']['parts'][0]['text'] ?? null;
-                        if ($sumText) {
-                            $sumText = trim(preg_replace('/```(?:markdown)?/i', '', $sumText));
-                            $this->notulensi->update([
-                                'transkrip_raw' => $combinedTranscript,
-                                'ringkasan' => $sumText,
-                                'pembahasan' => null,
-                                'keputusan' => null,
-                                'kesimpulan' => null,
-                                'transkrip_error' => null,
-                                'last_edited_by_id' => $this->secretaryId,
-                                'status' => 'draft'
-                            ]);
-                            $summarized = true;
-                            Log::info("ProcessMeetingAudio completed and summarized via Gemini API successfully.");
-                        }
-                    }
-                } catch (\Exception $e) {
-                    Log::error("ProcessMeetingAudio exception during Gemini API call: " . $e->getMessage());
                 }
             }
 

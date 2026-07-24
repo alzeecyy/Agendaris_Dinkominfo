@@ -26,7 +26,7 @@
         if (!query) return true;
         const q = query.toLowerCase().trim();
         const t = title.toLowerCase();
-        return t.startsWith(q);
+        return t.includes(q);
     },
     matchesFilter(judul, kategori, tanggalStr, statusKehadiran) {
         const matchesSearch = this.checkSearch(judul, this.searchQuery);
@@ -191,7 +191,16 @@ class="space-y-6">
                 <tbody class="divide-y divide-[#d4d1f5]/30">
                     <!-- Client-side Empty State for filters -->
                     <tr x-show="filteredAgendas.length === 0" class="hover:bg-transparent">
-                        <td colspan="6" class="py-6 px-4 text-center text-[#8e88dd] italic font-medium">Tidak ada riwayat kegiatan yang cocok dengan kriteria filter.</td>
+                        <td colspan="6" class="py-8 px-4 text-center">
+                            <div class="space-y-2">
+                                <p class="text-xs text-slate-500 font-medium">Tidak ada riwayat kegiatan yang cocok dengan kriteria filter.</p>
+                                <button type="button" @click="searchQuery = ''; filterKategori = ''; filterTanggal = ''; filterStatus = '';" 
+                                        class="px-3.5 py-1.5 bg-indigo-50 hover:bg-indigo-100 text-[#1b3bbb] text-xs font-bold rounded-xl border border-indigo-200 transition-all inline-flex items-center gap-1.5">
+                                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path></svg>
+                                    <span>Reset Filter (Tampilkan Semua)</span>
+                                </button>
+                            </div>
+                        </td>
                     </tr>
                     @forelse($riwayatData as $item)
                         <tr class="agenda-row hover:bg-[#f8f7ff] cursor-pointer transition-colors"

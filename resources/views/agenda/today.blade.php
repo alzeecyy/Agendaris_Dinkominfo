@@ -54,33 +54,45 @@ class="w-full flex flex-col gap-3.5 sm:gap-5 select-none">
                 <!-- TV DISPLAY BUTTON -->
                 <button @click="toggleTvMode()" 
                         type="button"
-                        class="inline-flex items-center gap-1 px-2.5 py-0.5 sm:px-3.5 sm:py-1 bg-amber-400 hover:bg-amber-300 text-slate-950 font-black rounded-full text-[9.5px] sm:text-[10px] tracking-wider uppercase transition-all cursor-pointer shadow-md hover:scale-105 active:scale-95 border border-amber-300">
-                    <svg class="w-3 h-3 sm:w-3.5 sm:h-3.5 text-slate-950 animate-bounce" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        title="Tampilan khusus untuk monitor/display layar ruang tunggu"
+                        class="inline-flex items-center gap-1.5 px-2.5 py-0.5 sm:px-3.5 sm:py-1 bg-amber-400 hover:bg-amber-300 text-slate-950 font-black rounded-full text-[9.5px] sm:text-[10px] tracking-wider uppercase transition-all cursor-pointer shadow-md hover:scale-105 active:scale-95 border border-amber-300">
+                    <svg class="w-3 h-3 sm:w-3.5 sm:h-3.5 text-slate-950 animate-pulse" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path>
                     </svg>
                     <span>Mode Papan TV</span>
+                    <span class="hidden lg:inline-block text-[9px] font-semibold text-slate-900 opacity-75">(Display Ruang Tunggu)</span>
                 </button>
             </div>
 
-            <h1 class="text-lg sm:text-2xl md:text-3xl font-black tracking-tight leading-tight">AGENDA HARI INI</h1>
-            <p class="text-[11px] sm:text-sm text-indigo-100 font-medium leading-relaxed">
-                Pantau seluruh kegiatan dinas & rapat yang dijadwalkan hari ini ({{ \Carbon\Carbon::today()->locale('id')->translatedFormat('l, d F Y') }}).
+            <h2 class="text-base sm:text-2xl font-black tracking-tight flex items-center gap-2">
+                <span>AGENDA HARI INI</span>
+            </h2>
+            <p class="text-[11px] sm:text-xs text-indigo-100 font-medium leading-relaxed">
+                Jadwal rapat & kegiatan resmi Dinas Komunikasi dan Informatika Kab. Banyumas hari ini.
             </p>
         </div>
 
-        <!-- Realtime Live Status Stats -->
-        <div class="relative z-10 grid grid-cols-3 sm:flex items-center gap-2 sm:gap-3 w-full sm:w-auto shrink-0">
-            <div class="bg-emerald-500/20 backdrop-blur-md border border-emerald-400/30 rounded-xl sm:rounded-2xl px-2 py-2 sm:px-4 sm:py-2.5 text-center min-w-0 sm:min-w-[95px]">
-                <div class="text-[9.5px] sm:text-xs font-bold text-emerald-300 uppercase tracking-wider truncate">Berlangsung</div>
-                <div class="text-base sm:text-xl font-black text-white">{{ $ongoingAgendas->count() }}</div>
+        <!-- Clock Display & Quick Stats -->
+        <div class="relative z-10 flex flex-col items-start md:items-end justify-between gap-3 w-full md:w-auto border-t md:border-t-0 border-white/10 pt-3 md:pt-0">
+            <div class="text-left md:text-right">
+                <div class="text-lg sm:text-2xl font-black font-mono tracking-tight text-amber-300" x-text="currentTime"></div>
+                <div class="text-[10.5px] sm:text-xs font-semibold text-indigo-100" x-text="currentDate"></div>
             </div>
-            <div class="bg-indigo-500/20 backdrop-blur-md border border-indigo-400/30 rounded-xl sm:rounded-2xl px-2 py-2 sm:px-4 sm:py-2.5 text-center min-w-0 sm:min-w-[95px]">
-                <div class="text-[9.5px] sm:text-xs font-bold text-indigo-200 uppercase tracking-wider truncate">Mendatang</div>
-                <div class="text-base sm:text-xl font-black text-white">{{ $upcomingAgendas->count() }}</div>
-            </div>
-            <div class="bg-white/10 backdrop-blur-md border border-white/15 rounded-xl sm:rounded-2xl px-2 py-2 sm:px-4 sm:py-2.5 text-center min-w-0 sm:min-w-[95px]">
-                <div class="text-[9.5px] sm:text-xs font-bold text-slate-300 uppercase tracking-wider truncate">Selesai</div>
-                <div class="text-base sm:text-xl font-black text-white">{{ $completedAgendas->count() }}</div>
+
+            <!-- Realtime Stats Bar -->
+            <div class="grid grid-cols-3 sm:flex items-center gap-1.5 sm:gap-2 w-full md:w-auto">
+                <div class="bg-white/10 backdrop-blur-md px-2.5 py-1.5 sm:px-3 sm:py-2 rounded-xl sm:rounded-2xl border border-white/15 text-center sm:min-w-[95px]">
+                    <div class="text-[9px] sm:text-[10px] font-bold text-indigo-200 uppercase tracking-wider">Total</div>
+                    <div class="text-xs sm:text-sm font-black text-white">{{ $agendas->count() }}</div>
+                </div>
+                <div class="bg-emerald-500/20 backdrop-blur-md px-2.5 py-1.5 sm:px-3 sm:py-2 rounded-xl sm:rounded-2xl border border-emerald-400/30 text-center sm:min-w-[95px]">
+                    <div class="text-[9px] sm:text-[10px] font-bold text-emerald-300 uppercase tracking-wider">Berlangsung</div>
+                    <div class="text-xs sm:text-sm font-black text-emerald-300">{{ $ongoingAgendas->count() }}</div>
+                </div>
+                <div class="bg-indigo-500/20 backdrop-blur-md px-2.5 py-1.5 sm:px-3 sm:py-2 rounded-xl sm:rounded-2xl border border-indigo-400/30 text-center sm:min-w-[95px]">
+                    <div class="text-[9px] sm:text-[10px] font-bold text-indigo-200 uppercase tracking-wider">Mendatang</div>
+                    <div class="text-xs sm:text-sm font-black text-indigo-200">{{ $upcomingAgendas->count() }}</div>
+                </div>
             </div>
         </div>
     </div>
@@ -118,14 +130,26 @@ class="w-full flex flex-col gap-3.5 sm:gap-5 select-none">
 
     <!-- Agenda Cards List -->
     @if($agendas->isEmpty())
-        <div class="bg-white rounded-2xl md:rounded-[32px] p-6 sm:p-12 text-center border border-slate-200/80 space-y-3">
+        <div class="bg-white rounded-2xl md:rounded-[32px] p-6 sm:p-12 text-center border border-slate-200/80 space-y-4">
             <div class="w-14 h-14 sm:w-16 sm:h-16 bg-slate-100 text-slate-400 rounded-full flex items-center justify-center mx-auto">
                 <svg class="w-7 h-7 sm:w-8 sm:h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
                 </svg>
             </div>
-            <h3 class="text-sm sm:text-base font-extrabold text-[#09103c]">Tidak Ada Agenda Hari Ini</h3>
-            <p class="text-xs text-slate-500 max-w-md mx-auto">Belum ada agenda rapat atau kegiatan yang dijadwalkan untuk hari ini ({{ \Carbon\Carbon::today()->locale('id')->translatedFormat('l, d F Y') }}).</p>
+            <div class="space-y-1">
+                <h3 class="text-sm sm:text-base font-extrabold text-[#09103c]">Belum Ada Agenda Rapat Hari Ini</h3>
+                <p class="text-xs text-slate-500 max-w-md mx-auto">Belum ada agenda rapat atau kegiatan yang dijadwalkan untuk hari ini ({{ \Carbon\Carbon::today()->locale('id')->translatedFormat('l, d F Y') }}).</p>
+            </div>
+
+            @if(Auth::check() && (Auth::user()->isSekretarisMaster() || Auth::user()->isSekretarisBidang() || Auth::user()->isSekretariat()))
+                <div class="pt-2">
+                    <a href="{{ route('calendar', ['open_add' => 1]) }}" 
+                       class="px-5 py-2.5 bg-[#1b3bbb] hover:bg-[#09103c] text-white text-xs font-bold rounded-xl shadow-md shadow-[#1b3bbb]/20 transition-all inline-flex items-center gap-2">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
+                        <span>+ Tambah Agenda Baru</span>
+                    </a>
+                </div>
+            @endif
         </div>
     @else
         <div class="space-y-3 sm:space-y-4">

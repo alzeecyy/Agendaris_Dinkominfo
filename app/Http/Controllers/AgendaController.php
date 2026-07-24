@@ -27,7 +27,7 @@ class AgendaController extends Controller
             return redirect()->route('dashboard');
         }
 
-        $todayDate = Carbon::today()->format('Y-m-d');
+        $todayDate = Carbon::today('Asia/Jakarta')->format('Y-m-d');
 
         $query = Agenda::with(['sekretaris', 'notulensi', 'presensis.user'])
             ->whereDate('tanggal', $todayDate);
@@ -41,7 +41,7 @@ class AgendaController extends Controller
 
         $agendas = $query->orderBy('jam_mulai', 'asc')->get();
 
-        $nowTime = Carbon::now()->format('H:i:s');
+        $nowTime = Carbon::now('Asia/Jakarta')->format('H:i:s');
 
         $ongoingAgendas = $agendas->filter(function($a) use ($nowTime) {
             $start = Carbon::parse($a->jam_mulai)->format('H:i:s');
@@ -197,12 +197,17 @@ class AgendaController extends Controller
         // Eager load relations for high performance
         $agenda->load(['sekretaris.bidang', 'notulensi', 'externalParticipants', 'participants']);
 
-        // Auto-heal stale is_transcribing status if no audio file exists
+        // Auto-heal stale is_transcribing status if no audio file exists or process timed out (>15 mins)
         if ($agenda->notulensi && $agenda->notulensi->is_transcribing) {
             $notulensi = $agenda->notulensi;
             $hasAudio = !empty($notulensi->audio_path) || (!empty($notulensi->audio_files) && count($notulensi->audio_files) > 0);
-            if (!$hasAudio) {
-                $notulensi->update(['is_transcribing' => false]);
+            $isTimedOut = $notulensi->updated_at && $notulensi->updated_at->diffInMinutes(now()) > 15;
+            
+            if (!$hasAudio || $isTimedOut) {
+                $notulensi->update([
+                    'is_transcribing' => false,
+                    'transkrip_error' => $isTimedOut ? 'Proses transkripsi AI melebihi batas waktu (timeout). Silakan coba lagi.' : null,
+                ]);
             }
         }
 
@@ -463,6 +468,27 @@ class AgendaController extends Controller
         }
 
         $dateStr = $agenda->tanggal->toDateString();
+
+        // Clean up physical audio files from storage
+        if ($agenda->notulensi) {
+            $audioFiles = $agenda->notulensi->audio_files ?? [];
+            foreach ($audioFiles as $file) {
+                if (!empty($file['path'])) {
+                    \Illuminate\Support\Facades\Storage::disk('public')->delete($file['path']);
+                }
+            }
+            if (!empty($agenda->notulensi->audio_path)) {
+                \Illuminate\Support\Facades\Storage::disk('public')->delete($agenda->notulensi->audio_path);
+            }
+        }
+
+        // Clean up physical signature files from storage
+        foreach ($agenda->presensis as $presensi) {
+            if (!empty($presensi->tanda_tangan)) {
+                \Illuminate\Support\Facades\Storage::disk('public')->delete($presensi->tanda_tangan);
+            }
+        }
+
         $agenda->delete();
 
         return redirect()->route('dashboard', ['date' => $dateStr])

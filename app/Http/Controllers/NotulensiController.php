@@ -26,6 +26,11 @@ class NotulensiController extends Controller
         }
 
         $notulensi = $agenda->notulensi;
+        if ($notulensi && $notulensi->status === 'disahkan') {
+            return redirect()->route('notulensi.review', $agenda->id)
+                ->with('warning', 'Notulensi telah disahkan dan tidak dapat diubah lagi.');
+        }
+
         if (!$notulensi) {
             $notulensi = Notulensi::create([
                 'agenda_id' => $agenda->id,
@@ -51,14 +56,18 @@ class NotulensiController extends Controller
         }
 
         $request->validate([
-            'audio' => 'required|file|mimes:mp3,wav,m4a,ogg,webm,aac,flac|max:102400',
+            'audio' => 'required|file|mimes:mp3,wav,m4a,ogg,webm,aac,flac|max:40960',
         ], [
             'audio.required' => 'Silakan pilih berkas audio rapat terlebih dahulu.',
             'audio.mimes' => 'Format berkas audio harus berupa MP3, WAV, M4A, OGG, WEBM, AAC, atau FLAC.',
-            'audio.max' => 'Ukuran berkas audio maksimal adalah 100 MB.',
+            'audio.max' => 'Ukuran berkas audio maksimal adalah 40 MB per berkas.',
         ]);
 
         $notulensi = $agenda->notulensi;
+        if ($notulensi && $notulensi->status === 'disahkan') {
+            return back()->with('error', 'Akses ditolak. Notulensi telah disahkan dan tidak dapat diubah lagi.');
+        }
+
         if (!$notulensi) {
             $notulensi = Notulensi::create([
                 'agenda_id' => $agenda->id,
@@ -107,8 +116,16 @@ class NotulensiController extends Controller
         }
 
         $notulensi = $agenda->notulensi;
+        if ($notulensi && $notulensi->status === 'disahkan') {
+            return back()->with('error', 'Akses ditolak. Notulensi telah disahkan dan tidak dapat diubah lagi.');
+        }
+
         if (!$notulensi || empty($notulensi->audio_files)) {
             return back()->with('error', 'Silakan unggah minimal 1 berkas audio rapat terlebih dahulu.');
+        }
+
+        if ($notulensi->is_transcribing) {
+            return back()->with('error', 'Proses transkripsi AI sedang berjalan. Mohon tunggu sejenak...');
         }
 
         @set_time_limit(0);
@@ -158,6 +175,10 @@ class NotulensiController extends Controller
         $notulensi = $agenda->notulensi;
         if (!$notulensi) {
             return back()->with('error', 'Notulensi tidak ditemukan.');
+        }
+
+        if ($notulensi->status === 'disahkan') {
+            return back()->with('error', 'Akses ditolak. Notulensi telah disahkan dan tidak dapat diubah lagi.');
         }
 
         $audioFiles = $notulensi->audio_files ?? [];
@@ -214,6 +235,10 @@ class NotulensiController extends Controller
             abort(404, 'Notulensi tidak ditemukan.');
         }
 
+        if ($notulensi->status === 'disahkan') {
+            return back()->with('error', 'Akses ditolak. Notulensi telah disahkan dan tidak dapat diubah lagi.');
+        }
+
         $validated = $request->validate([
             'judul' => 'nullable|string|max:255',
             'nomor_surat_dasar' => 'nullable|string|max:255',
@@ -267,6 +292,10 @@ class NotulensiController extends Controller
         $notulensi = $agenda->notulensi;
         if (!$notulensi) {
             return back()->with('error', 'Notulensi belum dibuat.');
+        }
+
+        if ($notulensi->status === 'disahkan') {
+            return back()->with('error', 'Akses ditolak. Notulensi telah disahkan dan tidak dapat diubah lagi.');
         }
 
         // Save current inputs first & validate judul & nomor_surat_dasar
@@ -361,14 +390,16 @@ class NotulensiController extends Controller
         $tandaTangan = $request->input('tanda_tangan_approver');
 
         $notulensi = $agenda->notulensi;
-        if ($notulensi) {
-            $notulensi->update([
-                'status' => 'disahkan',
-                'catatan_revisi' => null,
-                'approver_id' => $user->id,
-                'tanda_tangan_approver' => $tandaTangan,
-            ]);
+        if (!$notulensi || $notulensi->status !== 'menunggu_review') {
+            return back()->with('error', 'Akses ditolak. Notulensi belum diajukan untuk persetujuan pimpinan.');
         }
+
+        $notulensi->update([
+            'status' => 'disahkan',
+            'catatan_revisi' => null,
+            'approver_id' => $user->id,
+            'tanda_tangan_approver' => $tandaTangan,
+        ]);
 
         return redirect()->route('notulensi.review', $agenda->id)
             ->with('success', 'Notulensi rapat berhasil disahkan dengan tanda tangan digital Pimpinan.');
@@ -396,6 +427,8 @@ class NotulensiController extends Controller
             $notulensi->update([
                 'status' => 'draft',
                 'catatan_revisi' => $validated['catatan_revisi'],
+                'approver_id' => null,
+                'tanda_tangan_approver' => null,
             ]);
         }
 
@@ -677,6 +710,11 @@ class NotulensiController extends Controller
             return response()->json(['status' => 'error', 'message' => 'Akses ditolak.'], 403);
         }
 
+        $notulensi = $agenda->notulensi;
+        if ($notulensi && $notulensi->status === 'disahkan') {
+            return response()->json(['status' => 'error', 'message' => 'Akses ditolak. Notulensi telah disahkan dan tidak dapat diubah lagi.'], 403);
+        }
+
         $request->validate([
             'transkrip_raw' => 'required|string',
         ]);
@@ -684,46 +722,52 @@ class NotulensiController extends Controller
         $transcript = $request->input('transkrip_raw');
 
         // Return early if the transcript is too short to analyze
-        if (strlen(trim($transcript)) < 150) {
+        if (strlen(trim($transcript)) < 10) {
             return response()->json([
                 'status' => 'success',
-                'data' => "Transkripsi selesai. Rekaman audio terlalu singkat/pendek untuk dianalisis secara lengkap oleh AI."
+                'data' => "Catatan / transkrip rapat terlalu singkat untuk dianalisis."
             ]);
         }
 
         $apiKey = env('GEMINI_API_KEY');
+        $llmApiBase = env('LLM_API_BASE');
+        $llmModel = env('LLM_MODEL', 'qwen2.5:1.5b');
+        $llmApiKey = env('LLM_API_KEY', 'none');
 
+        $promptText = "Anda adalah Sekretaris Profesional & Notulis Rapat Senior. Tugas Anda adalah menganalisis teks transkrip percakapan rapat berikut dan menyusun RINGKASAN & NOTULENSI RAPAT yang sangat rapi, terstruktur, profesional, dan mudah dipahami.\n\n" .
+                      "STRUKTUR OUTPUT MARKDOWN MANDATORI:\n\n" .
+                      "### 📌 RINGKASAN EKSEKUTIF RAPAT\n" .
+                      "[Tuliskan 1-2 paragraf ringkasan eksekutif yang merangkum keseluruhan isi pembicaraan rapat secara padat, jelas, dan profesional]\n\n" .
+                      "### 💡 POIN-POIN PEMBAHASAN UTAMA\n" .
+                      "1. **[Judul Topik/Bahasan Utama]**\n" .
+                      "   - Rincian pembahasan dan penjelasan yang disampaikan narasumber/peserta.\n" .
+                      "2. **[Judul Topik/Bahasan Selanjutnya]**\n" .
+                      "   - Rincian pembahasan dan penjelasan lanjutan.\n\n" .
+                      "### 📝 KEPUTUSAN & TINDAK LANJUT\n" .
+                      "1. **[Keputusan/Kesepakatan Pertama]**: Penjelasan rincian keputusan atau langkah konkret yang disepakati.\n" .
+                      "2. **[Tindak Lanjut]**: Rencana penanganan atau tugas kelanjutan setelah rapat.\n\n" .
+                      "ATURAN PENULISAN:\n" .
+                      "- Gunakan bahasa Indonesia baku yang formal dan mudah dipahami.\n" .
+                      "- Ekstrak seluruh poin penting dari SELURUH bagian transkrip.\n" .
+                      "- Jangan membuat informasi fiktif di luar transkrip asli.\n" .
+                      "- Tuliskan jawaban LANGSUNG dalam format markdown sesuai struktur di atas tanpa kata pengantar tambahan.\n\n" .
+                      "Berikut teks transkrip percakapan rapat:\n\n" . $transcript;
+
+        // 1. Try Gemini 1.5 Flash API first (Super Fast 1-2s response, cloud-ready for hosting)
         if ($apiKey) {
             try {
-                $response = \Illuminate\Support\Facades\Http::timeout(45)->post("https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash:generateContent?key=" . $apiKey, [
+                $response = \Illuminate\Support\Facades\Http::timeout(25)->post("https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=" . $apiKey, [
                     'contents' => [
                         [
                             'parts' => [
                                 [
-                                     'text' => "Anda adalah Sekretaris Profesional & Notulis Rapat Senior. Tugas Anda adalah menganalisis teks transkrip percakapan rapat berikut dan menyusun RINGKASAN & NOTULENSI RAPAT yang sangat rapi, terstruktur, profesional, dan mudah dipahami.\n\n" .
-                                               "STRUKTUR OUTPUT MARKDOWN MANDATORI:\n\n" .
-                                               "### 📌 RINGKASAN EKSEKUTIF RAPAT\n" .
-                                               "[Tuliskan 1-2 paragraf ringkasan eksekutif yang merangkum keseluruhan isi pembicaraan rapat secara padat, jelas, dan profesional]\n\n" .
-                                               "### 💡 POIN-POIN PEMBAHASAN UTAMA\n" .
-                                               "1. **[Judul Topik/Bahasan Utama]**\n" .
-                                               "   - Rincian pembahasan dan penjelasan yang disampaikan narasumber/peserta.\n" .
-                                               "2. **[Judul Topik/Bahasan Selanjutnya]**\n" .
-                                               "   - Rincian pembahasan dan penjelasan lanjutan.\n\n" .
-                                               "### 📝 KEPUTUSAN & TINDAK LANJUT\n" .
-                                               "1. **[Keputusan/Kesepakatan Pertama]**: Penjelasan rincian keputusan atau langkah konkret yang disepakati.\n" .
-                                               "2. **[Tindak Lanjut]**: Rencana penanganan atau tugas kelanjutan setelah rapat.\n\n" .
-                                               "ATURAN PENULISAN:\n" .
-                                               "- Gunakan bahasa Indonesia baku yang formal dan mudah dipahami.\n" .
-                                               "- Ekstrak seluruh poin penting dari SELURUH bagian transkrip.\n" .
-                                               "- Jangan membuat informasi fiktif di luar transkrip asli.\n" .
-                                               "- Tuliskan jawaban LANGSUNG dalam format markdown sesuai struktur di atas tanpa kata pengantar tambahan.\n\n" .
-                                               "Berikut teks transkrip percakapan rapat:\n\n" . $transcript
+                                    'text' => $promptText
                                 ]
                             ]
                         ]
                     ],
                     'generationConfig' => [
-                        'temperature' => 0.0
+                        'temperature' => 0.1
                     ]
                 ]);
 
@@ -738,78 +782,25 @@ class NotulensiController extends Controller
                     }
                 }
             } catch (\Exception $e) {
-                \Illuminate\Support\Facades\Log::error('Gemini Exception: ' . $e->getMessage());
+                \Illuminate\Support\Facades\Log::error('Gemini regenerateSummary Exception: ' . $e->getMessage());
             }
         }
 
-        // Fallback: try local Ollama/OpenAI-compatible LLM API
-        $llmApiBase = env('LLM_API_BASE');
-        $llmModel = env('LLM_MODEL', 'qwen2.5:1.5b');
-        $llmApiKey = env('LLM_API_KEY', 'none');
-
+        // 2. Fallback to local Qwen AI / Ollama if offline or Gemini fails
         if ($llmApiBase) {
             try {
                 $url = rtrim($llmApiBase, '/') . '/chat/completions';
-                $llmResponse = \Illuminate\Support\Facades\Http::timeout(480)->withHeaders([
+                $llmResponse = \Illuminate\Support\Facades\Http::timeout(60)->withHeaders([
                     'Authorization' => 'Bearer ' . $llmApiKey,
                     'Content-Type' => 'application/json',
                 ])->post($url, [
                     'model' => $llmModel,
-                    'temperature' => 0.0,
-                    'max_tokens' => 3000,
+                    'temperature' => 0.1,
+                    'max_tokens' => 1200,
                     'messages' => [
                         [
                             'role' => 'user',
-                            'content' => "Anda adalah editor profesional yang bertugas merapikan hasil transkrip rapat menjadi dokumen yang mudah dibaca.\n\n" .
-                                         "Ikuti seluruh instruksi berikut tanpa terkecuali.\n\n" .
-                                         "TUJUAN\n" .
-                                         "Menghasilkan transkrip rapat yang rapi, akurat, dan mempertahankan seluruh informasi yang disampaikan narasumber.\n\n" .
-                                         "PRIORITAS UTAMA\n" .
-                                         "Jika terjadi konflik antara \"membuat kalimat lebih natural\" dan \"akurasi terhadap isi asli\", akurasi harus selalu diutamakan. Lebih baik menandai [tidak jelas] daripada mengarang atau memaksakan kalimat yang tidak sesuai dengan apa yang sebenarnya diucapkan.\n\n" .
-                                         "ATURAN\n" .
-                                         "1. Jangan menambahkan informasi, opini, atau kesimpulan yang tidak terdapat pada transkrip.\n" .
-                                         "2. Jangan menghapus informasi penting.\n" .
-                                         "3. Hilangkan kata, frasa, atau kalimat yang berulang akibat kesalahan transkrip.\n" .
-                                         "4. Perbaiki ejaan, tata bahasa, tanda baca, serta susunan kalimat agar lebih natural.\n" .
-                                         "5. Pertahankan makna asli dari setiap pembicara.\n" .
-                                         "6. Jika terdapat bagian yang benar-benar tidak dapat dipahami, tuliskan [tidak jelas].\n" .
-                                         "7. Pertahankan nama orang, nama organisasi, nama program kerja, jabatan, lokasi, tanggal, angka, dan istilah penting.\n" .
-                                         "8. Hilangkan filler words (eee, anu, kayak, jadi gini, dsb.) yang tidak mengandung informasi.\n" .
-                                         "9. Jika kalimat pembicara terpotong/menggantung, rapikan menjadi kalimat utuh selama maknanya tidak berubah; jika maknanya tidak bisa disimpulkan, biarkan apa adanya.\n\n" .
-                                         "LARANGAN TAMBAHAN\n" .
-                                         "- Dilarang keras mengarang nama, gelar, jabatan, atau struktur field (misalnya label \"Tugas Pertama\", \"Sebelum Sekolah\", dsb.) yang tidak secara eksplisit disebutkan dalam transkrip asli.\n" .
-                                         "- Jika transkrip tidak menyebutkan nama pembicara secara eksplisit, gunakan deskripsi peran (misal \"Narasumber\", \"Pewawancara\") — jangan mengarang nama.\n" .
-                                         "- Sebelum memformat sebagai dialog berlabel banyak pembicara, identifikasi dulu apakah transkrip ini benar-benar multi-speaker atau hanya satu narasumber yang diwawancarai/ditanya beberapa pertanyaan.\n" .
-                                         "- Dilarang membuat kalimat yang secara gramatikal maupun logis tidak masuk akal hanya demi merapikan format.\n" .
-                                         "- Jika satu bagian transkrip terlalu rusak/tidak jelas untuk direkonstruksi dengan akurat, tandai bagian tersebut dengan [tidak jelas] daripada menciptakan kalimat baru.\n\n" .
-                                         "LARANGAN FORMAT\n" .
-                                         "- Dilarang mengubah transkrip naratif/monolog menjadi format tanya-jawab buatan (misal \"Apakah Anda tahu apa itu X?\") jika format tersebut tidak eksplisit ada dalam transkrip asli.\n" .
-                                         "- Ikuti struktur asli transkrip: jika berupa narasi/penjelasan mengalir dari satu narasumber, sajikan sebagai narasi terstruktur per topik (bukan Q&A buatan).\n" .
-                                         "- Jika transkrip memang berbentuk tanya-jawab (ada pewawancara bertanya secara eksplisit), gunakan Q&A HANYA untuk pertanyaan yang benar-benar diajukan, satu kali per pertanyaan — jangan mengulang entri yang sama.\n" .
-                                         "- Dilarang mengulang paragraf, poin, atau entri yang identik lebih dari satu kali dalam output akhir.\n\n" .
-                                         "PEMERIKSAAN KONSISTENSI\n" .
-                                         "Setelah seluruh transkrip selesai dirapikan, lakukan pemeriksaan ulang terhadap seluruh dokumen dari awal hingga akhir.\n\n" .
-                                         "- Identifikasi seluruh nama orang.\n" .
-                                         "- Identifikasi seluruh nama organisasi.\n" .
-                                         "- Identifikasi seluruh nama divisi.\n" .
-                                         "- Identifikasi seluruh nama program kerja.\n" .
-                                         "- Identifikasi seluruh singkatan.\n" .
-                                         "- Identifikasi seluruh istilah khusus.\n\n" .
-                                         "Apabila ditemukan beberapa penulisan berbeda yang mengacu pada entitas yang sama (typo, salah eja, hasil speech-to-text), ubah SEMUA kemunculannya menjadi SATU bentuk penulisan yang konsisten. Gunakan versi yang paling sering muncul atau versi baku/resmi jika diketahui. Jangan hanya memperbaiki kemunculan pertama — pastikan seluruh kemunculan telah diperbaiki.\n\n" .
-                                         "FORMAT PENULISAN (Markdown)\n" .
-                                         "Gunakan format markdown berikut agar struktur dokumen terbaca jelas saat dikonversi ke PDF:\n" .
-                                         "- Judul dokumen: gunakan # (contoh: # Notulensi Rapat [Nama Rapat])\n" .
-                                         "- Sub-bagian (misal: Informasi Rapat, Pembahasan, Kesimpulan): gunakan ##\n" .
-                                         "- Penomoran poin: gunakan angka langsung tanpa tanda strip di depannya (contoh: 1. Perencanaan Aplikasi, 2. Rapat Koordinasi)\n" .
-                                         "- Sub-detail (Isi, Penjelasan, Catatan): tulis langsung nama label diikuti titik dua tanpa tanda strip di depannya (contoh: Isi: ..., Penjelasan: ...)\n" .
-                                         "- Jangan gunakan format lain di luar markdown standar (tanpa HTML, tanpa tabel kompleks kecuali diminta)\n\n" .
-                                         "OUTPUT\n" .
-                                         "Berikan hanya hasil transkrip yang sudah dirapikan dalam format markdown, tanpa penjelasan tambahan.\n\n" .
-                                         "Sebelum menghasilkan jawaban akhir, lakukan validasi akhir terhadap seluruh dokumen:\n" .
-                                         "1. Pastikan tidak ada nama, gelar, atau struktur field yang dikarang dan tidak ada di transkrip asli.\n" .
-                                         "2. Pastikan tidak ada lagi istilah yang memiliki lebih dari satu variasi penulisan apabila sebenarnya mengacu pada entitas yang sama.\n" .
-                                         "3. Pastikan struktur markdown (judul, sub-judul, bold) sudah konsisten dari awal hingga akhir dokumen.\n\n" .
-                                         "Berikut transkrip:\n\n" . $transcript
+                            'content' => $promptText
                         ]
                     ],
                 ]);
@@ -822,20 +813,151 @@ class NotulensiController extends Controller
                             'status' => 'success',
                             'data' => trim($text)
                         ]);
-                    } else {
-                        \Illuminate\Support\Facades\Log::error('Ollama empty content in response choice.');
                     }
-                } else {
-                    \Illuminate\Support\Facades\Log::error('Ollama HTTP error: ' . $llmResponse->status() . ' - ' . $llmResponse->body());
                 }
             } catch (\Exception $e) {
-                \Illuminate\Support\Facades\Log::error('Ollama Exception: ' . $e->getMessage());
+                \Illuminate\Support\Facades\Log::error('Qwen AI regenerateSummary Exception: ' . $e->getMessage());
             }
         }
 
         return response()->json([
             'status' => 'error',
-            'message' => 'Analisis AI gagal. Tidak ada API key yang dikonfigurasi (GEMINI_API_KEY) dan server Ollama lokal tidak dapat dijangkau atau tidak merespons. Pastikan Ollama berjalan di ' . ($llmApiBase ?? 'localhost:11434') . '.'
+            'message' => 'Proses analisis AI gagal. Pastikan koneksi internet atau server AI lokal Anda aktif.'
+        ], 503);
+    }
+
+    /**
+     * Refine manual typed text into structured meeting minutes.
+     */
+    public function refineText(Request $request, Agenda $agenda)
+    {
+        $user = Auth::user();
+
+        if (!$user->isSecretaryOfAgenda($agenda)) {
+            return response()->json(['status' => 'error', 'message' => 'Anda tidak memiliki wewenang.'], 403);
+        }
+
+        $notulensi = $agenda->notulensi;
+        if ($notulensi && $notulensi->status === 'disahkan') {
+            return response()->json(['status' => 'error', 'message' => 'Akses ditolak. Notulensi telah disahkan dan tidak dapat diubah lagi.'], 403);
+        }
+
+        $request->validate([
+            'teks_raw' => 'required|string',
+        ]);
+
+        $textRaw = trim($request->input('teks_raw'));
+
+        if (strlen($textRaw) < 10) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Teks catatan mentah terlalu pendek untuk dirapikan.'
+            ], 422);
+        }
+
+        // Save raw text to notulensi record if exists
+        if (!$notulensi) {
+            $notulensi = Notulensi::create([
+                'agenda_id' => $agenda->id,
+                'created_by_id' => $user->id,
+                'last_edited_by_id' => $user->id,
+                'status' => 'draft',
+                'transkrip_raw' => $textRaw,
+            ]);
+        } else {
+            $notulensi->update(['transkrip_raw' => $textRaw]);
+        }
+
+        $apiKey = env('GEMINI_API_KEY');
+        $llmApiBase = env('LLM_API_BASE', 'http://localhost:11434/v1');
+        $llmModel = env('LLM_MODEL', 'qwen2.5:1.5b');
+        $llmApiKey = env('LLM_API_KEY', 'none');
+
+        $promptText = "Anda adalah Notulis & Editor Profesional. Tugas Anda adalah merapikan catatan mentah / hasil ketikan rapat berikut menjadi dokumen Notulensi Rapat yang resmi, terstruktur, profesional, dan mudah dibaca.\n\n" .
+                      "STRUKTUR OUTPUT MARKDOWN MANDATORI:\n\n" .
+                      "### 📌 RINGKASAN EKSEKUTIF RAPAT\n" .
+                      "[Ringkasan padat 1-2 paragraf mengenai inti rapat]\n\n" .
+                      "### 💡 POIN-POIN PEMBAHASAN UTAMA\n" .
+                      "1. **[Judul Topik/Bahasan]**\n" .
+                      "   - Penjelasan dan rincian pembahasan.\n\n" .
+                      "### 📝 KEPUTUSAN & TINDAK LANJUT\n" .
+                      "1. **[Keputusan/Tindak Lanjut]**: Rincian langkah konkret yang disepakati.\n\n" .
+                      "ATURAN:\n" .
+                      "- Pertahankan seluruh informasi asli tanpa menambahkan informasi fiktif.\n" .
+                      "- Perbaiki tata bahasa, ejaan, dan susunan kalimat agar profesional.\n" .
+                      "- Berikan jawaban LANGSUNG dalam format markdown sesuai struktur di atas tanpa kata pengantar tambahan.\n\n" .
+                      "Berikut catatan mentah rapat:\n\n" . $textRaw;
+
+        // 1. Try Gemini 1.5 Flash API first (Super Fast 1-2s response)
+        if ($apiKey) {
+            try {
+                $response = \Illuminate\Support\Facades\Http::timeout(25)->post("https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=" . $apiKey, [
+                    'contents' => [
+                        [
+                            'parts' => [
+                                [
+                                    'text' => $promptText
+                                ]
+                            ]
+                        ]
+                    ],
+                    'generationConfig' => [
+                        'temperature' => 0.1
+                    ]
+                ]);
+
+                if ($response->successful()) {
+                    $result = $response->json();
+                    $text = $result['candidates'][0]['content']['parts'][0]['text'] ?? null;
+                    if ($text) {
+                        return response()->json([
+                            'status' => 'success',
+                            'data' => trim($text)
+                        ]);
+                    }
+                }
+            } catch (\Exception $e) {
+                \Illuminate\Support\Facades\Log::error('Gemini refineText Exception: ' . $e->getMessage());
+            }
+        }
+
+        // 2. Fallback to local Qwen AI / Ollama if offline or Gemini fails
+        if ($llmApiBase) {
+            try {
+                $url = rtrim($llmApiBase, '/') . '/chat/completions';
+                $llmResponse = \Illuminate\Support\Facades\Http::timeout(60)->withHeaders([
+                    'Authorization' => 'Bearer ' . $llmApiKey,
+                    'Content-Type' => 'application/json',
+                ])->post($url, [
+                    'model' => $llmModel,
+                    'temperature' => 0.1,
+                    'max_tokens' => 1200,
+                    'messages' => [
+                        [
+                            'role' => 'user',
+                            'content' => $promptText
+                        ]
+                    ],
+                ]);
+
+                if ($llmResponse->successful()) {
+                    $resJson = $llmResponse->json();
+                    $text = $resJson['choices'][0]['message']['content'] ?? null;
+                    if ($text) {
+                        return response()->json([
+                            'status' => 'success',
+                            'data' => trim($text)
+                        ]);
+                    }
+                }
+            } catch (\Exception $e) {
+                \Illuminate\Support\Facades\Log::error('Qwen AI refineText Exception: ' . $e->getMessage());
+            }
+        }
+
+        return response()->json([
+            'status' => 'error',
+            'message' => 'Proses merapikan teks tidak dapat diselesaikan. Pastikan koneksi internet atau server AI lokal Anda aktif.'
         ], 503);
     }
 }

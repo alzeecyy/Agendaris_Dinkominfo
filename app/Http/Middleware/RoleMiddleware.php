@@ -20,6 +20,13 @@ class RoleMiddleware
 
         $user = Auth::user();
 
+        if (!$user->active) {
+            Auth::logout();
+            $request->session()->invalidate();
+            $request->session()->regenerateToken();
+            return redirect()->route('login')->withErrors(['nip' => 'Akun Anda telah dinonaktifkan oleh administrator.']);
+        }
+
         // Check if user has one of the allowed roles
         if (in_array($user->role, $roles)) {
             return $next($request);

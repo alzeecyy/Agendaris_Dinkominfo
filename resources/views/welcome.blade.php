@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Beranda - Sirena Dinkominfo Banyumas</title>
+    <title>Beranda - Agendaris Dinkominfo Banyumas</title>
     <!-- Favicon / Logo Resmi -->
     <link rel="icon" type="image/png" href="{{ asset('images/logo-banyumas-crest.png') }}">
     <link rel="shortcut icon" href="{{ asset('favicon.ico') }}">
@@ -141,7 +141,7 @@
             <!-- Hero Welcome Card -->
             <div class="w-full bg-white/70 backdrop-blur-md rounded-2xl md:rounded-[24px] border border-slate-200/80 p-5 sm:p-6 md:p-8 shadow-sm md:shadow-md text-center space-y-2 md:space-y-3 max-w-3xl animate-fade-in shrink-0">
                 <div class="flex justify-center">
-                    <span class="text-[9px] md:text-[10px] font-extrabold uppercase tracking-widest text-[#1b3bbb] bg-[#1b3bbb]/10 px-3.5 py-1 rounded-full border border-[#1b3bbb]/20">Portal Sirena</span>
+                    <span class="text-[9px] md:text-[10px] font-extrabold uppercase tracking-widest text-[#1b3bbb] bg-[#1b3bbb]/10 px-3.5 py-1 rounded-full border border-[#1b3bbb]/20">Portal Agendaris</span>
                 </div>
                 <h2 class="text-xl sm:text-2xl md:text-3xl font-black text-[#09103c] tracking-tight leading-tight">
                     Halo, {{ Auth::user()->name }}

@@ -277,9 +277,13 @@
                                     bidangs: {{ json_encode(array_values($initialBidangs)) }},
                                     isSekBid: {{ Auth::user()->isSekretarisBidang() ? "true" : "false" }},
                                     ownBidangId: "{{ Auth::user()->bidang_id }}",
-                                    bidangsUserData: {{ json_encode($bidangsUserData) }},
-                                    selectedParticipants: {{ json_encode(array_values($initialParticipants)) }},
-                                    participantModalOpen: false,
+                                    searchParticipant: '',
+
+                                    filteredUsers(users) {
+                                        if (!this.searchParticipant || !this.searchParticipant.trim()) return users;
+                                        let q = this.searchParticipant.toLowerCase().trim();
+                                        return users.filter(u => (u.name && u.name.toLowerCase().includes(q)) || (u.jabatan && u.jabatan.toLowerCase().includes(q)));
+                                    },
 
                                     toggleSemua() {
                                         if (this.semua) {
@@ -422,7 +426,19 @@
                                                 </button>
                                             </div>
 
-                                            <div class="p-5 overflow-y-auto space-y-4 flex-1">
+                                            <div class="p-4 sm:p-5 overflow-y-auto space-y-4 flex-1">
+                                                <!-- Search Bar for Participants -->
+                                                <div class="relative">
+                                                    <input type="text" x-model="searchParticipant" placeholder="Cari nama atau jabatan peserta..." 
+                                                           class="w-full pl-9 pr-8 py-2 bg-slate-100/90 border border-slate-200/90 rounded-xl text-xs text-slate-800 placeholder-slate-400 focus:bg-white focus:border-[#1b3bbb] focus:ring-2 focus:ring-[#1b3bbb]/10 transition-all font-medium">
+                                                    <svg class="w-4 h-4 text-slate-400 absolute left-3 top-2.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+                                                    </svg>
+                                                    <button type="button" x-show="searchParticipant.length > 0" @click="searchParticipant = ''" class="absolute right-2.5 top-2.5 text-slate-400 hover:text-slate-600">
+                                                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                                                    </button>
+                                                </div>
+
                                                 <template x-if="bidangs.length === 0">
                                                     <div class="p-8 text-center bg-slate-50 rounded-2xl border border-dashed border-slate-200">
                                                         <p class="text-xs text-slate-500 font-bold">Pilih minimal satu bidang di atas terlebih dahulu untuk mengelola peserta.</p>
@@ -442,7 +458,7 @@
                                                         </div>
 
                                                         <div class="grid grid-cols-1 sm:grid-cols-2 gap-1.5">
-                                                            <template x-for="user in bidang.users" :key="user.id">
+                                                            <template x-for="user in filteredUsers(bidang.users)" :key="user.id">
                                                                 <label class="flex items-start gap-2.5 p-2 bg-white rounded-xl border border-slate-200/60 hover:border-indigo-200 cursor-pointer select-none transition-all">
                                                                     <input type="checkbox" :value="user.id" x-model="selectedParticipants" class="w-4 h-4 rounded border-slate-300 text-indigo-600 focus:ring-indigo-500 mt-0.5 shrink-0">
                                                                     <div class="min-w-0">
@@ -846,6 +862,23 @@
 
                         @if($agenda->notulensi->status === 'draft')
                             @if($isSecretaryOfAgenda)
+                                @if($agenda->notulensi->transkrip_error)
+                                    <div class="bg-rose-50 border border-rose-200 text-rose-800 p-2.5 sm:p-4 rounded-xl text-xs space-y-2">
+                                        <p class="font-bold flex items-center gap-1">
+                                            <svg class="w-4 h-4 text-rose-600 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                                            <span>Transkripsi Belum Berhasil Diproses</span>
+                                        </p>
+                                        <p class="text-[10.5px] text-rose-700 leading-relaxed font-medium">Transkripsi belum berhasil diproses. Silakan coba lagi menggunakan rekaman yang tersimpan.</p>
+                                        <form action="{{ route('notulensi.process.audio', $agenda->id) }}" method="POST" onsubmit="if (typeof window.showHeavyLoading === 'function') window.showHeavyLoading('Memproses Ulang AI', 'Menjalankan ulang proses transkripsi AI audio rapat...');">
+                                            @csrf
+                                            <button type="submit" class="w-full py-2 bg-rose-600 hover:bg-rose-700 text-white font-bold text-xs rounded-xl shadow-sm transition-all flex items-center justify-center gap-1.5">
+                                                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path></svg>
+                                                <span>Coba Lagi Transkripsi AI</span>
+                                            </button>
+                                        </form>
+                                    </div>
+                                @endif
+
                                 @if($agenda->notulensi->catatan_revisi)
                                     <div class="bg-rose-50 border border-rose-200 text-rose-700 p-2.5 sm:p-4 rounded-xl text-xs space-y-1">
                                         <p class="font-bold">Butuh Revisi / Perbaikan:</p>

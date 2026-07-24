@@ -327,9 +327,26 @@
                         <span>Tambah Agenda</span>
                     </a>
                 @endif
-                <a href="{{ route('riwayat') }}" class="flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-bold {{ request()->routeIs('riwayat') ? 'bg-[#1b3bbb] text-white shadow-md' : 'text-slate-700 hover:bg-[#1b3bbb]/10' }}">
-                    <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-                    <span>Riwayat Rapat</span>
+                <a href="{{ route('riwayat') }}" class="flex items-center justify-between px-3 py-2 rounded-xl text-xs font-bold {{ request()->routeIs('riwayat') ? 'bg-[#1b3bbb] text-white shadow-md' : 'text-slate-700 hover:bg-[#1b3bbb]/10' }}">
+                    <div class="flex items-center gap-2.5">
+                        <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                        <span>Riwayat Rapat</span>
+                    </div>
+                    @if(Auth::check() && (Auth::user()->isKetuaMaster() || Auth::user()->isKetuaBidang()))
+                        @php
+                            $user = Auth::user();
+                            $mobPending = \App\Models\Notulensi::where('status', 'menunggu_review');
+                            if ($user->isKetuaBidang()) {
+                                $mobPending->whereHas('agenda', function($q) use ($user) {
+                                    $q->whereJsonContains('hak_akses', (string)$user->bidang_id);
+                                });
+                            }
+                            $mobCount = $mobPending->count();
+                        @endphp
+                        @if($mobCount > 0)
+                            <span class="px-2 py-0.5 rounded-full text-[9px] font-black bg-amber-500 text-white shrink-0">{{ $mobCount }} Review</span>
+                        @endif
+                    @endif
                 </a>
                 <a href="{{ route('profile') }}" class="flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-bold {{ request()->routeIs('profile') ? 'bg-[#1b3bbb] text-white shadow-md' : 'text-slate-700 hover:bg-[#1b3bbb]/10' }}">
                     <svg class="w-4 h-4 shrink-0 text-[#8e88dd]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path></svg>
@@ -431,14 +448,35 @@
                             </a>
                         @endif
 
+                        @php
+                            $pendingReviewCount = 0;
+                            if (Auth::check() && (Auth::user()->isKetuaMaster() || Auth::user()->isKetuaBidang())) {
+                                $user = Auth::user();
+                                $query = \App\Models\Notulensi::where('status', 'menunggu_review');
+                                if ($user->isKetuaBidang()) {
+                                    $query->whereHas('agenda', function($q) use ($user) {
+                                        $q->whereJsonContains('hak_akses', (string)$user->bidang_id);
+                                    });
+                                }
+                                $pendingReviewCount = $query->count();
+                            }
+                        @endphp
+
                         <!-- Riwayat Link -->
                         <a href="{{ route('riwayat') }}" 
-                           class="flex items-center gap-3 px-4 py-3 rounded-2xl font-bold text-xs transition-all duration-200 
+                           class="flex items-center justify-between px-4 py-3 rounded-2xl font-bold text-xs transition-all duration-200 
                            {{ request()->routeIs('riwayat') ? 'bg-[#1b3bbb] text-white shadow-lg shadow-[#1b3bbb]/20' : 'text-slate-600 hover:bg-[#1b3bbb]/5 hover:text-[#1b3bbb]' }}">
-                            <svg class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"></path>
-                            </svg>
-                            <span>Riwayat Rapat</span>
+                            <div class="flex items-center gap-3">
+                                <svg class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"></path>
+                                </svg>
+                                <span>Riwayat Rapat</span>
+                            </div>
+                            @if($pendingReviewCount > 0)
+                                <span class="px-2 py-0.5 rounded-full text-[9.5px] font-black bg-amber-500 text-white animate-pulse shrink-0" title="{{ $pendingReviewCount }} Notulensi Menunggu Review">
+                                    {{ $pendingReviewCount }} Review
+                                </span>
+                            @endif
                         </a>
 
                         <!-- Profil Link -->

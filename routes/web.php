@@ -8,20 +8,8 @@ use App\Http\Controllers\PresensiController;
 use App\Http\Controllers\NotulensiController;
 use App\Http\Controllers\AdminUserController;
 
-// Splash/Logo Opening redirects directly to Login (for guest) or shows landing page
+// Splash/Landing redirects directly to Login (for guest) or shows welcome page
 Route::get('/', function () {
-    $src1 = "C:/Users/ASUS/.gemini/antigravity-ide/brain/c0f4a6db-7582-4efd-9532-0f1eba11a625/media__1784013148270.png";
-    $src2 = "C:/Users/ASUS/.gemini/antigravity-ide/brain/c0f4a6db-7582-4efd-9532-0f1eba11a625/media__1784013148275.png";
-    if (file_exists($src1)) {
-        copy($src1, public_path('images/logo-banyumas-crest.png'));
-    }
-    if (file_exists($src2)) {
-        copy($src2, public_path('images/logo-dinkominfo.png'));
-    }
-    if (file_exists(public_path('copy_logos.php'))) {
-        unlink(public_path('copy_logos.php'));
-    }
-
     if (Illuminate\Support\Facades\Auth::check()) {
         return view('welcome');
     }
@@ -82,6 +70,7 @@ Route::middleware(['auth'])->group(function () {
         Route::post('/agenda/{agenda}/notulensi/save', [NotulensiController::class, 'saveDraft'])->name('notulensi.save');
         Route::post('/agenda/{agenda}/notulensi/submit', [NotulensiController::class, 'submitForReview'])->name('notulensi.submit');
         Route::post('/agenda/{agenda}/notulensi/regenerate', [NotulensiController::class, 'regenerate'])->name('notulensi.regenerate');
+        Route::post('/agenda/{agenda}/notulensi/refine-text', [NotulensiController::class, 'refineText'])->name('notulensi.refine-text');
         Route::post('/agenda/{agenda}/notulensi/external', [NotulensiController::class, 'addExternal'])->name('notulensi.external.add');
         Route::delete('/notulensi/external/{participant}', [NotulensiController::class, 'deleteExternal'])->name('notulensi.external.delete');
     });

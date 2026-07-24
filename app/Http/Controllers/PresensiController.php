@@ -77,14 +77,18 @@ class PresensiController extends Controller
             }
         }
 
-        // Save presence
-        Presensi::create([
-            'agenda_id' => $agenda->id,
-            'user_id' => $user->id,
-            'status' => $validated['status'],
-            'tanda_tangan' => $signaturePath,
-            'keterangan' => $validated['keterangan'] ?? null,
-        ]);
+        // Save presence safely against double-click race conditions
+        try {
+            Presensi::create([
+                'agenda_id' => $agenda->id,
+                'user_id' => $user->id,
+                'status' => $validated['status'],
+                'tanda_tangan' => $signaturePath,
+                'keterangan' => $validated['keterangan'] ?? null,
+            ]);
+        } catch (\Illuminate\Database\QueryException $e) {
+            return back()->with('error', 'Presensi Anda telah tercatat.');
+        }
 
         $statusLabels = [
             'hadir' => 'Hadir',

@@ -14,7 +14,7 @@
             </a>
             <div>
                 <h1 class="text-base sm:text-lg font-black text-[#09103c] tracking-tight leading-tight">PROFIL SAYA</h1>
-                <p class="text-slate-500 text-[10px] sm:text-xs font-semibold">Detail informasi kepegawaian Anda di sistem Sirena</p>
+                <p class="text-slate-500 text-[10px] sm:text-xs font-semibold">Detail informasi kepegawaian Anda di sistem Agendaris</p>
             </div>
         </div>
     </div>

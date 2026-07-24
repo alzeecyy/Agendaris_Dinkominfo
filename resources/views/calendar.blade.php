@@ -566,12 +566,21 @@
                     bidangsUserData: {{ json_encode($bidangsUserData) }},
                     selectedParticipants: [],
                     participantModalOpen: false,
+                    searchParticipant: "",
+                    isDirty: false,
 
                     init() {
                         this.syncParticipants();
                     },
 
+                    filteredUsers(users) {
+                        if (!this.searchParticipant || !this.searchParticipant.trim()) return users;
+                        let q = this.searchParticipant.toLowerCase().trim();
+                        return users.filter(u => (u.name && u.name.toLowerCase().includes(q)) || (u.jabatan && u.jabatan.toLowerCase().includes(q)));
+                    },
+
                     toggleSemua() {
+                        this.isDirty = true;
                         if (this.semuaOrang) {
                             this.bidangs = Array.from(this.allBidangIds);
                         } else {
@@ -581,20 +590,21 @@
                     },
 
                     checkBidang(id) {
+                        this.isDirty = true;
                         if (this.isSekBid) {
                             if (!this.bidangs.includes(this.ownBidangId)) {
                                 this.bidangs.push(this.ownBidangId);
                             }
                             if (this.bidangs.length > 3) {
                                 Swal.fire({
-                                    title: 'Batas Maksimal Bidang',
-                                    text: 'Sekretaris / Admin Bidang hanya dapat memilih maksimal 3 bidang (bidang Anda + maksimal 2 bidang tambahan).',
-                                    icon: 'warning',
-                                    confirmButtonText: 'Mengerti',
-                                    confirmButtonColor: '#1b3bbb',
+                                    title: "Batas Maksimal Bidang",
+                                    text: "Sekretaris / Admin Bidang hanya dapat memilih maksimal 3 bidang (bidang Anda + maksimal 2 bidang tambahan).",
+                                    icon: "warning",
+                                    confirmButtonText: "Mengerti",
+                                    confirmButtonColor: "#1b3bbb",
                                     customClass: {
-                                        popup: 'rounded-3xl shadow-2xl border border-[#d4d1f5]',
-                                        confirmButton: 'px-5 py-2.5 bg-[#1b3bbb] text-white text-xs font-bold rounded-xl shadow-md'
+                                        popup: "rounded-3xl shadow-2xl border border-[#d4d1f5]",
+                                        confirmButton: "px-5 py-2.5 bg-[#1b3bbb] text-white text-xs font-bold rounded-xl shadow-md"
                                     }
                                 });
                                 this.bidangs = this.bidangs.filter(bId => String(bId) !== String(id));
@@ -623,6 +633,7 @@
                     },
 
                     toggleBidangUsers(bidangId) {
+                        this.isDirty = true;
                         let b = this.bidangsUserData.find(item => item.id === bidangId);
                         if (!b) return;
                         let bUserIds = b.users.map(u => u.id);
@@ -711,7 +722,7 @@
                                     </div>
                                     <div>
                                         <h3 class="text-base font-extrabold text-white">Kelola Peserta Rapat</h3>
-                                        <p class="text-[11px] text-indigo-100 font-medium">Hilangkan centang jika terdapat anggota bidang yang tidak diundang</p>
+                                        <p class="text-[11px] text-indigo-100 font-medium">Cari nama & centang anggota bidang yang diundang</p>
                                     </div>
                                 </div>
                                 <button @click="participantModalOpen = false" type="button" class="p-1.5 bg-white/10 hover:bg-rose-500 rounded-xl text-white transition-all cursor-pointer">
@@ -721,7 +732,19 @@
                                 </button>
                             </div>
 
-                            <div class="p-5 overflow-y-auto space-y-4 flex-1">
+                            <div class="p-4 sm:p-5 overflow-y-auto space-y-4 flex-1">
+                                <!-- Search Bar for Participants -->
+                                <div class="relative">
+                                    <input type="text" x-model="searchParticipant" placeholder="Cari nama atau jabatan peserta..." 
+                                           class="w-full pl-9 pr-8 py-2 bg-slate-100/90 border border-slate-200/90 rounded-xl text-xs text-slate-800 placeholder-slate-400 focus:bg-white focus:border-[#1b3bbb] focus:ring-2 focus:ring-[#1b3bbb]/10 transition-all font-medium">
+                                    <svg class="w-4 h-4 text-slate-400 absolute left-3 top-2.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+                                    </svg>
+                                    <button type="button" x-show="searchParticipant.length > 0" @click="searchParticipant = ''" class="absolute right-2.5 top-2.5 text-slate-400 hover:text-slate-600">
+                                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                                    </button>
+                                </div>
+
                                 <template x-if="bidangs.length === 0">
                                     <div class="p-8 text-center bg-slate-50 rounded-2xl border border-dashed border-slate-200">
                                         <p class="text-xs text-slate-500 font-bold">Pilih minimal satu bidang di atas terlebih dahulu untuk mengelola peserta.</p>
@@ -741,9 +764,9 @@
                                         </div>
 
                                         <div class="grid grid-cols-1 sm:grid-cols-2 gap-1.5">
-                                            <template x-for="user in bidang.users" :key="user.id">
+                                            <template x-for="user in filteredUsers(bidang.users)" :key="user.id">
                                                 <label class="flex items-start gap-2.5 p-2 bg-white rounded-xl border border-slate-200/60 hover:border-indigo-200 cursor-pointer select-none transition-all">
-                                                    <input type="checkbox" :value="user.id" x-model="selectedParticipants" class="w-4 h-4 rounded border-slate-300 text-indigo-600 focus:ring-indigo-500 mt-0.5 shrink-0">
+                                                    <input type="checkbox" :value="user.id" x-model="selectedParticipants" @change="isDirty = true" class="w-4 h-4 rounded border-slate-300 text-indigo-600 focus:ring-indigo-500 mt-0.5 shrink-0">
                                                     <div class="min-w-0">
                                                         <div class="text-xs font-bold text-slate-800 leading-tight truncate" x-text="user.name"></div>
                                                         <div class="text-[10px] text-slate-500 font-medium truncate" x-text="user.jabatan"></div>
@@ -753,7 +776,7 @@
                                         </div>
                                     </div>
                                 </template>
-                            <!-- Modal Footer -->
+                            </div>   <!-- Modal Footer -->
                             <div class="px-5 py-3.5 bg-slate-50 border-t border-slate-200 flex flex-col sm:flex-row items-center justify-between gap-3 shrink-0">
                                 <div class="text-xs font-bold text-slate-600 flex items-center gap-1">
                                     <template x-if="selectedParticipants.length === 0">
