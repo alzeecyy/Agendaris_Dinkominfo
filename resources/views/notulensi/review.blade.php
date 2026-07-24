@@ -3,17 +3,17 @@
 @section('title', $notulensi->status === 'disahkan' ? 'Notulensi Rapat Resmi' : 'Tinjau Notulensi')
 
 @section('content')
-<div class="space-y-6 -mt-6">
+<div class="space-y-6">
     <!-- Breadcrumbs / Back button & Title -->
-    <div>
+    <div class="space-y-1 border-b border-[#d4d1f5]/40 pb-4">
         <a href="{{ route('agenda.show', $agenda->id) }}" 
-           class="inline-flex items-center gap-2 text-xs font-bold text-[#5a508f] hover:text-[#2e2552] transition-colors -mt-2 mb-3">
+           class="inline-flex items-center gap-2 text-xs font-bold text-[#5a508f] hover:text-[#2e2552] transition-colors">
             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 12H5m7 7l-7-7 7-7"></path>
             </svg>
             <span>Kembali ke Detail Agenda</span>
         </a>
-        <h1 class="text-lg font-black text-[#2e2552]">
+        <h1 class="text-xl font-black text-[#2e2552] tracking-tight pt-1">
             {{ $notulensi->status === 'disahkan' ? 'Notulensi Rapat Resmi' : 'Tinjau Draf Notulensi' }}
         </h1>
     </div>

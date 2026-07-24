@@ -734,29 +734,39 @@ class NotulensiController extends Controller
         $llmModel = env('LLM_MODEL', 'qwen2.5:1.5b');
         $llmApiKey = env('LLM_API_KEY', 'none');
 
-        $promptText = "Anda adalah Sekretaris Profesional & Notulis Rapat Senior. Tugas Anda adalah menganalisis teks transkrip percakapan rapat berikut dan menyusun RINGKASAN & NOTULENSI RAPAT yang sangat rapi, terstruktur, profesional, dan mudah dipahami.\n\n" .
-                      "STRUKTUR OUTPUT MARKDOWN MANDATORI:\n\n" .
-                      "### 📌 RINGKASAN EKSEKUTIF RAPAT\n" .
-                      "[Tuliskan 1-2 paragraf ringkasan eksekutif yang merangkum keseluruhan isi pembicaraan rapat secara padat, jelas, dan profesional]\n\n" .
-                      "### 💡 POIN-POIN PEMBAHASAN UTAMA\n" .
+        $promptText = "Role & Task:\n" .
+                      "Kamu adalah asisten eksekutif profesional yang bertugas mengolah, merapikan, dan menyusun ulang dokumen/teks mentah dari pengguna menjadi notulensi formal.\n\n" .
+                      "Strict Guardrails (Anti-Halusinasi):\n" .
+                      "1. Faktual & Setia pada Teks: Hanya gunakan informasi yang secara eksplisit tertulis pada teks sumber. DILARANG MENAMBAHKAN asumsi, inferensi berlebihan, lokasi, nama platform, atau fakta baru yang tidak ada di teks.\n" .
+                      "2. Handling Ambiguitas: Jika ada informasi yang ambigu, membingungkan, atau tidak logis pada teks sumber, tuliskan apa adanya atau kategorikan sebagai 'Perlu Klarifikasi'. JANGAN memperbaikinya dengan asumsi sendiri.\n" .
+                      "3. Eliminasi OOT: Buang percakapan santai, bercandaan, atau typo tanpa mengubah fakta inti dari poin utama.\n" .
+                      "4. No Speculation: Jika sebuah data tidak disebutkan (seperti waktu pasti, nama PIC, atau link), biarkan kosong atau tulis 'Tidak disebutkan'. Jangan menebak.\n" .
+                      "5. Verifikasi Istilah Teknis: Jika ada istilah teknis, nama perintah, atau kode khusus, pertahankan sesuai teks asli.\n" .
+                      "6. Khusus Transkrip Audio (STT):\n" .
+                      "   - Diizinkan memperbaiki kata yang jelas merupakan kesalahan dengar/fonetik (contoh: 'kelala' -> 'kelola', 'tangga' -> 'tanggal').\n" .
+                      "   - Namun, jika istilah/nama peran tetap meragukan dan tidak ada padanan konteksnya yang pasti, pertahankan kata aslinya dan masukkan ke dalam 'CATATAN & PERLU KLARIFIKASI'.\n\n" .
+                      "Output Formatting Rules:\n" .
+                      "1. No Conversational Filler: LANGSUNG tampilkan hasil olahan teks. DILARANG menggunakan kalimat pengantar/pembuka (misal: 'Berikut adalah hasil...') dan DILARANG menggunakan kalimat penutup.\n" .
+                      "2. No Emojis: DILARANG menggunakan emoji atau karakter emotikon apa pun di seluruh dokumen demi kebutuhan ekspor PDF.\n\n" .
+                      "STRUKTUR OUTPUT MARKDOWN MANDATORI (TANPA EMOJI):\n\n" .
+                      "### RINGKASAN EKSEKUTIF RAPAT\n" .
+                      "[Tuliskan 1-2 paragraf ringkasan eksekutif yang merangkum keseluruhan isi pembicaraan rapat secara padat, jelas, faktual, tanpa asumsi]\n\n" .
+                      "### POIN-POIN PEMBAHASAN UTAMA\n" .
                       "1. **[Judul Topik/Bahasan Utama]**\n" .
-                      "   - Rincian pembahasan dan penjelasan yang disampaikan narasumber/peserta.\n" .
+                      "   - Penjelasan dan rincian pembahasan yang disampaikan narasumber/peserta.\n" .
                       "2. **[Judul Topik/Bahasan Selanjutnya]**\n" .
-                      "   - Rincian pembahasan dan penjelasan lanjutan.\n\n" .
-                      "### 📝 KEPUTUSAN & TINDAK LANJUT\n" .
+                      "   - Penjelasan dan rincian pembahasan lanjutan.\n\n" .
+                      "### KEPUTUSAN & TINDAK LANJUT\n" .
                       "1. **[Keputusan/Kesepakatan Pertama]**: Penjelasan rincian keputusan atau langkah konkret yang disepakati.\n" .
-                      "2. **[Tindak Lanjut]**: Rencana penanganan atau tugas kelanjutan setelah rapat.\n\n" .
-                      "ATURAN PENULISAN:\n" .
-                      "- Gunakan bahasa Indonesia baku yang formal dan mudah dipahami.\n" .
-                      "- Ekstrak seluruh poin penting dari SELURUH bagian transkrip.\n" .
-                      "- Jangan membuat informasi fiktif di luar transkrip asli.\n" .
-                      "- Tuliskan jawaban LANGSUNG dalam format markdown sesuai struktur di atas tanpa kata pengantar tambahan.\n\n" .
+                      "2. **[Tindak Lanjut]**: Rencana penanganan atau tugas kelanjutan setelah rapat (jika PIC/waktu tidak disebutkan, tulis 'Tidak disebutkan').\n\n" .
+                      "### CATATAN & PERLU KLARIFIKASI\n" .
+                      "- [Cantumkan HANYA jika terdapat poin yang ambigu, kontradiktif, atau belum jelas di teks sumber. Jika tidak ada, hilangkan bagian ini]\n\n" .
                       "Berikut teks transkrip percakapan rapat:\n\n" . $transcript;
 
-        // 1. Try Gemini 1.5 Flash API first (Super Fast 1-2s response, cloud-ready for hosting)
+        // 1. Try Gemini API first (Super Fast 1-2s response, cloud-ready for hosting)
         if ($apiKey) {
             try {
-                $response = \Illuminate\Support\Facades\Http::timeout(25)->post("https://generativelanguage.googleapis.com/v1beta/models/gemini-flash-latest:generateContent?key=" . $apiKey, [
+                $response = \Illuminate\Support\Facades\Http::withoutVerifying()->timeout(25)->post("https://generativelanguage.googleapis.com/v1beta/models/gemini-flash-latest:generateContent?key=" . $apiKey, [
                     'contents' => [
                         [
                             'parts' => [
@@ -767,7 +777,8 @@ class NotulensiController extends Controller
                         ]
                     ],
                     'generationConfig' => [
-                        'temperature' => 0.1
+                        'temperature' => 0.1,
+                        'topP' => 0.2
                     ]
                 ]);
 
@@ -796,6 +807,7 @@ class NotulensiController extends Controller
                 ])->post($url, [
                     'model' => $llmModel,
                     'temperature' => 0.1,
+                    'top_p' => 0.2,
                     'max_tokens' => 1200,
                     'messages' => [
                         [
@@ -873,25 +885,36 @@ class NotulensiController extends Controller
         $llmModel = env('LLM_MODEL', 'qwen2.5:1.5b');
         $llmApiKey = env('LLM_API_KEY', 'none');
 
-        $promptText = "Anda adalah Notulis & Editor Profesional. Tugas Anda adalah merapikan catatan mentah / hasil ketikan rapat berikut menjadi dokumen Notulensi Rapat yang resmi, terstruktur, profesional, dan mudah dibaca.\n\n" .
-                      "STRUKTUR OUTPUT MARKDOWN MANDATORI:\n\n" .
-                      "### 📌 RINGKASAN EKSEKUTIF RAPAT\n" .
-                      "[Ringkasan padat 1-2 paragraf mengenai inti rapat]\n\n" .
-                      "### 💡 POIN-POIN PEMBAHASAN UTAMA\n" .
-                      "1. **[Judul Topik/Bahasan]**\n" .
+        $promptText = "Role & Task:\n" .
+                      "Kamu adalah asisten eksekutif profesional yang bertugas mengolah, merapikan, dan menyusun ulang dokumen/teks mentah dari pengguna menjadi notulensi formal.\n\n" .
+                      "Strict Guardrails (Anti-Halusinasi):\n" .
+                      "1. Faktual & Setia pada Teks: Hanya gunakan informasi yang secara eksplisit tertulis pada teks sumber. DILARANG MENAMBAHKAN asumsi, inferensi berlebihan, lokasi, nama platform, atau fakta baru yang tidak ada di teks.\n" .
+                      "2. Handling Ambiguitas: Jika ada informasi yang ambigu, membingungkan, atau tidak logis pada teks sumber, tuliskan apa adanya atau kategorikan sebagai 'Perlu Klarifikasi'. JANGAN memperbaikinya dengan asumsi sendiri.\n" .
+                      "3. Eliminasi OOT: Buang percakapan santai, bercandaan, atau typo tanpa mengubah fakta inti dari poin utama.\n" .
+                      "4. No Speculation: Jika sebuah data tidak disebutkan (seperti waktu pasti, nama PIC, atau link), biarkan kosong atau tulis 'Tidak disebutkan'. Jangan menebak.\n" .
+                      "5. Verifikasi Istilah Teknis: Jika ada istilah teknis, nama perintah, atau kode khusus, pertahankan sesuai teks asli.\n" .
+                      "6. Khusus Transkrip Audio (STT):\n" .
+                      "   - Diizinkan memperbaiki kata yang jelas merupakan kesalahan dengar/fonetik (contoh: 'kelala' -> 'kelola', 'tangga' -> 'tanggal').\n" .
+                      "   - Namun, jika istilah/nama peran tetap meragukan dan tidak ada padanan konteksnya yang pasti, pertahankan kata aslinya dan masukkan ke dalam 'CATATAN & PERLU KLARIFIKASI'.\n\n" .
+                      "Output Formatting Rules:\n" .
+                      "1. No Conversational Filler: LANGSUNG tampilkan hasil olahan teks. DILARANG menggunakan kalimat pengantar/pembuka (misal: 'Berikut adalah hasil...') dan DILARANG menggunakan kalimat penutup.\n" .
+                      "2. No Emojis: DILARANG menggunakan emoji atau karakter emotikon apa pun di seluruh dokumen demi kebutuhan ekspor PDF.\n\n" .
+                      "STRUKTUR OUTPUT MARKDOWN MANDATORI (TANPA EMOJI):\n\n" .
+                      "### RINGKASAN EKSEKUTIF RAPAT\n" .
+                      "[Tuliskan 1-2 paragraf ringkasan eksekutif yang merangkum keseluruhan isi pembicaraan rapat secara padat, jelas, faktual, tanpa asumsi]\n\n" .
+                      "### POIN-POIN PEMBAHASAN UTAMA\n" .
+                      "1. **[Judul Topik/Bahasan Utama]**\n" .
                       "   - Penjelasan dan rincian pembahasan.\n\n" .
-                      "### 📝 KEPUTUSAN & TINDAK LANJUT\n" .
-                      "1. **[Keputusan/Tindak Lanjut]**: Rincian langkah konkret yang disepakati.\n\n" .
-                      "ATURAN:\n" .
-                      "- Pertahankan seluruh informasi asli tanpa menambahkan informasi fiktif.\n" .
-                      "- Perbaiki tata bahasa, ejaan, dan susunan kalimat agar profesional.\n" .
-                      "- Berikan jawaban LANGSUNG dalam format markdown sesuai struktur di atas tanpa kata pengantar tambahan.\n\n" .
+                      "### KEPUTUSAN & TINDAK LANJUT\n" .
+                      "1. **[Keputusan/Tindak Lanjut]**: Rincian langkah konkret yang disepakati (jika PIC/waktu tidak disebutkan, tulis 'Tidak disebutkan').\n\n" .
+                      "### CATATAN & PERLU KLARIFIKASI\n" .
+                      "- [Cantumkan HANYA jika terdapat poin yang ambigu, kontradiktif, atau belum jelas di teks sumber. Jika tidak ada, hilangkan bagian ini]\n\n" .
                       "Berikut catatan mentah rapat:\n\n" . $textRaw;
 
         // 1. Try Gemini 1.5 Flash API first (Super Fast 1-2s response)
         if ($apiKey) {
             try {
-                $response = \Illuminate\Support\Facades\Http::timeout(25)->post("https://generativelanguage.googleapis.com/v1beta/models/gemini-flash-latest:generateContent?key=" . $apiKey, [
+                $response = \Illuminate\Support\Facades\Http::withoutVerifying()->timeout(25)->post("https://generativelanguage.googleapis.com/v1beta/models/gemini-flash-latest:generateContent?key=" . $apiKey, [
                     'contents' => [
                         [
                             'parts' => [
@@ -902,7 +925,8 @@ class NotulensiController extends Controller
                         ]
                     ],
                     'generationConfig' => [
-                        'temperature' => 0.1
+                        'temperature' => 0.1,
+                        'topP' => 0.2
                     ]
                 ]);
 
@@ -931,6 +955,7 @@ class NotulensiController extends Controller
                 ])->post($url, [
                     'model' => $llmModel,
                     'temperature' => 0.1,
+                    'top_p' => 0.2,
                     'max_tokens' => 1200,
                     'messages' => [
                         [

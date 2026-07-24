@@ -83,6 +83,8 @@ try:
         "-m", model_bin,
         "-f", temp_wav,
         "-nt",          # no timestamps in output
+        "-np",          # do not print metadata
+        "-nfa",         # disable flash attention (mandatory for CPU stability)
         "-l", "id",     # Indonesian language
         "-ng",          # no GPU
         "-t", cpu_threads,

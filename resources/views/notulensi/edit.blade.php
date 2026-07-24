@@ -3,20 +3,20 @@
 @section('title', 'Kelola Notulensi')
 
 @section('content')
-<div x-data="notulenEditor" class="space-y-6 -mt-6">
+<div x-data="notulenEditor" class="space-y-6">
     
     <!-- Top Header & Breadcrumbs -->
     <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-[#d4d1f5]/40 pb-4">
-        <div>
+        <div class="space-y-1">
             <a href="{{ route('agenda.show', $agenda->id) }}" 
-               class="inline-flex items-center gap-2 text-xs font-bold text-[#5a508f] hover:text-[#2e2552] transition-colors -mt-2 mb-3">
+               class="inline-flex items-center gap-2 text-xs font-bold text-[#5a508f] hover:text-[#2e2552] transition-colors">
                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 12H5m7 7l-7-7 7-7"></path>
                 </svg>
                 <span>Kembali ke Detail Agenda</span>
             </a>
-            <h1 class="text-xl font-black text-[#2e2552]">Kelola Notulensi Rapat</h1>
-            <p class="text-xs text-[#5a508f] font-medium mt-1">Lengkapi informasi rapat, unggah rekaman suara, edit notulensi AI, lalu simpan atau ajukan ke pimpinan.</p>
+            <h1 class="text-xl font-black text-[#2e2552] tracking-tight pt-1">Kelola Notulensi Rapat</h1>
+            <p class="text-xs text-[#5a508f] font-medium">Lengkapi informasi rapat, ketik catatan atau unggah rekaman audio, rapikan notulensi dengan AI, lalu simpan draf atau ajukan ke pimpinan.</p>
         </div>
 
         <!-- Status Badge -->
@@ -42,25 +42,9 @@
         </div>
     </div>
 
-    <!-- Segmented Control Mode Input Toggle (Left Aligned) -->
-    <div class="flex justify-start">
-        <div class="inline-flex items-center p-1 bg-white border border-[#d4d1f5]/80 rounded-2xl shadow-xs">
-            <button type="button" @click="inputMode = 'audio'"
-                    :class="inputMode === 'audio' ? 'bg-[#1b3bbb] text-white shadow-xs font-black' : 'text-[#5a508f] hover:text-[#2e2552] font-bold'"
-                    class="px-5 py-2 rounded-xl text-xs transition-all flex items-center justify-center gap-2">
-                <span>🎙️ Audio</span>
-            </button>
-            <button type="button" @click="inputMode = 'teks'"
-                    :class="inputMode === 'teks' ? 'bg-[#1b3bbb] text-white shadow-xs font-black' : 'text-[#5a508f] hover:text-[#2e2552] font-bold'"
-                    class="px-5 py-2 rounded-xl text-xs transition-all flex items-center justify-center gap-2">
-                <span>📝 Teks</span>
-            </button>
-        </div>
-    </div>
-
     <!-- Active Transcribing Prominent Top Banner (Immediately Visible Without Scrolling) -->
     @if($notulensi->is_transcribing)
-        <div x-show="inputMode === 'audio'" class="p-4 bg-amber-50 border border-amber-300 rounded-3xl flex items-center justify-between gap-4 shadow-sm animate-pulse">
+        <div class="p-4 bg-amber-50 border border-amber-300 rounded-3xl flex items-center justify-between gap-4 shadow-sm animate-pulse">
             <div class="flex items-center gap-3">
                 <div class="w-10 h-10 rounded-2xl bg-amber-500/10 text-amber-700 flex items-center justify-center shrink-0">
                     <svg class="w-5 h-5 animate-spin" fill="none" viewBox="0 0 24 24">
@@ -69,7 +53,7 @@
                     </svg>
                 </div>
                 <div>
-                    <h4 class="text-xs font-black uppercase text-amber-900 tracking-wider">Status Transkripsi Sedang Aktif</h4>
+                    <h4 class="text-xs font-black uppercase text-amber-900 tracking-wider">Status Transkripsi Audio Sedang Aktif</h4>
                     <p class="text-xs text-amber-800 font-medium">Sistem sedang memproses berkas suara rapat secara offline. Halaman ini akan diperbarui otomatis saat selesai.</p>
                 </div>
             </div>
@@ -185,57 +169,24 @@
                     </div>
                 </div>
 
-                <!-- CARD 2A: Mode Audio - Transkrip Percakapan Rapat -->
-                <div x-show="inputMode === 'audio'" class="bg-white border border-[#d4d1f5]/60 rounded-3xl p-6 shadow-sm space-y-4">
+                <!-- CARD 2: Catatan Mentah & Transkrip Rapat (Dapat Diketik Manual atau Hasil Transkripsi Audio) -->
+                <div class="bg-white border border-[#d4d1f5]/60 rounded-3xl p-6 shadow-sm space-y-4">
                     <div class="flex items-center justify-between border-b border-[#d4d1f5]/30 pb-3">
                         <div class="flex items-center gap-2.5">
-                            <div class="w-8 h-8 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center font-bold">
-                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z"></path>
-                                </svg>
-                            </div>
-                            <div>
-                                <h3 class="text-sm font-extrabold text-[#2e2552]">Transkrip Percakapan Rapat</h3>
-                                <p class="text-[11px] text-[#5a508f]">Teks lengkap hasil pengenalan suara rapat dari seluruh berkas audio.</p>
-                            </div>
-                        </div>
-
-                        <!-- Button Analisis Ulang -->
-                        <button type="button" @click="regenerateSummary" :disabled="loading"
-                                class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-[#1b3bbb] hover:bg-[#09103c] text-white text-[10px] font-bold uppercase tracking-wider rounded-xl shadow-sm transition-all disabled:opacity-50">
-                            <svg class="w-3.5 h-3.5 animate-spin" x-show="loading" fill="none" viewBox="0 0 24 24" style="display: none;">
-                                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                            </svg>
-                            <svg class="w-3.5 h-3.5" x-show="!loading" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
-                            </svg>
-                            <span x-text="loading ? 'Memproses...' : 'Analisis Ulang'"></span>
-                        </button>
-                    </div>
-
-                    <textarea name="transkrip_raw" id="transkrip_raw" rows="10" x-model="transkripRaw" placeholder="Transkrip lengkap percakapan rapat..."
-                              class="w-full px-4 py-3 bg-[#f8f7ff] border border-[#d4d1f5] rounded-2xl text-[#2e2552] text-xs focus:outline-none focus:ring-2 focus:ring-[#8e88dd] focus:bg-white leading-relaxed font-mono transition-colors"></textarea>
-                </div>
-
-                <!-- CARD 2B: Mode Teks - Input Catatan Mentah Rapat -->
-                <div x-show="inputMode === 'teks'" class="bg-white border border-[#d4d1f5]/60 rounded-3xl p-6 shadow-sm space-y-4">
-                    <div class="flex items-center justify-between border-b border-[#d4d1f5]/30 pb-3">
-                        <div class="flex items-center gap-2.5">
-                            <div class="w-8 h-8 rounded-xl bg-purple-50 text-purple-600 flex items-center justify-center font-bold">
+                            <div class="w-8 h-8 rounded-xl bg-indigo-50 text-indigo-600 flex items-center justify-center font-bold">
                                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
                                 </svg>
                             </div>
                             <div>
-                                <h3 class="text-sm font-extrabold text-[#2e2552]">Catatan Mentah Rapat (Hasil Ketikan / Paste)</h3>
-                                <p class="text-[11px] text-[#5a508f]">Ketik atau tempelkan catatan rapat di sini, lalu klik Rapikan Teks untuk menyusun notulensi formal.</p>
+                                <h3 class="text-sm font-extrabold text-[#2e2552]">Catatan Mentah / Transkrip Rapat</h3>
+                                <p class="text-[11px] text-[#5a508f]">Ketik catatan rapat secara manual atau dapatkan hasil transkripsi audio otomatis.</p>
                             </div>
                         </div>
 
-                        <!-- Button Rapikan Teks -->
+                        <!-- Button Rapikan Teks AI -->
                         <button type="button" @click="refineText" :disabled="loading"
-                                class="inline-flex items-center gap-1.5 px-4 py-2 bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white text-xs font-bold rounded-xl shadow-md transition-all disabled:opacity-50">
+                                class="inline-flex items-center gap-1.5 px-4 py-2 bg-gradient-to-r from-[#1b3bbb] to-indigo-600 hover:from-[#09103c] hover:to-[#1b3bbb] text-white text-xs font-bold rounded-xl shadow-md transition-all disabled:opacity-50">
                             <svg class="w-4 h-4 animate-spin" x-show="loading" fill="none" viewBox="0 0 24 24" style="display: none;">
                                 <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
                                 <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
@@ -247,18 +198,18 @@
                         </button>
                     </div>
 
-                    <!-- Textarea Input Catatan Mentah (Mode Teks) -->
+                    <!-- Textarea Input Catatan Mentah -->
                     <div class="space-y-1.5">
-                        <textarea name="transkrip_raw" id="transkrip_raw_teks" rows="10" x-model="transkripRaw" placeholder="Ketik atau tempelkan catatan rapat di sini..."
+                        <textarea name="transkrip_raw" id="transkrip_raw" rows="10" x-model="transkripRaw" placeholder="Ketik catatan mentah rapat di sini (atau biarkan terisi otomatis setelah memproses audio)..."
                                   class="w-full px-4 py-3 bg-[#f8f7ff] border border-[#d4d1f5] rounded-2xl text-[#2e2552] text-xs focus:outline-none focus:ring-2 focus:ring-[#8e88dd] focus:bg-white leading-relaxed font-mono transition-colors"></textarea>
                     </div>
 
                     <p class="text-[11.5px] text-[#5a508f] font-medium leading-relaxed bg-[#f8f7ff] p-3 rounded-2xl border border-[#d4d1f5]/50">
-                        💡 <strong>Tips:</strong> Anda bisa mengetik catatan kasar, poin-poin sederhana, atau menyalin isi obrolan rapat. Setelah selesai, klik tombol <strong>Rapikan Teks</strong> di atas untuk mengubahnya secara otomatis menjadi dokumen notulensi yang rapi dan terstruktur di bawah.
+                        <strong>Tips:</strong> Anda bisa langsung mengetik catatan rapat, poin-poin singkat, atau menyalin teks pembahasan. Setelah selesai, klik tombol <strong>Rapikan Teks</strong> di atas untuk menyusun dokumen notulensi formal secara otomatis di bawah.
                     </p>
                 </div>
 
-                <!-- CARD 3: Hasil Ringkasan & Notulensi Rapat (Digunakan oleh Kedua Mode) -->
+                <!-- CARD 3: Hasil Ringkasan & Notulensi Resmi -->
                 <div class="bg-white border border-[#d4d1f5]/60 rounded-3xl p-6 shadow-sm space-y-4">
                     <div class="flex items-center justify-between border-b border-[#d4d1f5]/30 pb-3">
                         <div class="flex items-center gap-2.5">
@@ -268,14 +219,14 @@
                                 </svg>
                             </div>
                             <div>
-                                <h3 class="text-sm font-extrabold text-[#2e2552]">Hasil Ringkasan & Notulensi</h3>
-                                <p class="text-[11px] text-[#5a508f]">Edit dan rapikan hasil ringkasan rapat (poin keputusan, bahasan, dan tindak lanjut).</p>
+                                <h3 class="text-sm font-extrabold text-[#2e2552]">Hasil Ringkasan & Notulensi Resmi</h3>
+                                <p class="text-[11px] text-[#5a508f]">Dokumen resmi terstruktur (ringkasan eksekutif, poin pembahasan, dan keputusan rapat).</p>
                             </div>
                         </div>
                     </div>
 
                     <div class="space-y-1.5">
-                        <textarea name="ringkasan" id="ringkasan" rows="12" placeholder="Tulis ringkasan dan notulensi rapat di sini..."
+                        <textarea name="ringkasan" id="ringkasan" rows="12" placeholder="Tulis atau rapikan notulensi rapat resmi di sini..."
                                   class="w-full px-4 py-3 bg-[#f8f7ff] border border-[#d4d1f5] rounded-2xl text-[#2e2552] text-sm focus:outline-none focus:ring-2 focus:ring-[#8e88dd] focus:bg-white font-mono leading-relaxed transition-colors">{{ trim(preg_replace('/```(?:markdown)?/i', '', $notulensi->ringkasan)) }}</textarea>
                     </div>
                 </div>
@@ -303,14 +254,14 @@
 
                         <div class="flex flex-col sm:flex-row items-center gap-3 w-full sm:w-auto justify-end">
                             <button type="submit" @click="isDirty = false" formaction="{{ route('notulensi.save', $agenda->id) }}" formmethod="POST"
-                                    class="w-full sm:w-auto px-5 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 border border-slate-300 text-xs font-bold rounded-xl shadow-xs transition-all flex items-center justify-center gap-1.5">
+                                     class="w-full sm:w-auto px-5 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 border border-slate-300 text-xs font-bold rounded-xl shadow-xs transition-all flex items-center justify-center gap-1.5">
                                 <svg class="w-4 h-4 text-slate-600 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4"/>
                                 </svg>
                                 <span>Simpan Progress Draft</span>
                             </button>
                             <button type="button" @click="submitForReview($event)"
-                                    class="w-full sm:w-auto px-6 py-2.5 bg-gradient-to-r from-[#1b3bbb] to-indigo-600 hover:from-[#09103c] hover:to-[#1b3bbb] text-white text-xs font-bold rounded-xl shadow-md shadow-[#1b3bbb]/20 transition-all flex items-center justify-center gap-2">
+                                     class="w-full sm:w-auto px-6 py-2.5 bg-gradient-to-r from-[#1b3bbb] to-indigo-600 hover:from-[#09103c] hover:to-[#1b3bbb] text-white text-xs font-bold rounded-xl shadow-md shadow-[#1b3bbb]/20 transition-all flex items-center justify-center gap-2">
                                 <span>Ajukan untuk Persetujuan</span>
                                 <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"/>
@@ -326,35 +277,35 @@
         <!-- RIGHT COLUMN (1/3 width): Sidebar Cards -->
         <div class="space-y-6">
             
-            <!-- SIDEBAR CARD Mode Audio: Panduan & Informasi (Tampil Pertama di Mode Audio) -->
-            <div x-show="inputMode === 'audio'" class="bg-white border border-[#d4d1f5]/60 rounded-3xl p-5 shadow-sm space-y-4">
+            <!-- SIDEBAR CARD: Panduan Pengisian Notulensi -->
+            <div class="bg-white border border-[#d4d1f5]/60 rounded-3xl p-5 shadow-sm space-y-4">
                 <div class="flex items-center gap-2 border-b border-[#d4d1f5]/30 pb-3">
                     <div class="w-7 h-7 rounded-lg bg-indigo-50 text-indigo-600 flex items-center justify-center font-bold">
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
                         </svg>
                     </div>
-                    <h3 class="text-xs font-black uppercase tracking-wider text-[#2e2552]">Panduan Mode Audio</h3>
+                    <h3 class="text-xs font-black uppercase tracking-wider text-[#2e2552]">Panduan Pengisian</h3>
                 </div>
 
                 <div class="space-y-3 text-xs text-[#5a508f] leading-relaxed">
                     <div class="p-3 bg-[#f8f7ff] rounded-2xl border border-[#d4d1f5]/50 space-y-1">
-                        <span class="font-extrabold text-[#2e2552] block text-[11px]">1. Unggah Berkas Suara</span>
-                        <p class="text-[10.5px]">Unggah hingga 3 berkas audio rapat (MP3, WAV, M4A, OGG, maks. 40MB per berkas).</p>
+                        <span class="font-extrabold text-[#2e2552] block text-[11px]">1. Catat Poin Rapat / Audio</span>
+                        <p class="text-[10.5px]">Ketik catatan rapat di kolom <strong>Catatan Mentah</strong>, atau unggah rekaman audio di bawah jika tersedia.</p>
                     </div>
                     <div class="p-3 bg-[#f8f7ff] rounded-2xl border border-[#d4d1f5]/50 space-y-1">
-                        <span class="font-extrabold text-[#2e2552] block text-[11px]">2. Jalankan Proses Audio</span>
-                        <p class="text-[10.5px]">Klik tombol <strong>Proses Audio</strong> untuk mengonversi rekaman menjadi transkrip dan ringkasan notulensi secara otomatis.</p>
+                        <span class="font-extrabold text-[#2e2552] block text-[11px]">2. Susun Notulensi dengan AI</span>
+                        <p class="text-[10.5px]">Tekan <strong>Rapikan Teks</strong> untuk menyusun catatan kasar menjadi format notulensi rapat resmi dalam 1-2 detik.</p>
                     </div>
                     <div class="p-3 bg-[#f8f7ff] rounded-2xl border border-[#d4d1f5]/50 space-y-1">
-                        <span class="font-extrabold text-[#2e2552] block text-[11px]">3. Periksa & Simpan</span>
-                        <p class="text-[10.5px]">Periksa transkrip dan ringkasan, lalu klik <strong>Analisis Ulang</strong> jika ingin memperbarui hasil.</p>
+                        <span class="font-extrabold text-[#2e2552] block text-[11px]">3. Isi Nomor Surat & Ajukan</span>
+                        <p class="text-[10.5px]">Pastikan <strong>Nomor Surat Dasar</strong> terisi, periksa draf, lalu klik <strong>Ajukan untuk Persetujuan</strong> ke pimpinan.</p>
                     </div>
                 </div>
             </div>
 
-            <!-- SIDEBAR CARD Mode Audio: Rekaman Suara Rapat (Input & List Audio) -->
-            <div x-show="inputMode === 'audio'" class="bg-white border border-[#d4d1f5]/60 rounded-3xl p-5 shadow-sm space-y-4">
+            <!-- SIDEBAR CARD: Rekaman Suara Rapat (Audio Input & List) -->
+            <div class="bg-white border border-[#d4d1f5]/60 rounded-3xl p-5 shadow-sm space-y-4">
                 <div class="flex items-center justify-between border-b border-[#d4d1f5]/30 pb-3">
                     <div class="flex items-center gap-2">
                         <div class="w-7 h-7 rounded-lg bg-indigo-50 text-indigo-600 flex items-center justify-center font-bold">
@@ -362,7 +313,9 @@
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z"></path>
                             </svg>
                         </div>
-                        <h3 class="text-xs font-black uppercase tracking-wider text-[#2e2552]">Rekaman Suara Rapat</h3>
+                        <div>
+                            <h3 class="text-xs font-black uppercase tracking-wider text-[#2e2552]">Rekaman Suara Rapat</h3>
+                        </div>
                     </div>
                     <span class="text-[10px] font-bold text-slate-500 bg-slate-100 px-2 py-0.5 rounded-full">
                         {{ count($notulensi->audio_files ?? []) }}/3
@@ -382,10 +335,6 @@
                         <p class="text-[11px] text-amber-800 font-medium leading-relaxed">
                             Rekaman sedang diproses. Proses ini membutuhkan waktu beberapa saat. Jangan tutup halaman selama proses berlangsung.
                         </p>
-                        <div class="pt-1 flex items-center justify-between text-[10px] font-bold text-amber-700">
-                            <span>Estimasi waktu: ~1–3 menit</span>
-                            <span class="px-2 py-0.5 bg-amber-200/80 rounded-md text-amber-900 uppercase">Memproses</span>
-                        </div>
                     </div>
                 @elseif(!empty($notulensi->audio_files) && count($notulensi->audio_files) > 0)
                     @if($notulensi->transkrip_error)
@@ -411,13 +360,13 @@
                             </form>
                         </div>
                     @elseif(!empty($notulensi->transkrip_raw))
-                        <div class="p-3.5 bg-blue-50 border border-blue-200 rounded-2xl space-y-2 text-blue-900 text-xs">
+                        <div class="p-3 bg-blue-50 border border-blue-200 rounded-2xl space-y-1.5 text-blue-900 text-xs">
                             <div class="flex items-center justify-between text-[10px] font-bold text-blue-800">
-                                <span>Status Transkripsi:</span>
-                                <span class="bg-blue-100 text-blue-800 px-2 py-0.5 rounded-md uppercase">Selesai</span>
+                                <span>Status Audio:</span>
+                                <span class="bg-blue-100 text-blue-800 px-2 py-0.5 rounded-md uppercase">Terhubung</span>
                             </div>
                             <p class="text-[10px] text-blue-700 leading-relaxed font-medium">
-                                Transkripsi selesai. Teks transkrip dan ringkasan dapat diperiksa di sebelah kiri.
+                                Rekaman audio tersimpan. Teks transkrip tersedia di kolom utama.
                             </p>
                         </div>
                     @endif
@@ -515,37 +464,10 @@
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"></path>
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
                             </svg>
-                            <span>Proses Audio</span>
+                            <span>Proses Transkripsi Audio</span>
                         </button>
                     </form>
                 @endif
-            </div>
-
-            <!-- SIDEBAR CARD Mode Teks: Panduan & Informasi -->
-            <div x-show="inputMode === 'teks'" class="bg-white border border-[#d4d1f5]/60 rounded-3xl p-5 shadow-sm space-y-4">
-                <div class="flex items-center gap-2 border-b border-[#d4d1f5]/30 pb-3">
-                    <div class="w-7 h-7 rounded-lg bg-purple-50 text-purple-600 flex items-center justify-center font-bold">
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                        </svg>
-                    </div>
-                    <h3 class="text-xs font-black uppercase tracking-wider text-[#2e2552]">Panduan Mode Teks</h3>
-                </div>
-
-                <div class="space-y-3 text-xs text-[#5a508f] leading-relaxed">
-                    <div class="p-3 bg-[#f8f7ff] rounded-2xl border border-[#d4d1f5]/50 space-y-1">
-                        <span class="font-extrabold text-[#2e2552] block text-[11px]">1. Masukkan Catatan Rapat</span>
-                        <p class="text-[10.5px]">Ketik poin penting rapat secara langsung atau salin draf yang sudah dibuat di aplikasi lain.</p>
-                    </div>
-                    <div class="p-3 bg-[#f8f7ff] rounded-2xl border border-[#d4d1f5]/50 space-y-1">
-                        <span class="font-extrabold text-[#2e2552] block text-[11px]">2. Klik Rapikan Teks</span>
-                        <p class="text-[10.5px]">Sistem akan merapikan tata bahasa, format markdown, serta menyusun poin pembahasan dan keputusan.</p>
-                    </div>
-                    <div class="p-3 bg-[#f8f7ff] rounded-2xl border border-[#d4d1f5]/50 space-y-1">
-                        <span class="font-extrabold text-[#2e2552] block text-[11px]">3. Simpan / Ajukan</span>
-                        <p class="text-[10.5px]">Periksa kembali hasil ringkasan sebelum menyimpan draf atau mengajukan ke pimpinan.</p>
-                    </div>
-                </div>
             </div>
 
         </div>
@@ -557,7 +479,6 @@
     function registerNotulenEditor() {
         if (typeof Alpine !== 'undefined') {
             Alpine.data('notulenEditor', () => ({
-                inputMode: 'audio',
                 loading: false,
                 isDirty: false,
                 showNomorSuratAlert: false,
@@ -626,7 +547,6 @@
                     }
 
                     this.showNomorSuratAlert = false;
-
                     this.isDirty = false;
                     const form = document.getElementById('notulen-form');
                     if (form) {
@@ -634,77 +554,11 @@
                         form.submit();
                     }
                 },
-                regenerateSummary() {
-                    const transcript = (this.transkripRaw || '').trim();
-                    if (!transcript) {
-                        Swal.fire({
-                            text: 'Teks transkrip rapat masih kosong!',
-                            icon: 'warning',
-                            confirmButtonText: 'OK'
-                        });
-                        return;
-                    }
-
-                    Swal.fire({
-                        text: 'Apakah Anda yakin ingin menganalisis ulang transkrip? Tindakan ini akan menimpa isi Ringkasan saat ini.',
-                        icon: 'question',
-                        showCancelButton: true,
-                        confirmButtonText: 'Ya, Lanjutkan',
-                        cancelButtonText: 'Batal'
-                    }).then((result) => {
-                        if (!result.isConfirmed) return;
-
-                        this.loading = true;
-                        if (typeof window.showHeavyLoading === 'function') {
-                            window.showHeavyLoading('Menganalisis Transkrip', 'Sedang menganalisis ulang isi transkrip rapat. Mohon tunggu...');
-                        }
-
-                        fetch('{{ route("notulensi.regenerate", $agenda->id) }}', {
-                            method: 'POST',
-                            headers: {
-                                'Content-Type': 'application/json',
-                                'X-CSRF-TOKEN': '{{ csrf_token() }}'
-                            },
-                            body: JSON.stringify({
-                                transkrip_raw: transcript
-                            })
-                        })
-                        .then(res => res.json())
-                        .then(res => {
-                            this.loading = false;
-                            if (typeof window.hideHeavyLoading === 'function') window.hideHeavyLoading();
-                            if (res.status === 'success') {
-                                document.getElementById('ringkasan').value = res.data.trim();
-                                this.isDirty = true;
-                                Swal.fire({
-                                    text: 'Analisis transkrip berhasil! Ringkasan telah diperbarui. Silakan edit dan rapikan sesuai kebutuhan.',
-                                    icon: 'success',
-                                    confirmButtonText: 'OK'
-                                });
-                            } else {
-                                Swal.fire({
-                                    text: res.message || 'Gagal memproses analisis transkrip.',
-                                    icon: 'error',
-                                    confirmButtonText: 'OK'
-                                });
-                            }
-                        })
-                        .catch(err => {
-                            this.loading = false;
-                            if (typeof window.hideHeavyLoading === 'function') window.hideHeavyLoading();
-                            Swal.fire({
-                                text: 'Terjadi kesalahan koneksi saat memproses analisis.',
-                                icon: 'error',
-                                confirmButtonText: 'OK'
-                            });
-                        });
-                    });
-                },
                 refineText() {
                     const rawText = (this.transkripRaw || '').trim();
                     if (!rawText) {
                         Swal.fire({
-                            text: 'Catatan mentah rapat masih kosong! Silakan ketik atau tempelkan catatan rapat terlebih dahulu.',
+                            text: 'Catatan mentah rapat masih kosong! Silakan ketik catatan rapat terlebih dahulu.',
                             icon: 'warning',
                             confirmButtonText: 'OK'
                         });
