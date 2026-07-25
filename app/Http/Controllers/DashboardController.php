@@ -8,6 +8,7 @@ use App\Models\Presensi;
 use App\Models\Bidang;
 use App\Models\Notulensi;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Cache;
 use Carbon\Carbon;
 
 class DashboardController extends Controller
@@ -430,10 +431,12 @@ class DashboardController extends Controller
             $agendasByDate[$dateStr] = $this->calculateOverlaps($agendasByDate[$dateStr]);
         }
 
-        // Get list of all Bidangs with active users to pass to "Tambah Agenda" form
-        $bidangs = Bidang::with(['users' => function($q) {
-            $q->where('role', '!=', 'admin')->where('active', true)->orderBy('name');
-        }])->orderBy('nama')->get();
+        // Get list of all Bidangs with active users to pass to "Tambah Agenda" form (cached 5 mins for performance)
+        $bidangs = Cache::remember('active_bidangs_users', 300, function() {
+            return Bidang::with(['users' => function($q) {
+                $q->where('role', '!=', 'admin')->where('active', true)->orderBy('name');
+            }])->orderBy('nama')->get();
+        });
 
         // Find today's events for the highlighting/side summary panel, filtered by bidang if not master
         $todayStr = Carbon::today()->toDateString();
@@ -550,12 +553,27 @@ class DashboardController extends Controller
             return redirect()->route('admin.users.index');
         }
 
-        $agendas = Agenda::where('butuh_presensi', true)
-            ->with(['notulensi', 'sekretaris.bidang'])
+        $query = Agenda::where('butuh_presensi', true);
+
+        // Filter access directly at database level for optimal performance
+        if (!$user->isSekretarisMaster() && !$user->isKetuaMaster() && !$user->isSekretariat()) {
+            $query->where(function($q) use ($user) {
+                $q->whereHas('participants', function($pq) use ($user) {
+                    $pq->where('users.id', $user->id);
+                })->orWhere(function($sq) use ($user) {
+                    $sq->whereDoesntHave('participants')
+                       ->where(function($hq) use ($user) {
+                           $hq->whereJsonContains('hak_akses', 'semua_orang')
+                              ->orWhereJsonContains('hak_akses', (string)$user->bidang_id);
+                       });
+                });
+            });
+        }
+
+        $agendas = $query->with(['notulensi', 'sekretaris.bidang'])
             ->orderBy('tanggal', 'desc')
             ->orderBy('jam_mulai', 'desc')
-            ->get()
-            ->filter(fn($agenda) => $user->hasAccessToAgenda($agenda));
+            ->get();
 
         $presensis = Presensi::where('user_id', $user->id)
             ->get()

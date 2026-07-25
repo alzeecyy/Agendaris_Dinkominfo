@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use App\Models\User;
 use App\Models\Bidang;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Str;
 
 class AdminUserController extends Controller
@@ -53,6 +54,8 @@ class AdminUserController extends Controller
             'active' => true,
         ]);
 
+        Cache::forget('active_bidangs_users');
+
         return back()->with('success', 'Akun pegawai baru berhasil dibuat. Password awal default: "password". Pegawai wajib mengubahnya saat pertama kali masuk.');
     }
 
@@ -76,6 +79,8 @@ class AdminUserController extends Controller
             'bidang_id' => $validated['bidang_id'] ?? null,
             'role' => $validated['role'],
         ]);
+
+        Cache::forget('active_bidangs_users');
 
         return back()->with('success', 'Akun pegawai ' . $user->name . ' berhasil diperbarui.');
     }
@@ -101,6 +106,8 @@ class AdminUserController extends Controller
         $user->update([
             'active' => !$user->active,
         ]);
+
+        Cache::forget('active_bidangs_users');
 
         $statusStr = $user->active ? 'diaktifkan' : 'dinonaktifkan';
 
@@ -130,6 +137,8 @@ class AdminUserController extends Controller
 
         Bidang::create($validated);
 
+        Cache::forget('active_bidangs_users');
+
         return back()->with('success', 'Bidang baru berhasil ditambahkan.');
     }
 
@@ -144,6 +153,8 @@ class AdminUserController extends Controller
         ]);
 
         $bidang->update($validated);
+
+        Cache::forget('active_bidangs_users');
 
         return back()->with('success', 'Data bidang berhasil diperbarui.');
     }
