@@ -8,6 +8,7 @@
     filterKategori: '',
     filterTanggal: '',
     filterStatus: '',
+    filterNotulensiStatus: '{{ $selectedNotulensiStatus ?? "" }}',
     currentPage: 1,
     itemsPerPage: 10,
     agendas: [
@@ -18,6 +19,7 @@
             kategori: '{{ $item->kategori }}',
             tanggal: '{{ $item->tanggal->toDateString() }}',
             status_kehadiran: '{{ $item->status_kehadiran ?? '' }}',
+            notulensi_status: '{{ $item->notulensi_status ?? '' }}',
             lokasi: '{{ addslashes($item->lokasi) }}'
         },
         @endforeach
@@ -28,42 +30,24 @@
         const t = title.toLowerCase();
         return t.includes(q);
     },
-    matchesFilter(judul, kategori, tanggalStr, statusKehadiran) {
+    matchesFilter(judul, kategori, tanggalStr, statusKehadiran, notulensiStatus) {
         const matchesSearch = this.checkSearch(judul, this.searchQuery);
-            
         const matchesKategori = !this.filterKategori || kategori === this.filterKategori;
-        
         const matchesTanggal = !this.filterTanggal || tanggalStr === this.filterTanggal;
+        const matchesStatus = !this.filterStatus || statusKehadiran === this.filterStatus;
+        const matchesNotulensi = !this.filterNotulensiStatus || notulensiStatus === this.filterNotulensiStatus;
         
-        let matchesStatus = true;
-        if (this.filterStatus) {
-            if (this.filterStatus === 'none') {
-                matchesStatus = !statusKehadiran;
-            } else {
-                matchesStatus = statusKehadiran === this.filterStatus;
-            }
-        }
-        
-        return matchesSearch && matchesKategori && matchesTanggal && matchesStatus;
+        return matchesSearch && matchesKategori && matchesTanggal && matchesStatus && matchesNotulensi;
     },
     get filteredAgendas() {
         return this.agendas.filter(a => {
             const matchesSearch = this.checkSearch(a.judul, this.searchQuery);
-                
             const matchesKategori = !this.filterKategori || a.kategori === this.filterKategori;
-            
             const matchesTanggal = !this.filterTanggal || a.tanggal === this.filterTanggal;
+            const matchesStatus = !this.filterStatus || a.status_kehadiran === this.filterStatus;
+            const matchesNotulensi = !this.filterNotulensiStatus || a.notulensi_status === this.filterNotulensiStatus;
             
-            let matchesStatus = true;
-            if (this.filterStatus) {
-                if (this.filterStatus === 'none') {
-                    matchesStatus = !a.status_kehadiran;
-                } else {
-                    matchesStatus = a.status_kehadiran === this.filterStatus;
-                }
-            }
-            
-            return matchesSearch && matchesKategori && matchesTanggal && matchesStatus;
+            return matchesSearch && matchesKategori && matchesTanggal && matchesStatus && matchesNotulensi;
         });
     },
     get totalPages() {
@@ -154,8 +138,8 @@ class="space-y-6">
                 </button>
             </div>
             
-            <!-- Row 2: 3 Equal Width Filter Inputs (Exact 100% Width Match) -->
-            <div class="grid grid-cols-1 sm:grid-cols-3 gap-2.5 sm:gap-3 items-center w-full">
+            <!-- Row 2: 4 Equal Width Filter Inputs (Exact 100% Width Match) -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2.5 sm:gap-3 items-center w-full">
                 <!-- Kategori Filter -->
                 <div class="relative w-full">
                     <select x-model="filterKategori" 
@@ -192,7 +176,7 @@ class="space-y-6">
                     </div>
                 </div>
                 
-                <!-- Status Filter -->
+                <!-- Status Kehadiran Filter -->
                 <div class="relative w-full">
                     <select x-model="filterStatus" 
                             class="w-full pl-8 pr-8 py-2 bg-white border border-[#d4d1f5]/80 rounded-xl text-xs text-[#2e2552] font-semibold appearance-none cursor-pointer focus:outline-none focus:ring-2 focus:ring-[#1b3bbb] transition-all shadow-2xs truncate">
@@ -201,12 +185,35 @@ class="space-y-6">
                         <option value="izin">Izin</option>
                         <option value="sakit">Sakit</option>
                         <option value="alfa">Alfa</option>
-                        <option value="none">Belum Absen (-)</option>
                     </select>
                     <!-- Icon Left -->
                     <div class="absolute left-2.5 top-1/2 -translate-y-1/2 text-[#1b3bbb] pointer-events-none">
                         <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                        </svg>
+                    </div>
+                    <!-- Custom Arrow Right -->
+                    <div class="absolute right-2.5 top-1/2 -translate-y-1/2 text-[#5a508f] pointer-events-none">
+                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                        </svg>
+                    </div>
+                </div>
+
+                <!-- Status Notulensi Filter -->
+                <div class="relative w-full">
+                    <select x-model="filterNotulensiStatus" 
+                            class="w-full pl-8 pr-8 py-2 bg-white border border-[#d4d1f5]/80 rounded-xl text-xs text-[#2e2552] font-semibold appearance-none cursor-pointer focus:outline-none focus:ring-2 focus:ring-[#1b3bbb] transition-all shadow-2xs truncate">
+                        <option value="">Semua Status Notulen</option>
+                        <option value="draft">Belum Ada Draft</option>
+                        <option value="menunggu_review">Menunggu Review</option>
+                        <option value="revisi">Perlu Revisi</option>
+                        <option value="disahkan">Telah Disahkan</option>
+                    </select>
+                    <!-- Icon Left -->
+                    <div class="absolute left-2.5 top-1/2 -translate-y-1/2 text-[#1b3bbb] pointer-events-none">
+                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
                         </svg>
                     </div>
                     <!-- Custom Arrow Right -->
@@ -237,7 +244,7 @@ class="space-y-6">
                         <td colspan="6" class="py-8 px-4 text-center">
                             <div class="space-y-2">
                                 <p class="text-xs text-slate-500 font-medium">Tidak ada riwayat kegiatan yang cocok dengan kriteria filter.</p>
-                                <button type="button" @click="searchQuery = ''; filterKategori = ''; filterTanggal = ''; filterStatus = '';" 
+                                <button type="button" @click="searchQuery = ''; filterKategori = ''; filterTanggal = ''; filterStatus = ''; filterNotulensiStatus = '';" 
                                         class="px-3.5 py-1.5 bg-indigo-50 hover:bg-indigo-100 text-[#1b3bbb] text-xs font-bold rounded-xl border border-indigo-200 transition-all inline-flex items-center gap-1.5">
                                     <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path></svg>
                                     <span>Reset Filter (Tampilkan Semua)</span>
@@ -248,7 +255,7 @@ class="space-y-6">
                     @forelse($riwayatData as $item)
                         <tr class="agenda-row hover:bg-[#f8f7ff] cursor-pointer transition-colors"
                             onclick="if (!event.target.closest('a')) { window.loadPage('{{ route('agenda.show', $item->id) }}', this) }"
-                            x-show="matchesFilter('{{ addslashes($item->judul) }}', '{{ $item->kategori }}', '{{ $item->tanggal->toDateString() }}', '{{ $item->status_kehadiran }}') && isAgendaVisible({{ $item->id }})">
+                            x-show="matchesFilter('{{ addslashes($item->judul) }}', '{{ $item->kategori }}', '{{ $item->tanggal->toDateString() }}', '{{ $item->status_kehadiran }}', '{{ $item->notulensi_status }}') && isAgendaVisible({{ $item->id }})">
                             <td class="py-2 sm:py-4 px-2 sm:px-4 font-bold text-[#2e2552]">
                                 <a href="{{ route('agenda.show', $item->id) }}" class="hover:text-[#8e88dd] transition-colors leading-snug">
                                     {{ $item->judul }}
@@ -312,6 +319,14 @@ class="space-y-6">
                                             <span>Word</span>
                                         </a>
                                     </div>
+                                @elseif($item->notulensi_status === 'menunggu_review')
+                                    <a href="{{ route('notulensi.review', $item->id) }}" title="Tinjau & Sahkan Notulensi" 
+                                       class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-amber-50 hover:bg-amber-100 text-amber-700 border border-amber-200 rounded-xl text-xs font-bold transition-all shadow-2xs">
+                                        <svg class="w-3.5 h-3.5 text-amber-600 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                        </svg>
+                                        <span>Tinjau Notulensi &rarr;</span>
+                                    </a>
                                 @else
                                     <span class="inline-block px-2 py-0.5 rounded-md bg-slate-100/70 text-slate-400 border border-slate-200/50 text-[9.5px] font-semibold italic">Belum Disahkan</span>
                                 @endif

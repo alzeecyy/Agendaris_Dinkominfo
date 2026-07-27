@@ -241,7 +241,7 @@
                 @endphp
                 @if(Auth::user()->isAdmin())
                     <div x-data="{ openAdminMenu: false }" class="relative shrink-0 select-none">
-                        <button type="button" @click="openAdminMenu = !openAdminMenu" class="text-[#09103c] flex items-center gap-2.5 p-1 sm:p-1.5 rounded-2xl hover:bg-[#1b3bbb]/5 transition-all text-right cursor-pointer focus:outline-none group">
+                        <button type="button" @click="openAdminMenu = !openAdminMenu" class="text-[#09103c] flex items-center gap-3 px-3 py-1.5 sm:px-4 sm:py-2.5 rounded-2xl border border-transparent hover:border-[#1b3bbb]/20 hover:bg-[#1b3bbb]/8 hover:shadow-md transition-all duration-300 text-right cursor-pointer focus:outline-none group">
                             <div class="hidden sm:flex flex-col justify-center gap-0.5 text-right">
                                 <div class="text-xs sm:text-sm font-black text-[#09103c] group-hover:text-[#1b3bbb] transition-colors leading-tight">{{ Auth::user()->name }}</div>
                                 <div>
@@ -300,8 +300,7 @@
                 @else
                     <div class="relative shrink-0 select-none">
                         <a href="{{ route('profile') }}" 
-                           title="Kelola Profil Saya" 
-                           class="text-[#09103c] flex items-center gap-2.5 p-1 sm:p-1.5 rounded-2xl hover:bg-[#1b3bbb]/5 transition-all text-right cursor-pointer group">
+                           class="text-[#09103c] flex items-center gap-3 px-3 py-1.5 sm:px-4 sm:py-2.5 rounded-2xl border border-transparent hover:border-[#1b3bbb]/20 hover:bg-[#1b3bbb]/8 hover:shadow-md transition-all duration-300 text-right cursor-pointer group">
                             <div class="hidden sm:flex flex-col justify-center gap-0.5 text-right">
                                 <div class="text-xs sm:text-sm font-black text-[#09103c] group-hover:text-[#1b3bbb] transition-colors leading-tight">{{ Auth::user()->name }}</div>
                                 <div>
@@ -400,7 +399,7 @@
                 <nav class="flex-1 w-full flex flex-col gap-1 px-3">
                     @if(Auth::check() && !Auth::user()->isAdmin())
                         <!-- Dashboard Link -->
-                        <a href="{{ route('dashboard') }}" title="Overview & Ringkasan Agenda Bulanan" 
+                        <a href="{{ route('dashboard') }}" 
                            class="flex items-center gap-3 px-4 py-3 rounded-2xl font-bold text-xs transition-all duration-200 
                            {{ request()->routeIs('dashboard') ? 'bg-[#1b3bbb] text-white shadow-lg shadow-[#1b3bbb]/20' : 'text-slate-600 hover:bg-[#1b3bbb]/5 hover:text-[#1b3bbb]' }}">
                             <svg class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -422,7 +421,7 @@
                         @endif
 
                         <!-- Calendar Link -->
-                        <a href="{{ route('calendar') }}" title="Jadwal Rapat Grid Mingguan Jam-demi-Jam" 
+                        <a href="{{ route('calendar') }}" 
                            class="flex items-center gap-3 px-4 py-3 rounded-2xl font-bold text-xs transition-all duration-200 
                            {{ (request()->routeIs('calendar') && !request()->has('open_add')) || request()->routeIs('agenda.show') || request()->routeIs('notulensi.*') ? 'bg-[#1b3bbb] text-white shadow-lg shadow-[#1b3bbb]/20' : 'text-slate-600 hover:bg-[#1b3bbb]/5 hover:text-[#1b3bbb]' }}">
                             <svg class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -433,7 +432,7 @@
 
                         @if(Auth::user()->isSekretarisMaster() || Auth::user()->isSekretarisBidang())
                             <!-- Tambah Agenda Link (Sekretaris Only - Shortcut to Open Add Agenda Modal) -->
-                            <a href="{{ route('calendar', ['open_add' => 1]) }}" title="Buka Form Tambah Agenda Baru" 
+                            <a href="{{ route('calendar', ['open_add' => 1]) }}" 
                                class="flex items-center gap-3 px-4 py-3 rounded-2xl font-bold text-xs transition-all duration-200 
                                {{ request()->routeIs('calendar') && request()->has('open_add') ? 'bg-[#1b3bbb] text-white shadow-lg shadow-[#1b3bbb]/20' : 'text-slate-600 hover:bg-[#1b3bbb]/5 hover:text-[#1b3bbb]' }}">
                                 <svg class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">

@@ -234,9 +234,8 @@ class User extends Authenticatable
     /**
      * Checks if this user is the authorized secretary who can EDIT an agenda's notulensi.
      * Rule:
-     * - Only the secretary creator (or secretaries in the same Bidang) can EDIT.
-     * - Sekdin / Sekretariat staff can only edit agendas created by Sekretariat / themselves.
-     * - Sekdin viewing Notulensi created by a Bidang will be View Only.
+     * - Admin Master & Staff CANNOT edit notulensi.
+     * - Sekretaris Master (Sekdin) & Admin Bidang (Sekretaris Bidang) who have access to the agenda CAN EDIT/MANAGE.
      */
     public function isSecretaryOfAgenda(Agenda $agenda): bool
     {
@@ -244,27 +243,14 @@ class User extends Authenticatable
             return false;
         }
 
-        // Direct creator of the agenda can edit
+        // Direct creator of the agenda can always edit
         if ((string)$this->id === (string)$agenda->sekretaris_id) {
             return true;
         }
 
-        $creator = $agenda->sekretaris;
-
-        // If user is Sekretaris Master (Sekdin):
-        if ($this->isSekretarisMaster()) {
-            if ($creator && ($creator->isSekretarisMaster() || $creator->isSekretariat())) {
-                return true;
-            }
-            // Sekdin viewing a Bidang's agenda -> CANNOT EDIT (View Only)
-            return false;
-        }
-
-        // If user is Admin/Sekretaris of a Subbagian / Bidang:
-        if ($this->isSekretarisBidang()) {
-            if ($creator && (string)$creator->bidang_id === (string)$this->bidang_id) {
-                return true;
-            }
+        // Sekretaris Master and Sekretaris Bidang who have access to the agenda can edit/manage notulensi
+        if (($this->isSekretarisMaster() || $this->isSekretarisBidang()) && $this->hasAccessToAgenda($agenda)) {
+            return true;
         }
 
         return false;

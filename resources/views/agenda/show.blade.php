@@ -298,6 +298,38 @@
                                      bidangsUserData: {{ json_encode($bidangsUserData) }},
                                      selectedParticipants: {{ json_encode(array_values($initialParticipants)) }},
                                      participantModalOpen: false,
+                                     searchParticipant: "",
+
+                                     filteredUsers(users) {
+                                         if (!users || !Array.isArray(users)) return [];
+                                         if (!this.searchParticipant || !this.searchParticipant.trim()) return users;
+                                         let q = this.searchParticipant.toLowerCase().trim();
+                                         return users.filter(u => 
+                                             (u.name && String(u.name).toLowerCase().includes(q)) || 
+                                             (u.jabatan && String(u.jabatan).toLowerCase().includes(q)) ||
+                                             (u.nip && String(u.nip).toLowerCase().includes(q))
+                                         );
+                                     },
+
+                                     get visibleBidangs() {
+                                         let selectedBidangIds = (this.bidangs || []).map(String);
+                                         return (this.bidangsUserData || []).filter(b => {
+                                             let isSelected = selectedBidangIds.includes(String(b.id));
+                                             if (!isSelected) return false;
+                                             if (this.searchParticipant && this.searchParticipant.trim()) {
+                                                 return this.filteredUsers(b.users).length > 0;
+                                             }
+                                             return true;
+                                         });
+                                     },
+
+                                     get totalFilteredUsersCount() {
+                                         let count = 0;
+                                         this.visibleBidangs.forEach(b => {
+                                             count += this.filteredUsers(b.users).length;
+                                         });
+                                         return count;
+                                     },
 
                                      toggleSemua() {
                                          if (this.semua) {
@@ -326,15 +358,17 @@
                                      },
 
                                      syncParticipants() {
+                                         let selectedBidangIds = (this.bidangs || []).map(String);
                                          let activeUserIds = [];
-                                         this.bidangsUserData.forEach(b => {
-                                             if (this.bidangs.includes(b.id)) {
-                                                 b.users.forEach(u => {
-                                                     activeUserIds.push(u.id);
+                                         (this.bidangsUserData || []).forEach(b => {
+                                             if (selectedBidangIds.includes(String(b.id))) {
+                                                 (b.users || []).forEach(u => {
+                                                     activeUserIds.push(String(u.id));
                                                  });
                                              }
                                          });
-                                         let newSelection = this.selectedParticipants.filter(id => activeUserIds.includes(id));
+                                         let currentSelected = (this.selectedParticipants || []).map(String);
+                                         let newSelection = currentSelected.filter(id => activeUserIds.includes(id));
                                          activeUserIds.forEach(id => {
                                              if (!newSelection.includes(id)) {
                                                  newSelection.push(id);
@@ -344,26 +378,29 @@
                                      },
 
                                      toggleBidangUsers(bidangId) {
-                                         let b = this.bidangsUserData.find(item => item.id === bidangId);
+                                         let b = this.bidangsUserData.find(item => String(item.id) === String(bidangId));
                                          if (!b) return;
-                                         let bUserIds = b.users.map(u => u.id);
-                                         let allChecked = bUserIds.every(id => this.selectedParticipants.includes(id));
+                                         let bUserIds = b.users.map(u => String(u.id));
+                                         let currentSelected = this.selectedParticipants.map(String);
+                                         let allChecked = bUserIds.every(id => currentSelected.includes(id));
 
                                          if (!allChecked) {
                                              bUserIds.forEach(id => {
-                                                 if (!this.selectedParticipants.includes(id)) {
-                                                     this.selectedParticipants.push(id);
+                                                 if (!currentSelected.includes(id)) {
+                                                     currentSelected.push(id);
                                                  }
                                              });
                                          } else {
-                                             this.selectedParticipants = this.selectedParticipants.filter(id => !bUserIds.includes(id));
+                                             currentSelected = currentSelected.filter(id => !bUserIds.includes(id));
                                          }
+                                         this.selectedParticipants = currentSelected;
                                      },
 
                                      isBidangAllChecked(bidangId) {
-                                         let b = this.bidangsUserData.find(item => item.id === bidangId);
-                                         if (!b || b.users.length === 0) return false;
-                                         return b.users.every(u => this.selectedParticipants.includes(u.id));
+                                         let b = this.bidangsUserData.find(item => String(item.id) === String(bidangId));
+                                         if (!b || !b.users || b.users.length === 0) return false;
+                                         let currentSelected = this.selectedParticipants.map(String);
+                                         return b.users.every(u => currentSelected.includes(String(u.id)));
                                      }
                                  }'>
                                      <!-- Hidden Inputs for Selected Participants -->
@@ -446,38 +483,61 @@
                                             </div>
 
                                             <div class="p-5 overflow-y-auto space-y-4 flex-1">
-                                                <template x-if="bidangs.length === 0">
-                                                    <div class="p-8 text-center bg-slate-50 rounded-2xl border border-dashed border-slate-200">
-                                                        <p class="text-xs text-slate-500 font-bold">Pilih minimal satu bidang di atas terlebih dahulu untuk mengelola peserta.</p>
-                                                    </div>
-                                                </template>
+                                                 <!-- Search Bar for Participants -->
+                                                 <div class="relative">
+                                                     <input type="text" x-model="searchParticipant" placeholder="Cari nama, NIP, atau jabatan peserta..." 
+                                                            class="w-full pl-9 pr-8 py-2 bg-slate-100/90 border border-slate-200/90 rounded-xl text-xs text-slate-800 placeholder-slate-400 focus:bg-white focus:border-[#1b3bbb] focus:ring-2 focus:ring-[#1b3bbb]/10 transition-all font-medium">
+                                                     <svg class="w-4 h-4 text-[#1b3bbb] absolute left-3 top-2.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+                                                     </svg>
+                                                     <button type="button" x-show="searchParticipant.length > 0" @click="searchParticipant = ''" class="absolute right-2.5 top-2.5 text-slate-400 hover:text-slate-600">
+                                                         <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                                                     </button>
+                                                 </div>
 
-                                                <template x-for="bidang in bidangsUserData.filter(b => bidangs.includes(b.id))" :key="bidang.id">
-                                                    <div class="bg-slate-50 border border-slate-200/80 rounded-2xl p-3.5 space-y-2.5">
-                                                        <div class="flex items-center justify-between pb-2 border-b border-slate-200/60">
-                                                            <div class="flex items-center gap-2">
-                                                                <span class="w-2.5 h-2.5 rounded-full bg-[#1b3bbb]"></span>
-                                                                <span class="text-xs font-black text-[#09103c]" x-text="bidang.nama + ' (' + bidang.singkatan + ')'"></span>
-                                                            </div>
-                                                            <button type="button" @click="toggleBidangUsers(bidang.id)" class="text-[10.5px] font-extrabold text-[#1b3bbb] hover:underline cursor-pointer">
-                                                                <span x-text="isBidangAllChecked(bidang.id) ? 'Hapus Centang Semua' : 'Centang Semua'"></span>
-                                                            </button>
-                                                        </div>
+                                                 <template x-if="bidangs.length === 0">
+                                                     <div class="p-8 text-center bg-slate-50 rounded-2xl border border-dashed border-slate-200">
+                                                         <p class="text-xs text-slate-500 font-bold">Pilih minimal satu bidang di atas terlebih dahulu untuk mengelola peserta.</p>
+                                                     </div>
+                                                 </template>
 
-                                                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-1.5">
-                                                            <template x-for="user in bidang.users" :key="user.id">
-                                                                <label class="flex items-start gap-2.5 p-2 bg-white rounded-xl border border-slate-200/60 hover:border-indigo-200 cursor-pointer select-none transition-all">
-                                                                    <input type="checkbox" :value="user.id" x-model="selectedParticipants" class="w-4 h-4 rounded border-slate-300 text-indigo-600 focus:ring-indigo-500 mt-0.5 shrink-0">
-                                                                    <div class="min-w-0">
-                                                                        <div class="text-xs font-bold text-slate-800 leading-tight truncate" x-text="user.name"></div>
-                                                                        <div class="text-[10px] text-slate-500 font-medium truncate" x-text="user.jabatan"></div>
-                                                                    </div>
-                                                                </label>
-                                                            </template>
-                                                        </div>
-                                                    </div>
-                                                </template>
-                                            </div>
+                                                 <template x-if="bidangs.length > 0 && searchParticipant.trim() !== '' && totalFilteredUsersCount === 0">
+                                                     <div class="p-8 text-center bg-slate-50 rounded-2xl border border-dashed border-slate-200">
+                                                         <svg class="w-8 h-8 text-slate-300 mx-auto mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+                                                         </svg>
+                                                         <p class="text-xs text-slate-600 font-bold">Tidak ditemukan peserta dengan kata kunci "<span x-text="searchParticipant"></span>"</p>
+                                                         <p class="text-[11px] text-slate-400 mt-1">Coba gunakan kata kunci nama, NIP, atau jabatan lain</p>
+                                                     </div>
+                                                 </template>
+
+                                                 <template x-for="bidang in visibleBidangs" :key="bidang.id">
+                                                     <div class="bg-slate-50 border border-slate-200/80 rounded-2xl p-3.5 space-y-2.5">
+                                                         <div class="flex items-center justify-between pb-2 border-b border-slate-200/60">
+                                                             <div class="flex items-center gap-2">
+                                                                 <span class="w-2.5 h-2.5 rounded-full bg-[#1b3bbb]"></span>
+                                                                 <span class="text-xs font-black text-[#09103c]" x-text="bidang.nama + ' (' + bidang.singkatan + ')'"></span>
+                                                                 <span class="text-[10px] font-bold text-slate-400" x-text="'(' + filteredUsers(bidang.users).length + ' orang)'"></span>
+                                                             </div>
+                                                             <button type="button" @click="toggleBidangUsers(bidang.id)" class="text-[10.5px] font-extrabold text-[#1b3bbb] hover:underline cursor-pointer">
+                                                                 <span x-text="isBidangAllChecked(bidang.id) ? 'Hapus Centang Semua' : 'Centang Semua'"></span>
+                                                             </button>
+                                                         </div>
+
+                                                         <div class="grid grid-cols-1 sm:grid-cols-2 gap-1.5">
+                                                             <template x-for="user in filteredUsers(bidang.users)" :key="user.id">
+                                                                 <label class="flex items-start gap-2.5 p-2 bg-white rounded-xl border border-slate-200/60 hover:border-indigo-200 cursor-pointer select-none transition-all">
+                                                                     <input type="checkbox" :value="user.id" x-model="selectedParticipants" class="w-4 h-4 rounded border-slate-300 text-indigo-600 focus:ring-indigo-500 mt-0.5 shrink-0">
+                                                                     <div class="min-w-0">
+                                                                         <div class="text-xs font-bold text-slate-800 leading-tight truncate" x-text="user.name"></div>
+                                                                         <div class="text-[10px] text-slate-500 font-medium truncate" x-text="user.jabatan || 'Pegawai'"></div>
+                                                                     </div>
+                                                                 </label>
+                                                             </template>
+                                                         </div>
+                                                     </div>
+                                                 </template>
+                                             </div>
 
                                             <!-- Modal Footer -->
                                             <div class="px-5 py-3.5 bg-slate-50 border-t border-slate-200 flex flex-col sm:flex-row items-center justify-between gap-3 shrink-0">
@@ -912,10 +972,10 @@
                                     </div>
                                     <div class="space-y-0.5 text-left">
                                         <h4 class="text-xs font-extrabold text-[#2e2552]">
-                                            {{ $hasDraftContent ? 'Draf Notulensi Tersedia' : 'Belum Ada Draf Notulensi' }}
+                                            {{ $hasDraftContent ? 'Draf Notulensi Tersedia' : 'Informasi Dokumentasi' }}
                                         </h4>
                                         <p class="text-[10.5px] text-[#5a508f] font-medium leading-normal">
-                                            {{ $hasDraftContent ? 'Draf notulensi rapat telah dibuat.' : 'Notulensi rapat belum diisi/diunggah.' }}
+                                            {{ $hasDraftContent ? 'Draf notulensi rapat telah diisi/diunggah.' : 'Notulensi rapat belum diisi atau diunggah.' }}
                                         </p>
                                     </div>
                                 </div>

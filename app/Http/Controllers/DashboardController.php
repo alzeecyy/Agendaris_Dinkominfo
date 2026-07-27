@@ -172,25 +172,22 @@ class DashboardController extends Controller
 
             // Sekre Bidang KPI 2: Bidang notulensi waiting review
             $pendingReviews = Notulensi::where('status', 'menunggu_review')
-                ->whereHas('agenda', function($q) use ($user) {
-                    $q->whereHas('sekretaris', function($sq) use ($user) {
-                        $sq->where('bidang_id', $user->bidang_id);
-                    });
-                })
-                ->get();
+                ->with('agenda.sekretaris')
+                ->get()
+                ->filter(function($notulensi) use ($user) {
+                    return $notulensi->agenda && $user->hasAccessToAgenda($notulensi->agenda);
+                });
+
             $kpi['bidang_pending_reviews'] = $pendingReviews->count();
             $firstPending = $pendingReviews->first();
-            $links['bidang_pending_reviews'] = $firstPending ? route('notulensi.review', $firstPending->agenda_id) : null;
+            $links['bidang_pending_reviews'] = ($pendingReviews->count() === 1 && $firstPending) 
+                ? route('notulensi.review', $firstPending->agenda_id) 
+                : route('riwayat', ['notulensi_status' => 'menunggu_review']);
 
             // Sekre Bidang Highlights: Overdue pending reviews (> 3 days)
-            $overdueReviews = Notulensi::where('status', 'menunggu_review')
-                ->where('created_at', '<=', Carbon::now()->subDays(3))
-                ->whereHas('agenda', function($q) use ($user) {
-                    $q->whereHas('sekretaris', function($sq) use ($user) {
-                        $sq->where('bidang_id', $user->bidang_id);
-                    });
-                })
-                ->count();
+            $overdueReviews = $pendingReviews->filter(function($notulensi) {
+                return $notulensi->created_at <= Carbon::now()->subDays(3);
+            })->count();
 
             if ($overdueReviews > 0) {
                 $highlights[] = [
@@ -228,12 +225,14 @@ class DashboardController extends Controller
                 ->with('agenda.sekretaris')
                 ->get()
                 ->filter(function($notulensi) use ($user) {
-                    return $notulensi->agenda && $user->isApproverOfAgenda($notulensi->agenda);
+                    return $notulensi->agenda && ($user->hasAccessToAgenda($notulensi->agenda) || $user->isApproverOfAgenda($notulensi->agenda));
                 });
 
             $kpi['sekdin_pending_reviews'] = $pendingReviews->count();
             $firstPending = $pendingReviews->first();
-            $links['sekdin_pending_reviews'] = $firstPending ? route('notulensi.review', $firstPending->agenda_id) : null;
+            $links['sekdin_pending_reviews'] = ($pendingReviews->count() === 1 && $firstPending) 
+                ? route('notulensi.review', $firstPending->agenda_id) 
+                : route('riwayat', ['notulensi_status' => 'menunggu_review']);
 
             foreach ($pendingReviews as $notulensi) {
                 $highlights[] = [
@@ -265,21 +264,17 @@ class DashboardController extends Controller
         } elseif ($user->role === 'ketua_bidang') {
             // Ketua Bidang KPI: Pending reviews in their bidang or agendas involving their bidang
             $pendingReviews = Notulensi::where('status', 'menunggu_review')
-                ->whereHas('agenda', function($q) use ($user) {
-                    $q->where(function($subQ) use ($user) {
-                        $subQ->whereHas('sekretaris', function($sq) use ($user) {
-                            $sq->where('bidang_id', $user->bidang_id);
-                        })
-                        ->orWhereJsonContains('hak_akses', 'semua_orang')
-                        ->orWhereJsonContains('hak_akses', (string)$user->bidang_id);
-                    });
-                })
-                ->with('agenda')
-                ->get();
+                ->with('agenda.sekretaris')
+                ->get()
+                ->filter(function($notulensi) use ($user) {
+                    return $notulensi->agenda && ($user->hasAccessToAgenda($notulensi->agenda) || $user->isApproverOfAgenda($notulensi->agenda));
+                });
 
             $kpi['ketua_pending_reviews'] = $pendingReviews->count();
             $firstPending = $pendingReviews->first();
-            $links['ketua_pending_reviews'] = $firstPending ? route('notulensi.review', $firstPending->agenda_id) : null;
+            $links['ketua_pending_reviews'] = ($pendingReviews->count() === 1 && $firstPending) 
+                ? route('notulensi.review', $firstPending->agenda_id) 
+                : route('riwayat', ['notulensi_status' => 'menunggu_review']);
 
             $startOfWeek = Carbon::today()->startOfWeek(Carbon::MONDAY);
             $endOfWeek = Carbon::today()->endOfWeek(Carbon::SUNDAY);
@@ -579,7 +574,7 @@ class DashboardController extends Controller
     /**
      * Show user's activity history.
      */
-    public function riwayat()
+    public function riwayat(Request $request)
     {
         $user = Auth::user();
         
@@ -587,7 +582,7 @@ class DashboardController extends Controller
             return redirect()->route('admin.users.index');
         }
 
-        $query = Agenda::where('butuh_presensi', true);
+        $query = Agenda::where('tanggal', '<=', Carbon::today()->toDateString());
 
         // Filter access directly at database level for optimal performance
         if (!$user->isSekretarisMaster() && !$user->isKetuaMaster() && !$user->isSekretariat()) {
@@ -613,9 +608,11 @@ class DashboardController extends Controller
             ->get()
             ->keyBy('agenda_id');
 
+        $selectedNotulensiStatus = $request->query('notulensi_status', '');
+
         $riwayatData = $agendas->map(function ($agenda) use ($presensis) {
             $status = $presensis->has($agenda->id) ? $presensis[$agenda->id]->status : null;
-            if (!$status && $agenda->isPresensiExpired()) {
+            if ($agenda->butuh_presensi && !$status && $agenda->isPresensiExpired()) {
                 $status = 'alfa';
             }
             
@@ -633,6 +630,6 @@ class DashboardController extends Controller
             ];
         });
 
-        return view('riwayat.index', compact('riwayatData'));
+        return view('riwayat.index', compact('riwayatData', 'selectedNotulensiStatus'));
     }
 }
