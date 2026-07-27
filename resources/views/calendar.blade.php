@@ -606,6 +606,23 @@
                         this.syncParticipants();
                     },
 
+                    sekretariatId() {
+                        let b = this.bidangsUserData.find(item =>
+                            item.singkatan.toLowerCase() === 'sekretariat' ||
+                            item.nama.toLowerCase() === 'sekretariat'
+                        );
+                        return b ? b.id : null;
+                    },
+
+                    subbagIds() {
+                        return this.bidangsUserData
+                            .filter(item =>
+                                item.nama.toLowerCase().includes('subbag') ||
+                                item.singkatan.toLowerCase().includes('subbag')
+                            )
+                            .map(item => item.id);
+                    },
+
                     checkBidang(id) {
                         this.isDirty = true;
                         if (this.isSekBid) {
@@ -627,9 +644,28 @@
                                 this.bidangs = this.bidangs.filter(bId => String(bId) !== String(id));
                             }
                         }
+
+                        // Auto-check/uncheck subbag when Sekretariat is toggled
+                        let sekId = this.sekretariatId();
+                        if (sekId && String(id) === String(sekId)) {
+                            let subIds = this.subbagIds();
+                            if (this.bidangs.includes(sekId)) {
+                                // Sekretariat just got checked → check all subbag too
+                                subIds.forEach(sId => {
+                                    if (!this.bidangs.includes(sId)) {
+                                        this.bidangs.push(sId);
+                                    }
+                                });
+                            } else {
+                                // Sekretariat just got unchecked → uncheck all subbag too
+                                this.bidangs = this.bidangs.filter(bId => !subIds.includes(bId));
+                            }
+                        }
+
                         this.semuaOrang = (this.bidangs.length === this.totalCount);
                         this.syncParticipants();
                     },
+
 
                     syncParticipants() {
                         let activeUserIds = [];
