@@ -41,8 +41,12 @@
                         @endphp
                         <tr class="hover:bg-[#f8f7ff] transition-colors {{ $isChildSubbag ? 'bg-slate-50/40' : '' }}">
                             <td class="py-4 px-4 font-bold text-[#2e2552] {{ $isChildSubbag ? 'pl-10' : '' }}">
+                                @if($isChildSubbag)
+                                    <span class="text-[#b0aad8] font-bold mr-1 text-sm">└</span>
+                                @endif
                                 <span>{{ $bid->nama }}</span>
                             </td>
+
                             <td class="py-4 px-4 text-left font-black text-[#8e88dd] {{ $isChildSubbag ? 'pl-7' : '' }}">
                                 {{ $bid->singkatan }}
                             </td>
