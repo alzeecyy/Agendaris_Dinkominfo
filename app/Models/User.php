@@ -89,10 +89,11 @@ class User extends Authenticatable
             return false;
         }
 
-        return $this->bidang && (
-            strcasecmp($this->bidang->singkatan, 'sekretariat') === 0 || 
-            strcasecmp($this->bidang->nama, 'sekretariat') === 0 ||
-            $this->bidang->isSubbagian()
+        $bidang = $this->bidang ?: Bidang::find($this->bidang_id);
+        return $bidang && (
+            strcasecmp($bidang->singkatan, 'sekretariat') === 0 || 
+            strcasecmp($bidang->nama, 'sekretariat') === 0 ||
+            $bidang->isSubbagian()
         );
     }
 

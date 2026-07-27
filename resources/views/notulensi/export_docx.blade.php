@@ -111,15 +111,18 @@
         }
         .table-data th, .table-data td {
             border: 1px solid #000000;
-            padding: 6px 8px;
-            font-size: 10pt;
+            padding: 3px 5px;
+            font-size: 8.5pt;
             vertical-align: middle;
+            line-height: 1.2;
         }
         .table-data th {
             background-color: #f2f2f2;
             font-weight: bold;
             text-align: center;
             text-transform: uppercase;
+            font-size: 8pt;
+            padding: 4px 5px;
         }
 
         /* Signature block */
