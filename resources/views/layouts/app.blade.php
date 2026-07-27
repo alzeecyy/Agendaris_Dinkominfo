@@ -270,18 +270,20 @@
                         </div>
 
                         <div class="space-y-1">
-                            <a href="{{ route('agenda.today') }}" class="w-full flex items-center gap-2 px-2.5 py-1.5 rounded-xl text-xs font-bold text-[#2e2552] hover:bg-[#1b3bbb]/5 hover:text-[#1b3bbb] transition-colors">
-                                <svg class="w-4 h-4 text-rose-500 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                                </svg>
-                                <span>Agenda Hari Ini</span>
-                            </a>
-                            <a href="{{ route('profile') }}" class="w-full flex items-center gap-2 px-2.5 py-1.5 rounded-xl text-xs font-bold text-[#2e2552] hover:bg-[#1b3bbb]/5 hover:text-[#1b3bbb] transition-colors">
-                                <svg class="w-4 h-4 text-[#8e88dd]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
-                                </svg>
-                                <span>Kelola Profil</span>
-                            </a>
+                            @if(!Auth::user()->isAdmin())
+                                <a href="{{ route('agenda.today') }}" class="w-full flex items-center gap-2 px-2.5 py-1.5 rounded-xl text-xs font-bold text-[#2e2552] hover:bg-[#1b3bbb]/5 hover:text-[#1b3bbb] transition-colors">
+                                    <svg class="w-4 h-4 text-rose-500 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                    </svg>
+                                    <span>Agenda Hari Ini</span>
+                                </a>
+                                <a href="{{ route('profile') }}" class="w-full flex items-center gap-2 px-2.5 py-1.5 rounded-xl text-xs font-bold text-[#2e2552] hover:bg-[#1b3bbb]/5 hover:text-[#1b3bbb] transition-colors">
+                                    <svg class="w-4 h-4 text-[#8e88dd]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
+                                    </svg>
+                                    <span>Kelola Profil</span>
+                                </a>
+                            @endif
                             <a href="{{ route('password.change') }}" class="w-full flex items-center gap-2 px-2.5 py-1.5 rounded-xl text-xs font-bold text-[#2e2552] hover:bg-[#1b3bbb]/5 hover:text-[#1b3bbb] transition-colors">
                                 <svg class="w-4 h-4 text-[#8e88dd]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path>
@@ -316,58 +318,31 @@
              x-transition:enter-end="opacity-100 translate-y-0"
              class="md:hidden bg-white/95 backdrop-blur-md rounded-xl border border-slate-200/80 p-2.5 shadow-lg sticky top-12 z-40 space-y-1 text-[#09103c]">
             @if(Auth::check() && !Auth::user()->isAdmin())
-                <a href="{{ route('dashboard') }}" title="Ringkasan & Overview Agenda Bulanan" class="flex items-center justify-between px-3 py-2 rounded-xl text-xs font-bold {{ request()->routeIs('dashboard') ? 'bg-[#1b3bbb] text-white shadow-md' : 'text-slate-700 hover:bg-[#1b3bbb]/10' }}">
-                    <div class="flex items-center gap-2.5">
-                        <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"></path></svg>
-                        <span>Dashboard Utama</span>
-                    </div>
-                    <span class="text-[8.5px] font-semibold opacity-80 uppercase tracking-wider">Ringkasan</span>
+                <a href="{{ route('dashboard') }}" class="flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-bold {{ request()->routeIs('dashboard') ? 'bg-[#1b3bbb] text-white shadow-md' : 'text-slate-700 hover:bg-[#1b3bbb]/10' }}">
+                    <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"></path></svg>
+                    <span>Dashboard Utama</span>
                 </a>
                 <a href="{{ route('agenda.today') }}" class="flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-bold {{ request()->routeIs('agenda.today') ? 'bg-[#1b3bbb] text-white shadow-md' : 'text-slate-700 hover:bg-[#1b3bbb]/10' }}">
                     <svg class="w-4 h-4 shrink-0 text-rose-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
                     <span>Agenda Hari Ini</span>
                 </a>
-                <a href="{{ route('calendar') }}" title="Jadwal Rapat Grid Mingguan Jam-demi-Jam" class="flex items-center justify-between px-3 py-2 rounded-xl text-xs font-bold {{ request()->routeIs('calendar') && !request()->has('open_add') ? 'bg-[#1b3bbb] text-white shadow-md' : 'text-slate-700 hover:bg-[#1b3bbb]/10' }}">
-                    <div class="flex items-center gap-2.5">
-                        <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
-                        <span>Kalender Rinci</span>
-                    </div>
-                    <span class="text-[8.5px] font-semibold opacity-80 uppercase tracking-wider">Grid Detail</span>
+                <a href="{{ route('calendar') }}" class="flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-bold {{ request()->routeIs('calendar') && !request()->has('open_add') ? 'bg-[#1b3bbb] text-white shadow-md' : 'text-slate-700 hover:bg-[#1b3bbb]/10' }}">
+                    <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
+                    <span>Kalender Rinci</span>
                 </a>
                 @if(Auth::user()->isSekretarisMaster() || Auth::user()->isSekretarisBidang() || Auth::user()->isSekretariat())
-                    <a href="{{ route('calendar', ['open_add' => 1]) }}" title="Buka Form Tambah Agenda Baru" class="flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-bold {{ request()->routeIs('calendar') && request()->has('open_add') ? 'bg-[#1b3bbb] text-white shadow-md' : 'text-slate-700 hover:bg-[#1b3bbb]/10' }}">
+                    <a href="{{ route('calendar', ['open_add' => 1]) }}" class="flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-bold {{ request()->routeIs('calendar') && request()->has('open_add') ? 'bg-[#1b3bbb] text-white shadow-md' : 'text-slate-700 hover:bg-[#1b3bbb]/10' }}">
                         <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
                         <span>Tambah Agenda</span>
                     </a>
                 @endif
-                <a href="{{ route('riwayat') }}" class="flex items-center justify-between px-3 py-2 rounded-xl text-xs font-bold {{ request()->routeIs('riwayat') ? 'bg-[#1b3bbb] text-white shadow-md' : 'text-slate-700 hover:bg-[#1b3bbb]/10' }}">
-                    <div class="flex items-center gap-2.5">
-                        <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-                        <span>Riwayat Rapat</span>
-                    </div>
-                    @if(Auth::check() && (Auth::user()->isKetuaMaster() || Auth::user()->isKetuaBidang()))
-                        @php
-                            $user = Auth::user();
-                            $mobPending = \App\Models\Notulensi::where('status', 'menunggu_review');
-                            if ($user->isKetuaBidang()) {
-                                $mobPending->whereHas('agenda', function($q) use ($user) {
-                                    $q->whereJsonContains('hak_akses', (string)$user->bidang_id);
-                                });
-                            }
-                            $mobCount = $mobPending->count();
-                        @endphp
-                        @if($mobCount > 0)
-                            <span class="px-2 py-0.5 rounded-full text-[9px] font-black bg-amber-500 text-white shrink-0">{{ $mobCount }} Review</span>
-                        @endif
-                    @endif
+                <a href="{{ route('riwayat') }}" class="flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-bold {{ request()->routeIs('riwayat') ? 'bg-[#1b3bbb] text-white shadow-md' : 'text-slate-700 hover:bg-[#1b3bbb]/10' }}">
+                    <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                    <span>Riwayat Rapat</span>
                 </a>
                 <a href="{{ route('profile') }}" class="flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-bold {{ request()->routeIs('profile') ? 'bg-[#1b3bbb] text-white shadow-md' : 'text-slate-700 hover:bg-[#1b3bbb]/10' }}">
                     <svg class="w-4 h-4 shrink-0 text-[#8e88dd]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path></svg>
                     <span>Kelola Profil</span>
-                </a>
-                <a href="{{ route('password.change') }}" class="flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-bold {{ request()->routeIs('password.change') ? 'bg-[#1b3bbb] text-white shadow-md' : 'text-slate-700 hover:bg-[#1b3bbb]/10' }}">
-                    <svg class="w-4 h-4 shrink-0 text-[#8e88dd]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path></svg>
-                    <span>Ubah Kata Sandi</span>
                 </a>
             @elseif(Auth::check() && Auth::user()->isAdmin())
                 <a href="{{ route('dashboard') }}" class="flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-bold {{ request()->routeIs('dashboard') ? 'bg-[#1b3bbb] text-white shadow-md' : 'text-slate-700 hover:bg-[#1b3bbb]/10' }}">
@@ -416,43 +391,34 @@
                     @if(Auth::check() && !Auth::user()->isAdmin())
                         <!-- Dashboard Link -->
                         <a href="{{ route('dashboard') }}" title="Overview & Ringkasan Agenda Bulanan" 
-                           class="flex items-center justify-between px-4 py-3 rounded-2xl font-bold text-xs transition-all duration-200 
+                           class="flex items-center gap-3 px-4 py-3 rounded-2xl font-bold text-xs transition-all duration-200 
                            {{ request()->routeIs('dashboard') ? 'bg-[#1b3bbb] text-white shadow-lg shadow-[#1b3bbb]/20' : 'text-slate-600 hover:bg-[#1b3bbb]/5 hover:text-[#1b3bbb]' }}">
-                            <div class="flex items-center gap-3">
-                                <svg class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"></path>
-                                </svg>
-                                <span>Dashboard Utama</span>
-                            </div>
-                            <span class="text-[8.5px] font-semibold opacity-75 uppercase tracking-wider">Ringkasan</span>
+                            <svg class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"></path>
+                            </svg>
+                            <span>Dashboard Utama</span>
                         </a>
 
                         @if(Auth::user()->canViewAgendaToday())
                             <!-- Today's Agendas Link -->
                             <a href="{{ route('agenda.today') }}" 
-                               class="flex items-center justify-between px-4 py-3 rounded-2xl font-bold text-xs transition-all duration-200 
+                               class="flex items-center gap-3 px-4 py-3 rounded-2xl font-bold text-xs transition-all duration-200 
                                {{ request()->routeIs('agenda.today') ? 'bg-[#1b3bbb] text-white shadow-lg shadow-[#1b3bbb]/20' : 'text-slate-600 hover:bg-[#1b3bbb]/5 hover:text-[#1b3bbb]' }}">
-                                <div class="flex items-center gap-3">
-                                    <svg class="w-5 h-5 shrink-0 text-rose-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                                    </svg>
-                                    <span>Agenda Hari Ini</span>
-                                </div>
-                                <span class="w-2 h-2 rounded-full bg-rose-500 animate-pulse shrink-0"></span>
+                                <svg class="w-5 h-5 shrink-0 text-rose-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                </svg>
+                                <span>Agenda Hari Ini</span>
                             </a>
                         @endif
 
                         <!-- Calendar Link -->
                         <a href="{{ route('calendar') }}" title="Jadwal Rapat Grid Mingguan Jam-demi-Jam" 
-                           class="flex items-center justify-between px-4 py-3 rounded-2xl font-bold text-xs transition-all duration-200 
+                           class="flex items-center gap-3 px-4 py-3 rounded-2xl font-bold text-xs transition-all duration-200 
                            {{ request()->routeIs('calendar') && !request()->has('open_add') ? 'bg-[#1b3bbb] text-white shadow-lg shadow-[#1b3bbb]/20' : 'text-slate-600 hover:bg-[#1b3bbb]/5 hover:text-[#1b3bbb]' }}">
-                            <div class="flex items-center gap-3">
-                                <svg class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
-                                </svg>
-                                <span>Kalender Rinci</span>
-                            </div>
-                            <span class="text-[8.5px] font-semibold opacity-75 uppercase tracking-wider">Grid Detail</span>
+                            <svg class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+                            </svg>
+                            <span>Kalender Rinci</span>
                         </a>
 
                         @if(Auth::user()->isSekretarisMaster() || Auth::user()->isSekretarisBidang() || Auth::user()->isSekretariat())
@@ -467,35 +433,14 @@
                             </a>
                         @endif
 
-                        @php
-                            $pendingReviewCount = 0;
-                            if (Auth::check() && (Auth::user()->isKetuaMaster() || Auth::user()->isKetuaBidang())) {
-                                $user = Auth::user();
-                                $query = \App\Models\Notulensi::where('status', 'menunggu_review');
-                                if ($user->isKetuaBidang()) {
-                                    $query->whereHas('agenda', function($q) use ($user) {
-                                        $q->whereJsonContains('hak_akses', (string)$user->bidang_id);
-                                    });
-                                }
-                                $pendingReviewCount = $query->count();
-                            }
-                        @endphp
-
                         <!-- Riwayat Link -->
                         <a href="{{ route('riwayat') }}" 
-                           class="flex items-center justify-between px-4 py-3 rounded-2xl font-bold text-xs transition-all duration-200 
+                           class="flex items-center gap-3 px-4 py-3 rounded-2xl font-bold text-xs transition-all duration-200 
                            {{ request()->routeIs('riwayat') ? 'bg-[#1b3bbb] text-white shadow-lg shadow-[#1b3bbb]/20' : 'text-slate-600 hover:bg-[#1b3bbb]/5 hover:text-[#1b3bbb]' }}">
-                            <div class="flex items-center gap-3">
-                                <svg class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"></path>
-                                </svg>
-                                <span>Riwayat Rapat</span>
-                            </div>
-                            @if($pendingReviewCount > 0)
-                                <span class="px-2 py-0.5 rounded-full text-[9.5px] font-black bg-amber-500 text-white animate-pulse shrink-0" title="{{ $pendingReviewCount }} Notulensi Menunggu Review">
-                                    {{ $pendingReviewCount }} Review
-                                </span>
-                            @endif
+                            <svg class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"></path>
+                            </svg>
+                            <span>Riwayat Rapat</span>
                         </a>
 
                         <!-- Profil Link -->

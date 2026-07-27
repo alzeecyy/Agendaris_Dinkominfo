@@ -373,9 +373,9 @@ class AgendarisTest extends TestCase
         $response = $this->actingAs($staffSekretariat)->get("/agenda/{$agendaAptika->id}");
         $response->assertStatus(200);
 
-        // Staff Sekretariat can access notulensi edit page for Aptika agenda
+        // Staff Sekretariat is redirected to view-only mode when attempting to edit a Bidang's notulensi
         $response = $this->actingAs($staffSekretariat)->get("/agenda/{$agendaAptika->id}/notulensi/edit");
-        $response->assertStatus(200);
+        $response->assertStatus(302);
     }
 
     /**
