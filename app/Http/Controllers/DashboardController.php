@@ -431,12 +431,23 @@ class DashboardController extends Controller
             $agendasByDate[$dateStr] = $this->calculateOverlaps($agendasByDate[$dateStr]);
         }
 
-        // Get list of all Bidangs with active users to pass to "Tambah Agenda" form (cached 5 mins for performance)
-        $bidangs = Cache::remember('active_bidangs_users', 300, function() {
-            return Bidang::with(['users' => function($q) {
+        // Get list of all Bidangs with active users to pass to "Tambah Agenda" form (cached 5 mins with safe fallback)
+        try {
+            $bidangs = Cache::remember('active_bidangs_users', 300, function() {
+                return Bidang::with(['users' => function($q) {
+                    $q->where('role', '!=', 'admin')->where('active', true)->orderBy('name');
+                }])->orderBy('nama')->get();
+            });
+            // Ensure cached object is valid
+            if (!($bidangs instanceof \Illuminate\Support\Collection)) {
+                throw new \Exception('Invalid cached collection object');
+            }
+        } catch (\Throwable $e) {
+            Cache::forget('active_bidangs_users');
+            $bidangs = Bidang::with(['users' => function($q) {
                 $q->where('role', '!=', 'admin')->where('active', true)->orderBy('name');
             }])->orderBy('nama')->get();
-        });
+        }
 
         // Find today's events for the highlighting/side summary panel, filtered by bidang if not master
         $todayStr = Carbon::today()->toDateString();

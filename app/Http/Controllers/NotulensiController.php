@@ -486,7 +486,7 @@ class NotulensiController extends Controller
             $attendees[] = (object) [
                 'nama' => $emp->name,
                 'nip' => $emp->nip,
-                'jabatan' => $emp->jabatan,
+                'jabatan' => $this->formatCleanJabatan($emp->jabatan),
                 'bidang' => $emp->bidang->singkatan ?? 'Dinas',
                 'status' => $statusLabel,
                 'tanda_tangan' => $record ? $record->tanda_tangan : null,
@@ -518,13 +518,14 @@ class NotulensiController extends Controller
             $hadir = $internalUsers->filter(fn($p) => $p->bidang_id === $bid->id && ($attendanceRecords->has($p->id) && $attendanceRecords[$p->id]->status === 'hadir'))->count();
             $izin = $internalUsers->filter(fn($p) => $p->bidang_id === $bid->id && ($attendanceRecords->has($p->id) && $attendanceRecords[$p->id]->status === 'izin'))->count();
             $sakit = $internalUsers->filter(fn($p) => $p->bidang_id === $bid->id && ($attendanceRecords->has($p->id) && $attendanceRecords[$p->id]->status === 'sakit'))->count();
-            $belum = $total - ($hadir + $izin + $sakit);
+            $belum = $internalUsers->filter(fn($p) => $p->bidang_id === $bid->id && (!$attendanceRecords->has($p->id) || !in_array($attendanceRecords[$p->id]->status, ['hadir', 'izin', 'sakit'])))->count();
 
             $recap[] = (object) [
                 'bidang_nama' => $bid->nama,
                 'hadir' => $hadir,
                 'izin' => $izin,
                 'sakit' => $sakit,
+                'alfa' => $belum,
                 'belum' => $belum,
             ];
         }
@@ -585,7 +586,7 @@ class NotulensiController extends Controller
             $attendees[] = (object) [
                 'nama' => $emp->name,
                 'nip' => $emp->nip,
-                'jabatan' => $emp->jabatan,
+                'jabatan' => $this->formatCleanJabatan($emp->jabatan),
                 'bidang' => $emp->bidang->singkatan ?? 'Dinas',
                 'status' => $statusLabel,
                 'tanda_tangan' => $record ? $record->tanda_tangan : null,
@@ -855,5 +856,20 @@ class NotulensiController extends Controller
             'status' => 'error',
             'message' => 'Analisis AI gagal. Tidak ada API key yang dikonfigurasi (GEMINI_API_KEY) dan server Ollama lokal tidak dapat dijangkau atau tidak merespons. Pastikan Ollama berjalan di ' . ($llmApiBase ?? 'localhost:11434') . '.'
         ], 503);
+    }
+
+    /**
+     * Clean redundant "Bidang ..." suffix from employee position title.
+     */
+    private function formatCleanJabatan(?string $rawJabatan): string
+    {
+        if (empty($rawJabatan)) return '-';
+        if (preg_match('/^Kepala\s+Bidang\b/i', $rawJabatan)) {
+            return 'Kepala Bidang';
+        }
+        if (preg_match('/^Kepala\s+Dinas\b/i', $rawJabatan)) {
+            return 'Kepala Dinas';
+        }
+        return trim(preg_replace('/\s+(Bidang|Dinas)\s+.*$/i', '', $rawJabatan));
     }
 }

@@ -187,11 +187,7 @@ class AgendaController extends Controller
 
         // Check if user has access to this agenda
         if (!$user->hasAccessToAgenda($agenda)) {
-            $prevUrl = url()->previous();
-            if (empty($prevUrl) || $prevUrl === url()->current()) {
-                return redirect()->route('agenda.today')->with('warning', 'Akses ditolak. Anda tidak terdaftar sebagai peserta dalam rapat ini.');
-            }
-            return redirect()->back()->with('warning', 'Akses ditolak. Anda tidak terdaftar sebagai peserta dalam rapat ini.');
+            abort(403, 'Akses ditolak. Anda tidak terdaftar sebagai peserta dalam rapat ini.');
         }
 
         // Eager load relations for high performance

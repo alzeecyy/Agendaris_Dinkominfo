@@ -103,24 +103,26 @@
         .data-table {
             width: 100%;
             border-collapse: collapse;
-            margin-top: 10px;
-            font-size: 10pt;
+            margin-top: 8px;
+            font-size: 8.5pt;
         }
         .data-table th, .data-table td {
             border: 1px solid #444444;
-            padding: 6px 8px;
+            padding: 3px 5px;
             text-align: left;
+            line-height: 1.2;
         }
         .data-table th {
             background-color: #f2f2f2;
             font-weight: bold;
             text-transform: uppercase;
-            font-size: 9pt;
+            font-size: 8pt;
+            padding: 4px 5px;
         }
 
         /* Sign-off signature */
         .sig-container {
-            margin-top: 40px;
+            margin-top: 30px;
             width: 100%;
             page-break-inside: avoid;
         }
@@ -206,12 +208,12 @@
     <table class="data-table">
         <thead>
             <tr>
-                <th style="width: 30px; text-align: center;">No</th>
-                <th>Nama Peserta / NIP</th>
-                <th>Jabatan</th>
-                <th>Bidang / Instansi</th>
-                <th style="width: 70px; text-align: center;">Status</th>
-                <th style="width: 140px; text-align: center;">Tanda Tangan / Keterangan</th>
+                <th style="width: 4%; text-align: center;">No</th>
+                <th style="width: 44%;">Nama Peserta / NIP</th>
+                <th style="width: 18%; text-align: center;">Jabatan</th>
+                <th style="width: 9%; text-align: center;">Bidang</th>
+                <th style="width: 7%; text-align: center;">Status</th>
+                <th style="width: 18%; text-align: center;">Tanda Tangan / Ket.</th>
             </tr>
         </thead>
         <tbody>
@@ -222,11 +224,11 @@
                     <td style="vertical-align: middle;">
                         <strong>{{ $att->nama }}</strong>
                         @if($att->nip && $att->nip !== '-')
-                            <br><span style="font-size: 8pt; color: #555555; font-family: monospace;">NIP. {{ $att->nip }}</span>
+                            <br><span style="font-size: 7.5pt; color: #555555; font-family: monospace;">NIP. {{ $att->nip }}</span>
                         @endif
                     </td>
-                    <td style="vertical-align: middle;">{{ $att->jabatan }}</td>
-                    <td style="vertical-align: middle;">{{ $att->bidang }}</td>
+                    <td style="text-align: center; vertical-align: middle;">{{ $att->jabatan }}</td>
+                    <td style="text-align: center; vertical-align: middle;">{{ $att->bidang }}</td>
                     <td style="text-align: center; font-weight: bold; vertical-align: middle;">{{ $att->status }}</td>
                     <td style="text-align: center; vertical-align: middle;">
                         @if($att->status === 'Hadir' && $att->tanda_tangan)
@@ -234,12 +236,12 @@
                                 $sigPath = public_path('storage/' . $att->tanda_tangan);
                             @endphp
                             @if(file_exists($sigPath))
-                                <img src="{{ $sigPath }}" alt="TTD" style="max-height: 30px; max-width: 100px; display: block; margin: 0 auto;">
+                                <img src="{{ $sigPath }}" alt="TTD" style="max-height: 22px; max-width: 80px; display: block; margin: 0 auto;">
                             @else
-                                <span style="color: #999999; font-size: 8pt;">[File TTD Hilang]</span>
+                                <span style="color: #999999; font-size: 7.5pt;">[File TTD Hilang]</span>
                             @endif
                         @elseif($att->status === 'Izin' && $att->keterangan)
-                            <span style="font-size: 8pt; font-style: italic; color: #555555; line-height: 1.2; display: block;">{{ $att->keterangan }}</span>
+                            <span style="font-size: 7.5pt; font-style: italic; color: #555555; line-height: 1.1; display: block;">{{ $att->keterangan }}</span>
                         @else
                             <span style="color: #999999;">-</span>
                         @endif
@@ -258,7 +260,7 @@
                 <th style="width: 70px; text-align: center;">Hadir</th>
                 <th style="width: 70px; text-align: center;">Izin</th>
                 <th style="width: 70px; text-align: center;">Sakit</th>
-                <th style="width: 70px; text-align: center;">Belum</th>
+                <th style="width: 70px; text-align: center;">Alfa</th>
             </tr>
         </thead>
         <tbody>
@@ -268,7 +270,7 @@
                     <td style="text-align: center;">{{ $rc->hadir }}</td>
                     <td style="text-align: center;">{{ $rc->izin }}</td>
                     <td style="text-align: center;">{{ $rc->sakit }}</td>
-                    <td style="text-align: center;">{{ $rc->belum }}</td>
+                    <td style="text-align: center;">{{ $rc->alfa ?? $rc->belum }}</td>
                 </tr>
             @endforeach
         </tbody>
