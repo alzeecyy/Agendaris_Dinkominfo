@@ -16,7 +16,7 @@
     <div class="w-full lg:w-72 xl:w-80 space-y-4 sm:space-y-6 shrink-0">
         
         <!-- Mini Calendar Card -->
-        <div class="bg-white border border-[#d4d1f5]/60 rounded-3xl p-4 sm:p-5 shadow-sm">
+        <div class="bg-slate-50/70 border border-[#d4d1f5]/60 rounded-3xl p-4 sm:p-5 shadow-xs">
             <div class="flex items-center justify-between mb-4 border-b border-[#d4d1f5]/30 pb-2">
                 <!-- Prev Button -->
                 <button type="button" 
@@ -116,7 +116,7 @@
         </div>
 
         <!-- Today's Highlights Panel -->
-        <div class="bg-white border border-[#d4d1f5]/60 rounded-3xl p-4 sm:p-5 shadow-sm space-y-3 sm:space-y-4">
+        <div class="bg-slate-50/70 border border-[#d4d1f5]/60 rounded-3xl p-4 sm:p-5 shadow-xs space-y-3 sm:space-y-4">
             <div class="flex items-center justify-between">
                 <h3 class="text-xs font-bold uppercase tracking-wider text-[#2e2552]">Kegiatan Hari Ini</h3>
                 <span class="text-[10px] bg-[#2e2552]/10 text-[#2e2552] px-2.5 py-0.5 rounded-full border border-[#2e2552]/20 font-bold">
@@ -126,7 +126,7 @@
             
             <div class="space-y-3 max-h-52 lg:max-h-64 overflow-y-auto pr-1">
                 @forelse($todayAgendas as $ta)
-                    <div class="p-3 bg-[#f8f7ff] border border-[#d4d1f5]/40 rounded-2xl hover:border-[#8e88dd]/40 transition-all duration-200">
+                    <div class="p-3 bg-white border border-[#d4d1f5]/40 rounded-2xl hover:border-[#8e88dd]/40 transition-all duration-200 shadow-2xs">
                         <div class="flex items-center justify-between gap-2">
                             <span class="text-[10px] text-[#5a508f] font-bold">{{ substr($ta->jam_mulai, 0, 5) }} - {{ substr($ta->jam_selesai, 0, 5) }}</span>
                             @if($ta->singkatan_bidang === 'Semua')
@@ -171,7 +171,7 @@
     </div>
 
     <!-- RIGHT PANEL: 7-Day Weekly Agenda Grid -->
-    <div class="flex-1 min-w-0 bg-white border border-[#d4d1f5]/60 rounded-xl md:rounded-3xl p-3 sm:p-5 shadow-sm flex flex-col overflow-hidden">
+    <div class="flex-1 min-w-0 bg-slate-50/70 border border-[#d4d1f5]/60 rounded-xl md:rounded-3xl p-3 sm:p-5 shadow-xs flex flex-col overflow-hidden">
         <!-- Calendar Navigation Header -->
         <div class="flex items-center justify-between mb-3 sm:mb-4 gap-2 sm:gap-4 border-b border-[#d4d1f5]/40 pb-2 sm:pb-3 shrink-0">
             <div class="min-w-0">
