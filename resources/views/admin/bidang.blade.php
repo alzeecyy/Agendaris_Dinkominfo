@@ -28,17 +28,24 @@
             <table class="w-full text-left text-sm text-[#2e2552]">
                 <thead class="text-xs font-bold uppercase tracking-wider text-[#5a508f] border-b border-[#d4d1f5]/40">
                     <tr>
-                        <th class="py-4 px-4">Nama Bidang</th>
-                        <th class="py-4 px-4 text-center">Singkatan</th>
+                        <th class="py-4 px-4">Nama Bidang / Subbagian</th>
+                        <th class="py-4 px-4 text-left">Singkatan</th>
                         <th class="py-4 px-4 text-center">Jumlah Pegawai</th>
                         <th class="py-4 px-4 text-center">Aksi</th>
                     </tr>
                 </thead>
                 <tbody class="divide-y divide-[#d4d1f5]/30">
                     @forelse($bidangs as $bid)
-                        <tr class="hover:bg-[#f8f7ff] transition-colors">
-                            <td class="py-4 px-4 font-bold text-[#2e2552]">{{ $bid->nama }}</td>
-                            <td class="py-4 px-4 text-center font-black text-[#8e88dd]">{{ $bid->singkatan }}</td>
+                        @php
+                            $isChildSubbag = (str_contains(strtolower($bid->nama), 'subbag') || str_contains(strtolower($bid->singkatan), 'subbag')) && strcasecmp($bid->singkatan, 'Sekretariat') !== 0;
+                        @endphp
+                        <tr class="hover:bg-[#f8f7ff] transition-colors {{ $isChildSubbag ? 'bg-slate-50/40' : '' }}">
+                            <td class="py-4 px-4 font-bold text-[#2e2552] {{ $isChildSubbag ? 'pl-10' : '' }}">
+                                <span>{{ $bid->nama }}</span>
+                            </td>
+                            <td class="py-4 px-4 text-left font-black text-[#8e88dd] {{ $isChildSubbag ? 'pl-7' : '' }}">
+                                {{ $bid->singkatan }}
+                            </td>
                             <td class="py-4 px-4 text-center font-bold text-slate-700">{{ $bid->users_count }}</td>
                             <td class="py-4 px-4 text-center text-xs">
                                 <!-- Edit Trigger -->

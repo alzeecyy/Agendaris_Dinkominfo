@@ -30,59 +30,56 @@
             </div>
         </div>
 
-        <!-- KPI 1: Pegawai Stats -->
-        <div class="bg-white border border-[#d4d1f5]/60 rounded-[32px] p-6 flex flex-col justify-between shadow-sm">
+        <!-- KPI 1: Pegawai Stats (Clickable to /admin/users) -->
+        <a href="{{ route('admin.users.index') }}" class="bg-white border border-[#d4d1f5]/60 hover:border-[#8e88dd] rounded-[32px] p-6 flex flex-col justify-between shadow-sm hover:shadow-md transition-all duration-200 group cursor-pointer">
             <div class="flex items-center justify-between">
-                <span class="text-xs font-bold text-[#5a508f] uppercase">Total Akun Pegawai</span>
-                <div class="p-2 bg-[#8ba0f2]/10 text-[#8ba0f2] rounded-2xl">
+                <span class="text-xs font-bold text-[#5a508f] group-hover:text-[#1b3bbb] transition-colors uppercase">Total Akun Pegawai</span>
+                <div class="p-2 bg-[#8ba0f2]/10 text-[#8ba0f2] group-hover:bg-indigo-600 group-hover:text-white rounded-2xl transition-all duration-200">
                     <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"></path>
                     </svg>
                 </div>
             </div>
             <div class="mt-4">
-                <h2 class="text-4xl font-black text-[#2e2552]">{{ $stats['total_users'] }}</h2>
+                <h2 class="text-4xl font-black text-[#2e2552] group-hover:scale-105 origin-left transition-transform duration-200">{{ $stats['total_users'] }}</h2>
                 <div class="flex items-center gap-3 mt-1.5 text-[11px] font-bold">
                     <span class="text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-lg border border-emerald-100">{{ $stats['active_users'] }} Aktif</span>
                     <span class="text-slate-400 bg-slate-100 px-2 py-0.5 rounded-lg border border-slate-200">{{ $stats['inactive_users'] }} Nonaktif</span>
                 </div>
             </div>
-        </div>
+        </a>
 
-        <!-- KPI 2: Bidang & Agenda -->
-        <div class="bg-white border border-[#d4d1f5]/60 rounded-[32px] p-6 flex flex-col justify-between shadow-sm">
+        <!-- KPI 2: Bidang & Agenda (Clickable to /admin/bidang) -->
+        <a href="{{ route('admin.bidang.index') }}" class="bg-white border border-[#d4d1f5]/60 hover:border-[#8e88dd] rounded-[32px] p-6 flex flex-col justify-between shadow-sm hover:shadow-md transition-all duration-200 group cursor-pointer">
             <div class="flex items-center justify-between">
-                <span class="text-xs font-bold text-[#5a508f] uppercase">Bidang &amp; Agenda</span>
-                <div class="p-2 bg-[#bc8bf2]/10 text-[#bc8bf2] rounded-2xl">
+                <span class="text-xs font-bold text-[#5a508f] group-hover:text-[#1b3bbb] transition-colors uppercase">Bidang &amp; Agenda</span>
+                <div class="p-2 bg-[#bc8bf2]/10 text-[#bc8bf2] group-hover:bg-purple-600 group-hover:text-white rounded-2xl transition-all duration-200">
                     <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path>
                     </svg>
                 </div>
             </div>
             <div class="mt-4">
-                <h2 class="text-4xl font-black text-[#2e2552]">{{ $stats['total_bidang'] }} <span class="text-xs text-[#5a508f] font-bold">Bidang</span></h2>
+                <h2 class="text-4xl font-black text-[#2e2552] group-hover:scale-105 origin-left transition-transform duration-200">{{ $stats['total_bidang'] }} <span class="text-xs text-[#5a508f] font-bold">Bidang</span></h2>
                 <p class="text-xs text-[#5a508f] mt-1.5 font-bold">Mengelola total <span class="text-[#2e2552]">{{ $stats['total_agenda'] }}</span> agenda rapat dinas</p>
             </div>
-        </div>
+        </a>
 
-        <!-- KPI 3: Notulensi Stats -->
-        <div class="bg-white border border-[#d4d1f5]/60 rounded-[32px] p-6 flex flex-col justify-between shadow-sm">
+        <!-- KPI 3: Agenda Rapat Terkini (Smooth scroll to #agenda-terkini) -->
+        <a href="#agenda-terkini" class="bg-white border border-[#d4d1f5]/60 hover:border-[#8e88dd] rounded-[32px] p-6 flex flex-col justify-between shadow-sm hover:shadow-md transition-all duration-200 group cursor-pointer">
             <div class="flex items-center justify-between">
-                <span class="text-xs font-bold text-[#5a508f] uppercase">Ringkasan Notulensi</span>
-                <div class="p-2 bg-amber-50 text-amber-500 rounded-2xl">
+                <span class="text-xs font-bold text-[#5a508f] group-hover:text-[#1b3bbb] transition-colors uppercase">Agenda Terkini</span>
+                <div class="p-2 bg-amber-50 text-amber-500 group-hover:bg-amber-500 group-hover:text-white rounded-2xl transition-all duration-200">
                     <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
                     </svg>
                 </div>
             </div>
             <div class="mt-4">
-                <h2 class="text-4xl font-black text-[#2e2552]">{{ $stats['total_notulensi'] }}</h2>
-                <div class="flex items-center gap-3 mt-1.5 text-[11px] font-bold">
-                    <span class="text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-lg border border-emerald-100">{{ $stats['approved_notulensi'] }} Sah</span>
-                    <span class="text-amber-600 bg-amber-50 px-2 py-0.5 rounded-lg border border-amber-100">{{ $stats['pending_notulensi'] }} Review</span>
-                </div>
+                <h2 class="text-4xl font-black text-[#2e2552] group-hover:scale-105 origin-left transition-transform duration-200">{{ $stats['total_agenda'] }} <span class="text-xs text-[#5a508f] font-bold">Rapat</span></h2>
+                <p class="text-xs text-[#5a508f] mt-1.5 font-bold">Lihat <span class="text-[#2e2552]">5 agenda rapat</span> dinas terbaru</p>
             </div>
-        </div>
+        </a>
 
     </div>
 
@@ -149,7 +146,7 @@
         </div>
 
         <!-- Card: Recent Agendas -->
-        <div class="bg-white border border-[#d4d1f5]/60 rounded-[24px] sm:rounded-[32px] p-4 sm:p-6 shadow-sm flex flex-col justify-between text-[#2e2552]">
+        <div id="agenda-terkini" class="bg-white border border-[#d4d1f5]/60 rounded-[24px] sm:rounded-[32px] p-4 sm:p-6 shadow-sm flex flex-col justify-between text-[#2e2552] scroll-mt-6">
             <div>
                 <div class="flex items-center justify-between border-b border-[#d4d1f5]/40 pb-4 mb-4">
                     <div>

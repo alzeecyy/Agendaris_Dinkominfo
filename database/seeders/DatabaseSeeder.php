@@ -89,7 +89,7 @@ class DatabaseSeeder extends Seeder
             ['nip' => $nipPrefix . '001'],
             [
                 'name' => 'Ir. Purwadi Santoso, M.Hum.',
-                'jabatan' => 'Kepala Dinas / Ketua Master',
+                'jabatan' => 'Kepala Dinas / Kadin',
                 'bidang_id' => null,
                 'role' => 'ketua_master',
                 'password' => $hashedPassword,
@@ -112,93 +112,13 @@ class DatabaseSeeder extends Seeder
             ]
         );
 
-        // 2b. Seed Subbagian Leaders (Kasubag) & Admins
-        // Subbag Umum & Kepegawaian
-        $kasubagUmum = User::updateOrCreate(
-            ['nip' => $nipPrefix . '701'],
-            [
-                'name' => 'Tri Cahyono, S.H.',
-                'jabatan' => 'Kasubag Umum dan Kepegawaian',
-                'bidang_id' => $subbagUmum->id,
-                'role' => 'ketua_bidang',
-                'password' => $hashedPassword,
-                'must_change_password' => true,
-                'active' => true,
-            ]
-        );
-        $adminSubbagUmum = User::updateOrCreate(
-            ['nip' => $nipPrefix . '702'],
-            [
-                'name' => 'Ahmad Rizky, A.Md.',
-                'jabatan' => 'Admin Subbag Umum dan Kepegawaian',
-                'bidang_id' => $subbagUmum->id,
-                'role' => 'sekretaris_bidang',
-                'password' => $hashedPassword,
-                'must_change_password' => true,
-                'active' => true,
-            ]
-        );
-
-        // Subbag Keuangan
-        $kasubagKeuangan = User::updateOrCreate(
-            ['nip' => $nipPrefix . '711'],
-            [
-                'name' => 'Sri Wahyuni, S.E.',
-                'jabatan' => 'Kasubag Keuangan',
-                'bidang_id' => $subbagKeuangan->id,
-                'role' => 'ketua_bidang',
-                'password' => $hashedPassword,
-                'must_change_password' => true,
-                'active' => true,
-            ]
-        );
-        $adminSubbagKeuangan = User::updateOrCreate(
-            ['nip' => $nipPrefix . '712'],
-            [
-                'name' => 'Ratna Juwita, A.Md.',
-                'jabatan' => 'Admin Subbag Keuangan',
-                'bidang_id' => $subbagKeuangan->id,
-                'role' => 'sekretaris_bidang',
-                'password' => $hashedPassword,
-                'must_change_password' => true,
-                'active' => true,
-            ]
-        );
-
-        // Subbag Perencanaan
-        $kasubagPerencanaan = User::updateOrCreate(
-            ['nip' => $nipPrefix . '721'],
-            [
-                'name' => 'Drs. Hendro Wibowo',
-                'jabatan' => 'Kasubag Perencanaan',
-                'bidang_id' => $subbagPerencanaan->id,
-                'role' => 'ketua_bidang',
-                'password' => $hashedPassword,
-                'must_change_password' => true,
-                'active' => true,
-            ]
-        );
-        $adminSubbagPerencanaan = User::updateOrCreate(
-            ['nip' => $nipPrefix . '722'],
-            [
-                'name' => 'Budi Hartono, S.E.',
-                'jabatan' => 'Admin Subbag Perencanaan',
-                'bidang_id' => $subbagPerencanaan->id,
-                'role' => 'sekretaris_bidang',
-                'password' => $hashedPassword,
-                'must_change_password' => true,
-                'active' => true,
-            ]
-        );
-
         // Dummy Names Configuration
         $names = [
             'aptika' => [
                 'ketua' => 'Hendra Wijaya, S.Kom.',
                 'sekretaris' => 'Dewi Lestari, S.T.',
-                'bendahara' => 'Siti Aminah, A.Md.Ak.',
                 'staff' => [
-                    'Budi Santoso, S.Kom.', 'Ahmad Fauzi, S.Tr.Kom.', 'Eko Prasetyo, A.Md.T.',
+                    'Siti Aminah, A.Md.Ak.', 'Budi Santoso, S.Kom.', 'Ahmad Fauzi, S.Tr.Kom.', 'Eko Prasetyo, A.Md.T.',
                     'Rina Wati, S.T.', 'Sri Rahayu, S.Kom.', 'Tri Utami, A.Md.',
                     'Heri Susanto, S.Kom.', 'Andi Wijaya, S.T.', 'Yudi Hermawan, A.Md.T.',
                     'Diana Putri, S.Kom.', 'Rian Hidayat, S.Tr.Kom.', 'Mega Utami, S.Kom.'
@@ -207,9 +127,8 @@ class DatabaseSeeder extends Seeder
             'ikp' => [
                 'ketua' => 'Drs. Bambang Sutejo',
                 'sekretaris' => 'Rini Handayani, S.Sos.',
-                'bendahara' => 'Kartika Sari, A.Md.Sos.',
                 'staff' => [
-                    'Joko Susilo, S.I.Kom.', 'Sri Wahyuni, A.Md.', 'Fajar Nugroho, S.Sos.',
+                    'Kartika Sari, A.Md.Sos.', 'Joko Susilo, S.I.Kom.', 'Sri Wahyuni, A.Md.', 'Fajar Nugroho, S.Sos.',
                     'Indah Permata, S.I.Kom.', 'Arief Rahman, S.Sos.', 'Fitriani, A.Md.Kom.',
                     'Dedi Kurniawan, S.I.Kom.', 'Novianti, S.Sos.', 'Rudi Hartono, A.Md.',
                     'Larasati, S.I.Kom.', 'Taufik Hidayat, S.Sos.', 'Wulan Dari, S.I.Kom.'
@@ -218,42 +137,67 @@ class DatabaseSeeder extends Seeder
             'statistik' => [
                 'ketua' => 'Sigit Pramono, S.Si., M.Si.',
                 'sekretaris' => 'Agus Setiawan, S.Stat.',
-                'bendahara' => 'Retno Wulandari, A.Md.Stat.',
                 'staff' => [
-                    'Aditya Putra, S.Stat.', 'Anisa Fitri, A.Md.', 'Bambang Hermawan, S.Si.',
+                    'Retno Wulandari, A.Md.Stat.', 'Aditya Putra, S.Stat.', 'Anisa Fitri, A.Md.', 'Bambang Hermawan, S.Si.',
                     'Citra Lestari, S.Stat.', 'Denny Hidayat, S.Si.', 'Elisa Putri, A.Md.Stat.',
                     'Farhan Bashir, S.Si.', 'Gita Savitri, S.Stat.', 'Hafiz Rizky, S.Si.',
                     'Irma Suryani, A.Md.', 'Junaedi, S.Stat.', 'Kurniawati, S.Si.'
                 ]
             ],
-            'sekretariat' => [
-                'bendahara' => 'Ratna Juwita, A.Md.',
+            'subbag_umum' => [
+                'ketua' => 'Tri Cahyono, S.H.',
+                'sekretaris' => 'Ahmad Rizky, A.Md.',
                 'staff' => [
-                    'Ahmad Rizky, A.Md.', 'Budi Hartono, S.E.', 'Cahyo Utomo, S.T.',
-                    'Dewi Sartika, A.Md.', 'Endang Sri, S.E.', 'Firman Utina, S.Kom.',
-                    'Gilang Ramadhan, S.T.', 'Haryati, S.E.', 'Indra Lesmana, A.Md.',
+                    'Cahyo Utomo, S.T.', 'Dewi Sartika, A.Md.', 'Endang Sri, S.E.', 'Firman Utina, S.Kom.'
+                ]
+            ],
+            'subbag_keuangan' => [
+                'ketua' => 'Sri Wahyuni, S.E.',
+                'sekretaris' => 'Ratna Juwita, A.Md.',
+                'staff' => [
+                    'Gilang Ramadhan, S.T.', 'Haryati, S.E.', 'Indra Lesmana, A.Md.'
+                ]
+            ],
+            'subbag_perencanaan' => [
+                'ketua' => 'Drs. Hendro Wibowo',
+                'sekretaris' => 'Budi Hartono, S.E.',
+                'staff' => [
                     'Joko Widodo, S.E.', 'Kurnia Fitri, S.T.', 'Lestari Indah, S.E.'
                 ]
             ]
         ];
 
-        // Suffix mapping per division (Aptika: 10-24, IKP: 30-44, Statistik: 50-64, Sekretariat: 70-84)
+        // Suffix mapping per division
         $divisionConfig = [
             'aptika' => [
                 'start' => 10,
-                'bidang' => $aptika
+                'bidang' => $aptika,
+                'subName' => 'Aplikasi Informatika'
             ],
             'ikp' => [
                 'start' => 30,
-                'bidang' => $ikp
+                'bidang' => $ikp,
+                'subName' => 'Informasi dan Komunikasi Publik'
             ],
             'statistik' => [
                 'start' => 50,
-                'bidang' => $statistik
+                'bidang' => $statistik,
+                'subName' => 'Statistik dan Persandian'
             ],
-            'sekretariat' => [
+            'subbag_umum' => [
                 'start' => 70,
-                'bidang' => $sekretariat
+                'bidang' => $subbagUmum,
+                'subName' => 'Subbag Umum dan Kepegawaian'
+            ],
+            'subbag_keuangan' => [
+                'start' => 75,
+                'bidang' => $subbagKeuangan,
+                'subName' => 'Subbag Keuangan'
+            ],
+            'subbag_perencanaan' => [
+                'start' => 80,
+                'bidang' => $subbagPerencanaan,
+                'subName' => 'Subbag Perencanaan'
             ]
         ];
 
@@ -262,64 +206,50 @@ class DatabaseSeeder extends Seeder
         foreach ($divisionConfig as $key => $config) {
             $bidang = $config['bidang'];
             $startSuffix = $config['start'];
-            $bidName = $bidang->nama;
+            $subName = $config['subName'];
             $data = $names[$key];
 
-            if ($key !== 'sekretariat') {
-                // 1. Ketua Bidang
-                $suffixStr = str_pad($startSuffix, 3, '0', STR_PAD_LEFT);
-                $usersMap[$key . '_ketua'] = User::updateOrCreate(
-                    ['nip' => $nipPrefix . $suffixStr],
-                    [
-                        'name' => $data['ketua'],
-                        'jabatan' => 'Kepala ' . $bidName,
-                        'bidang_id' => $bidang->id,
-                        'role' => 'ketua_bidang',
-                        'password' => $hashedPassword,
-                        'must_change_password' => true,
-                        'active' => true,
-                    ]
-                );
-
-                // 2. Sekretaris Bidang
-                $suffixStr = str_pad($startSuffix + 1, 3, '0', STR_PAD_LEFT);
-                $usersMap[$key . '_sekretaris'] = User::updateOrCreate(
-                    ['nip' => $nipPrefix . $suffixStr],
-                    [
-                        'name' => $data['sekretaris'],
-                        'jabatan' => 'Sekretaris ' . $bidName,
-                        'bidang_id' => $bidang->id,
-                        'role' => 'sekretaris_bidang',
-                        'password' => $hashedPassword,
-                        'must_change_password' => true,
-                        'active' => true,
-                    ]
-                );
-            }
-
-            // 3. Bendahara Bidang (Staff Role)
-            $suffixStr = str_pad($startSuffix + 2, 3, '0', STR_PAD_LEFT);
-            $usersMap[$key . '_bendahara'] = User::updateOrCreate(
+            // 1. Ketua Bidang / Kasubag
+            $suffixStr = str_pad($startSuffix, 3, '0', STR_PAD_LEFT);
+            $kasubagTitle = str_contains($key, 'subbag') ? 'Kasubag ' . str_replace(['Subbag ', 'Subbagian '], '', $subName) : 'Kepala Bidang ' . $subName;
+            $usersMap[$key . '_ketua'] = User::updateOrCreate(
                 ['nip' => $nipPrefix . $suffixStr],
                 [
-                    'name' => $data['bendahara'],
-                    'jabatan' => $key === 'sekretariat' ? 'Staff Sekretariat' : 'Bendahara ' . $bidName,
+                    'name' => $data['ketua'],
+                    'jabatan' => $kasubagTitle,
                     'bidang_id' => $bidang->id,
-                    'role' => 'staff',
+                    'role' => 'ketua_bidang',
                     'password' => $hashedPassword,
                     'must_change_password' => true,
                     'active' => true,
                 ]
             );
 
-            // 4. Staff 1 - 12 (Staff Role)
-            for ($i = 0; $i < 12; $i++) {
-                $suffixStr = str_pad($startSuffix + 3 + $i, 3, '0', STR_PAD_LEFT);
+            // 2. Sekretaris / Admin Subbag
+            $suffixStr = str_pad($startSuffix + 1, 3, '0', STR_PAD_LEFT);
+            $adminSubbagTitle = str_contains($key, 'subbag') ? 'Admin Subbag ' . str_replace(['Subbag ', 'Subbagian '], '', $subName) : 'Sekretaris Bidang ' . $subName;
+            $usersMap[$key . '_sekretaris'] = User::updateOrCreate(
+                ['nip' => $nipPrefix . $suffixStr],
+                [
+                    'name' => $data['sekretaris'],
+                    'jabatan' => $adminSubbagTitle,
+                    'bidang_id' => $bidang->id,
+                    'role' => 'sekretaris_bidang',
+                    'password' => $hashedPassword,
+                    'must_change_password' => true,
+                    'active' => true,
+                ]
+            );
+
+            // 3. Staff (Staff Role)
+            $staffCount = count($data['staff']);
+            for ($i = 0; $i < $staffCount; $i++) {
+                $suffixStr = str_pad($startSuffix + 2 + $i, 3, '0', STR_PAD_LEFT);
                 $usersMap[$key . '_staff_' . $i] = User::updateOrCreate(
                     ['nip' => $nipPrefix . $suffixStr],
                     [
                         'name' => $data['staff'][$i],
-                        'jabatan' => 'Staff ' . $bidName,
+                        'jabatan' => 'Staff ' . $subName,
                         'bidang_id' => $bidang->id,
                         'role' => 'staff',
                         'password' => $hashedPassword,

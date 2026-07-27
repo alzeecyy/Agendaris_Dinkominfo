@@ -91,7 +91,8 @@ class User extends Authenticatable
 
         return $this->bidang && (
             strcasecmp($this->bidang->singkatan, 'sekretariat') === 0 || 
-            strcasecmp($this->bidang->nama, 'sekretariat') === 0
+            strcasecmp($this->bidang->nama, 'sekretariat') === 0 ||
+            $this->bidang->isSubbagian()
         );
     }
 

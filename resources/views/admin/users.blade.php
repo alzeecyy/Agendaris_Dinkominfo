@@ -2,6 +2,10 @@
 
 @section('title', 'Kelola Pegawai')
 
+@php
+    $sekretariatId = \App\Models\Bidang::where('singkatan', 'Sekretariat')->orWhere('nama', 'Sekretariat')->value('id');
+@endphp
+
 @section('content')
 <div x-data="{ 
     openAddModal: false, 
@@ -20,6 +24,7 @@
             name: '{{ addslashes($user->name) }}',
             nip: '{{ $user->nip }}',
             bidang_id: '{{ $user->bidang_id }}',
+            is_sekretariat: {{ $user->isSekretariat() ? 'true' : 'false' }},
             role: '{{ $user->role }}',
             active: {{ $user->active ? 'true' : 'false' }}
         },
@@ -35,6 +40,8 @@
             if (this.filterBidang) {
                 if (this.filterBidang === 'master') {
                     matchesBidang = !u.bidang_id;
+                } else if (this.filterBidang == '{{ $sekretariatId }}') {
+                    matchesBidang = u.bidang_id == '{{ $sekretariatId }}' || u.is_sekretariat === true;
                 } else {
                     matchesBidang = u.bidang_id == this.filterBidang;
                 }
@@ -153,10 +160,9 @@ class="space-y-6">
                 <div class="w-full">
                     <select x-model="filterBidang" 
                             class="w-full px-1.5 sm:px-3 py-2 bg-[#f3f2fe] border border-[#d4d1f5] rounded-xl text-[11px] sm:text-xs text-[#2e2552] focus:outline-none truncate">
-                        <option value="">Bidang</option>
-                        <option value="master">Dinkominfo (Master)</option>
+                        <option value="">Semua</option>
                         @foreach($bidangs as $bid)
-                            <option value="{{ $bid->id }}">{{ $bid->singkatan }}</option>
+                            <option value="{{ $bid->id }}">{{ ($bid->isSubbagian() && strcasecmp($bid->singkatan, 'Sekretariat') !== 0) ? '  └ ' . $bid->singkatan : $bid->singkatan }}</option>
                         @endforeach
                     </select>
                 </div>
@@ -166,10 +172,10 @@ class="space-y-6">
                     <select x-model="filterRole" 
                             class="w-full px-1.5 sm:px-3 py-2 bg-[#f3f2fe] border border-[#d4d1f5] rounded-xl text-[11px] sm:text-xs text-[#2e2552] focus:outline-none truncate">
                         <option value="">Role</option>
-                        <option value="sekretaris_master">Sekretaris Dinas</option>
-                        <option value="sekretaris_bidang">Admin Bidang</option>
-                        <option value="ketua_master">Kepala Dinas</option>
-                        <option value="ketua_bidang">Ketua Bidang</option>
+                        <option value="ketua_master">Kepala Dinas (Kadin)</option>
+                        <option value="sekretaris_master">Sekretaris Dinas (Sekdin)</option>
+                        <option value="ketua_bidang">Ketua Bidang / Kasubag</option>
+                        <option value="sekretaris_bidang">Admin Bidang / Admin Subbag</option>
                         <option value="staff">Staff</option>
                     </select>
                 </div>
@@ -220,7 +226,9 @@ class="space-y-6">
                             x-transition:enter-end="opacity-100">
                             <td class="py-4 px-4 font-bold whitespace-nowrap">{{ $user->name }}</td>
                             <td class="py-4 px-4 text-center font-mono text-xs text-[#5a508f]">{{ $user->nip }}</td>
-                            <td class="py-4 px-4 text-xs font-semibold text-[#5a508f]">{{ $user->bidang->singkatan ?? 'Dinkominfo (Master)' }}</td>
+                            <td class="py-4 px-4 text-xs font-semibold text-[#5a508f]">
+                                {{ $user->bidang ? $user->bidang->singkatan : 'Dinkominfo (Master)' }}
+                            </td>
                             <td class="py-4 px-4 text-center text-xs" style="white-space: nowrap;">
                                 @php
                                     $roleBadge = [
@@ -230,17 +238,26 @@ class="space-y-6">
                                         'ketua_bidang' => 'bg-purple-50 text-purple-700 border-purple-200',
                                         'staff' => 'bg-blue-50 text-blue-700 border-blue-200',
                                     ];
+
                                     $bidName = $user->bidang ? ($user->bidang->singkatan ?? $user->bidang->nama) : '';
-                                    $roleLabel = [
-                                        'sekretaris_master' => 'Sekretaris Dinas',
-                                        'ketua_master' => 'Kepala Dinas',
-                                        'sekretaris_bidang' => $bidName ? "Admin Bidang {$bidName}" : 'Admin Bidang',
-                                        'ketua_bidang' => $bidName ? "Ketua Bidang {$bidName}" : 'Ketua Bidang',
-                                        'staff' => 'Staff',
-                                    ];
+                                    $isSubbagUser = $user->bidang ? $user->bidang->isSubbagian() : false;
+
+                                    if ($user->role === 'sekretaris_master') {
+                                        $displayText = 'Sekretaris Dinas';
+                                    } elseif ($user->role === 'ketua_master') {
+                                        $displayText = 'Kepala Dinas';
+                                    } elseif ($isSubbagUser) {
+                                        $displayText = $user->jabatan;
+                                    } elseif ($user->role === 'sekretaris_bidang') {
+                                        $displayText = $bidName ? "Admin Bidang {$bidName}" : 'Admin Bidang';
+                                    } elseif ($user->role === 'ketua_bidang') {
+                                        $displayText = $bidName ? "Ketua Bidang {$bidName}" : 'Ketua Bidang';
+                                    } else {
+                                        $displayText = 'Staff';
+                                    }
                                 @endphp
                                 <span class="inline-block whitespace-nowrap text-[10px] px-2.5 py-0.5 rounded-full border font-bold {{ $roleBadge[$user->role] ?? 'bg-slate-100 text-slate-500' }}">
-                                    {{ $roleLabel[$user->role] ?? $user->role }}
+                                    {{ $displayText }}
                                 </span>
                             </td>
                             <td class="py-4 px-4 text-center">
@@ -418,7 +435,7 @@ class="space-y-6">
                             <option value="sekretaris_bidang">Admin Bidang / Subbag</option>
                             <option value="ketua_bidang">Kepala Bidang / Kasubag</option>
                             <option value="sekretaris_master">Sekretaris Dinas (Sekdin)</option>
-                            <option value="ketua_master">Kepala Dinas (Kadis)</option>
+                            <option value="ketua_master">Kepala Dinas (Kadin)</option>
                         </select>
                     </div>
                 </div>
@@ -500,7 +517,7 @@ class="space-y-6">
                             <option value="sekretaris_bidang">Admin Bidang / Subbag</option>
                             <option value="ketua_bidang">Kepala Bidang / Kasubag</option>
                             <option value="sekretaris_master">Sekretaris Dinas (Sekdin)</option>
-                            <option value="ketua_master">Kepala Dinas (Kadis)</option>
+                            <option value="ketua_master">Kepala Dinas (Kadin)</option>
                         </select>
                     </div>
                 </div>
