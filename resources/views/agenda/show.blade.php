@@ -870,6 +870,23 @@
                                 </p>
                             @endif
                         @elseif($agenda->notulensi->status === 'draft')
+                            <div class="bg-[#f8f7ff] border border-[#d4d1f5]/50 rounded-2xl p-3 sm:p-3.5 space-y-1">
+                                <div class="flex items-start gap-2.5">
+                                    <div class="p-1.5 bg-[#1b3bbb]/10 text-[#1b3bbb] rounded-xl shrink-0 mt-0.5">
+                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                                        </svg>
+                                    </div>
+                                    <div class="space-y-0.5 text-left">
+                                        <h4 class="text-xs font-extrabold text-[#2e2552]">
+                                            {{ $hasDraftContent ? 'Draf Notulensi Tersedia' : 'Belum Ada Draf Notulensi' }}
+                                        </h4>
+                                        <p class="text-[10.5px] text-[#5a508f] font-medium leading-relaxed">
+                                            {{ $hasDraftContent ? 'Draf notulensi rapat telah diisi/diunggah. Klik tombol di bawah untuk melengkapi atau mengedit.' : 'Notulensi rapat belum diisi/diunggah. Anda dapat mencatat hasil pembahasan atau mengunggah audio rapat.' }}
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
                             @if($isSecretaryOfAgenda)
                                 <a href="{{ route('notulensi.edit', $agenda->id) }}" 
                                    class="w-full py-1.5 sm:py-2.5 bg-[#2e2552] hover:bg-[#3d326a] text-white font-bold text-[11px] sm:text-xs rounded-xl shadow-md transition-all flex items-center justify-center gap-1.5">
