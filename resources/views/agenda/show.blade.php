@@ -1026,14 +1026,11 @@
                                     <input type="hidden" name="user_id" value="{{ $part->id }}">
                                     <select name="status" onchange="submitStatusKoreksi(this)" 
                                             class="text-[11px] bg-white border border-[#d4d1f5] rounded-xl text-[#2e2552] px-3 py-1.5 font-bold focus:outline-none focus:ring-1 focus:ring-[#8e88dd] cursor-pointer shadow-xs">
-                                        @if($agenda->isPresensiExpired())
-                                            <option value="alfa" {{ $part->status_presensi === 'alfa' ? 'selected' : '' }}>Alfa</option>
-                                        @else
-                                            <option value="Belum Absen" {{ $part->status_presensi === 'Belum Absen' ? 'selected' : '' }}>Belum Absen</option>
-                                        @endif
+                                        <option value="Belum Absen" {{ ($part->status_presensi === 'Belum Absen' || !$part->status_presensi) ? 'selected' : '' }}>Belum Absen</option>
                                         <option value="hadir" {{ $part->status_presensi === 'hadir' ? 'selected' : '' }}>Hadir</option>
                                         <option value="izin" {{ $part->status_presensi === 'izin' ? 'selected' : '' }}>Izin</option>
                                         <option value="sakit" {{ $part->status_presensi === 'sakit' ? 'selected' : '' }}>Sakit</option>
+                                        <option value="alfa" {{ $part->status_presensi === 'alfa' ? 'selected' : '' }}>Alfa</option>
                                     </select>
                                 </form>
                             @else
