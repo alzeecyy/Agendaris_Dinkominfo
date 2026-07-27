@@ -142,7 +142,7 @@
         <!-- Main Content Portal -->
         <main class="flex-1 flex flex-col items-center justify-center gap-4 sm:gap-6 py-4 my-auto w-full">
             <!-- Hero Welcome Card -->
-            <div class="w-full bg-white/80 backdrop-blur-md rounded-2xl md:rounded-[24px] border border-slate-200/80 p-4 sm:p-5 md:p-6 shadow-sm text-center space-y-1.5 sm:space-y-2 max-w-3xl animate-fade-in shrink">
+            <div class="w-full bg-white/80 backdrop-blur-md rounded-2xl md:rounded-[24px] border border-slate-200/80 p-5 sm:p-6 md:p-8 shadow-sm text-center space-y-2 max-w-4xl animate-fade-in shrink">
                 <div class="flex justify-center">
                     <span class="text-[9px] md:text-[10px] font-extrabold uppercase tracking-widest text-[#1b3bbb] bg-[#1b3bbb]/10 px-3 py-0.5 rounded-full border border-[#1b3bbb]/20">Portal Sirena</span>
                 </div>
@@ -158,7 +158,7 @@
             <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4 md:gap-5 w-full max-w-4xl shrink-0">
                 <!-- Card 1: Dashboard / Kelola Pegawai -->
                 @if(Auth::check() && !Auth::user()->isAdmin())
-                    <a href="{{ route('dashboard') }}" class="hover-card-trigger bg-gradient-to-br from-[#1b3bbb] to-[#0b1554] rounded-2xl md:rounded-[22px] border border-[#1b3bbb]/40 p-4 sm:p-5 flex flex-col justify-between shadow-md relative overflow-hidden group text-white">
+                    <a href="{{ route('dashboard') }}" class="hover-card-trigger bg-gradient-to-br from-[#1b3bbb] to-[#0b1554] rounded-2xl md:rounded-[22px] border border-[#1b3bbb]/40 p-4 sm:p-5 flex flex-col justify-between shadow-md relative overflow-hidden group text-white min-h-[175px]">
                         <div class="space-y-2.5 z-10">
                             <div class="w-9 h-9 sm:w-10 sm:h-10 bg-white/15 rounded-xl md:rounded-2xl flex items-center justify-center text-white group-hover:scale-110 transition-transform duration-300">
                                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -178,7 +178,7 @@
                         </div>
                     </a>
                 @elseif(Auth::check() && Auth::user()->isAdmin())
-                    <a href="{{ route('dashboard') }}" class="hover-card-trigger bg-gradient-to-br from-[#1b3bbb] to-[#0b1554] rounded-2xl md:rounded-[22px] border border-[#1b3bbb]/40 p-4 sm:p-5 flex flex-col justify-between shadow-md relative overflow-hidden group text-white">
+                    <a href="{{ route('dashboard') }}" class="hover-card-trigger bg-gradient-to-br from-[#1b3bbb] to-[#0b1554] rounded-2xl md:rounded-[22px] border border-[#1b3bbb]/40 p-4 sm:p-5 flex flex-col justify-between shadow-md relative overflow-hidden group text-white min-h-[175px]">
                         <div class="space-y-2.5 z-10">
                             <div class="w-9 h-9 sm:w-10 sm:h-10 bg-white/15 rounded-xl md:rounded-2xl flex items-center justify-center text-white group-hover:scale-110 transition-transform duration-300">
                                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -201,7 +201,7 @@
 
                 <!-- Card 2: Calendar / Bidang Admin (Clean White Card) -->
                 @if(Auth::check() && !Auth::user()->isAdmin())
-                    <a href="{{ route('calendar') }}" class="hover-card-trigger bg-white rounded-2xl md:rounded-[22px] border border-slate-200/80 p-4 sm:p-5 flex flex-col justify-between shadow-sm hover:shadow-md relative overflow-hidden group text-[#09103c]">
+                    <a href="{{ route('calendar') }}" class="hover-card-trigger bg-white rounded-2xl md:rounded-[22px] border border-slate-200/80 p-4 sm:p-5 flex flex-col justify-between shadow-sm hover:shadow-md relative overflow-hidden group text-[#09103c] min-h-[175px]">
                         <div class="space-y-2.5">
                             <div class="w-9 h-9 sm:w-10 sm:h-10 bg-[#1b3bbb]/5 rounded-xl md:rounded-2xl flex items-center justify-center text-[#1b3bbb] group-hover:scale-110 transition-transform duration-300">
                                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -221,7 +221,7 @@
                         </div>
                     </a>
                 @elseif(Auth::check() && Auth::user()->isAdmin())
-                    <a href="{{ route('admin.users.index') }}" class="hover-card-trigger bg-white rounded-2xl md:rounded-[22px] border border-slate-200/80 p-4 sm:p-5 flex flex-col justify-between shadow-sm hover:shadow-md relative overflow-hidden group text-[#09103c]">
+                    <a href="{{ route('admin.users.index') }}" class="hover-card-trigger bg-white rounded-2xl md:rounded-[22px] border border-slate-200/80 p-4 sm:p-5 flex flex-col justify-between shadow-sm hover:shadow-md relative overflow-hidden group text-[#09103c] min-h-[175px]">
                         <div class="space-y-2.5">
                             <div class="w-9 h-9 sm:w-10 sm:h-10 bg-[#1b3bbb]/5 rounded-xl md:rounded-2xl flex items-center justify-center text-[#1b3bbb] group-hover:scale-110 transition-transform duration-300">
                                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -244,7 +244,7 @@
 
                 <!-- Card 3: Riwayat Rapat / Ganti Password (Clean White Card) -->
                 @if(Auth::check() && !Auth::user()->isAdmin())
-                    <a href="{{ route('riwayat') }}" class="hover-card-trigger bg-white rounded-2xl md:rounded-[22px] border border-slate-200/80 p-4 sm:p-5 flex flex-col justify-between shadow-sm hover:shadow-md relative overflow-hidden group text-[#09103c]">
+                    <a href="{{ route('riwayat') }}" class="hover-card-trigger bg-white rounded-2xl md:rounded-[22px] border border-slate-200/80 p-4 sm:p-5 flex flex-col justify-between shadow-sm hover:shadow-md relative overflow-hidden group text-[#09103c] min-h-[175px]">
                         <div class="space-y-2.5">
                             <div class="w-9 h-9 sm:w-10 sm:h-10 bg-[#1b3bbb]/5 rounded-xl md:rounded-2xl flex items-center justify-center text-[#1b3bbb] group-hover:scale-110 transition-transform duration-300">
                                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -264,7 +264,7 @@
                         </div>
                     </a>
                 @elseif(Auth::check() && Auth::user()->isAdmin())
-                    <a href="{{ route('admin.bidang.index') }}" class="hover-card-trigger bg-white rounded-2xl md:rounded-[22px] border border-slate-200/80 p-4 sm:p-5 flex flex-col justify-between shadow-sm hover:shadow-md relative overflow-hidden group text-[#09103c]">
+                    <a href="{{ route('admin.bidang.index') }}" class="hover-card-trigger bg-white rounded-2xl md:rounded-[22px] border border-slate-200/80 p-4 sm:p-5 flex flex-col justify-between shadow-sm hover:shadow-md relative overflow-hidden group text-[#09103c] min-h-[175px]">
                         <div class="space-y-2.5">
                             <div class="w-9 h-9 sm:w-10 sm:h-10 bg-[#1b3bbb]/5 rounded-xl md:rounded-2xl flex items-center justify-center text-[#1b3bbb] group-hover:scale-110 transition-transform duration-300">
                                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
