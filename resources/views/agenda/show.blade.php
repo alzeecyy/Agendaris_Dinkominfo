@@ -116,7 +116,7 @@
         @if($isSecretaryOfAgenda)
             <!-- Edit Agenda Trigger (Sekretaris only) -->
             <div x-data="{ 
-                openEditModal: {{ $errors->any() ? 'true' : 'false' }}, 
+                openEditModal: {{ ($errors->has('judul') || $errors->has('tanggal') || $errors->has('jam_mulai') || $errors->has('jam_selesai') || $errors->has('lokasi') || $errors->has('kategori') || $errors->has('bidangs')) ? 'true' : 'false' }}, 
                 tempat: '{{ addslashes($initialTempat) }}', 
                 tempatLainnya: '{{ addslashes($initialTempatLainnya) }}',
                 get combinedLokasi() {
@@ -1007,7 +1007,7 @@
                                 <form action="{{ route('agenda.absen.koreksi', $agenda->id) }}" method="POST" class="shrink-0">
                                     @csrf
                                     <input type="hidden" name="user_id" value="{{ $part->id }}">
-                                    <select name="status" onchange="this.form.submit()" 
+                                    <select name="status" onchange="submitStatusKoreksi(this)" 
                                             class="text-[11px] bg-white border border-[#d4d1f5] rounded-xl text-[#2e2552] px-3 py-1.5 font-bold focus:outline-none focus:ring-1 focus:ring-[#8e88dd] cursor-pointer shadow-xs">
                                         @if($agenda->isPresensiExpired())
                                             <option value="alfa" {{ $part->status_presensi === 'alfa' ? 'selected' : '' }}>Alfa</option>
@@ -1406,10 +1406,44 @@
                         const spinnerSvg = `<svg class="w-4 h-4 mr-2 animate-spin text-current shrink-0" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>`;
                         btn.innerHTML = `<span class="inline-flex items-center justify-center">${spinnerSvg}<span>Mengirim Presensi...</span></span>`;
                     }
+
+                    if (typeof window.showHeavyLoading === 'function') {
+                        window.showHeavyLoading('Mengirim Presensi...', 'Mohon tunggu sejenak, data presensi sedang diproses.');
+                    }
                 }
             }));
         }
     }
+
+    window.submitStatusKoreksi = function(selectEl) {
+        if (!selectEl || !selectEl.form) return;
+        
+        selectEl.style.pointerEvents = 'none';
+
+        if (typeof window.showHeavyLoading === 'function') {
+            window.showHeavyLoading('Memperbarui Status Presensi...', 'Mohon tunggu sejenak, status presensi pegawai sedang disimpan.');
+        }
+
+        let loader = document.getElementById('pjax-loader');
+        if (!loader) {
+            loader = document.createElement('div');
+            loader.id = 'pjax-loader';
+            loader.style.position = 'fixed';
+            loader.style.top = '0';
+            loader.style.left = '0';
+            loader.style.height = '3.5px';
+            loader.style.backgroundColor = '#1b3bbb';
+            loader.style.boxShadow = '0 0 10px rgba(27, 59, 187, 0.5)';
+            loader.style.zIndex = '99999';
+            loader.style.width = '0%';
+            loader.style.transition = 'width 0.3s ease';
+            document.body.appendChild(loader);
+        }
+        loader.style.width = '35%';
+        setTimeout(() => { if (loader) loader.style.width = '85%'; }, 150);
+
+        selectEl.form.submit();
+    };
 
     if (typeof Alpine !== 'undefined') {
         registerAgendaDetail();

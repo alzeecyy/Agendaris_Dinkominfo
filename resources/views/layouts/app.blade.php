@@ -498,7 +498,7 @@
             </aside>
 
             <!-- MAIN CONTENT AREA CONTAINER -->
-            <main id="main-content" class="flex-1 min-w-0 bg-[#f8f9fd] sm:bg-slate-50 rounded-xl sm:rounded-2xl md:rounded-[32px] p-2.5 sm:p-5 md:p-8 pb-14 md:pb-6 flex flex-col gap-3 sm:gap-6 shadow-sm md:shadow-2xl relative overflow-y-auto text-[#090c24] border border-white/10">
+            <main id="main-content" class="flex-1 min-w-0 bg-white rounded-xl sm:rounded-2xl md:rounded-[32px] p-2.5 sm:p-5 md:p-8 pb-14 md:pb-6 flex flex-col gap-3 sm:gap-6 shadow-md relative overflow-y-auto text-[#090c24] border border-[#d4d1f5]/60">
                 
                 <!-- Floating Toast Notifications -->
                 @if(session('success') || session('error') || session('warning'))
