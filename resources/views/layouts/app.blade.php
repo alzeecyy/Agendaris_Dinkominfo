@@ -225,77 +225,84 @@
                         'staff' => 'bg-blue-50 text-blue-700 border-blue-100',
                     ];
                 @endphp
-                <div class="relative shrink-0 select-none">
-                    <button type="button" @click="profileMenuOpen = !profileMenuOpen" class="text-[#09103c] flex items-center gap-2.5 p-1 sm:p-1.5 rounded-xl hover:bg-slate-50 transition-colors text-right cursor-pointer focus:outline-none">
-                        <div class="hidden sm:flex flex-col justify-center gap-0.5 text-right">
-                            <div class="text-xs sm:text-sm font-black text-[#09103c] leading-tight">{{ Auth::user()->name }}</div>
-                            <div>
-                                <span class="inline-block text-[8.5px] sm:text-[9px] font-extrabold px-2 py-0.5 rounded-full border {{ $roleColors[Auth::user()->role] ?? 'bg-slate-100 border-slate-200 text-slate-700' }} uppercase tracking-wider">
-                                    {{ Auth::user()->role_label }}
-                                </span>
+                @if(Auth::user()->isAdmin())
+                    <div x-data="{ openAdminMenu: false }" class="relative shrink-0 select-none">
+                        <button type="button" @click="openAdminMenu = !openAdminMenu" class="text-[#09103c] flex items-center gap-2.5 p-1 sm:p-1.5 rounded-2xl hover:bg-[#1b3bbb]/5 transition-all text-right cursor-pointer focus:outline-none group">
+                            <div class="hidden sm:flex flex-col justify-center gap-0.5 text-right">
+                                <div class="text-xs sm:text-sm font-black text-[#09103c] group-hover:text-[#1b3bbb] transition-colors leading-tight">{{ Auth::user()->name }}</div>
+                                <div>
+                                    <span class="inline-block text-[8.5px] sm:text-[9px] font-extrabold px-2 py-0.5 rounded-full border {{ $roleColors[Auth::user()->role] ?? 'bg-slate-100 border-slate-200 text-slate-700' }} uppercase tracking-wider">
+                                        {{ Auth::user()->role_label }}
+                                    </span>
+                                </div>
+                                <div class="text-[9.5px] sm:text-[10px] text-slate-700 font-extrabold font-mono">NIP. {{ Auth::user()->nip }}</div>
                             </div>
-                            <div class="text-[9.5px] sm:text-[10px] text-slate-700 font-extrabold font-mono">NIP. {{ Auth::user()->nip }}</div>
-                        </div>
-                        <div class="w-7 h-7 sm:w-8 sm:h-8 md:w-10 md:h-10 bg-[#1b3bbb]/10 rounded-xl md:rounded-2xl flex items-center justify-center font-bold text-[#1b3bbb] text-[10px] sm:text-xs md:text-sm border border-[#1b3bbb]/20 shadow-sm shrink-0">
-                            {{ substr(Auth::user()->name, 0, 2) }}
-                        </div>
-                    </button>
-
-                    <!-- Compact Floating Dropdown Menu -->
-                    <div x-show="profileMenuOpen" 
-                         @click.away="profileMenuOpen = false" 
-                         x-cloak
-                         x-transition:enter="transition ease-out duration-150 transform"
-                         x-transition:enter-start="opacity-0 scale-95 -translate-y-1"
-                         x-transition:enter-end="opacity-100 scale-100 translate-y-0"
-                         class="absolute right-0 mt-2 w-56 sm:w-60 bg-white border border-[#d4d1f5]/80 rounded-2xl shadow-xl z-50 p-3 space-y-2.5 text-[#2e2552]">
-                        
-                        <div class="pb-2 border-b border-[#d4d1f5]/50 flex items-center gap-2">
-                            <div class="w-7 h-7 bg-[#1b3bbb]/10 text-[#1b3bbb] rounded-xl flex items-center justify-center font-black text-xs border border-[#1b3bbb]/20 shrink-0">
+                            <div class="w-7 h-7 sm:w-8 sm:h-8 md:w-10 md:h-10 bg-[#1b3bbb]/10 rounded-xl md:rounded-2xl flex items-center justify-center font-bold text-[#1b3bbb] text-[10px] sm:text-xs md:text-sm border border-[#1b3bbb]/20 shadow-sm shrink-0 group-hover:bg-[#1b3bbb] group-hover:text-white transition-all">
                                 {{ substr(Auth::user()->name, 0, 2) }}
                             </div>
-                            <div class="min-w-0 flex-1">
-                                <div class="text-xs font-black text-[#2e2552] truncate">{{ Auth::user()->name }}</div>
-                                <div class="text-[9.5px] text-slate-700 font-mono font-bold truncate">NIP. {{ Auth::user()->nip }}</div>
+                        </button>
+
+                        <!-- Compact Floating Pop-up Menu (Khusus Admin) -->
+                        <div x-show="openAdminMenu" 
+                             @click.away="openAdminMenu = false" 
+                             x-cloak
+                             x-transition:enter="transition ease-out duration-150 transform"
+                             x-transition:enter-start="opacity-0 scale-95 -translate-y-1"
+                             x-transition:enter-end="opacity-100 scale-100 translate-y-0"
+                             class="absolute right-0 mt-2 w-56 sm:w-60 bg-white border border-[#d4d1f5]/80 rounded-2xl shadow-xl z-50 p-3 space-y-2.5 text-[#2e2552]">
+                            
+                            <div class="pb-2 border-b border-[#d4d1f5]/50 flex items-center gap-2">
+                                <div class="w-7 h-7 bg-[#1b3bbb]/10 text-[#1b3bbb] rounded-xl flex items-center justify-center font-black text-xs border border-[#1b3bbb]/20 shrink-0">
+                                    {{ substr(Auth::user()->name, 0, 2) }}
+                                </div>
+                                <div class="min-w-0 flex-1">
+                                    <div class="text-xs font-black text-[#2e2552] truncate">{{ Auth::user()->name }}</div>
+                                    <div class="text-[9.5px] text-slate-700 font-mono font-bold truncate">NIP. {{ Auth::user()->nip }}</div>
+                                </div>
+                            </div>
+
+                            <div class="space-y-1">
+                                <a href="{{ route('password.change') }}" class="w-full flex items-center gap-2 px-2.5 py-1.5 rounded-xl text-xs font-bold text-[#2e2552] hover:bg-[#1b3bbb]/5 hover:text-[#1b3bbb] transition-colors">
+                                    <svg class="w-4 h-4 text-[#8e88dd]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path>
+                                    </svg>
+                                    <span>Ubah Kata Sandi</span>
+                                </a>
+                            </div>
+
+                            <div class="border-t border-[#d4d1f5]/40 pt-1.5">
+                                <form action="{{ route('logout') }}" method="POST">
+                                    @csrf
+                                    <button type="submit" class="w-full flex items-center gap-2 px-2.5 py-1.5 rounded-xl text-xs font-bold text-rose-600 hover:bg-rose-50 transition-colors cursor-pointer">
+                                        <svg class="w-4 h-4 text-rose-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"></path>
+                                        </svg>
+                                        <span>Keluar Sistem</span>
+                                    </button>
+                                </form>
                             </div>
                         </div>
-
-                        <div class="space-y-1">
-                            @if(!Auth::user()->isAdmin())
-                                <a href="{{ route('agenda.today') }}" class="w-full flex items-center gap-2 px-2.5 py-1.5 rounded-xl text-xs font-bold text-[#2e2552] hover:bg-[#1b3bbb]/5 hover:text-[#1b3bbb] transition-colors">
-                                    <svg class="w-4 h-4 text-rose-500 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                                    </svg>
-                                    <span>Agenda Hari Ini</span>
-                                </a>
-                                <a href="{{ route('profile') }}" class="w-full flex items-center gap-2 px-2.5 py-1.5 rounded-xl text-xs font-bold text-[#2e2552] hover:bg-[#1b3bbb]/5 hover:text-[#1b3bbb] transition-colors">
-                                    <svg class="w-4 h-4 text-[#8e88dd]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
-                                    </svg>
-                                    <span>Kelola Profil</span>
-                                </a>
-                            @endif
-                            <a href="{{ route('password.change') }}" class="w-full flex items-center gap-2 px-2.5 py-1.5 rounded-xl text-xs font-bold text-[#2e2552] hover:bg-[#1b3bbb]/5 hover:text-[#1b3bbb] transition-colors">
-                                <svg class="w-4 h-4 text-[#8e88dd]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path>
-                                </svg>
-                                <span>Ubah Kata Sandi</span>
-                            </a>
-                        </div>
-
-                        <div class="border-t border-[#d4d1f5]/40 pt-1.5">
-                            <form action="{{ route('logout') }}" method="POST">
-                                @csrf
-                                <button type="submit" class="w-full flex items-center gap-2 px-2.5 py-1.5 rounded-xl text-xs font-bold text-rose-600 hover:bg-rose-50 transition-colors">
-                                    <svg class="w-4 h-4 text-rose-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"></path>
-                                    </svg>
-                                    <span>Keluar Sistem</span>
-                                </button>
-                            </form>
-                        </div>
                     </div>
-                </div>
+                @else
+                    <div class="relative shrink-0 select-none">
+                        <a href="{{ route('profile') }}" 
+                           title="Kelola Profil Saya" 
+                           class="text-[#09103c] flex items-center gap-2.5 p-1 sm:p-1.5 rounded-2xl hover:bg-[#1b3bbb]/5 transition-all text-right cursor-pointer group">
+                            <div class="hidden sm:flex flex-col justify-center gap-0.5 text-right">
+                                <div class="text-xs sm:text-sm font-black text-[#09103c] group-hover:text-[#1b3bbb] transition-colors leading-tight">{{ Auth::user()->name }}</div>
+                                <div>
+                                    <span class="inline-block text-[8.5px] sm:text-[9px] font-extrabold px-2 py-0.5 rounded-full border {{ $roleColors[Auth::user()->role] ?? 'bg-slate-100 border-slate-200 text-slate-700' }} uppercase tracking-wider">
+                                        {{ Auth::user()->role_label }}
+                                    </span>
+                                </div>
+                                <div class="text-[9.5px] sm:text-[10px] text-slate-700 font-extrabold font-mono">NIP. {{ Auth::user()->nip }}</div>
+                            </div>
+                            <div class="w-7 h-7 sm:w-8 sm:h-8 md:w-10 md:h-10 bg-[#1b3bbb]/10 rounded-xl md:rounded-2xl flex items-center justify-center font-bold text-[#1b3bbb] text-[10px] sm:text-xs md:text-sm border border-[#1b3bbb]/20 shadow-sm shrink-0 group-hover:bg-[#1b3bbb] group-hover:text-white transition-all">
+                                {{ substr(Auth::user()->name, 0, 2) }}
+                            </div>
+                        </a>
+                    </div>
+                @endif
             @endif
         </header>
 
