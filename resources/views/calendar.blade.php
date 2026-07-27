@@ -730,8 +730,14 @@
                         
                         <div class="grid grid-cols-1 gap-1">
                             @foreach($bidangs as $bid)
-                                <label class="flex items-center justify-between px-2.5 py-1 rounded-lg border border-transparent hover:border-slate-200 hover:bg-white transition-all cursor-pointer select-none">
+                                @php
+                                    $isSubbag = (str_contains(strtolower($bid->nama), 'subbag') || str_contains(strtolower($bid->singkatan), 'subbag')) && strcasecmp($bid->singkatan, 'Sekretariat') !== 0;
+                                @endphp
+                                <label class="flex items-center justify-between px-2.5 py-1 rounded-lg border border-transparent hover:border-slate-200 hover:bg-white transition-all cursor-pointer select-none {{ $isSubbag ? 'pl-6' : '' }}">
                                     <div class="flex items-center gap-2.5">
+                                        @if($isSubbag)
+                                            <span class="text-slate-400 text-[11px] font-bold shrink-0 -mr-1">└</span>
+                                        @endif
                                         <input type="checkbox" name="bidangs[]" value="{{ $bid->id }}" x-model="bidangs" @change="checkBidang('{{ $bid->id }}')"
                                                @if(Auth::user()->isSekretarisBidang() && Auth::user()->bidang_id == $bid->id) disabled @endif
                                                class="w-3.5 h-3.5 rounded border-slate-300 text-indigo-600 focus:ring-indigo-500 focus:ring-offset-0 transition-all shrink-0">
@@ -747,6 +753,7 @@
                                 </label>
                             @endforeach
                         </div>
+
 
                         <!-- Kelola Peserta Button Bar -->
                         <div class="pt-2 border-t border-slate-200/60 flex items-center justify-between">
