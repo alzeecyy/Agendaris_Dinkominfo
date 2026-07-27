@@ -38,22 +38,24 @@ class User extends Authenticatable
     }
 
     /**
-     * Get effective bidang_id attribute, resolving Subbag users to their respective Subbag Bidang ID.
+     * Get effective bidang_id attribute, resolving Subbag & Kasubag users to their respective Subbag Bidang ID.
      */
     public function getBidangIdAttribute($value)
     {
-        if ($value && !empty($this->attributes['jabatan']) && str_contains(strtolower($this->attributes['jabatan']), 'subbag')) {
+        if ($value && !empty($this->attributes['jabatan'])) {
             $jabatanLower = strtolower($this->attributes['jabatan']);
-            $subbag = null;
-            if (str_contains($jabatanLower, 'umum')) {
-                $subbag = Bidang::where('nama', 'like', '%Subbag Umum%')->orWhere('singkatan', 'like', '%Subbag Umum%')->first();
-            } elseif (str_contains($jabatanLower, 'keuangan')) {
-                $subbag = Bidang::where('nama', 'like', '%Subbag Keuangan%')->orWhere('singkatan', 'like', '%Subbag Keuangan%')->first();
-            } elseif (str_contains($jabatanLower, 'perencanaan')) {
-                $subbag = Bidang::where('nama', 'like', '%Subbag Perencanaan%')->orWhere('singkatan', 'like', '%Subbag Perencanaan%')->first();
-            }
-            if ($subbag) {
-                return $subbag->id;
+            if (str_contains($jabatanLower, 'subbag') || str_contains($jabatanLower, 'kasubag')) {
+                $subbag = null;
+                if (str_contains($jabatanLower, 'umum')) {
+                    $subbag = Bidang::where('nama', 'like', '%Subbag Umum%')->orWhere('singkatan', 'like', '%Subbag Umum%')->first();
+                } elseif (str_contains($jabatanLower, 'keuangan')) {
+                    $subbag = Bidang::where('nama', 'like', '%Subbag Keuangan%')->orWhere('singkatan', 'like', '%Subbag Keuangan%')->first();
+                } elseif (str_contains($jabatanLower, 'perencanaan')) {
+                    $subbag = Bidang::where('nama', 'like', '%Subbag Perencanaan%')->orWhere('singkatan', 'like', '%Subbag Perencanaan%')->first();
+                }
+                if ($subbag) {
+                    return $subbag->id;
+                }
             }
         }
         return $value;
