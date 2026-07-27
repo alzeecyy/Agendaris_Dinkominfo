@@ -142,35 +142,35 @@
         <!-- Main Content Portal -->
         <main class="flex-1 flex flex-col items-center justify-center gap-4 sm:gap-6 py-4 my-auto w-full">
             <!-- Hero Welcome Card -->
-            <div class="w-full bg-white/80 backdrop-blur-md rounded-2xl md:rounded-[24px] border border-slate-200/80 p-4 sm:p-5 md:p-6 shadow-sm text-center space-y-1.5 sm:space-y-2 max-w-3xl animate-fade-in shrink">
+            <div class="w-full bg-white/80 backdrop-blur-md rounded-2xl md:rounded-[24px] border border-slate-200/80 p-5 sm:p-6 md:p-7 shadow-sm text-center space-y-2 animate-fade-in">
                 <div class="flex justify-center">
                     <span class="text-[9px] md:text-[10px] font-extrabold uppercase tracking-widest text-[#1b3bbb] bg-[#1b3bbb]/10 px-3 py-0.5 rounded-full border border-[#1b3bbb]/20">Portal Sirena</span>
                 </div>
                 <h2 class="text-lg sm:text-xl md:text-2xl font-black text-[#09103c] tracking-tight leading-tight">
                     Halo, {{ Auth::user()->name }}
                 </h2>
-                <p class="text-xs sm:text-sm text-slate-600 font-medium max-w-xl mx-auto leading-relaxed">
+                <p class="text-xs sm:text-sm text-slate-600 font-medium max-w-2xl mx-auto leading-relaxed">
                     Sistem koordinasi dinas, pencatatan presensi rapat mandiri, dan penyusunan notulensi kerja Dinas Komunikasi dan Informatika Kabupaten Banyumas.
                 </p>
             </div>
 
             <!-- Features Navigation Cards Grid -->
-            <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4 md:gap-5 w-full max-w-4xl shrink-0">
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 sm:gap-5 w-full">
                 <!-- Card 1: Dashboard / Kelola Pegawai -->
                 @if(Auth::check() && !Auth::user()->isAdmin())
-                    <a href="{{ route('dashboard') }}" class="hover-card-trigger bg-gradient-to-br from-[#1b3bbb] to-[#0b1554] rounded-2xl md:rounded-[22px] border border-[#1b3bbb]/40 p-4 sm:p-5 flex flex-col justify-between shadow-md relative overflow-hidden group text-white">
-                        <div class="space-y-2.5 z-10">
-                            <div class="w-9 h-9 sm:w-10 sm:h-10 bg-white/15 rounded-xl md:rounded-2xl flex items-center justify-center text-white group-hover:scale-110 transition-transform duration-300">
-                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <a href="{{ route('dashboard') }}" class="hover-card-trigger bg-gradient-to-br from-[#1b3bbb] to-[#0b1554] rounded-2xl md:rounded-[22px] border border-[#1b3bbb]/40 p-5 sm:p-6 flex flex-col justify-between shadow-md relative overflow-hidden group text-white min-h-[180px]">
+                        <div class="space-y-3 z-10">
+                            <div class="w-10 h-10 sm:w-11 sm:h-11 bg-white/15 rounded-xl md:rounded-2xl flex items-center justify-center text-white group-hover:scale-110 transition-transform duration-300">
+                                <svg class="w-5 h-5 sm:w-6 sm:h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"></path>
                                 </svg>
                             </div>
                             <div class="space-y-1">
-                                <h3 class="text-sm sm:text-base md:text-lg font-extrabold text-white">Dashboard Utama</h3>
-                                <p class="text-[11px] sm:text-xs text-blue-100/80 leading-relaxed">Pantau agenda rapat, presensi mandiri, dan statistik kedinasan secara real-time.</p>
+                                <h3 class="text-base sm:text-lg font-extrabold text-white">Dashboard Utama</h3>
+                                <p class="text-xs text-blue-100/80 leading-relaxed">Pantau agenda rapat, presensi mandiri, dan statistik kedinasan secara real-time.</p>
                             </div>
                         </div>
-                        <div class="mt-3 md:mt-4 flex items-center gap-1.5 text-xs font-bold text-white group-hover:gap-2.5 transition-all duration-300 z-10">
+                        <div class="mt-4 flex items-center gap-1.5 text-xs font-bold text-white group-hover:gap-2.5 transition-all duration-300 z-10">
                             <span>Buka Dashboard</span>
                             <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
@@ -178,19 +178,19 @@
                         </div>
                     </a>
                 @elseif(Auth::check() && Auth::user()->isAdmin())
-                    <a href="{{ route('dashboard') }}" class="hover-card-trigger bg-gradient-to-br from-[#1b3bbb] to-[#0b1554] rounded-2xl md:rounded-[22px] border border-[#1b3bbb]/40 p-4 sm:p-5 flex flex-col justify-between shadow-md relative overflow-hidden group text-white">
-                        <div class="space-y-2.5 z-10">
-                            <div class="w-9 h-9 sm:w-10 sm:h-10 bg-white/15 rounded-xl md:rounded-2xl flex items-center justify-center text-white group-hover:scale-110 transition-transform duration-300">
-                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <a href="{{ route('dashboard') }}" class="hover-card-trigger bg-gradient-to-br from-[#1b3bbb] to-[#0b1554] rounded-2xl md:rounded-[22px] border border-[#1b3bbb]/40 p-5 sm:p-6 flex flex-col justify-between shadow-md relative overflow-hidden group text-white min-h-[180px]">
+                        <div class="space-y-3 z-10">
+                            <div class="w-10 h-10 sm:w-11 sm:h-11 bg-white/15 rounded-xl md:rounded-2xl flex items-center justify-center text-white group-hover:scale-110 transition-transform duration-300">
+                                <svg class="w-5 h-5 sm:w-6 sm:h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"></path>
                                 </svg>
                             </div>
                             <div class="space-y-1">
-                                <h3 class="text-sm sm:text-base md:text-lg font-extrabold text-white">Dashboard Admin</h3>
-                                <p class="text-[11px] sm:text-xs text-blue-100/80 leading-relaxed">Pantau statistik sistem, aktivitas pegawai, dan agenda kedinasan secara real-time.</p>
+                                <h3 class="text-base sm:text-lg font-extrabold text-white">Dashboard Admin</h3>
+                                <p class="text-xs text-blue-100/80 leading-relaxed">Pantau statistik sistem, aktivitas pegawai, dan agenda kedinasan secara real-time.</p>
                             </div>
                         </div>
-                        <div class="mt-3 md:mt-4 flex items-center gap-1.5 text-xs font-bold text-white group-hover:gap-2.5 transition-all duration-300 z-10">
+                        <div class="mt-4 flex items-center gap-1.5 text-xs font-bold text-white group-hover:gap-2.5 transition-all duration-300 z-10">
                             <span>Buka Dashboard</span>
                             <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
@@ -201,19 +201,19 @@
 
                 <!-- Card 2: Calendar / Bidang Admin (Clean White Card) -->
                 @if(Auth::check() && !Auth::user()->isAdmin())
-                    <a href="{{ route('calendar') }}" class="hover-card-trigger bg-white rounded-2xl md:rounded-[22px] border border-slate-200/80 p-4 sm:p-5 flex flex-col justify-between shadow-sm hover:shadow-md relative overflow-hidden group text-[#09103c]">
-                        <div class="space-y-2.5">
-                            <div class="w-9 h-9 sm:w-10 sm:h-10 bg-[#1b3bbb]/5 rounded-xl md:rounded-2xl flex items-center justify-center text-[#1b3bbb] group-hover:scale-110 transition-transform duration-300">
-                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <a href="{{ route('calendar') }}" class="hover-card-trigger bg-white rounded-2xl md:rounded-[22px] border border-slate-200/80 p-5 sm:p-6 flex flex-col justify-between shadow-sm hover:shadow-md relative overflow-hidden group text-[#09103c] min-h-[180px]">
+                        <div class="space-y-3">
+                            <div class="w-10 h-10 sm:w-11 sm:h-11 bg-[#1b3bbb]/5 rounded-xl md:rounded-2xl flex items-center justify-center text-[#1b3bbb] group-hover:scale-110 transition-transform duration-300">
+                                <svg class="w-5 h-5 sm:w-6 sm:h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
                                 </svg>
                             </div>
                             <div class="space-y-1">
-                                <h3 class="text-sm sm:text-base md:text-lg font-extrabold text-[#09103c]">Kalender Rinci</h3>
-                                <p class="text-[11px] sm:text-xs text-slate-500 leading-relaxed">Lihat peta agenda bulanan, koordinasi terjadwal, dan detail teknis rapat.</p>
+                                <h3 class="text-base sm:text-lg font-extrabold text-[#09103c]">Kalender Rinci</h3>
+                                <p class="text-xs text-slate-500 leading-relaxed">Lihat peta agenda bulanan, koordinasi terjadwal, dan detail teknis rapat.</p>
                             </div>
                         </div>
-                        <div class="mt-3 md:mt-4 flex items-center gap-1.5 text-xs font-bold text-[#1b3bbb] group-hover:gap-2.5 transition-all duration-300">
+                        <div class="mt-4 flex items-center gap-1.5 text-xs font-bold text-[#1b3bbb] group-hover:gap-2.5 transition-all duration-300">
                             <span>Buka Kalender</span>
                             <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
@@ -221,19 +221,19 @@
                         </div>
                     </a>
                 @elseif(Auth::check() && Auth::user()->isAdmin())
-                    <a href="{{ route('admin.users.index') }}" class="hover-card-trigger bg-white rounded-2xl md:rounded-[22px] border border-slate-200/80 p-4 sm:p-5 flex flex-col justify-between shadow-sm hover:shadow-md relative overflow-hidden group text-[#09103c]">
-                        <div class="space-y-2.5">
-                            <div class="w-9 h-9 sm:w-10 sm:h-10 bg-[#1b3bbb]/5 rounded-xl md:rounded-2xl flex items-center justify-center text-[#1b3bbb] group-hover:scale-110 transition-transform duration-300">
-                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <a href="{{ route('admin.users.index') }}" class="hover-card-trigger bg-white rounded-2xl md:rounded-[22px] border border-slate-200/80 p-5 sm:p-6 flex flex-col justify-between shadow-sm hover:shadow-md relative overflow-hidden group text-[#09103c] min-h-[180px]">
+                        <div class="space-y-3">
+                            <div class="w-10 h-10 sm:w-11 sm:h-11 bg-[#1b3bbb]/5 rounded-xl md:rounded-2xl flex items-center justify-center text-[#1b3bbb] group-hover:scale-110 transition-transform duration-300">
+                                <svg class="w-5 h-5 sm:w-6 sm:h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"></path>
                                 </svg>
                             </div>
                             <div class="space-y-1">
-                                <h3 class="text-sm sm:text-base md:text-lg font-extrabold text-[#09103c]">Kelola Pegawai</h3>
-                                <p class="text-[11px] sm:text-xs text-slate-500 leading-relaxed">Tambah, edit, hapus, reset password, dan kelola akun pegawai.</p>
+                                <h3 class="text-base sm:text-lg font-extrabold text-[#09103c]">Kelola Pegawai</h3>
+                                <p class="text-xs text-slate-500 leading-relaxed">Tambah, edit, hapus, reset password, dan kelola akun pegawai.</p>
                             </div>
                         </div>
-                        <div class="mt-3 md:mt-4 flex items-center gap-1.5 text-xs font-bold text-[#1b3bbb] group-hover:gap-2.5 transition-all duration-300">
+                        <div class="mt-4 flex items-center gap-1.5 text-xs font-bold text-[#1b3bbb] group-hover:gap-2.5 transition-all duration-300">
                             <span>Kelola Pengguna</span>
                             <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
@@ -244,19 +244,19 @@
 
                 <!-- Card 3: Riwayat Rapat / Ganti Password (Clean White Card) -->
                 @if(Auth::check() && !Auth::user()->isAdmin())
-                    <a href="{{ route('riwayat') }}" class="hover-card-trigger bg-white rounded-2xl md:rounded-[22px] border border-slate-200/80 p-4 sm:p-5 flex flex-col justify-between shadow-sm hover:shadow-md relative overflow-hidden group text-[#09103c]">
-                        <div class="space-y-2.5">
-                            <div class="w-9 h-9 sm:w-10 sm:h-10 bg-[#1b3bbb]/5 rounded-xl md:rounded-2xl flex items-center justify-center text-[#1b3bbb] group-hover:scale-110 transition-transform duration-300">
-                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <a href="{{ route('riwayat') }}" class="hover-card-trigger bg-white rounded-2xl md:rounded-[22px] border border-slate-200/80 p-5 sm:p-6 flex flex-col justify-between shadow-sm hover:shadow-md relative overflow-hidden group text-[#09103c] min-h-[180px]">
+                        <div class="space-y-3">
+                            <div class="w-10 h-10 sm:w-11 sm:h-11 bg-[#1b3bbb]/5 rounded-xl md:rounded-2xl flex items-center justify-center text-[#1b3bbb] group-hover:scale-110 transition-transform duration-300">
+                                <svg class="w-5 h-5 sm:w-6 sm:h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
                                 </svg>
                             </div>
                             <div class="space-y-1">
-                                <h3 class="text-sm sm:text-base md:text-lg font-extrabold text-[#09103c]">Riwayat Rapat</h3>
-                                <p class="text-[11px] sm:text-xs text-slate-500 leading-relaxed">Akses berkas notulensi PDF/Word dan risalah rapat sebelumnya.</p>
+                                <h3 class="text-base sm:text-lg font-extrabold text-[#09103c]">Riwayat Rapat</h3>
+                                <p class="text-xs text-slate-500 leading-relaxed">Akses berkas notulensi PDF/Word dan risalah rapat sebelumnya.</p>
                             </div>
                         </div>
-                        <div class="mt-3 md:mt-4 flex items-center gap-1.5 text-xs font-bold text-[#1b3bbb] group-hover:gap-2.5 transition-all duration-300">
+                        <div class="mt-4 flex items-center gap-1.5 text-xs font-bold text-[#1b3bbb] group-hover:gap-2.5 transition-all duration-300">
                             <span>Buka Riwayat</span>
                             <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
@@ -264,19 +264,19 @@
                         </div>
                     </a>
                 @elseif(Auth::check() && Auth::user()->isAdmin())
-                    <a href="{{ route('admin.bidang.index') }}" class="hover-card-trigger bg-white rounded-2xl md:rounded-[22px] border border-slate-200/80 p-4 sm:p-5 flex flex-col justify-between shadow-sm hover:shadow-md relative overflow-hidden group text-[#09103c]">
-                        <div class="space-y-2.5">
-                            <div class="w-9 h-9 sm:w-10 sm:h-10 bg-[#1b3bbb]/5 rounded-xl md:rounded-2xl flex items-center justify-center text-[#1b3bbb] group-hover:scale-110 transition-transform duration-300">
-                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <a href="{{ route('admin.bidang.index') }}" class="hover-card-trigger bg-white rounded-2xl md:rounded-[22px] border border-slate-200/80 p-5 sm:p-6 flex flex-col justify-between shadow-sm hover:shadow-md relative overflow-hidden group text-[#09103c] min-h-[180px]">
+                        <div class="space-y-3">
+                            <div class="w-10 h-10 sm:w-11 sm:h-11 bg-[#1b3bbb]/5 rounded-xl md:rounded-2xl flex items-center justify-center text-[#1b3bbb] group-hover:scale-110 transition-transform duration-300">
+                                <svg class="w-5 h-5 sm:w-6 sm:h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path>
                                 </svg>
                             </div>
                             <div class="space-y-1">
-                                <h3 class="text-sm sm:text-base md:text-lg font-extrabold text-[#09103c]">Kelola Bidang</h3>
-                                <p class="text-[11px] sm:text-xs text-slate-500 leading-relaxed">Tambah, perbarui, dan atur struktur bidang/seksi kedinasan.</p>
+                                <h3 class="text-base sm:text-lg font-extrabold text-[#09103c]">Kelola Bidang</h3>
+                                <p class="text-xs text-slate-500 leading-relaxed">Tambah, perbarui, dan atur struktur bidang/seksi kedinasan.</p>
                             </div>
                         </div>
-                        <div class="mt-3 md:mt-4 flex items-center gap-1.5 text-xs font-bold text-[#1b3bbb] group-hover:gap-2.5 transition-all duration-300">
+                        <div class="mt-4 flex items-center gap-1.5 text-xs font-bold text-[#1b3bbb] group-hover:gap-2.5 transition-all duration-300">
                             <span>Kelola Bidang</span>
                             <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
