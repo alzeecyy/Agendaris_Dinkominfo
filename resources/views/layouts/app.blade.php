@@ -15,13 +15,17 @@
             font-family: 'Plus Jakarta Sans', sans-serif;
             background: linear-gradient(135deg, #eef2ff 0%, #f8fafc 100%);
         }
-        /* Custom scrollbar */
+        /* Custom scrollbar - Thin overlay */
+        * {
+            scrollbar-width: thin;
+            scrollbar-color: rgba(27, 59, 187, 0.2) transparent;
+        }
         ::-webkit-scrollbar {
-            width: 6px;
-            height: 6px;
+            width: 4px;
+            height: 4px;
         }
         ::-webkit-scrollbar-track {
-            background: rgba(27, 59, 187, 0.05);
+            background: transparent;
         }
         ::-webkit-scrollbar-thumb {
             background: rgba(27, 59, 187, 0.2);
@@ -29,6 +33,9 @@
         }
         ::-webkit-scrollbar-thumb:hover {
             background: rgba(27, 59, 187, 0.4);
+        }
+        ::-webkit-scrollbar-corner {
+            background: transparent;
         }
 
         /* Color Palette Override from Purple to Royal Blue/Navy */
