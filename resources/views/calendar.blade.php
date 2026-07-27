@@ -695,15 +695,16 @@
                 }' class="space-y-1.5 border-t border-slate-100 pt-2.5">
                     <label class="block text-[10.5px] font-bold text-slate-600 uppercase tracking-wider">Bidang & Peserta Rapat <span class="text-rose-500 font-bold">*</span></label>
 
-                    <!-- Hidden Inputs for Selected Participants -->
-                    <template x-for="userId in selectedParticipants" :key="userId">
+                    <!-- Hidden Inputs for Selected Bidangs & Participants -->
+                    <template x-for="bId in bidangs" :key="'bidang-input-' + bId">
+                        <input type="hidden" name="bidangs[]" :value="bId">
+                    </template>
+                    <template x-for="userId in selectedParticipants" :key="'participant-input-' + userId">
                         <input type="hidden" name="participants[]" :value="userId">
                     </template>
 
                     <div class="bg-slate-50/70 border border-slate-200/80 rounded-xl p-2.5 space-y-2">
-                        @if(Auth::user()->isSekretarisBidang() && !Auth::user()->isSekretariatScope())
-                            <input type="hidden" name="bidangs[]" value="{{ Auth::user()->bidang_id }}">
-                        @else
+                        @if(!Auth::user()->isSekretarisBidang() || Auth::user()->isSekretariatScope())
                             <label class="flex items-center gap-2 px-2 py-1 bg-white rounded-lg border border-slate-200/60 hover:border-indigo-200 transition-all cursor-pointer select-none">
                                 <input type="checkbox" name="semua_orang" value="1" x-model="semuaOrang" @change="toggleSemua()"
                                        class="w-3.5 h-3.5 rounded border-slate-300 text-indigo-600 focus:ring-indigo-500 focus:ring-offset-0 transition-all">
@@ -723,7 +724,7 @@
                                         @if($isSubbag)
                                             <span class="text-slate-400 text-[11px] font-bold shrink-0 -mr-1">└</span>
                                         @endif
-                                        <input type="checkbox" name="bidangs[]" value="{{ $bid->id }}" x-model="bidangs" @change="checkBidang('{{ $bid->id }}')"
+                                        <input type="checkbox" value="{{ $bid->id }}" x-model="bidangs" @change="checkBidang('{{ $bid->id }}')"
                                                @if($isMandatory) disabled @endif
                                                class="w-3.5 h-3.5 rounded border-slate-300 text-indigo-600 focus:ring-indigo-500 focus:ring-offset-0 transition-all shrink-0">
                                         <span class="text-[11.5px] text-slate-700 font-medium {{ $isMandatory ? 'font-bold text-slate-900' : '' }}">

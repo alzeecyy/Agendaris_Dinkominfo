@@ -81,14 +81,20 @@ class AgendaController extends Controller
             'nomor_surat_dasar' => 'nullable|string|max:255',
         ];
 
-        // Validate hak_akses depending on role
-        if ($user->isSekretarisBidang() && !$user->isSekretariatScope()) {
-            $rules['semua_orang'] = 'nullable|prohibited'; // Standard Bidang Secretary cannot check semua_orang
-        } else {
-            $rules['semua_orang'] = 'nullable|boolean';
+        // Auto-merge mandatory bidangs into request if NOT semua_orang
+        if (!$request->has('semua_orang')) {
+            $reqBidangs = array_map('strval', (array)$request->input('bidangs', []));
+            if ($user->bidang_id && !in_array((string)$user->bidang_id, $reqBidangs)) {
+                $reqBidangs[] = (string)$user->bidang_id;
+            }
+            if ($user->isSekretariatScope()) {
+                $sekId = \App\Models\Bidang::where('singkatan', 'Sekretariat')->orWhere('nama', 'Sekretariat')->value('id');
+                if ($sekId && !in_array((string)$sekId, $reqBidangs)) {
+                    $reqBidangs[] = (string)$sekId;
+                }
+            }
+            $request->merge(['bidangs' => array_values(array_unique($reqBidangs))]);
         }
-        $rules['bidangs'] = 'required_without:semua_orang|array';
-        $rules['bidangs.*'] = 'exists:bidangs,id';
 
         $validated = $request->validate($rules, [
             'judul.required' => 'Judul agenda wajib diisi.',
@@ -351,13 +357,20 @@ class AgendaController extends Controller
         ];
 
         // Validate hak_akses depending on role
-        if ($user->isSekretarisBidang()) {
-            $rules['semua_orang'] = 'nullable|prohibited';
-        } else {
-            $rules['semua_orang'] = 'nullable|boolean';
+        // Auto-merge mandatory bidangs into request if NOT semua_orang
+        if (!$request->has('semua_orang')) {
+            $reqBidangs = array_map('strval', (array)$request->input('bidangs', []));
+            if ($user->bidang_id && !in_array((string)$user->bidang_id, $reqBidangs)) {
+                $reqBidangs[] = (string)$user->bidang_id;
+            }
+            if ($user->isSekretariatScope()) {
+                $sekId = \App\Models\Bidang::where('singkatan', 'Sekretariat')->orWhere('nama', 'Sekretariat')->value('id');
+                if ($sekId && !in_array((string)$sekId, $reqBidangs)) {
+                    $reqBidangs[] = (string)$sekId;
+                }
+            }
+            $request->merge(['bidangs' => array_values(array_unique($reqBidangs))]);
         }
-        $rules['bidangs'] = 'required_without:semua_orang|array';
-        $rules['bidangs.*'] = 'exists:bidangs,id';
 
         $validated = $request->validate($rules, [
             'judul.required' => 'Judul agenda wajib diisi.',
