@@ -504,8 +504,8 @@
     <div class="grid grid-cols-1 lg:grid-cols-2 gap-3.5 sm:gap-6 items-stretch">
         
         <!-- Left Column: Info Detail Agenda -->
-        <div class="space-y-2.5 sm:space-y-6 min-w-0 flex flex-col">
-            <div class="bg-white border border-[#d4d1f5]/60 rounded-xl md:rounded-[32px] p-2.5 sm:p-6 md:p-8 shadow-sm space-y-2.5 sm:space-y-6 h-full flex flex-col justify-between">
+        <div class="min-w-0 flex flex-col h-full">
+            <div class="bg-white border border-[#d4d1f5]/60 rounded-xl md:rounded-[32px] p-2.5 sm:p-6 md:p-8 shadow-sm h-full flex flex-col justify-start gap-4">
                 <div class="space-y-2.5 sm:space-y-6">
                     <!-- Category badge -->
                     <div class="flex items-center justify-between">
@@ -586,8 +586,8 @@
                     </div>
                 </div>
 
-                <!-- Nomor Surat -->
-                <div class="p-4 bg-[#f8f7ff] border border-[#d4d1f5]/40 rounded-2xl space-y-2.5 mt-4">
+                <!-- Nomor Surat (STAYS RIGHT BELOW TANGGAL/LOKASI!) -->
+                <div class="p-3.5 sm:p-4 bg-[#f8f7ff] border border-[#d4d1f5]/40 rounded-2xl space-y-2">
                     <div class="flex items-center justify-between gap-2">
                         <h3 class="text-xs font-bold uppercase tracking-wider text-[#5a508f]">Nomor Surat</h3>
                         @if($isSecretaryOfAgenda || Auth::user()->isAdmin())
@@ -970,15 +970,15 @@
                     </div>
                 </div>
             @elseif($agenda->butuh_presensi && (Auth::user()->role !== 'staff' || Auth::user()->isSekretariat()))
-                <div class="bg-white border border-[#d4d1f5]/60 rounded-xl md:rounded-[32px] p-2.5 sm:p-6 shadow-sm space-y-2.5 sm:space-y-4 flex-1 flex flex-col justify-start">
+                <div x-data="{ showAllRecap: false }" class="bg-white border border-[#d4d1f5]/60 rounded-xl md:rounded-[32px] p-2.5 sm:p-6 shadow-sm space-y-2.5 sm:space-y-4 flex-1 flex flex-col justify-start">
                     <div class="flex items-center justify-between border-b border-[#d4d1f5]/40 pb-2">
                         <h3 class="text-[11px] sm:text-xs font-bold uppercase tracking-wider text-[#2e2552]">Rekap Kehadiran Bidang</h3>
-                        <span class="text-[9.5px] text-[#5a508f] font-bold">Klik untuk detail</span>
                     </div>
                     
                     <div class="space-y-2">
-                        @foreach($recap as $rc)
-                            <div @click="showBidangDetails({{ $rc->bidang_id }}, '{{ addslashes($rc->bidang_nama) }}')" 
+                        @foreach($recap as $index => $rc)
+                            <div x-show="showAllRecap || {{ $index }} < 2"
+                                 @click="showBidangDetails({{ $rc->bidang_id }}, '{{ addslashes($rc->bidang_nama) }}')" 
                                  class="p-2.5 bg-[#f8f7ff] border border-[#d4d1f5]/40 hover:border-[#8e88dd] hover:bg-[#f3f2fe] rounded-xl text-xs space-y-1.5 cursor-pointer transition-all duration-200 shadow-sm group">
                                 <div class="font-bold text-[#2e2552] flex items-center justify-between gap-2">
                                     <span class="truncate group-hover:text-[#1b3bbb] transition-colors font-extrabold text-[11px] sm:text-xs">{{ $rc->bidang_nama }}</span>
@@ -999,6 +999,16 @@
                             </div>
                         @endforeach
                     </div>
+
+                    @if(count($recap) > 2)
+                        <button type="button" @click="showAllRecap = !showAllRecap" 
+                                class="w-full py-2 px-3 text-[11px] font-extrabold text-[#1b3bbb] hover:text-[#09103c] bg-[#f8f7ff] hover:bg-[#f3f2fe] border border-[#d4d1f5]/60 rounded-xl transition-all flex items-center justify-center gap-1.5 cursor-pointer shadow-2xs">
+                            <span x-text="showAllRecap ? 'Sembunyikan Bidang Lainnya' : 'Tampilkan Semua Bidang ({{ count($recap) }})'"></span>
+                            <svg class="w-3.5 h-3.5 transition-transform duration-200" :class="showAllRecap ? 'rotate-180' : ''" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                            </svg>
+                        </button>
+                    @endif
                 </div>
             @endif
         </div>
