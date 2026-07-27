@@ -402,9 +402,9 @@ class="space-y-6">
                 </div>
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
                     <div class="space-y-1.5">
-                        <label for="bidang_id" class="block text-[11px] font-bold text-slate-600 uppercase tracking-wider">Bidang Dinas</label>
+                        <label for="bidang_id" class="block text-[11px] font-bold text-slate-600 uppercase tracking-wider">Bidang / Subbagian</label>
                         <select name="bidang_id" id="bidang_id" class="w-full px-3.5 py-2.5 bg-slate-50/80 hover:bg-slate-50 border border-slate-200 rounded-xl text-slate-800 text-sm focus:bg-white focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10 transition-all duration-200 font-medium">
-                            <option value="" disabled selected>Pilih Bidang</option>
+                            <option value="" disabled selected>Pilih Bidang / Subbag</option>
                             @foreach($bidangs as $bid)
                                 <option value="{{ $bid->id }}">{{ $bid->singkatan }}</option>
                             @endforeach
@@ -415,10 +415,10 @@ class="space-y-6">
                         <select name="role" id="role" required class="w-full px-3.5 py-2.5 bg-slate-50/80 hover:bg-slate-50 border border-slate-200 rounded-xl text-slate-800 text-sm focus:bg-white focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10 transition-all duration-200 font-medium">
                             <option value="" disabled selected>Pilih Role</option>
                             <option value="staff">Staff</option>
-                            <option value="sekretaris_bidang">Admin Bidang</option>
-                            <option value="ketua_bidang">Ketua Bidang</option>
-                            <option value="sekretaris_master">Sekretaris Dinas</option>
-                            <option value="ketua_master">Kepala Dinas</option>
+                            <option value="sekretaris_bidang">Admin Bidang / Subbag</option>
+                            <option value="ketua_bidang">Kepala Bidang / Kasubag</option>
+                            <option value="sekretaris_master">Sekretaris Dinas (Sekdin)</option>
+                            <option value="ketua_master">Kepala Dinas (Kadis)</option>
                         </select>
                     </div>
                 </div>
@@ -484,9 +484,9 @@ class="space-y-6">
                 </div>
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
                     <div class="space-y-1.5">
-                        <label class="block text-[11px] font-bold text-slate-600 uppercase tracking-wider">Bidang Dinas</label>
+                        <label class="block text-[11px] font-bold text-slate-600 uppercase tracking-wider">Bidang / Subbagian</label>
                         <select name="bidang_id" x-model="editUser.bidang_id" class="w-full px-3.5 py-2.5 bg-slate-50/80 hover:bg-slate-50 border border-slate-200 rounded-xl text-slate-800 text-sm focus:bg-white focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10 transition-all duration-200 font-medium">
-                            <option value="" disabled>Pilih Bidang</option>
+                            <option value="" disabled>Pilih Bidang / Subbag</option>
                             @foreach($bidangs as $bid)
                                 <option value="{{ $bid->id }}">{{ $bid->singkatan }}</option>
                             @endforeach
@@ -497,10 +497,10 @@ class="space-y-6">
                         <select name="role" x-model="editUser.role" required class="w-full px-3.5 py-2.5 bg-slate-50/80 hover:bg-slate-50 border border-slate-200 rounded-xl text-slate-800 text-sm focus:bg-white focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10 transition-all duration-200 font-medium">
                             <option value="" disabled>Pilih Role</option>
                             <option value="staff">Staff</option>
-                            <option value="sekretaris_bidang">Admin Bidang</option>
-                            <option value="ketua_bidang">Ketua Bidang</option>
-                            <option value="sekretaris_master">Sekretaris Dinas</option>
-                            <option value="ketua_master">Kepala Dinas</option>
+                            <option value="sekretaris_bidang">Admin Bidang / Subbag</option>
+                            <option value="ketua_bidang">Kepala Bidang / Kasubag</option>
+                            <option value="sekretaris_master">Sekretaris Dinas (Sekdin)</option>
+                            <option value="ketua_master">Kepala Dinas (Kadis)</option>
                         </select>
                     </div>
                 </div>

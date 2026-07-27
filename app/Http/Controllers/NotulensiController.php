@@ -619,49 +619,61 @@ class NotulensiController extends Controller
     }
 
     /**
-     * Get signature block info (Title, Name, NIP) according to scope.
+     * Get signature block info (Title, Name, NIP) according to scope & actual approver.
      */
     private function getApproverSignatureInfo(Agenda $agenda, Notulensi $notulensi)
     {
-        $hakAkses = $agenda->hak_akses ?? [];
-        $isLintasDinas = in_array('semua_orang', $hakAkses) || count($hakAkses) > 1 || count($hakAkses) === 0;
-
         $actualApprover = $notulensi->approver;
 
-        if ($isLintasDinas) {
-            $jabatan = "Kepala Dinas Komunikasi dan Informatika";
-            $subJabatan = "Kabupaten Banyumas";
-            if ($actualApprover && $actualApprover->isKetuaMaster()) {
-                $name = $actualApprover->name;
-                $nip = $actualApprover->nip;
-            } else {
-                $ketuaMaster = \App\Models\User::where('role', 'ketua_master')->first();
-                $name = $ketuaMaster ? $ketuaMaster->name : ($actualApprover ? $actualApprover->name : 'Kepala Dinas');
-                $nip = $ketuaMaster ? $ketuaMaster->nip : ($actualApprover ? $actualApprover->nip : '-');
-            }
-        } else {
-            $singleBidangId = $hakAkses[0] ?? null;
-            $bidang = $singleBidangId ? \App\Models\Bidang::find($singleBidangId) : null;
-            $bidangNama = $bidang ? $bidang->nama : 'Bidang';
-            $jabatan = "Kepala " . $bidangNama;
-            $subJabatan = "";
+        if ($actualApprover) {
+            return (object) [
+                'jabatan' => $actualApprover->jabatan ?? 'Pejabat Pengesah',
+                'sub_jabatan' => '',
+                'name' => $actualApprover->name,
+                'nip' => $actualApprover->nip,
+                'is_lintas_dinas' => false,
+            ];
+        }
 
-            if ($actualApprover && $actualApprover->isKetuaBidang()) {
-                $name = $actualApprover->name;
-                $nip = $actualApprover->nip;
-            } else {
-                $ketuaBidangUser = \App\Models\User::where('role', 'ketua_bidang')->where('bidang_id', $singleBidangId)->first();
-                $name = $ketuaBidangUser ? $ketuaBidangUser->name : ($actualApprover ? $actualApprover->name : "Kepala " . $bidangNama);
-                $nip = $ketuaBidangUser ? $ketuaBidangUser->nip : ($actualApprover ? $actualApprover->nip : '-');
+        // Preview before approval: Resolve expected Kasubag / Kabid / Sekdin
+        $creator = $agenda->sekretaris;
+        $creatorBidangId = $creator?->bidang_id;
+
+        if ($creatorBidangId) {
+            $ketuaUser = \App\Models\User::where('role', 'ketua_bidang')
+                ->where('bidang_id', $creatorBidangId)
+                ->first();
+
+            if ($ketuaUser) {
+                return (object) [
+                    'jabatan' => $ketuaUser->jabatan,
+                    'sub_jabatan' => '',
+                    'name' => $ketuaUser->name,
+                    'nip' => $ketuaUser->nip,
+                    'is_lintas_dinas' => false,
+                ];
             }
         }
 
+        // Fallback to Sekdin / Kadis
+        $sekdin = \App\Models\User::where('role', 'sekretaris_master')->first();
+        if ($sekdin) {
+            return (object) [
+                'jabatan' => 'Sekretaris Dinas',
+                'sub_jabatan' => 'Sekretariat Dinkominfo',
+                'name' => $sekdin->name,
+                'nip' => $sekdin->nip,
+                'is_lintas_dinas' => false,
+            ];
+        }
+
+        $kadis = \App\Models\User::where('role', 'ketua_master')->first();
         return (object) [
-            'jabatan' => $jabatan,
-            'sub_jabatan' => $subJabatan,
-            'name' => $name,
-            'nip' => $nip,
-            'is_lintas_dinas' => $isLintasDinas,
+            'jabatan' => 'Kepala Dinas Komunikasi dan Informatika',
+            'sub_jabatan' => 'Kabupaten Banyumas',
+            'name' => $kadis ? $kadis->name : 'Kepala Dinas',
+            'nip' => $kadis ? $kadis->nip : '-',
+            'is_lintas_dinas' => true,
         ];
     }
 

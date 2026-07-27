@@ -38,11 +38,29 @@ class DatabaseSeeder extends Seeder
             ['singkatan' => 'Sekretariat']
         );
 
+        $subbagUmum = Bidang::firstOrCreate(
+            ['nama' => 'Subbag Umum dan Kepegawaian'],
+            ['singkatan' => 'Subbag Umum & Kepegawaian']
+        );
+
+        $subbagKeuangan = Bidang::firstOrCreate(
+            ['nama' => 'Subbag Keuangan'],
+            ['singkatan' => 'Subbag Keuangan']
+        );
+
+        $subbagPerencanaan = Bidang::firstOrCreate(
+            ['nama' => 'Subbag Perencanaan'],
+            ['singkatan' => 'Subbag Perencanaan']
+        );
+
         $bidangList = [
             'aptika' => $aptika,
             'ikp' => $ikp,
             'statistik' => $statistik,
             'sekretariat' => $sekretariat,
+            'subbag_umum' => $subbagUmum,
+            'subbag_keuangan' => $subbagKeuangan,
+            'subbag_perencanaan' => $subbagPerencanaan,
         ];
 
         // Shared password hash
@@ -88,6 +106,85 @@ class DatabaseSeeder extends Seeder
                 'jabatan' => 'Sekretaris Dinas',
                 'bidang_id' => $sekretariat->id,
                 'role' => 'sekretaris_master',
+                'password' => $hashedPassword,
+                'must_change_password' => true,
+                'active' => true,
+            ]
+        );
+
+        // 2b. Seed Subbagian Leaders (Kasubag) & Admins
+        // Subbag Umum & Kepegawaian
+        $kasubagUmum = User::updateOrCreate(
+            ['nip' => $nipPrefix . '701'],
+            [
+                'name' => 'Tri Cahyono, S.H.',
+                'jabatan' => 'Kasubag Umum dan Kepegawaian',
+                'bidang_id' => $subbagUmum->id,
+                'role' => 'ketua_bidang',
+                'password' => $hashedPassword,
+                'must_change_password' => true,
+                'active' => true,
+            ]
+        );
+        $adminSubbagUmum = User::updateOrCreate(
+            ['nip' => $nipPrefix . '702'],
+            [
+                'name' => 'Ahmad Rizky, A.Md.',
+                'jabatan' => 'Admin Subbag Umum dan Kepegawaian',
+                'bidang_id' => $subbagUmum->id,
+                'role' => 'sekretaris_bidang',
+                'password' => $hashedPassword,
+                'must_change_password' => true,
+                'active' => true,
+            ]
+        );
+
+        // Subbag Keuangan
+        $kasubagKeuangan = User::updateOrCreate(
+            ['nip' => $nipPrefix . '711'],
+            [
+                'name' => 'Sri Wahyuni, S.E.',
+                'jabatan' => 'Kasubag Keuangan',
+                'bidang_id' => $subbagKeuangan->id,
+                'role' => 'ketua_bidang',
+                'password' => $hashedPassword,
+                'must_change_password' => true,
+                'active' => true,
+            ]
+        );
+        $adminSubbagKeuangan = User::updateOrCreate(
+            ['nip' => $nipPrefix . '712'],
+            [
+                'name' => 'Ratna Juwita, A.Md.',
+                'jabatan' => 'Admin Subbag Keuangan',
+                'bidang_id' => $subbagKeuangan->id,
+                'role' => 'sekretaris_bidang',
+                'password' => $hashedPassword,
+                'must_change_password' => true,
+                'active' => true,
+            ]
+        );
+
+        // Subbag Perencanaan
+        $kasubagPerencanaan = User::updateOrCreate(
+            ['nip' => $nipPrefix . '721'],
+            [
+                'name' => 'Drs. Hendro Wibowo',
+                'jabatan' => 'Kasubag Perencanaan',
+                'bidang_id' => $subbagPerencanaan->id,
+                'role' => 'ketua_bidang',
+                'password' => $hashedPassword,
+                'must_change_password' => true,
+                'active' => true,
+            ]
+        );
+        $adminSubbagPerencanaan = User::updateOrCreate(
+            ['nip' => $nipPrefix . '722'],
+            [
+                'name' => 'Budi Hartono, S.E.',
+                'jabatan' => 'Admin Subbag Perencanaan',
+                'bidang_id' => $subbagPerencanaan->id,
+                'role' => 'sekretaris_bidang',
                 'password' => $hashedPassword,
                 'must_change_password' => true,
                 'active' => true,

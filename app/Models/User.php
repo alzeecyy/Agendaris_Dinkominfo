@@ -162,7 +162,6 @@ class User extends Authenticatable
         $creator = $agenda->sekretaris;
 
         // If user is Sekdin / Sekretariat staff:
-        // Can edit ONLY IF the agenda was created by a Sekretariat user or Sekdin
         if ($this->isSekretariat() || $this->isSekretarisMaster()) {
             if ($creator && ($creator->isSekretariat() || $creator->isSekretarisMaster())) {
                 return true;
@@ -171,8 +170,8 @@ class User extends Authenticatable
             return false;
         }
 
-        // If user is a Bidang Secretary, can edit if agenda was created by someone in the same Bidang
-        if ($this->isSekretarisBidang()) {
+        // If user is Admin/Sekretaris of a Subbagian / Bidang:
+        if ($this->isSekretarisBidang() || $this->isStaff()) {
             if ($creator && (string)$creator->bidang_id === (string)$this->bidang_id) {
                 return true;
             }
@@ -182,10 +181,11 @@ class User extends Authenticatable
     }
 
     /**
-     * Checks if this user is an approver (Ketua) for an agenda's notulensi.
-     * Rule:
-     * - If agenda includes 1 Dinkominfo (semua_orang / multiple bidangs) -> ONLY Kepala Dinas (ketua_master) can approve.
-     * - If agenda is for a single specific Bidang (e.g. Aptika only) -> Kepala Bidang (ketua_bidang) of that specific bidang approves.
+     * Checks if this user has authority to APPROVE and SIGN (TTD) an agenda's notulensi.
+     * Rules:
+     * - Subbagian (Umum, Keuangan, Perencanaan): Can be approved by Kasubag OR Sekdin.
+     * - Bidang (IKP, Aptika, etc.): Can be approved by Kabid, Sekdin, or Kadis.
+     * - Lintas Dinas: Can be approved by Kadis or Sekdin.
      */
     public function isApproverOfAgenda(Agenda $agenda): bool
     {
@@ -193,22 +193,41 @@ class User extends Authenticatable
             return false;
         }
 
-        $hakAkses = $agenda->hak_akses ?? [];
-        $isLintasDinas = in_array('semua_orang', $hakAkses) || count($hakAkses) > 1 || count($hakAkses) === 0;
-
-        if ($isLintasDinas) {
-            return $this->isKetuaMaster();
+        // 1. Kepala Dinas (ketua_master) can approve any agenda across the agency
+        if ($this->isKetuaMaster()) {
+            return true;
         }
 
-        if ($this->isKetuaBidang()) {
-            $singleBidangId = $hakAkses[0] ?? null;
-            if ($singleBidangId && (string)$this->bidang_id === (string)$singleBidangId) {
+        $creator = $agenda->sekretaris;
+        $creatorBidangId = $creator?->bidang_id;
+        $hakAkses = $agenda->hak_akses ?? [];
+
+        // Check if agenda belongs to Sekretariat or a Subbagian under Sekretariat
+        $isSubbagOrSekretariat = false;
+        if ($creator && ($creator->isSekretariat() || $creator->isSekretarisMaster())) {
+            $isSubbagOrSekretariat = true;
+        } elseif ($creatorBidangId && Bidang::isSubbagianId($creatorBidangId)) {
+            $isSubbagOrSekretariat = true;
+        }
+
+        // 2. Sekdin (sekretaris_master / Sekretariat Pimpinan):
+        if ($this->isSekretarisMaster() || $this->isSekretariat()) {
+            // Sekdin has authority to approve & sign any Notulensi under Sekretariat/Subbagian or Lintas Dinas
+            if ($isSubbagOrSekretariat || in_array('semua_orang', $hakAkses) || count($hakAkses) > 1 || count($hakAkses) === 0) {
                 return true;
             }
         }
 
-        if ($this->isKetuaMaster()) {
-            return true;
+        // 3. Kasubag / Kabid (ketua_bidang):
+        if ($this->isKetuaBidang()) {
+            // Kasubag / Kabid can approve if creator is in the same Subbag / Bidang
+            if ($creatorBidangId && (string)$this->bidang_id === (string)$creatorBidangId) {
+                return true;
+            }
+            // Or if agenda hak_akses matches user's bidang_id
+            if (in_array((string)$this->bidang_id, array_map('strval', $hakAkses))) {
+                return true;
+            }
         }
 
         return false;
