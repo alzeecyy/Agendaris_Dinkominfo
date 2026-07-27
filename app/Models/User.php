@@ -317,8 +317,8 @@ class User extends Authenticatable
             $isSubbagOrSekretariat = true;
         }
 
-        // 2. Sekdin (sekretaris_master / Sekretariat Pimpinan):
-        if ($this->isSekretarisMaster() || $this->isSekretariat()) {
+        // 2. Sekdin (sekretaris_master):
+        if ($this->isSekretarisMaster()) {
             // Sekdin has authority to approve & sign any Notulensi under Sekretariat/Subbagian or Lintas Dinas
             if ($isSubbagOrSekretariat || in_array('semua_orang', $hakAkses) || count($hakAkses) > 1 || count($hakAkses) === 0) {
                 return true;
