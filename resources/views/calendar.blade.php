@@ -608,8 +608,8 @@
 
                     sekretariatId() {
                         let b = this.bidangsUserData.find(item =>
-                            item.singkatan.toLowerCase() === 'sekretariat' ||
-                            item.nama.toLowerCase() === 'sekretariat'
+                            item.singkatan.toLowerCase() === "sekretariat" ||
+                            item.nama.toLowerCase() === "sekretariat"
                         );
                         return b ? b.id : null;
                     },
@@ -617,11 +617,12 @@
                     subbagIds() {
                         return this.bidangsUserData
                             .filter(item =>
-                                item.nama.toLowerCase().includes('subbag') ||
-                                item.singkatan.toLowerCase().includes('subbag')
+                                item.nama.toLowerCase().includes("subbag") ||
+                                item.singkatan.toLowerCase().includes("subbag")
                             )
                             .map(item => item.id);
                     },
+
 
                     checkBidang(id) {
                         this.isDirty = true;
