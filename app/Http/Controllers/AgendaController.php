@@ -104,21 +104,31 @@ class AgendaController extends Controller
 
         // Determine hak_akses
         if ($user->isSekretarisBidang() && !$user->isSekretariatScope()) {
-            $bidangs = $request->input('bidangs', []);
+            $bidangs = array_map('strval', $request->input('bidangs', []));
             // Enforce own bidang is checked
-            if (!in_array((string)$user->bidang_id, array_map('strval', $bidangs))) {
+            if (!in_array((string)$user->bidang_id, $bidangs)) {
                 $bidangs[] = (string)$user->bidang_id;
             }
             // Max 3 bidangs allowed for standard Bidangs
             if (count($bidangs) > 3) {
                 return back()->withErrors(['bidangs' => 'Admin Bidang hanya diperbolehkan memilih bidangnya sendiri dan maksimal 2 bidang tambahan (maksimal 3 bidang).'])->withInput();
             }
-            $hakAkses = $bidangs;
+            $hakAkses = array_values(array_unique($bidangs));
         } else {
             if ($request->has('semua_orang')) {
                 $hakAkses = ['semua_orang'];
             } else {
-                $hakAkses = $request->input('bidangs', []);
+                $bidangs = array_map('strval', $request->input('bidangs', []));
+                if ($user->isSekretariatScope()) {
+                    $sekId = \App\Models\Bidang::where('singkatan', 'Sekretariat')->orWhere('nama', 'Sekretariat')->value('id');
+                    if ($user->bidang_id && !in_array((string)$user->bidang_id, $bidangs)) {
+                        $bidangs[] = (string)$user->bidang_id;
+                    }
+                    if ($sekId && !in_array((string)$sekId, $bidangs)) {
+                        $bidangs[] = (string)$sekId;
+                    }
+                }
+                $hakAkses = array_values(array_unique($bidangs));
             }
         }
 
@@ -376,21 +386,31 @@ class AgendaController extends Controller
 
         // Determine hak_akses
         if ($user->isSekretarisBidang() && !$user->isSekretariatScope()) {
-            $bidangs = $request->input('bidangs', []);
+            $bidangs = array_map('strval', $request->input('bidangs', []));
             // Enforce own bidang is checked
-            if (!in_array((string)$user->bidang_id, array_map('strval', $bidangs))) {
+            if (!in_array((string)$user->bidang_id, $bidangs)) {
                 $bidangs[] = (string)$user->bidang_id;
             }
             // Max 3 bidangs allowed for standard Bidangs
             if (count($bidangs) > 3) {
                 return back()->withErrors(['bidangs' => 'Admin Bidang hanya diperbolehkan memilih bidangnya sendiri dan maksimal 2 bidang tambahan (maksimal 3 bidang).'])->withInput();
             }
-            $newHakAkses = $bidangs;
+            $newHakAkses = array_values(array_unique($bidangs));
         } else {
             if ($request->has('semua_orang')) {
                 $newHakAkses = ['semua_orang'];
             } else {
-                $newHakAkses = $request->input('bidangs', []);
+                $bidangs = array_map('strval', $request->input('bidangs', []));
+                if ($user->isSekretariatScope()) {
+                    $sekId = \App\Models\Bidang::where('singkatan', 'Sekretariat')->orWhere('nama', 'Sekretariat')->value('id');
+                    if ($user->bidang_id && !in_array((string)$user->bidang_id, $bidangs)) {
+                        $bidangs[] = (string)$user->bidang_id;
+                    }
+                    if ($sekId && !in_array((string)$sekId, $bidangs)) {
+                        $bidangs[] = (string)$sekId;
+                    }
+                }
+                $newHakAkses = array_values(array_unique($bidangs));
             }
         }
 

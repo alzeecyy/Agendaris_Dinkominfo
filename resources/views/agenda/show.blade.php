@@ -228,142 +228,154 @@
 
                             <div class="space-y-2">
                                 <label class="block text-xs font-bold text-[#5a508f] uppercase">Bidang & Peserta Rapat <span class="text-rose-500">*</span></label>
-                                @php
-                                    $hakAksesArray = $agenda->hak_akses;
-                                    $isSemua = in_array('semua_orang', $hakAksesArray);
-                                    $allBidangs = $bidangsWithUsers;
-                                    $allBidangIds = $allBidangs->pluck('id')->map(fn($id) => (string)$id)->toArray();
-                                    $totalBidangCount = count($allBidangIds);
+                                 @php
+                                     $hakAksesArray = $agenda->hak_akses;
+                                     $isSemua = in_array('semua_orang', $hakAksesArray);
+                                     $allBidangs = $bidangsWithUsers;
+                                     $allBidangIds = $allBidangs->pluck('id')->map(fn($id) => (string)$id)->toArray();
+                                     $totalBidangCount = count($allBidangIds);
+                                     $sekretariatBid = $allBidangs->first(fn($b) => strcasecmp($b->singkatan, 'Sekretariat') === 0 || strcasecmp($b->nama, 'Sekretariat') === 0);
+                                     $sekretariatId = $sekretariatBid ? (string)$sekretariatBid->id : null;
 
-                                    if (Auth::user()->isSekretarisBidang()) {
-                                        $initialBidangs = array_values(array_unique(array_merge([ (string)Auth::user()->bidang_id ], $isSemua ? $allBidangIds : array_filter($hakAksesArray, fn($x) => $x !== 'semua_orang'))));
-                                    } else {
-                                        $initialBidangs = $isSemua ? $allBidangIds : array_values(array_map(fn($x) => (string)$x, array_filter($hakAksesArray, fn($x) => $x !== 'semua_orang')));
-                                    }
+                                     if (Auth::user()->isSekretarisBidang() || Auth::user()->isSekretariatScope()) {
+                                         $mandatoryIds = [(string)Auth::user()->bidang_id];
+                                         if (Auth::user()->isSekretariatScope() && $sekretariatId) {
+                                             $mandatoryIds[] = (string)$sekretariatId;
+                                         }
+                                         $initialBidangs = array_values(array_unique(array_merge($mandatoryIds, $isSemua ? $allBidangIds : array_filter($hakAksesArray, fn($x) => $x !== 'semua_orang'))));
+                                     } else {
+                                         $initialBidangs = $isSemua ? $allBidangIds : array_values(array_map(fn($x) => (string)$x, array_filter($hakAksesArray, fn($x) => $x !== 'semua_orang')));
+                                     }
 
-                                    if ($agenda->participants()->exists()) {
-                                        $initialParticipants = $agenda->participants->pluck('id')->map(fn($id) => (string)$id)->toArray();
-                                    } else {
-                                        $initialParticipants = [];
-                                        foreach ($allBidangs as $b) {
-                                            if (in_array((string)$b->id, $initialBidangs)) {
-                                                foreach ($b->users as $u) {
-                                                    $initialParticipants[] = (string)$u->id;
-                                                }
-                                            }
-                                        }
-                                    }
+                                     if ($agenda->participants()->exists()) {
+                                         $initialParticipants = $agenda->participants->pluck('id')->map(fn($id) => (string)$id)->toArray();
+                                     } else {
+                                         $initialParticipants = [];
+                                         foreach ($allBidangs as $b) {
+                                             if (in_array((string)$b->id, $initialBidangs)) {
+                                                 foreach ($b->users as $u) {
+                                                     $initialParticipants[] = (string)$u->id;
+                                                 }
+                                             }
+                                         }
+                                     }
 
-                                    $bidangsUserData = $allBidangs->map(function($b) {
-                                        return [
-                                            'id' => (string)$b->id,
-                                            'nama' => $b->nama,
-                                            'singkatan' => $b->singkatan,
-                                            'users' => $b->users->map(function($u) {
-                                                return [
-                                                    'id' => (string)$u->id,
-                                                    'name' => $u->name,
-                                                    'nip' => $u->nip ?? '-',
-                                                    'jabatan' => $u->jabatan ?? '-',
-                                                ];
-                                            })->values()->toArray(),
-                                        ];
-                                    })->values()->toArray();
-                                @endphp
-                                <div x-data='{
-                                    semua: {{ $isSemua ? "true" : "false" }},
-                                    allBidangIds: {{ json_encode(array_values($allBidangIds)) }},
-                                    totalCount: {{ $totalBidangCount }},
-                                    bidangs: {{ json_encode(array_values($initialBidangs)) }},
-                                    isSekBid: {{ Auth::user()->isSekretarisBidang() ? "true" : "false" }},
-                                    isSekretariatScope: {{ Auth::user()->isSekretariatScope() ? "true" : "false" }},
-                                    ownBidangId: "{{ Auth::user()->bidang_id }}",
-                                    bidangsUserData: {{ json_encode($bidangsUserData) }},
-                                    selectedParticipants: {{ json_encode(array_values($initialParticipants)) }},
-                                    participantModalOpen: false,
+                                     $bidangsUserData = $allBidangs->map(function($b) {
+                                         return [
+                                             'id' => (string)$b->id,
+                                             'nama' => $b->nama,
+                                             'singkatan' => $b->singkatan,
+                                             'users' => $b->users->map(function($u) {
+                                                 return [
+                                                     'id' => (string)$u->id,
+                                                     'name' => $u->name,
+                                                     'nip' => $u->nip ?? '-',
+                                                     'jabatan' => $u->jabatan ?? '-',
+                                                 ];
+                                             })->values()->toArray(),
+                                         ];
+                                     })->values()->toArray();
+                                 @endphp
+                                 <div x-data='{
+                                     semua: {{ $isSemua ? "true" : "false" }},
+                                     allBidangIds: {{ json_encode(array_values($allBidangIds)) }},
+                                     totalCount: {{ $totalBidangCount }},
+                                     bidangs: {{ json_encode(array_values($initialBidangs)) }},
+                                     isSekBid: {{ Auth::user()->isSekretarisBidang() ? "true" : "false" }},
+                                     isSekretariatScope: {{ Auth::user()->isSekretariatScope() ? "true" : "false" }},
+                                     ownBidangId: "{{ Auth::user()->bidang_id }}",
+                                     sekId: "{{ $sekretariatId }}",
+                                     bidangsUserData: {{ json_encode($bidangsUserData) }},
+                                     selectedParticipants: {{ json_encode(array_values($initialParticipants)) }},
+                                     participantModalOpen: false,
 
-                                    toggleSemua() {
-                                        if (this.semua) {
-                                            this.bidangs = Array.from(this.allBidangIds);
-                                        } else {
-                                            this.bidangs = [];
-                                        }
-                                        this.syncParticipants();
-                                    },
+                                     toggleSemua() {
+                                         if (this.semua) {
+                                             this.bidangs = Array.from(this.allBidangIds);
+                                         } else {
+                                             this.bidangs = [];
+                                         }
+                                         this.syncParticipants();
+                                     },
 
-                                    check(id) {
-                                        if (this.isSekBid) {
-                                            if (this.ownBidangId && !this.bidangs.includes(String(this.ownBidangId))) {
-                                                this.bidangs.push(String(this.ownBidangId));
-                                            }
-                                            if (!this.isSekretariatScope && this.bidangs.length > 3) {
-                                                alert("Admin Bidang hanya dapat memilih maksimal 2 bidang tambahan.");
-                                                this.bidangs = this.bidangs.filter(bId => String(bId) !== String(id));
-                                            }
-                                        }
-                                        this.semua = (this.bidangs.length === this.totalCount);
-                                        this.syncParticipants();
-                                    },
+                                     check(id) {
+                                         if (this.isSekBid || this.isSekretariatScope) {
+                                             if (this.ownBidangId && !this.bidangs.includes(String(this.ownBidangId))) {
+                                                 this.bidangs.push(String(this.ownBidangId));
+                                             }
+                                             if (this.isSekretariatScope && this.sekId && !this.bidangs.includes(String(this.sekId))) {
+                                                 this.bidangs.push(String(this.sekId));
+                                             }
+                                             if (!this.isSekretariatScope && this.bidangs.length > 3) {
+                                                 alert("Admin Bidang hanya dapat memilih maksimal 2 bidang tambahan.");
+                                                 this.bidangs = this.bidangs.filter(bId => String(bId) !== String(id));
+                                             }
+                                         }
+                                         this.semua = (this.bidangs.length === this.totalCount);
+                                         this.syncParticipants();
+                                     },
 
-                                    syncParticipants() {
-                                        let activeUserIds = [];
-                                        this.bidangsUserData.forEach(b => {
-                                            if (this.bidangs.includes(b.id)) {
-                                                b.users.forEach(u => {
-                                                    activeUserIds.push(u.id);
-                                                });
-                                            }
-                                        });
-                                        let newSelection = this.selectedParticipants.filter(id => activeUserIds.includes(id));
-                                        activeUserIds.forEach(id => {
-                                            if (!newSelection.includes(id)) {
-                                                newSelection.push(id);
-                                            }
-                                        });
-                                        this.selectedParticipants = newSelection;
-                                    },
+                                     syncParticipants() {
+                                         let activeUserIds = [];
+                                         this.bidangsUserData.forEach(b => {
+                                             if (this.bidangs.includes(b.id)) {
+                                                 b.users.forEach(u => {
+                                                     activeUserIds.push(u.id);
+                                                 });
+                                             }
+                                         });
+                                         let newSelection = this.selectedParticipants.filter(id => activeUserIds.includes(id));
+                                         activeUserIds.forEach(id => {
+                                             if (!newSelection.includes(id)) {
+                                                 newSelection.push(id);
+                                             }
+                                         });
+                                         this.selectedParticipants = newSelection;
+                                     },
 
-                                    toggleBidangUsers(bidangId) {
-                                        let b = this.bidangsUserData.find(item => item.id === bidangId);
-                                        if (!b) return;
-                                        let bUserIds = b.users.map(u => u.id);
-                                        let allChecked = bUserIds.every(id => this.selectedParticipants.includes(id));
+                                     toggleBidangUsers(bidangId) {
+                                         let b = this.bidangsUserData.find(item => item.id === bidangId);
+                                         if (!b) return;
+                                         let bUserIds = b.users.map(u => u.id);
+                                         let allChecked = bUserIds.every(id => this.selectedParticipants.includes(id));
 
-                                        if (!allChecked) {
-                                            bUserIds.forEach(id => {
-                                                if (!this.selectedParticipants.includes(id)) {
-                                                    this.selectedParticipants.push(id);
-                                                }
-                                            });
-                                        } else {
-                                            this.selectedParticipants = this.selectedParticipants.filter(id => !bUserIds.includes(id));
-                                        }
-                                    },
+                                         if (!allChecked) {
+                                             bUserIds.forEach(id => {
+                                                 if (!this.selectedParticipants.includes(id)) {
+                                                     this.selectedParticipants.push(id);
+                                                 }
+                                             });
+                                         } else {
+                                             this.selectedParticipants = this.selectedParticipants.filter(id => !bUserIds.includes(id));
+                                         }
+                                     },
 
-                                    isBidangAllChecked(bidangId) {
-                                        let b = this.bidangsUserData.find(item => item.id === bidangId);
-                                        if (!b || b.users.length === 0) return false;
-                                        return b.users.every(u => this.selectedParticipants.includes(u.id));
-                                    }
-                                }'>
-                                    <!-- Hidden Inputs for Selected Participants -->
-                                    <template x-for="userId in selectedParticipants" :key="userId">
-                                        <input type="hidden" name="participants[]" :value="userId">
-                                    </template>
+                                     isBidangAllChecked(bidangId) {
+                                         let b = this.bidangsUserData.find(item => item.id === bidangId);
+                                         if (!b || b.users.length === 0) return false;
+                                         return b.users.every(u => this.selectedParticipants.includes(u.id));
+                                     }
+                                 }'>
+                                     <!-- Hidden Inputs for Selected Participants -->
+                                     <template x-for="userId in selectedParticipants" :key="userId">
+                                         <input type="hidden" name="participants[]" :value="userId">
+                                     </template>
 
-                                    @if(Auth::user()->isSekretarisBidang() && !Auth::user()->isSekretariatScope())
-                                        <input type="hidden" name="bidangs[]" value="{{ Auth::user()->bidang_id }}">
-                                    @else
-                                        <label class="flex items-center text-xs text-[#2e2552] font-bold mb-1 cursor-pointer select-none">
-                                            <input type="checkbox" name="semua_orang" value="1" x-model="semua" @change="toggleSemua()" class="mr-2 rounded border-[#d4d1f5] text-[#8e88dd]">
-                                            Semua Orang (Lintas Dinas)
-                                        </label>
-                                    @endif
+                                     @if(Auth::user()->isSekretarisBidang() && !Auth::user()->isSekretariatScope())
+                                         <input type="hidden" name="bidangs[]" value="{{ Auth::user()->bidang_id }}">
+                                     @else
+                                         <label class="flex items-center text-xs text-[#2e2552] font-bold mb-1 cursor-pointer select-none">
+                                             <input type="checkbox" name="semua_orang" value="1" x-model="semua" @change="toggleSemua()" class="mr-2 rounded border-[#d4d1f5] text-[#8e88dd]">
+                                             Semua Orang (Lintas Dinas)
+                                         </label>
+                                     @endif
 
                                      <div class="grid grid-cols-1 gap-1 mt-1">
                                          @foreach($allBidangs as $b)
                                              @php
                                                  $isSub = (str_contains(strtolower($b->nama), 'subbag') || str_contains(strtolower($b->singkatan), 'subbag')) && strcasecmp($b->singkatan, 'Sekretariat') !== 0;
+                                                 $isMandatory = (Auth::user()->isSekretarisBidang() && Auth::user()->bidang_id == $b->id)
+                                                             || (Auth::user()->isSekretariatScope() && $sekretariatId && (string)$b->id === (string)$sekretariatId);
                                              @endphp
                                              <label class="flex items-center justify-between px-2 py-1 rounded-lg hover:bg-slate-50 transition-all cursor-pointer select-none {{ $isSub ? 'pl-6' : '' }}">
                                                  <div class="flex items-center gap-2">
@@ -371,13 +383,13 @@
                                                          <span class="text-slate-400 text-[11px] font-bold shrink-0 -mr-1">└</span>
                                                      @endif
                                                      <input type="checkbox" name="bidangs[]" value="{{ $b->id }}" x-model="bidangs" @change="check('{{ $b->id }}')"
-                                                            @if(Auth::user()->isSekretarisBidang() && Auth::user()->bidang_id == $b->id) disabled @endif
+                                                            @if($isMandatory) disabled @endif
                                                             class="w-3.5 h-3.5 rounded border-[#d4d1f5] text-[#8e88dd]">
-                                                     <span class="text-xs text-[#5a508f] {{ Auth::user()->isSekretarisBidang() && Auth::user()->bidang_id == $b->id ? 'font-bold text-[#2e2552]' : 'font-medium' }}">
+                                                     <span class="text-xs text-[#5a508f] {{ $isMandatory ? 'font-bold text-[#2e2552]' : 'font-medium' }}">
                                                          {{ $b->nama }} <span class="text-slate-400 font-normal">({{ $b->singkatan }})</span>
                                                      </span>
                                                  </div>
-                                                 @if(Auth::user()->isSekretarisBidang() && Auth::user()->bidang_id == $b->id)
+                                                 @if($isMandatory)
                                                      <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold bg-amber-50 text-amber-700 border border-amber-200/70 shrink-0 ml-2">
                                                          Wajib Hadir
                                                      </span>

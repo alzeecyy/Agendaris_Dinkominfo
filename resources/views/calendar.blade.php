@@ -556,6 +556,19 @@
                 @php
                     $allBidangIds = $bidangs->pluck('id')->map(fn($id) => (string)$id)->toArray();
                     $totalBidangCount = count($allBidangIds);
+                    $sekretariatBid = $bidangs->first(fn($b) => strcasecmp($b->singkatan, 'Sekretariat') === 0 || strcasecmp($b->nama, 'Sekretariat') === 0);
+                    $sekretariatId = $sekretariatBid ? (string)$sekretariatBid->id : null;
+                    
+                    $defaultInitialBidangs = [];
+                    if (Auth::user()->isSekretarisBidang() || Auth::user()->isSekretariatScope()) {
+                        if (Auth::user()->bidang_id) {
+                            $defaultInitialBidangs[] = (string)Auth::user()->bidang_id;
+                        }
+                        if (Auth::user()->isSekretariatScope() && $sekretariatId) {
+                            $defaultInitialBidangs[] = (string)$sekretariatId;
+                        }
+                    }
+
                     $bidangsUserData = $bidangs->map(function($b) {
                         return [
                             'id' => (string)$b->id,
@@ -577,10 +590,11 @@
                     semuaOrang: false,
                     allBidangIds: {{ json_encode(array_values($allBidangIds)) }},
                     totalCount: {{ $totalBidangCount }},
-                    bidangs: {{ Auth::user()->isSekretarisBidang() ? json_encode([(string)Auth::user()->bidang_id]) : "[]" }},
+                    bidangs: {{ json_encode(array_values(array_unique($defaultInitialBidangs))) }},
                     isSekBid: {{ Auth::user()->isSekretarisBidang() ? "true" : "false" }},
                     isSekretariatScope: {{ Auth::user()->isSekretariatScope() ? "true" : "false" }},
                     ownBidangId: "{{ Auth::user()->bidang_id }}",
+                    sekId: "{{ $sekretariatId }}",
                     bidangsUserData: {{ json_encode($bidangsUserData) }},
                     selectedParticipants: [],
                     participantModalOpen: false,
@@ -609,9 +623,12 @@
 
                     checkBidang(id) {
                         this.isDirty = true;
-                        if (this.isSekBid) {
+                        if (this.isSekBid || this.isSekretariatScope) {
                             if (this.ownBidangId && !this.bidangs.includes(String(this.ownBidangId))) {
                                 this.bidangs.push(String(this.ownBidangId));
+                            }
+                            if (this.isSekretariatScope && this.sekId && !this.bidangs.includes(String(this.sekId))) {
+                                this.bidangs.push(String(this.sekId));
                             }
                             if (!this.isSekretariatScope && this.bidangs.length > 3) {
                                 Swal.fire({
@@ -698,6 +715,8 @@
                             @foreach($bidangs as $bid)
                                 @php
                                     $isSubbag = (str_contains(strtolower($bid->nama), 'subbag') || str_contains(strtolower($bid->singkatan), 'subbag')) && strcasecmp($bid->singkatan, 'Sekretariat') !== 0;
+                                    $isMandatory = (Auth::user()->isSekretarisBidang() && Auth::user()->bidang_id == $bid->id)
+                                                || (Auth::user()->isSekretariatScope() && $sekretariatId && (string)$bid->id === (string)$sekretariatId);
                                 @endphp
                                 <label class="flex items-center justify-between px-2 py-1 rounded-lg border border-transparent hover:border-slate-200 hover:bg-white transition-all cursor-pointer select-none {{ $isSubbag ? 'pl-6' : '' }}">
                                     <div class="flex items-center gap-2">
@@ -705,13 +724,13 @@
                                             <span class="text-slate-400 text-[11px] font-bold shrink-0 -mr-1">└</span>
                                         @endif
                                         <input type="checkbox" name="bidangs[]" value="{{ $bid->id }}" x-model="bidangs" @change="checkBidang('{{ $bid->id }}')"
-                                               @if(Auth::user()->isSekretarisBidang() && Auth::user()->bidang_id == $bid->id) disabled @endif
+                                               @if($isMandatory) disabled @endif
                                                class="w-3.5 h-3.5 rounded border-slate-300 text-indigo-600 focus:ring-indigo-500 focus:ring-offset-0 transition-all shrink-0">
-                                        <span class="text-[11.5px] text-slate-700 font-medium {{ Auth::user()->isSekretarisBidang() && Auth::user()->bidang_id == $bid->id ? 'font-bold text-slate-900' : '' }}">
+                                        <span class="text-[11.5px] text-slate-700 font-medium {{ $isMandatory ? 'font-bold text-slate-900' : '' }}">
                                             {{ $bid->nama }} <span class="text-slate-400 font-normal">({{ $bid->singkatan }})</span>
                                         </span>
                                     </div>
-                                    @if(Auth::user()->isSekretarisBidang() && Auth::user()->bidang_id == $bid->id)
+                                    @if($isMandatory)
                                         <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[9.5px] font-bold bg-amber-50 text-amber-700 border border-amber-200/70 shrink-0 ml-2">
                                             Wajib Hadir
                                         </span>
