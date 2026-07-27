@@ -162,7 +162,7 @@ class="space-y-6">
                             class="w-full px-1.5 sm:px-3 py-2 bg-[#f3f2fe] border border-[#d4d1f5] rounded-xl text-[11px] sm:text-xs text-[#2e2552] focus:outline-none truncate">
                         <option value="">Semua</option>
                         @foreach($bidangs as $bid)
-                            <option value="{{ $bid->id }}">{{ ($bid->isSubbagian() && strcasecmp($bid->singkatan, 'Sekretariat') !== 0) ? '  └ ' . $bid->singkatan : $bid->singkatan }}</option>
+                            <option value="{{ $bid->id }}">{{ $bid->singkatan }}</option>
                         @endforeach
                     </select>
                 </div>
