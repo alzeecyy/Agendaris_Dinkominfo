@@ -577,13 +577,15 @@
                 @endif
 
                 <!-- Dynamic Page Content -->
-                <div id="pjax-container" class="flex-1 min-w-0 w-full flex flex-col">
-                    @yield('content')
-                </div>
+                <div id="pjax-container" class="flex-1 min-w-0 w-full flex flex-col justify-between">
+                    <div class="flex-1 min-w-0 w-full flex flex-col">
+                        @yield('content')
+                    </div>
 
-                <footer class="mt-auto border-t border-[#d4d1f5]/60 pt-3 pb-1 text-center text-slate-400 text-[9px] sm:text-[10px] font-semibold tracking-wider w-full shrink-0 mb-0">
-                    &copy; 2026 Dinas Komunikasi dan Informatika Kabupaten Banyumas.
-                </footer>
+                    <footer class="mt-auto border-t border-[#d4d1f5]/60 pt-3 pb-1 text-center text-slate-400 text-[9px] sm:text-[10px] font-semibold tracking-wider w-full shrink-0 mb-0">
+                        &copy; 2026 Dinas Komunikasi dan Informatika Kabupaten Banyumas.
+                    </footer>
+                </div>
             </main>
         </div>
     </div>
