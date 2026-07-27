@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Beranda - Agendaris Dinkominfo Banyumas</title>
+    <title>Beranda - SiRENA Dinkominfo Banyumas</title>
     <!-- Favicon / Logo Resmi -->
     <link rel="icon" type="image/png" href="{{ asset('images/logo-banyumas-crest.png') }}">
     <link rel="shortcut icon" href="{{ asset('favicon.ico') }}">
@@ -47,7 +47,7 @@
                 <img src="{{ asset('images/logo-banyumas-crest.png') }}" alt="Logo Banyumas" class="h-8 sm:h-9 md:h-10 w-auto hover:scale-105 transition-transform duration-300 shrink-0">
                 <div class="flex flex-col justify-center min-w-0">
                     <h1 class="text-xs sm:text-sm md:text-base font-extrabold leading-tight text-[#09103c] tracking-tight truncate">Dinas Komunikasi dan Informatika</h1>
-                    <span class="text-[9px] sm:text-[10px] md:text-xs text-slate-500 font-semibold tracking-tight leading-none truncate">Pemerintah Kabupaten Banyumas</span>
+                    <span class="text-[9px] sm:text-[10px] md:text-xs text-slate-500 font-semibold tracking-tight leading-normal truncate pb-0.5">Pemerintah Kabupaten Banyumas</span>
                 </div>
             </div>
 
@@ -141,7 +141,7 @@
             <!-- Hero Welcome Card -->
             <div class="w-full bg-white/70 backdrop-blur-md rounded-2xl md:rounded-[24px] border border-slate-200/80 p-5 sm:p-6 md:p-8 shadow-sm md:shadow-md text-center space-y-2 md:space-y-3 max-w-3xl animate-fade-in shrink-0">
                 <div class="flex justify-center">
-                    <span class="text-[9px] md:text-[10px] font-extrabold uppercase tracking-widest text-[#1b3bbb] bg-[#1b3bbb]/10 px-3.5 py-1 rounded-full border border-[#1b3bbb]/20">Portal Agendaris</span>
+                    <span class="text-[9px] md:text-[10px] font-extrabold uppercase tracking-widest text-[#1b3bbb] bg-[#1b3bbb]/10 px-3.5 py-1 rounded-full border border-[#1b3bbb]/20">Portal SiRENA</span>
                 </div>
                 <h2 class="text-xl sm:text-2xl md:text-3xl font-black text-[#09103c] tracking-tight leading-tight">
                     Halo, {{ Auth::user()->name }}
@@ -239,17 +239,15 @@
                     </a>
                 @endif
 
-                <!-- Card 3: Riwayat Rapat / Ganti Password (Clean White Card) -->
+                <!-- Card 3: Riwayat Kegiatan / Ganti Password (Clean White Card) -->
                 @if(Auth::check() && !Auth::user()->isAdmin())
-                    <a href="{{ route('riwayat') }}" class="hover-card-trigger bg-white rounded-2xl md:rounded-[24px] border border-slate-200/80 p-4 sm:p-5 md:p-6 flex flex-col justify-between shadow-sm hover:shadow-md relative overflow-hidden group text-[#09103c]">
-                        <div class="space-y-2 md:space-y-3">
-                            <div class="w-9 h-9 md:w-11 md:h-11 bg-[#1b3bbb]/5 rounded-xl md:rounded-2xl flex items-center justify-center text-[#1b3bbb] group-hover:scale-110 transition-transform duration-300">
-                                <svg class="w-5 h-5 md:w-6 md:h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                                </svg>
+                    <a href="{{ route('riwayat') }}" class="group bg-white hover:bg-slate-50/80 border border-slate-200/80 rounded-2xl md:rounded-3xl p-4 sm:p-5 md:p-6 shadow-sm hover:shadow-md transition-all duration-300 flex flex-col justify-between relative overflow-hidden">
+                        <div class="space-y-2 sm:space-y-3 relative z-10">
+                            <div class="w-9 h-9 sm:w-10 sm:h-10 md:w-12 md:h-12 rounded-xl sm:rounded-2xl bg-amber-500/10 text-amber-600 flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
+                                <svg class="w-5 h-5 sm:w-6 sm:h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
                             </div>
-                            <div class="space-y-1">
-                                <h3 class="text-sm sm:text-base md:text-lg font-extrabold text-[#09103c]">Riwayat Rapat</h3>
+                            <div>
+                                <h3 class="text-sm sm:text-base md:text-lg font-extrabold text-[#09103c]">Riwayat Kegiatan</h3>
                                 <p class="text-xs md:text-xs text-slate-500 leading-relaxed">Akses berkas notulensi PDF/Word dan risalah rapat sebelumnya.</p>
                             </div>
                         </div>

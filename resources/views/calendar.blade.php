@@ -4,7 +4,7 @@
 
 @section('content')
 <div x-data="{ 
-    openAddModal: {{ ($errors->any() || request()->has('open_add')) ? 'true' : 'false' }}, 
+    openAddModal: {{ ((Auth::user()->isSekretarisMaster() || Auth::user()->isSekretarisBidang()) && ($errors->any() || request()->has('open_add'))) ? 'true' : 'false' }}, 
     selectedDate: '{{ $selectedDate->toDateString() }}', 
     selectedTime: '07:15', 
     kategori: '',
@@ -13,10 +13,10 @@
 }" class="h-full flex flex-col lg:flex-row gap-4 sm:gap-6">
     
     <!-- LEFT PANEL: Mini Calendar & Quick Add -->
-    <div class="w-full lg:w-72 xl:w-80 space-y-4 sm:space-y-6 shrink-0">
+    <div class="w-full lg:w-72 xl:w-80 flex flex-col gap-4 sm:gap-6 shrink-0 min-h-0">
         
         <!-- Mini Calendar Card -->
-        <div class="bg-slate-50/70 border border-[#d4d1f5]/60 rounded-3xl p-4 sm:p-5 shadow-xs">
+        <div class="bg-slate-50/70 border border-[#d4d1f5]/60 rounded-3xl p-4 sm:p-5 shadow-xs shrink-0">
             <div class="flex items-center justify-between mb-4 border-b border-[#d4d1f5]/30 pb-2">
                 <!-- Prev Button -->
                 <button type="button" 
@@ -116,15 +116,15 @@
         </div>
 
         <!-- Today's Highlights Panel -->
-        <div class="bg-slate-50/70 border border-[#d4d1f5]/60 rounded-3xl p-4 sm:p-5 shadow-xs space-y-3 sm:space-y-4">
-            <div class="flex items-center justify-between">
+        <div class="bg-slate-50/70 border border-[#d4d1f5]/60 rounded-3xl p-4 sm:p-5 shadow-xs flex-1 flex flex-col min-h-0 justify-between">
+            <div class="flex items-center justify-between shrink-0 mb-3 sm:mb-4">
                 <h3 class="text-xs font-bold uppercase tracking-wider text-[#2e2552]">Kegiatan Hari Ini</h3>
                 <span class="text-[10px] bg-[#2e2552]/10 text-[#2e2552] px-2.5 py-0.5 rounded-full border border-[#2e2552]/20 font-bold">
                     {{ count($todayAgendas) }} Agenda
                 </span>
             </div>
             
-            <div class="space-y-3 max-h-52 lg:max-h-64 overflow-y-auto pr-1">
+            <div class="space-y-3 flex-1 min-h-0 overflow-y-auto pr-1">
                 @forelse($todayAgendas as $ta)
                     <div class="p-3 bg-white border border-[#d4d1f5]/40 rounded-2xl hover:border-[#8e88dd]/40 transition-all duration-200 shadow-2xs">
                         <div class="flex items-center justify-between gap-2">
@@ -157,15 +157,17 @@
                 @endforelse
             </div>
 
-            <!-- Quick Add Agenda Button (Secretaries & Sekretariat staff) -->
-            @if(Auth::user()->isSekretarisMaster() || Auth::user()->isSekretarisBidang() || Auth::user()->isSekretariat())
-                <button @click="openAddModal = true; selectedDate = '{{ $selectedDate->toDateString() }}'; selectedTime = '07:15'" 
-                        class="w-full py-2.5 bg-[#2e2552] hover:bg-[#3d326a] active:scale-[0.98] text-white font-bold rounded-2xl text-xs transition-all duration-200 shadow-md shadow-[#2e2552]/20 flex items-center justify-center gap-2">
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
-                    </svg>
-                    <span>Tambah Agenda Baru</span>
-                </button>
+            <!-- Quick Add Agenda Button (Secretaries & Admin Subbag/Bidang Only) -->
+            @if(Auth::user()->isSekretarisMaster() || Auth::user()->isSekretarisBidang())
+                <div class="shrink-0 pt-3 sm:pt-4">
+                    <button @click="openAddModal = true; selectedDate = '{{ $selectedDate->toDateString() }}'; selectedTime = '07:15'" 
+                            class="w-full py-2.5 bg-[#2e2552] hover:bg-[#3d326a] active:scale-[0.98] text-white font-bold rounded-2xl text-xs transition-all duration-200 shadow-md shadow-[#2e2552]/20 flex items-center justify-center gap-2">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
+                        </svg>
+                        <span>Tambah Agenda Baru</span>
+                    </button>
+                </div>
             @endif
         </div>
     </div>
@@ -176,7 +178,7 @@
         <div class="flex items-center justify-between mb-3 sm:mb-4 gap-2 sm:gap-4 border-b border-[#d4d1f5]/40 pb-2 sm:pb-3 shrink-0">
             <div class="min-w-0">
                 <h2 class="text-sm sm:text-base font-extrabold text-[#2e2552] tracking-wide truncate">Kalender Rinci Mingguan</h2>
-                <p class="text-[9.5px] sm:text-xs text-[#5a508f] mt-0.5 hidden sm:block">Jam kerja resmi (07:15 - 15:30 WIB)</p>
+                <p class="text-[9.5px] sm:text-xs text-[#5a508f] mt-0.5 hidden sm:block">Jam kerja resmi (07:15 - {{ now()->isFriday() ? '15:15' : '15:30' }} WIB)</p>
             </div>
             
             <div class="flex items-center gap-1.5 sm:gap-2 shrink-0">
@@ -501,14 +503,19 @@
                     </div>
                     <div class="space-y-1">
                         <label for="kategori" class="block text-[10.5px] font-bold text-slate-600 uppercase tracking-wider">Kategori <span class="text-rose-500 font-bold">*</span></label>
-                        <select name="kategori" id="kategori" required x-model="kategori"
-                                class="w-full px-2.5 py-2 sm:py-1.5 bg-slate-50/80 hover:bg-slate-50 border border-slate-200 rounded-lg text-slate-800 text-xs focus:bg-white focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/10 transition-all font-medium">
-                            <option value="" disabled selected>Pilih Kategori</option>
-                            <option value="rapat">Rapat</option>
-                            <option value="sosialisasi">Sosialisasi</option>
-                            <option value="pelatihan">Pelatihan</option>
-                            <option value="kegiatan_lainnya">Kegiatan Lainnya</option>
-                        </select>
+                        <div class="relative">
+                            <select name="kategori" id="kategori" required x-model="kategori"
+                                    class="w-full pl-3 pr-8 py-2 sm:py-1.5 bg-[#f8f7ff] hover:bg-[#f3f2fe] border border-[#d4d1f5] rounded-xl text-[#2e2552] text-xs font-semibold appearance-none focus:bg-white focus:border-[#1b3bbb] focus:ring-2 focus:ring-[#1b3bbb]/20 transition-all cursor-pointer">
+                                <option value="" disabled selected>Pilih Kategori</option>
+                                <option value="rapat">Rapat</option>
+                                <option value="sosialisasi">Sosialisasi</option>
+                                <option value="pelatihan">Pelatihan</option>
+                                <option value="kegiatan_lainnya">Kegiatan Lainnya</option>
+                            </select>
+                            <div class="absolute right-2.5 top-1/2 -translate-y-1/2 text-[#5a508f] pointer-events-none">
+                                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                            </div>
+                        </div>
                     </div>
                 </div>
 
@@ -519,17 +526,17 @@
                         <input type="date" name="tanggal" id="tanggal" required x-model="selectedDate"
                                min="{{ now()->subMonths(6)->toDateString() }}"
                                max="{{ now()->addMonths(6)->toDateString() }}"
-                               class="w-full px-3 py-2 sm:py-1.5 bg-slate-50/80 hover:bg-slate-50 border border-slate-200 rounded-lg text-slate-800 text-xs focus:bg-white focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/10 transition-all font-medium">
+                               class="w-full px-3 py-2 sm:py-1.5 bg-[#f8f7ff] hover:bg-[#f3f2fe] border border-[#d4d1f5] rounded-xl text-[#2e2552] text-xs font-semibold focus:bg-white focus:border-[#1b3bbb] focus:ring-2 focus:ring-[#1b3bbb]/20 transition-all">
                     </div>
                     <div class="space-y-1">
                         <label for="jam_mulai" class="block text-[10.5px] font-bold text-slate-600 uppercase tracking-wider">Jam Mulai <span class="text-rose-500 font-bold">*</span></label>
                         <input type="time" name="jam_mulai" id="jam_mulai" required x-model="selectedTime"
-                               class="w-full px-2.5 py-2 sm:py-1.5 bg-slate-50/80 hover:bg-slate-50 border border-slate-200 rounded-lg text-slate-800 text-xs focus:bg-white focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/10 transition-all font-medium">
+                               class="w-full px-2.5 py-2 sm:py-1.5 bg-[#f8f7ff] hover:bg-[#f3f2fe] border border-[#d4d1f5] rounded-xl text-[#2e2552] text-xs font-semibold focus:bg-white focus:border-[#1b3bbb] focus:ring-2 focus:ring-[#1b3bbb]/20 transition-all">
                     </div>
                     <div class="space-y-1">
                         <label for="jam_selesai" class="block text-[10.5px] font-bold text-slate-600 uppercase tracking-wider">Jam Selesai <span class="text-rose-500 font-bold">*</span></label>
-                        <input type="time" name="jam_selesai" id="jam_selesai" required value="15:30"
-                               class="w-full px-2.5 py-2 sm:py-1.5 bg-slate-50/80 hover:bg-slate-50 border border-slate-200 rounded-lg text-slate-800 text-xs focus:bg-white focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/10 transition-all font-medium">
+                        <input type="time" name="jam_selesai" id="jam_selesai" required value="{{ now()->isFriday() ? '15:15' : '15:30' }}"
+                               class="w-full px-2.5 py-2 sm:py-1.5 bg-[#f8f7ff] hover:bg-[#f3f2fe] border border-[#d4d1f5] rounded-xl text-[#2e2552] text-xs font-semibold focus:bg-white focus:border-[#1b3bbb] focus:ring-2 focus:ring-[#1b3bbb]/20 transition-all">
                     </div>
                 </div>
 
@@ -537,13 +544,18 @@
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
                     <div class="space-y-1">
                         <label for="tempat" class="block text-[10.5px] font-bold text-slate-600 uppercase tracking-wider">Tempat / Ruangan <span class="text-rose-500 font-bold">*</span></label>
-                        <select id="tempat" name="lokasi" required
-                                class="w-full px-2.5 py-2 sm:py-1.5 bg-slate-50/80 hover:bg-slate-50 border border-slate-200 rounded-lg text-slate-800 text-xs focus:bg-white focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/10 transition-all font-medium">
-                            <option value="" disabled selected>Pilih Lokasi / Ruangan</option>
-                            <option value="Aula Rapat Dinkominfo">Aula Rapat Dinkominfo</option>
-                            <option value="Ruang Pelatihan">Ruang Pelatihan</option>
-                            <option value="Smart Room Graha Satria">Smart Room Graha Satria</option>
-                        </select>
+                        <div class="relative">
+                            <select id="tempat" name="lokasi" required
+                                    class="w-full pl-3 pr-8 py-2 sm:py-1.5 bg-[#f8f7ff] hover:bg-[#f3f2fe] border border-[#d4d1f5] rounded-xl text-[#2e2552] text-xs font-semibold appearance-none focus:bg-white focus:border-[#1b3bbb] focus:ring-2 focus:ring-[#1b3bbb]/20 transition-all cursor-pointer">
+                                <option value="" disabled selected>Pilih Lokasi / Ruangan</option>
+                                <option value="Aula Rapat Dinkominfo">Aula Rapat Dinkominfo</option>
+                                <option value="Ruang Pelatihan">Ruang Pelatihan</option>
+                                <option value="Smart Room Graha Satria">Smart Room Graha Satria</option>
+                            </select>
+                            <div class="absolute right-2.5 top-1/2 -translate-y-1/2 text-[#5a508f] pointer-events-none">
+                                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                            </div>
+                        </div>
                     </div>
                     <div class="space-y-1">
                         <label for="deskripsi" class="block text-[10.5px] font-bold text-slate-600 uppercase tracking-wider">Deskripsi (Opsional)</label>
@@ -784,7 +796,7 @@
                                 <div class="relative">
                                     <input type="text" x-model="searchParticipant" placeholder="Cari nama atau jabatan peserta..." 
                                            class="w-full pl-9 pr-8 py-2 bg-slate-100/90 border border-slate-200/90 rounded-xl text-xs text-slate-800 placeholder-slate-400 focus:bg-white focus:border-[#1b3bbb] focus:ring-2 focus:ring-[#1b3bbb]/10 transition-all font-medium">
-                                    <svg class="w-4 h-4 text-slate-400 absolute left-3 top-2.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <svg class="w-4 h-4 text-[#1b3bbb] absolute left-3 top-2.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
                                     </svg>
                                     <button type="button" x-show="searchParticipant.length > 0" @click="searchParticipant = ''" class="absolute right-2.5 top-2.5 text-slate-400 hover:text-slate-600">

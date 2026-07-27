@@ -101,16 +101,16 @@
             this.signatureData = '';
         }
     }
-}" data-participants='@json($participants)' class="space-y-6">
+}" data-participants='@json($participants)' class="space-y-3.5 sm:space-y-4">
     
     <!-- Breadcrumbs / Back button -->
     <div class="flex items-center justify-between gap-2">
         <a href="{{ route('calendar', ['date' => $agenda->tanggal->toDateString()]) }}" 
-           class="inline-flex items-center gap-2 px-3 py-1.5 rounded-xl bg-white border border-[#d4d1f5]/80 text-xs font-bold text-[#5a508f] hover:text-[#1b3bbb] hover:border-[#1b3bbb]/40 transition-all shadow-2xs min-w-0">
-            <svg class="w-4 h-4 shrink-0 text-[#5a508f]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+           class="inline-flex items-center gap-2 text-xs font-bold text-[#5a508f] hover:text-[#1b3bbb] transition-colors py-1 group">
+            <svg class="w-4 h-4 shrink-0 text-[#5a508f] group-hover:text-[#1b3bbb] group-hover:-translate-x-0.5 transition-all" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 12H5m7 7l-7-7 7-7"></path>
             </svg>
-            <span class="truncate">Kembali ke Kalender Rinci</span>
+            <span>Kembali ke Kalender Rinci</span>
         </a>
         
         @if($isSecretaryOfAgenda)
@@ -194,24 +194,34 @@
                             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                                 <div class="space-y-1">
                                     <label for="tempat_edit" class="block text-xs font-bold text-[#5a508f] uppercase">Tempat / Ruangan <span class="text-rose-500">*</span></label>
-                                    <select id="tempat_edit" name="lokasi" required
-                                            class="w-full px-4 py-2.5 bg-[#f3f2fe] border border-[#d4d1f5] rounded-2xl text-[#2e2552] text-sm focus:outline-none">
-                                        <option value="" disabled {{ empty($agenda->lokasi) ? 'selected' : '' }}>Pilih Lokasi / Ruangan</option>
-                                        <option value="Aula Rapat Dinkominfo" {{ $agenda->lokasi === 'Aula Rapat Dinkominfo' ? 'selected' : '' }}>Aula Rapat Dinkominfo</option>
-                                        <option value="Ruang Pelatihan" {{ $agenda->lokasi === 'Ruang Pelatihan' ? 'selected' : '' }}>Ruang Pelatihan</option>
-                                        <option value="Smart Room Graha Satria" {{ $agenda->lokasi === 'Smart Room Graha Satria' ? 'selected' : '' }}>Smart Room Graha Satria</option>
-                                    </select>
+                                    <div class="relative">
+                                        <select id="tempat_edit" name="lokasi" required
+                                                class="w-full pl-3.5 pr-8 py-2.5 bg-[#f8f7ff] hover:bg-[#f3f2fe] border border-[#d4d1f5] rounded-xl text-[#2e2552] text-xs font-semibold appearance-none focus:bg-white focus:border-[#1b3bbb] focus:ring-2 focus:ring-[#1b3bbb]/20 transition-all cursor-pointer">
+                                            <option value="" disabled {{ empty($agenda->lokasi) ? 'selected' : '' }}>Pilih Lokasi / Ruangan</option>
+                                            <option value="Aula Rapat Dinkominfo" {{ $agenda->lokasi === 'Aula Rapat Dinkominfo' ? 'selected' : '' }}>Aula Rapat Dinkominfo</option>
+                                            <option value="Ruang Pelatihan" {{ $agenda->lokasi === 'Ruang Pelatihan' ? 'selected' : '' }}>Ruang Pelatihan</option>
+                                            <option value="Smart Room Graha Satria" {{ $agenda->lokasi === 'Smart Room Graha Satria' ? 'selected' : '' }}>Smart Room Graha Satria</option>
+                                        </select>
+                                        <div class="absolute right-2.5 top-1/2 -translate-y-1/2 text-[#5a508f] pointer-events-none">
+                                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                                        </div>
+                                    </div>
                                 </div>
 
                                 <div class="space-y-1">
                                     <label class="block text-xs font-bold text-[#5a508f] uppercase">Kategori <span class="text-rose-500">*</span></label>
-                                    <select name="kategori" required class="w-full px-4 py-2.5 bg-[#f3f2fe] border border-[#d4d1f5] rounded-2xl text-[#2e2552] text-sm focus:outline-none">
-                                        <option value="" disabled {{ empty($agenda->kategori) ? 'selected' : '' }}>Pilih Kategori</option>
-                                        <option value="rapat" {{ $agenda->kategori === 'rapat' ? 'selected' : '' }}>Rapat</option>
-                                        <option value="sosialisasi" {{ $agenda->kategori === 'sosialisasi' ? 'selected' : '' }}>Sosialisasi</option>
-                                        <option value="pelatihan" {{ $agenda->kategori === 'pelatihan' ? 'selected' : '' }}>Pelatihan</option>
-                                        <option value="kegiatan_lainnya" {{ $agenda->kategori === 'kegiatan_lainnya' ? 'selected' : '' }}>Kegiatan Lainnya</option>
-                                    </select>
+                                    <div class="relative">
+                                        <select name="kategori" required class="w-full pl-3.5 pr-8 py-2.5 bg-[#f8f7ff] hover:bg-[#f3f2fe] border border-[#d4d1f5] rounded-xl text-[#2e2552] text-xs font-semibold appearance-none focus:bg-white focus:border-[#1b3bbb] focus:ring-2 focus:ring-[#1b3bbb]/20 transition-all cursor-pointer">
+                                            <option value="" disabled {{ empty($agenda->kategori) ? 'selected' : '' }}>Pilih Kategori</option>
+                                            <option value="rapat" {{ $agenda->kategori === 'rapat' ? 'selected' : '' }}>Rapat</option>
+                                            <option value="sosialisasi" {{ $agenda->kategori === 'sosialisasi' ? 'selected' : '' }}>Sosialisasi</option>
+                                            <option value="pelatihan" {{ $agenda->kategori === 'pelatihan' ? 'selected' : '' }}>Pelatihan</option>
+                                            <option value="kegiatan_lainnya" {{ $agenda->kategori === 'kegiatan_lainnya' ? 'selected' : '' }}>Kegiatan Lainnya</option>
+                                        </select>
+                                        <div class="absolute right-2.5 top-1/2 -translate-y-1/2 text-[#5a508f] pointer-events-none">
+                                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
 
@@ -514,12 +524,12 @@
     </div>
 
     <!-- TOP GRID: Card Rapat (Left) vs Absensi/Notulensi/Rekap (Right) -->
-    <div class="grid grid-cols-1 lg:grid-cols-2 gap-3.5 sm:gap-6 items-stretch">
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-3 sm:gap-4.5 items-stretch">
         
         <!-- Left Column: Info Detail Agenda -->
         <div class="min-w-0 flex flex-col h-full">
-            <div class="bg-white border border-[#d4d1f5]/60 rounded-xl md:rounded-[32px] p-3 sm:p-6 shadow-sm h-full flex flex-col justify-start gap-4">
-                <div class="space-y-2.5 sm:space-y-6">
+            <div class="bg-white border border-[#d4d1f5]/60 rounded-xl md:rounded-[24px] p-3 sm:p-4.5 shadow-sm h-full flex flex-col justify-start gap-2.5">
+                <div class="space-y-2.5 sm:space-y-3.5">
                     <!-- Category badge -->
                     <div class="flex items-center justify-between">
                         @php
@@ -682,10 +692,10 @@
     @endif
 
         <!-- Right Column: Absensi Digital, Notulensi & Rekap Kehadiran Bidang -->
-        <div class="flex flex-col gap-3.5 sm:gap-6 min-w-0 h-full justify-start">
+        <div class="flex flex-col gap-3 min-w-0 h-full justify-start">
             <!-- 1. ABSENSI DIGITAL (Pegawai Internal Mandiri) -->
             @if($agenda->butuh_presensi)
-                <div class="bg-white border border-[#d4d1f5]/60 rounded-xl md:rounded-[32px] p-3 sm:p-6 shadow-sm space-y-3 sm:space-y-4">
+                <div class="bg-white border border-[#d4d1f5]/60 rounded-xl md:rounded-[24px] p-3 sm:p-4 shadow-sm space-y-2.5">
                     <div class="flex items-center justify-between border-b border-[#d4d1f5]/40 pb-3">
                         <h3 class="text-xs font-bold uppercase tracking-wider text-[#2e2552]">Absensi Digital</h3>
                         <span class="text-[10px] font-bold text-[#5a508f] bg-[#f3f2fe] px-2.5 py-0.5 rounded-full border border-[#d4d1f5]/40">
@@ -821,7 +831,7 @@
 
             <!-- 2. STATUS NOTULENSI AI (Hanya Rapat) ATAU REKAP KEHADIRAN BIDANG (Jika Non-Rapat / Tanpa Notulensi) -->
             @if($agenda->kategori === 'rapat' && $agenda->notulensi)
-                <div class="bg-white border border-[#d4d1f5]/60 rounded-xl md:rounded-[32px] p-3 sm:p-6 shadow-sm space-y-2.5 sm:space-y-4 flex flex-col justify-start">
+                <div class="bg-white border border-[#d4d1f5]/60 rounded-xl md:rounded-[24px] p-3 sm:p-4 shadow-sm space-y-2.5 flex flex-col justify-start">
                     <h3 class="text-[11px] sm:text-xs font-bold uppercase tracking-wider text-[#2e2552]">Dokumentasi Notulensi</h3>
                     
                     @php
@@ -915,9 +925,9 @@
                                    class="w-full py-1.5 sm:py-2.5 bg-[#2e2552] hover:bg-[#3d326a] text-white font-bold text-[11px] sm:text-xs rounded-xl shadow-md transition-all flex items-center justify-center gap-1.5">
                                     <span>Kelola & Edit Notulen</span>
                                 </a>
-                            @else
-                                <p class="text-xs text-[#8e88dd] text-center py-2 italic">
-                                    {{ $hasDraftContent ? 'Draf notulensi rapat sedang dirapikan oleh sekretaris.' : 'Notulensi rapat belum diunggah/dibuat oleh sekretaris.' }}
+                            @elseif($hasDraftContent)
+                                <p class="text-xs text-[#8e88dd] text-center py-1.5 italic font-medium">
+                                    Draf notulensi rapat sedang dirapikan oleh sekretaris.
                                 </p>
                             @endif
                         @elseif($agenda->notulensi->status === 'menunggu_review')
@@ -982,7 +992,7 @@
                         @endif
                     </div>
                 </div>
-            @elseif($agenda->butuh_presensi && (Auth::user()->role !== 'staff' || Auth::user()->isSekretariat()))
+            @elseif($agenda->butuh_presensi && Auth::user()->role !== 'staff')
                 <div x-data="{ showAllRecap: false }" class="bg-white border border-[#d4d1f5]/60 rounded-xl md:rounded-[32px] p-2.5 sm:p-6 shadow-sm space-y-2.5 sm:space-y-4 flex-1 flex flex-col justify-start">
                     <div class="flex items-center justify-between border-b border-[#d4d1f5]/40 pb-2">
                         <h3 class="text-[11px] sm:text-xs font-bold uppercase tracking-wider text-[#2e2552]">Rekap Kehadiran Bidang</h3>
@@ -1027,8 +1037,8 @@
         </div>
     </div>
 
-    <!-- BOTTOM SECTION: FULL-WIDTH KOREKSI PRESENSI PEGAWAI -->
-    @if($agenda->butuh_presensi && ($isSecretaryOfAgenda || Auth::user()->role !== 'staff' || Auth::user()->isSekretariat()))
+    <!-- BOTTOM SECTION: FULL-WIDTH KOREKSI PRESENSI PEGAWAI (Sekretaris & Admin Only) -->
+    @if($agenda->butuh_presensi && ($isSecretaryOfAgenda || Auth::user()->isSekretarisMaster() || Auth::user()->isSekretarisBidang()))
         <div class="bg-white border border-[#d4d1f5]/60 rounded-xl md:rounded-[32px] p-2.5 sm:p-6 shadow-sm space-y-2.5 sm:space-y-4">
             <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-[#d4d1f5]/40 pb-3">
                 <div>
@@ -1124,13 +1134,13 @@
 
             <div class="p-6 max-h-[60vh] overflow-y-auto">
                 <table class="w-full text-left text-xs text-[#2e2552]">
-                    <thead class="text-[10px] font-bold uppercase tracking-wider text-[#5a508f] border-b border-[#d4d1f5]/40">
+                    <thead class="bg-[#ebf2ff] text-[#1b3bbb] border-y border-[#bfd5ff] select-none">
                         <tr>
-                            <th class="py-3 px-3">Nama Pegawai</th>
-                            <th class="py-3 px-3">Jabatan</th>
-                            <th class="py-3 px-3 text-center">Status</th>
-                            <th class="py-3 px-3">Keterangan</th>
-                            <th class="py-3 px-3 text-center">TTD</th>
+                            <th class="py-2.5 px-3 font-black uppercase tracking-wider">Nama Pegawai</th>
+                            <th class="py-2.5 px-3 font-black uppercase tracking-wider">Jabatan</th>
+                            <th class="py-2.5 px-3 font-black uppercase tracking-wider text-center">Status</th>
+                            <th class="py-2.5 px-3 font-black uppercase tracking-wider">Keterangan</th>
+                            <th class="py-2.5 px-3 font-black uppercase tracking-wider text-center">TTD</th>
                         </tr>
                     </thead>
                     <tbody class="divide-y divide-[#d4d1f5]/20">

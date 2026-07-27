@@ -178,20 +178,13 @@ class User extends Authenticatable
 
     /**
      * Checks if this user can view the Agenda Hari Ini (TV / Monitoring Board) page.
-     * Allowed: Pimpinan (Ketua Master/Bidang), Sekretaris (Master/Bidang), and Sekretariat Staff.
-     * Regular staff of Aptika, IKP, Statistika, etc. are excluded to avoid confusion.
+     * Allowed ONLY for Admins & Secretaries (Admin Master, Admin Bidang/Subbag, Sekretaris Dinas).
      */
     public function canViewAgendaToday(): bool
     {
-        if ($this->isAdmin()) {
-            return false;
-        }
-
-        return $this->isSekretarisMaster() 
-            || $this->isKetuaMaster() 
-            || $this->isSekretarisBidang() 
-            || $this->isKetuaBidang() 
-            || $this->isSekretariat();
+        return $this->isAdmin()
+            || $this->isSekretarisMaster() 
+            || $this->isSekretarisBidang();
     }
 
     /**
@@ -205,6 +198,11 @@ class User extends Authenticatable
 
         // Direct creator of agenda always has access
         if ((string)$this->id === (string)$agenda->sekretaris_id) {
+            return true;
+        }
+
+        // Master leadership (Sekretaris Master / Sekdin & Kadin) has full access to all agendas
+        if ($this->isSekretarisMaster() || $this->isKetuaMaster()) {
             return true;
         }
 
@@ -225,24 +223,9 @@ class User extends Authenticatable
             return true;
         }
 
-        // For Sekretariat Scope (Sekretaris Master, Sekdin, Sekretariat staff, Subbags):
-        // Can access agendas targeted to any Sekretariat / Subbag bidang
-        if ($this->isSekretariatScope()) {
-            $sekretariatBidangIds = \Illuminate\Support\Facades\Cache::remember('sekretariat_scope_bidang_ids', 600, function() {
-                return \App\Models\Bidang::where('nama', 'like', '%Subbag%')
-                    ->orWhere('singkatan', 'like', '%Subbag%')
-                    ->orWhere('singkatan', 'Sekretariat')
-                    ->orWhere('nama', 'Sekretariat')
-                    ->pluck('id')
-                    ->map(fn($id) => (string)$id)
-                    ->toArray();
-            });
-
-            foreach ($hakAkses as $targetBidangId) {
-                if (in_array((string)$targetBidangId, $sekretariatBidangIds)) {
-                    return true;
-                }
-            }
+        // Check if agenda belongs to user's same bidang
+        if ($this->bidang_id && $agenda->sekretaris && (string)$agenda->sekretaris->bidang_id === (string)$this->bidang_id) {
+            return true;
         }
 
         return false;
@@ -257,7 +240,7 @@ class User extends Authenticatable
      */
     public function isSecretaryOfAgenda(Agenda $agenda): bool
     {
-        if ($this->isAdmin()) {
+        if ($this->isAdmin() || $this->isStaff()) {
             return false;
         }
 
@@ -268,9 +251,9 @@ class User extends Authenticatable
 
         $creator = $agenda->sekretaris;
 
-        // If user is Sekdin / Sekretariat staff:
-        if ($this->isSekretariat() || $this->isSekretarisMaster()) {
-            if ($creator && ($creator->isSekretariat() || $creator->isSekretarisMaster())) {
+        // If user is Sekretaris Master (Sekdin):
+        if ($this->isSekretarisMaster()) {
+            if ($creator && ($creator->isSekretarisMaster() || $creator->isSekretariat())) {
                 return true;
             }
             // Sekdin viewing a Bidang's agenda -> CANNOT EDIT (View Only)
@@ -278,7 +261,7 @@ class User extends Authenticatable
         }
 
         // If user is Admin/Sekretaris of a Subbagian / Bidang:
-        if ($this->isSekretarisBidang() || $this->isStaff()) {
+        if ($this->isSekretarisBidang()) {
             if ($creator && (string)$creator->bidang_id === (string)$this->bidang_id) {
                 return true;
             }

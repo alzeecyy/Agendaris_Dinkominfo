@@ -93,7 +93,7 @@
                 </div>
                 <div class="mt-2.5 sm:mt-4">
                     <h2 class="text-2xl sm:text-3xl md:text-4xl font-black text-rose-600">{{ $kpi['pending_presence'] ?? 0 }}</h2>
-                    <p class="text-[10px] sm:text-xs text-[#5a508f] mt-0.5 sm:mt-1 font-medium">Kehadiran belum dikonfirmasi</p>
+                    <p class="text-[10px] sm:text-xs text-[#5a508f] mt-0.5 sm:mt-1 font-medium">Tidak ada presensi aktif</p>
                 </div>
             </div>
             @endif
@@ -266,24 +266,21 @@
             </div>
             @endif
 
-            <!-- Card 2: Master Info / Status -->
-            <div class="bg-white border border-[#d4d1f5]/60 rounded-2xl md:rounded-[32px] p-3.5 sm:p-5 md:p-6 flex flex-col justify-between shadow-sm">
+            <!-- Card 2: Agenda Minggu Ini (Untuk Ketua / Kabid / Kadis) -->
+            <a href="{{ route('calendar') }}" class="group bg-white hover:bg-slate-50/80 border border-[#d4d1f5]/60 rounded-2xl md:rounded-[32px] p-3.5 sm:p-5 md:p-6 flex flex-col justify-between shadow-sm hover:shadow-md transition-all duration-200 cursor-pointer">
                 <div class="flex items-center justify-between">
-                    <span class="text-[10px] sm:text-xs font-bold text-[#5a508f] uppercase">Cakupan Pengawasan</span>
-                    <div class="p-1.5 sm:p-2 bg-[#8ba0f2]/10 text-[#8ba0f2] rounded-xl sm:rounded-2xl">
+                    <span class="text-[10px] sm:text-xs font-bold text-[#5a508f] uppercase">Agenda Minggu Ini</span>
+                    <div class="p-1.5 sm:p-2 bg-[#8ba0f2]/10 text-[#8e88dd] rounded-xl sm:rounded-2xl group-hover:bg-[#8ba0f2]/20 transition-colors">
                         <svg class="w-4 h-4 sm:w-5 sm:h-5 md:w-6 md:h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path>
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
                         </svg>
                     </div>
                 </div>
                 <div class="mt-2.5 sm:mt-4">
-                    <h4 class="text-xs sm:text-base font-black text-[#2e2552] truncate">
-                        {{ Auth::user()->role === 'ketua_master' ? 'Seluruh Kominfo' : (Auth::user()->bidang->singkatan ?? 'Bidang Dinas') }}
-                    </h4>
-                    <p class="text-[10px] sm:text-xs text-[#5a508f] mt-0.5 sm:mt-1 font-medium">Wewenang pengawasan</p>
+                    <h2 class="text-2xl sm:text-3xl md:text-4xl font-black text-[#1b3bbb]">{{ $kpi['ketua_week_agendas'] ?? 0 }}</h2>
+                    <p class="text-[10px] sm:text-xs text-[#5a508f] mt-0.5 sm:mt-1 font-medium">Lihat kalender &rarr;</p>
                 </div>
-            </div>
+            </a>
         @endif
 
     </div>
@@ -405,7 +402,7 @@
                             <div x-show="open" 
                                  x-cloak 
                                  x-transition
-                                 class="absolute bottom-full {{ $tooltipClass }} mb-2.5 w-64 bg-white text-[#2e2552] p-4 rounded-2xl shadow-2xl z-30 text-[10px] space-y-3 pointer-events-none border border-[#d4d1f5]/60">
+                                 class="absolute bottom-full {{ $tooltipClass }} mb-2.5 w-64 bg-white text-[#2e2552] p-4 rounded-2xl shadow-2xl z-30 text-[10px] space-y-3 pointer-events-none border border-[#d4d1f5]/60 overflow-hidden">
                                 <div class="font-bold border-b border-[#d4d1f5]/40 pb-1.5 flex justify-between text-xs">
                                     <span class="text-[#2e2552]">Agenda Kegiatan</span>
                                     <span class="text-[#8e88dd]">{{ $date->translatedFormat('d M Y') }}</span>

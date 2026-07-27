@@ -16,7 +16,7 @@
             <div class="space-y-2 z-10">
                 <span class="text-[10px] font-bold uppercase tracking-widest text-[#8e88dd]">Panel Admin</span>
                 <h3 class="text-xl font-black leading-tight">Kontrol Sistem &amp; Akun Pegawai</h3>
-                <p class="text-xs text-[#bda6ff] leading-relaxed">Kelola otentikasi, pembagian divisi/bidang, serta pemantauan data aktivitas Agendaris.</p>
+                <p class="text-xs text-[#bda6ff] leading-relaxed">Kelola otentikasi, pembagian divisi/bidang, serta pemantauan data aktivitas SiRENA.</p>
             </div>
             
             <div class="mt-6 z-10">
@@ -118,13 +118,13 @@
                 
                 <div class="overflow-x-auto">
                     <table class="w-full min-w-[550px] sm:min-w-0 table-auto sm:table-fixed text-left text-xs text-[#2e2552]">
-                        <thead class="text-[10px] font-bold uppercase tracking-wider text-[#5a508f] border-b border-[#d4d1f5]/30">
+                        <thead class="bg-[#ebf2ff] text-[#1b3bbb] border-y border-[#bfd5ff] select-none">
                             <tr>
-                                <th class="py-3 px-3 sm:px-2 sm:w-[35%] whitespace-nowrap">Nama</th>
-                                <th class="py-3 px-3 sm:px-2 sm:hidden text-center whitespace-nowrap">NIP</th>
-                                <th class="py-3 px-3 sm:px-2 text-center sm:w-[25%] whitespace-nowrap">Bidang</th>
-                                <th class="py-3 px-3 sm:px-2 text-center sm:w-[25%] whitespace-nowrap">Role</th>
-                                <th class="py-3 px-3 sm:px-2 text-center sm:w-[15%] whitespace-nowrap">Status</th>
+                                <th class="py-2.5 px-3 sm:px-2 sm:w-[35%] font-black uppercase tracking-wider whitespace-nowrap">Nama</th>
+                                <th class="py-2.5 px-3 sm:px-2 sm:hidden font-black uppercase tracking-wider text-center whitespace-nowrap">NIP</th>
+                                <th class="py-2.5 px-3 sm:px-2 font-black uppercase tracking-wider text-center sm:w-[25%] whitespace-nowrap">Bidang</th>
+                                <th class="py-2.5 px-3 sm:px-2 font-black uppercase tracking-wider text-center sm:w-[25%] whitespace-nowrap">Role</th>
+                                <th class="py-2.5 px-3 sm:px-2 font-black uppercase tracking-wider text-center sm:w-[15%] whitespace-nowrap">Status</th>
                             </tr>
                         </thead>
                         <tbody class="divide-y divide-[#d4d1f5]/20">
@@ -168,12 +168,12 @@
                 
                 <div class="overflow-x-auto">
                     <table class="w-full min-w-[550px] sm:min-w-0 table-auto sm:table-fixed text-left text-xs text-[#2e2552]">
-                        <thead class="text-[10px] font-bold uppercase tracking-wider text-[#5a508f] border-b border-[#d4d1f5]/30">
+                        <thead class="bg-[#ebf2ff] text-[#1b3bbb] border-y border-[#bfd5ff] select-none">
                             <tr>
-                                <th class="py-3 px-3 sm:px-2 sm:w-[40%] whitespace-nowrap">Judul Rapat</th>
-                                <th class="py-3 px-3 sm:px-2 sm:w-[25%] whitespace-nowrap">Tanggal / Waktu</th>
-                                <th class="py-3 px-3 sm:px-2 text-center sm:text-left sm:w-[20%] whitespace-nowrap">Penyelenggara</th>
-                                <th class="py-3 px-3 sm:px-2 text-center sm:w-[15%] whitespace-nowrap">Kategori</th>
+                                <th class="py-2.5 px-3 sm:px-2 sm:w-[40%] font-black uppercase tracking-wider whitespace-nowrap">Judul Rapat</th>
+                                <th class="py-2.5 px-3 sm:px-2 sm:w-[25%] font-black uppercase tracking-wider whitespace-nowrap">Tanggal / Waktu</th>
+                                <th class="py-2.5 px-3 sm:px-2 font-black uppercase tracking-wider text-center sm:text-left sm:w-[20%] whitespace-nowrap">Penyelenggara</th>
+                                <th class="py-2.5 px-3 sm:px-2 font-black uppercase tracking-wider text-center sm:w-[15%] whitespace-nowrap">Kategori</th>
                             </tr>
                         </thead>
                         <tbody class="divide-y divide-[#d4d1f5]/20">

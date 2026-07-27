@@ -15,24 +15,38 @@
             font-family: 'Plus Jakarta Sans', sans-serif;
             background: linear-gradient(135deg, #eef2ff 0%, #f8fafc 100%);
         }
-        /* Custom scrollbar - Thin overlay */
+        /* Custom scrollbar - Floating inset overlay */
         * {
             scrollbar-width: thin;
-            scrollbar-color: rgba(27, 59, 187, 0.2) transparent;
+            scrollbar-color: rgba(27, 59, 187, 0.25) transparent;
         }
         ::-webkit-scrollbar {
-            width: 4px;
-            height: 4px;
+            width: 11px;
+            height: 11px;
+        }
+        ::-webkit-scrollbar-button {
+            display: none;
+            width: 0;
+            height: 0;
         }
         ::-webkit-scrollbar-track {
             background: transparent;
         }
         ::-webkit-scrollbar-thumb {
-            background: rgba(27, 59, 187, 0.2);
+            background-color: rgba(27, 59, 187, 0.25);
+            background-clip: padding-box;
+            border: 3px solid transparent;
+            border-top-width: 14px;
+            border-bottom-width: 14px;
             border-radius: 9999px;
         }
         ::-webkit-scrollbar-thumb:hover {
-            background: rgba(27, 59, 187, 0.4);
+            background-color: rgba(27, 59, 187, 0.5);
+            background-clip: padding-box;
+            border: 3px solid transparent;
+            border-top-width: 14px;
+            border-bottom-width: 14px;
+            border-radius: 9999px;
         }
         ::-webkit-scrollbar-corner {
             background: transparent;
@@ -209,7 +223,7 @@
                 <img src="{{ asset('images/logo-banyumas-crest.png') }}" alt="Logo Banyumas" class="h-6 sm:h-8 md:h-10 w-auto hover:scale-105 transition-transform duration-300 shrink-0">
                 <div class="flex flex-col justify-center min-w-0">
                     <h1 class="text-xs sm:text-sm md:text-base font-extrabold leading-tight text-[#09103c] tracking-tight truncate">Dinas Komunikasi dan Informatika</h1>
-                    <span class="text-[9px] sm:text-[10px] md:text-xs text-slate-500 font-semibold tracking-tight leading-none truncate">Pemerintah Kabupaten Banyumas</span>
+                    <span class="text-[9px] sm:text-[10px] md:text-xs text-slate-500 font-semibold tracking-tight leading-normal truncate pb-0.5">Pemerintah Kabupaten Banyumas</span>
                 </div>
             </div>
 
@@ -320,15 +334,17 @@
                     <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"></path></svg>
                     <span>Dashboard Utama</span>
                 </a>
-                <a href="{{ route('agenda.today') }}" class="flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-bold {{ request()->routeIs('agenda.today') ? 'bg-[#1b3bbb] text-white shadow-md' : 'text-slate-700 hover:bg-[#1b3bbb]/10' }}">
-                    <svg class="w-4 h-4 shrink-0 text-rose-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-                    <span>Agenda Hari Ini</span>
-                </a>
-                <a href="{{ route('calendar') }}" class="flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-bold {{ request()->routeIs('calendar') && !request()->has('open_add') ? 'bg-[#1b3bbb] text-white shadow-md' : 'text-slate-700 hover:bg-[#1b3bbb]/10' }}">
+                @if(Auth::user()->canViewAgendaToday())
+                    <a href="{{ route('agenda.today') }}" class="flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-bold {{ request()->routeIs('agenda.today') ? 'bg-[#1b3bbb] text-white shadow-md' : 'text-slate-700 hover:bg-[#1b3bbb]/10' }}">
+                        <svg class="w-4 h-4 shrink-0 text-rose-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                        <span>Agenda Hari Ini</span>
+                    </a>
+                @endif
+                <a href="{{ route('calendar') }}" class="flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-bold {{ (request()->routeIs('calendar') && !request()->has('open_add')) || request()->routeIs('agenda.show') || request()->routeIs('notulensi.*') ? 'bg-[#1b3bbb] text-white shadow-md' : 'text-slate-700 hover:bg-[#1b3bbb]/10' }}">
                     <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
                     <span>Kalender Rinci</span>
                 </a>
-                @if(Auth::user()->isSekretarisMaster() || Auth::user()->isSekretarisBidang() || Auth::user()->isSekretariat())
+                @if(Auth::user()->isSekretarisMaster() || Auth::user()->isSekretarisBidang())
                     <a href="{{ route('calendar', ['open_add' => 1]) }}" class="flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-bold {{ request()->routeIs('calendar') && request()->has('open_add') ? 'bg-[#1b3bbb] text-white shadow-md' : 'text-slate-700 hover:bg-[#1b3bbb]/10' }}">
                         <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
                         <span>Tambah Agenda</span>
@@ -336,7 +352,7 @@
                 @endif
                 <a href="{{ route('riwayat') }}" class="flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-bold {{ request()->routeIs('riwayat') ? 'bg-[#1b3bbb] text-white shadow-md' : 'text-slate-700 hover:bg-[#1b3bbb]/10' }}">
                     <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-                    <span>Riwayat Rapat</span>
+                    <span>Riwayat Kegiatan</span>
                 </a>
                 <a href="{{ route('profile') }}" class="flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-bold {{ request()->routeIs('profile') ? 'bg-[#1b3bbb] text-white shadow-md' : 'text-slate-700 hover:bg-[#1b3bbb]/10' }}">
                     <svg class="w-4 h-4 shrink-0 text-[#8e88dd]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path></svg>
@@ -381,10 +397,6 @@
             
             <!-- LEFT NAVBAR (Desktop Sidebar Only) -->
             <aside class="hidden md:flex w-60 bg-white/80 backdrop-blur-md rounded-3xl border border-slate-200/60 flex-col py-6 shrink-0 z-20 shadow-md text-[#09103c]">
-                <div class="px-5 mb-4">
-                    <span class="text-[9px] font-black uppercase tracking-wider text-slate-500">Menu Navigasi</span>
-                </div>
-
                 <nav class="flex-1 w-full flex flex-col gap-1 px-3">
                     @if(Auth::check() && !Auth::user()->isAdmin())
                         <!-- Dashboard Link -->
@@ -412,14 +424,14 @@
                         <!-- Calendar Link -->
                         <a href="{{ route('calendar') }}" title="Jadwal Rapat Grid Mingguan Jam-demi-Jam" 
                            class="flex items-center gap-3 px-4 py-3 rounded-2xl font-bold text-xs transition-all duration-200 
-                           {{ request()->routeIs('calendar') && !request()->has('open_add') ? 'bg-[#1b3bbb] text-white shadow-lg shadow-[#1b3bbb]/20' : 'text-slate-600 hover:bg-[#1b3bbb]/5 hover:text-[#1b3bbb]' }}">
+                           {{ (request()->routeIs('calendar') && !request()->has('open_add')) || request()->routeIs('agenda.show') || request()->routeIs('notulensi.*') ? 'bg-[#1b3bbb] text-white shadow-lg shadow-[#1b3bbb]/20' : 'text-slate-600 hover:bg-[#1b3bbb]/5 hover:text-[#1b3bbb]' }}">
                             <svg class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
                             </svg>
                             <span>Kalender Rinci</span>
                         </a>
 
-                        @if(Auth::user()->isSekretarisMaster() || Auth::user()->isSekretarisBidang() || Auth::user()->isSekretariat())
+                        @if(Auth::user()->isSekretarisMaster() || Auth::user()->isSekretarisBidang())
                             <!-- Tambah Agenda Link (Sekretaris Only - Shortcut to Open Add Agenda Modal) -->
                             <a href="{{ route('calendar', ['open_add' => 1]) }}" title="Buka Form Tambah Agenda Baru" 
                                class="flex items-center gap-3 px-4 py-3 rounded-2xl font-bold text-xs transition-all duration-200 
@@ -438,7 +450,7 @@
                             <svg class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"></path>
                             </svg>
-                            <span>Riwayat Rapat</span>
+                            <span>Riwayat Kegiatan</span>
                         </a>
 
                         <!-- Profil Link -->
@@ -505,86 +517,88 @@
             </aside>
 
             <!-- MAIN CONTENT AREA CONTAINER -->
-            <main id="main-content" class="flex-1 min-w-0 bg-white rounded-xl sm:rounded-2xl md:rounded-[32px] p-2.5 sm:p-5 md:p-8 pb-14 md:pb-6 flex flex-col gap-3 sm:gap-6 shadow-md relative overflow-y-auto text-[#090c24] border border-[#d4d1f5]/60">
-                
-                <!-- Floating Toast Notifications -->
-                @if(session('success') || session('error') || session('warning'))
-                    <div x-data="{ show: true }" 
-                         x-show="show" 
-                         x-init="setTimeout(() => show = false, 5000)"
-                         class="fixed bottom-6 right-6 z-50 max-w-sm w-full bg-white border rounded-2xl shadow-2xl p-4 flex gap-3 animate-bounce"
-                         :class="{
-                             'border-emerald-300': '{{ session('success') }}',
-                             'border-rose-300': '{{ session('error') }}',
-                             'border-amber-300': '{{ session('warning') }}'
-                         }">
-                        <!-- Icon -->
-                        @if(session('success'))
-                            <svg class="w-6 h-6 text-emerald-500 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                            </svg>
-                        @elseif(session('error'))
-                            <svg class="w-6 h-6 text-rose-500 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                            </svg>
-                        @else
-                            <svg class="w-6 h-6 text-amber-500 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path>
-                            </svg>
-                        @endif
-                        <div class="flex-1">
-                            <p class="text-xs font-bold text-[#2e2552]">
-                                {{ session('success') ? 'Berhasil' : (session('error') ? 'Gagal' : 'Perhatian') }}
-                            </p>
-                            <p class="text-[11px] text-[#5a508f] mt-0.5">
-                                {{ session('success') ?? session('error') ?? session('warning') }}
-                            </p>
+            <main class="flex-1 min-w-0 bg-white rounded-xl sm:rounded-2xl md:rounded-[32px] shadow-md relative overflow-hidden flex flex-col text-[#090c24] border border-[#d4d1f5]/60">
+                <div id="main-content" class="flex-1 min-h-0 w-full overflow-y-auto p-4 sm:p-6 md:p-7 flex flex-col gap-4 sm:gap-5">
+                    
+                    <!-- Floating Toast Notifications -->
+                    @if(session('success') || session('error') || session('warning'))
+                        <div x-data="{ show: true }" 
+                             x-show="show" 
+                             x-init="setTimeout(() => show = false, 5000)"
+                             class="fixed bottom-6 right-6 z-50 max-w-sm w-full bg-white border rounded-2xl shadow-2xl p-4 flex gap-3 animate-bounce"
+                             :class="{
+                                 'border-emerald-300': '{{ session('success') }}',
+                                 'border-rose-300': '{{ session('error') }}',
+                                 'border-amber-300': '{{ session('warning') }}'
+                             }">
+                            <!-- Icon -->
+                            @if(session('success'))
+                                <svg class="w-6 h-6 text-emerald-500 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                </svg>
+                            @elseif(session('error'))
+                                <svg class="w-6 h-6 text-rose-500 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                </svg>
+                            @else
+                                <svg class="w-6 h-6 text-amber-500 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path>
+                                </svg>
+                            @endif
+                            <div class="flex-1">
+                                <p class="text-xs font-bold text-[#2e2552]">
+                                    {{ session('success') ? 'Berhasil' : (session('error') ? 'Gagal' : 'Perhatian') }}
+                                </p>
+                                <p class="text-[11px] text-[#5a508f] mt-0.5">
+                                    {{ session('success') ?? session('error') ?? session('warning') }}
+                                </p>
+                            </div>
+                            <button @click="show = false" class="text-slate-400 hover:text-slate-600 shrink-0">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                                </svg>
+                            </button>
                         </div>
-                        <button @click="show = false" class="text-slate-400 hover:text-slate-600 shrink-0">
-                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
-                            </svg>
-                        </button>
-                    </div>
-                @endif
+                    @endif
 
-                <!-- SweetAlert2 Warning Popup Modal -->
-                @if(session('warning'))
-                    <script>
-                        (function() {
-                            function fireWarningSwal() {
-                                if (typeof Swal !== 'undefined') {
-                                    Swal.fire({
-                                        title: 'Akses Ditolak',
-                                        text: "{{ session('warning') }}",
-                                        icon: 'warning',
-                                        confirmButtonText: 'Mengerti',
-                                        confirmButtonColor: '#1b3bbb',
-                                        customClass: {
-                                            popup: 'rounded-3xl p-6',
-                                            confirmButton: 'rounded-xl px-6 py-2.5 font-bold'
-                                        }
-                                    });
+                    <!-- SweetAlert2 Warning Popup Modal -->
+                    @if(session('warning'))
+                        <script>
+                            (function() {
+                                function fireWarningSwal() {
+                                    if (typeof Swal !== 'undefined') {
+                                        Swal.fire({
+                                            title: 'Akses Ditolak',
+                                            text: "{{ session('warning') }}",
+                                            icon: 'warning',
+                                            confirmButtonText: 'Mengerti',
+                                            confirmButtonColor: '#1b3bbb',
+                                            customClass: {
+                                                popup: 'rounded-3xl p-6',
+                                                confirmButton: 'rounded-xl px-6 py-2.5 font-bold'
+                                            }
+                                        });
+                                    }
                                 }
-                            }
-                            if (document.readyState === 'loading') {
-                                document.addEventListener('DOMContentLoaded', fireWarningSwal);
-                            } else {
-                                fireWarningSwal();
-                            }
-                        })();
-                    </script>
-                @endif
+                                if (document.readyState === 'loading') {
+                                    document.addEventListener('DOMContentLoaded', fireWarningSwal);
+                                } else {
+                                    fireWarningSwal();
+                                }
+                            })();
+                        </script>
+                    @endif
 
-                <!-- Dynamic Page Content -->
-                <div id="pjax-container" class="flex-1 min-w-0 w-full flex flex-col justify-between">
-                    <div class="flex-1 min-w-0 w-full flex flex-col">
-                        @yield('content')
+                    <!-- Dynamic Page Content -->
+                    <div id="pjax-container" class="flex-1 min-w-0 w-full flex flex-col justify-between">
+                        <div class="flex-1 min-w-0 w-full flex flex-col">
+                            @yield('content')
+                        </div>
+
+                        <footer class="mt-auto border-t border-[#d4d1f5]/60 pt-1.5 pb-0 text-center text-slate-400 text-[9px] sm:text-[10px] font-semibold tracking-wider w-full shrink-0 mb-0">
+                            &copy; 2026 Dinas Komunikasi dan Informatika Kabupaten Banyumas.
+                        </footer>
                     </div>
-
-                    <footer class="mt-auto border-t border-[#d4d1f5]/60 pt-3 pb-1 text-center text-slate-400 text-[9px] sm:text-[10px] font-semibold tracking-wider w-full shrink-0 mb-0">
-                        &copy; 2026 Dinas Komunikasi dan Informatika Kabupaten Banyumas.
-                    </footer>
                 </div>
             </main>
         </div>
@@ -612,13 +626,13 @@
                 @endif
 
                 <!-- Kalender -->
-                <a href="{{ route('calendar') }}" class="flex flex-col items-center justify-center gap-0.5 px-3 py-1 rounded-xl transition-all {{ request()->routeIs('calendar') && !request()->has('open_add') ? 'text-[#1b3bbb] font-extrabold' : 'text-slate-500 font-medium hover:text-[#1b3bbb]' }}">
+                <a href="{{ route('calendar') }}" class="flex flex-col items-center justify-center gap-0.5 px-3 py-1 rounded-xl transition-all {{ (request()->routeIs('calendar') && !request()->has('open_add')) || request()->routeIs('agenda.show') || request()->routeIs('notulensi.*') ? 'text-[#1b3bbb] font-extrabold' : 'text-slate-500 font-medium hover:text-[#1b3bbb]' }}">
                     <svg class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
                     <span class="text-[9px] leading-none">Kalender</span>
                 </a>
 
                 <!-- Quick Add Action (For Secretaries) -->
-                @if(Auth::user()->isSekretarisMaster() || Auth::user()->isSekretarisBidang() || Auth::user()->isSekretariat())
+                @if(Auth::user()->isSekretarisMaster() || Auth::user()->isSekretarisBidang())
                     <a href="{{ route('calendar', ['open_add' => 1]) }}" class="flex flex-col items-center justify-center gap-0.5 px-2.5 py-1 rounded-xl transition-all {{ request()->has('open_add') ? 'text-[#1b3bbb] font-extrabold' : 'text-slate-500 font-medium hover:text-[#1b3bbb]' }}">
                         <svg class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
                         <span class="text-[9px] leading-none">Tambah</span>
@@ -837,11 +851,11 @@
                     const mainEl = document.getElementById('main-content');
                     if (mainEl) {
                         if (url.includes('/profile')) {
-                            mainEl.classList.remove('overflow-auto');
+                            mainEl.classList.remove('overflow-y-auto', 'overflow-auto');
                             mainEl.classList.add('overflow-hidden');
                         } else {
                             mainEl.classList.remove('overflow-hidden');
-                            mainEl.classList.add('overflow-auto');
+                            mainEl.classList.add('overflow-y-auto');
                         }
                         mainEl.scrollTop = 0;
                     }
@@ -980,11 +994,11 @@
                             const mainEl = document.getElementById('main-content');
                             if (mainEl) {
                                 if (url.includes('/profile')) {
-                                    mainEl.classList.remove('overflow-auto');
+                                    mainEl.classList.remove('overflow-y-auto', 'overflow-auto');
                                     mainEl.classList.add('overflow-hidden');
                                 } else {
                                     mainEl.classList.remove('overflow-hidden');
-                                    mainEl.classList.add('overflow-auto');
+                                    mainEl.classList.add('overflow-y-auto');
                                 }
                             }
 

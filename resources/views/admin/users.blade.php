@@ -141,67 +141,116 @@ class="space-y-6">
     <!-- Users Table Card -->
     <div class="bg-white border border-[#d4d1f5]/60 rounded-2xl md:rounded-[32px] p-3.5 sm:p-6 shadow-sm overflow-hidden text-[#2e2552]">
         
-        <!-- Searchbar Top (Full Width) & Filters Below (1 Horizontal Row) -->
-        <div class="space-y-2.5 sm:space-y-3 mb-4 sm:mb-6">
-            <!-- Row 1: Searchbar (Full Width) -->
-            <div class="relative w-full">
-                <input type="text" x-model="searchQuery" placeholder="Cari nama atau NIP pegawai..."
-                       class="w-full pl-9 pr-3.5 py-2 bg-[#f3f2fe] border border-[#d4d1f5] rounded-xl text-xs text-[#2e2552] focus:outline-none focus:ring-2 focus:ring-[#8e88dd]">
-                <div class="absolute left-3.5 top-1/2 -translate-y-1/2 text-[#5a508f]/60">
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
-                    </svg>
+        <!-- Searchbar & Filter Toolbar -->
+        <div class="bg-[#f8f7ff] border border-[#d4d1f5]/60 rounded-2xl p-3 sm:p-4 space-y-2.5 sm:space-y-3 mb-4 sm:mb-6">
+            <!-- Row 1: Searchbar + Reset Filter -->
+            <div class="flex items-center gap-2.5 w-full">
+                <div class="relative flex-1">
+                    <input type="text" x-model="searchQuery" placeholder="Cari nama atau NIP pegawai..."
+                           class="w-full pl-9 pr-8 py-2 sm:py-2.5 bg-white border border-[#d4d1f5]/80 rounded-xl text-xs text-[#2e2552] placeholder-[#5a508f]/50 font-medium focus:outline-none focus:ring-2 focus:ring-[#1b3bbb] transition-all shadow-2xs">
+                    <div class="absolute left-3 top-1/2 -translate-y-1/2 text-[#1b3bbb]">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+                        </svg>
+                    </div>
+                    <button type="button" x-show="searchQuery" @click="searchQuery = ''" class="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 p-0.5 rounded-lg transition-colors cursor-pointer">
+                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                    </button>
                 </div>
+                <button type="button" x-show="filterBidang || filterRole || filterStatus || searchQuery" x-cloak
+                        @click="filterBidang = ''; filterRole = ''; filterStatus = ''; searchQuery = '';" 
+                        class="py-2 sm:py-2.5 px-3.5 bg-rose-50 hover:bg-rose-100 text-rose-600 border border-rose-200 rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-1.5 shadow-2xs cursor-pointer shrink-0">
+                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
+                    </svg>
+                    <span>Reset Filter</span>
+                </button>
             </div>
 
-            <!-- Row 2: 3 Dropdown Filters split evenly in 1 row (NO SCROLL NEEDED) -->
-            <div class="grid grid-cols-3 gap-1.5 sm:gap-3">
+            <!-- Row 2: 3 Equal Width Filter Inputs (Exact 100% Width Match) -->
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-2.5 sm:gap-3 items-center w-full">
                 <!-- Bidang Filter -->
-                <div class="w-full">
+                <div class="relative w-full">
                     <select x-model="filterBidang" 
-                            class="w-full px-1.5 sm:px-3 py-2 bg-[#f3f2fe] border border-[#d4d1f5] rounded-xl text-[11px] sm:text-xs text-[#2e2552] focus:outline-none truncate">
-                        <option value="">Semua</option>
+                            class="w-full pl-8 pr-8 py-2 bg-white border border-[#d4d1f5]/80 rounded-xl text-xs text-[#2e2552] font-semibold appearance-none cursor-pointer focus:outline-none focus:ring-2 focus:ring-[#1b3bbb] transition-all shadow-2xs truncate">
+                        <option value="">Semua Bidang</option>
                         @foreach($bidangs as $bid)
                             <option value="{{ $bid->id }}">{{ $bid->singkatan }}</option>
                         @endforeach
                     </select>
+                    <!-- Icon Left -->
+                    <div class="absolute left-2.5 top-1/2 -translate-y-1/2 text-[#1b3bbb] pointer-events-none">
+                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path>
+                        </svg>
+                    </div>
+                    <!-- Custom Arrow Right -->
+                    <div class="absolute right-2.5 top-1/2 -translate-y-1/2 text-[#5a508f] pointer-events-none">
+                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                        </svg>
+                    </div>
                 </div>
                 
                 <!-- Role Filter -->
-                <div class="w-full">
+                <div class="relative w-full">
                     <select x-model="filterRole" 
-                            class="w-full px-1.5 sm:px-3 py-2 bg-[#f3f2fe] border border-[#d4d1f5] rounded-xl text-[11px] sm:text-xs text-[#2e2552] focus:outline-none truncate">
-                        <option value="">Role</option>
+                            class="w-full pl-8 pr-8 py-2 bg-white border border-[#d4d1f5]/80 rounded-xl text-xs text-[#2e2552] font-semibold appearance-none cursor-pointer focus:outline-none focus:ring-2 focus:ring-[#1b3bbb] transition-all shadow-2xs truncate">
+                        <option value="">Semua Peran/Role</option>
                         <option value="ketua_master">Kepala Dinas (Kadin)</option>
                         <option value="sekretaris_master">Sekretaris Dinas (Sekdin)</option>
                         <option value="ketua_bidang">Ketua Bidang / Kasubag</option>
                         <option value="sekretaris_bidang">Admin Bidang / Admin Subbag</option>
                         <option value="staff">Staff</option>
                     </select>
+                    <!-- Icon Left -->
+                    <div class="absolute left-2.5 top-1/2 -translate-y-1/2 text-[#1b3bbb] pointer-events-none">
+                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
+                        </svg>
+                    </div>
+                    <!-- Custom Arrow Right -->
+                    <div class="absolute right-2.5 top-1/2 -translate-y-1/2 text-[#5a508f] pointer-events-none">
+                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                        </svg>
+                    </div>
                 </div>
                 
                 <!-- Status Filter -->
-                <div class="w-full">
+                <div class="relative w-full">
                     <select x-model="filterStatus" 
-                            class="w-full px-1.5 sm:px-3 py-2 bg-[#f3f2fe] border border-[#d4d1f5] rounded-xl text-[11px] sm:text-xs text-[#2e2552] focus:outline-none truncate">
-                        <option value="">Status</option>
+                            class="w-full pl-8 pr-8 py-2 bg-white border border-[#d4d1f5]/80 rounded-xl text-xs text-[#2e2552] font-semibold appearance-none cursor-pointer focus:outline-none focus:ring-2 focus:ring-[#1b3bbb] transition-all shadow-2xs truncate">
+                        <option value="">Semua Status</option>
                         <option value="aktif">Aktif</option>
                         <option value="nonaktif">Nonaktif</option>
                     </select>
+                    <!-- Icon Left -->
+                    <div class="absolute left-2.5 top-1/2 -translate-y-1/2 text-[#1b3bbb] pointer-events-none">
+                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                        </svg>
+                    </div>
+                    <!-- Custom Arrow Right -->
+                    <div class="absolute right-2.5 top-1/2 -translate-y-1/2 text-[#5a508f] pointer-events-none">
+                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                        </svg>
+                    </div>
                 </div>
             </div>
         </div>
 
         <div class="overflow-x-auto">
             <table class="w-full text-left text-sm text-[#2e2552]">
-                <thead class="text-xs font-bold uppercase tracking-wider text-[#5a508f] border-b border-[#d4d1f5]/40">
+                <thead class="bg-[#ebf2ff] text-[#1b3bbb] border-y border-[#bfd5ff] select-none">
                     <tr>
-                        <th class="py-4 px-4 whitespace-nowrap" style="min-width: 200px;">Nama Pegawai</th>
-                        <th class="py-4 px-4 text-center whitespace-nowrap">NIP</th>
-                        <th class="py-4 px-4 whitespace-nowrap">Bidang</th>
-                        <th class="py-4 px-4 text-center whitespace-nowrap" style="min-width: 150px; white-space: nowrap;">Role Sistem</th>
-                        <th class="py-4 px-4 text-center whitespace-nowrap">Status</th>
-                        <th class="py-4 px-4 text-center whitespace-nowrap">Aksi</th>
+                        <th class="py-3 sm:py-3.5 px-4 text-xs font-black uppercase tracking-wider whitespace-nowrap" style="min-width: 200px;">Nama Pegawai</th>
+                        <th class="py-3 sm:py-3.5 px-4 text-xs font-black uppercase tracking-wider text-center whitespace-nowrap">NIP</th>
+                        <th class="py-3 sm:py-3.5 px-4 text-xs font-black uppercase tracking-wider whitespace-nowrap">Bidang</th>
+                        <th class="py-3 sm:py-3.5 px-4 text-xs font-black uppercase tracking-wider text-center whitespace-nowrap" style="min-width: 150px;">Role Sistem</th>
+                        <th class="py-3 sm:py-3.5 px-4 text-xs font-black uppercase tracking-wider text-center whitespace-nowrap">Status</th>
+                        <th class="py-3 sm:py-3.5 px-4 text-xs font-black uppercase tracking-wider text-center whitespace-nowrap">Aksi</th>
                     </tr>
                 </thead>
                 <tbody class="divide-y divide-[#d4d1f5]/30">

@@ -106,7 +106,7 @@ class PresensiController extends Controller
     {
         $user = Auth::user();
 
-        if (!$user->isSecretaryOfAgenda($agenda) && !$user->isAdmin() && !$user->isSekretarisMaster() && !$user->isSekretariat()) {
+        if (!$user->isSecretaryOfAgenda($agenda) && !$user->isAdmin() && !$user->isSekretarisMaster() && !$user->isSekretarisBidang()) {
             return back()->with('error', 'Anda tidak memiliki wewenang untuk mengoreksi presensi.');
         }
 

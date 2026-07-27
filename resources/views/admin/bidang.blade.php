@@ -26,12 +26,12 @@
     <div class="bg-white border border-[#d4d1f5]/60 rounded-[32px] p-6 shadow-sm overflow-hidden text-[#2e2552]">
         <div class="overflow-x-auto">
             <table class="w-full text-left text-sm text-[#2e2552]">
-                <thead class="text-xs font-bold uppercase tracking-wider text-[#5a508f] border-b border-[#d4d1f5]/40">
+                <thead class="bg-[#ebf2ff] text-[#1b3bbb] border-y border-[#bfd5ff] select-none">
                     <tr>
-                        <th class="py-4 px-4">Nama Bidang / Subbagian</th>
-                        <th class="py-4 px-4 text-left">Singkatan</th>
-                        <th class="py-4 px-4 text-center">Jumlah Pegawai</th>
-                        <th class="py-4 px-4 text-center">Aksi</th>
+                        <th class="py-3 sm:py-3.5 px-4 text-xs font-black uppercase tracking-wider">Nama Bidang / Subbagian</th>
+                        <th class="py-3 sm:py-3.5 px-4 text-xs font-black uppercase tracking-wider text-left">Singkatan</th>
+                        <th class="py-3 sm:py-3.5 px-4 text-xs font-black uppercase tracking-wider text-center">Jumlah Pegawai</th>
+                        <th class="py-3 sm:py-3.5 px-4 text-xs font-black uppercase tracking-wider text-center">Aksi</th>
                     </tr>
                 </thead>
                 <tbody class="divide-y divide-[#d4d1f5]/30">

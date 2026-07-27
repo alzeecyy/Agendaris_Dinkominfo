@@ -141,7 +141,7 @@ class="w-full flex flex-col gap-3.5 sm:gap-5 select-none">
                 <p class="text-xs text-slate-500 max-w-md mx-auto">Belum ada agenda rapat atau kegiatan yang dijadwalkan untuk hari ini ({{ \Carbon\Carbon::today()->locale('id')->translatedFormat('l, d F Y') }}).</p>
             </div>
 
-            @if(Auth::check() && (Auth::user()->isSekretarisMaster() || Auth::user()->isSekretarisBidang() || Auth::user()->isSekretariat()))
+            @if(Auth::check() && (Auth::user()->isSekretarisMaster() || Auth::user()->isSekretarisBidang()))
                 <div class="pt-2">
                     <a href="{{ route('calendar', ['open_add' => 1]) }}" 
                        class="px-5 py-2.5 bg-[#1b3bbb] hover:bg-[#09103c] text-white text-xs font-bold rounded-xl shadow-md shadow-[#1b3bbb]/20 transition-all inline-flex items-center gap-2">
@@ -434,7 +434,7 @@ class="w-full flex flex-col gap-3.5 sm:gap-5 select-none">
             </div>
             <div class="overflow-hidden whitespace-nowrap w-full">
                 <p class="inline-block animate-marquee text-xs sm:text-sm lg:text-base font-bold text-white tracking-wide">
-                    📢 Selamat Datang di Dinas Komunikasi dan Informatika Kabupaten Banyumas &nbsp;•&nbsp; Harap melakukan Presensi Mandiri pada aplikasi Agendaris sebelum rapat dimulai &nbsp;•&nbsp; Jagalah ketertiban dan kebersihan ruang rapat demi kenyamanan bersama &nbsp;•&nbsp; Terima kasih.
+                    📢 Selamat Datang di Dinas Komunikasi dan Informatika Kabupaten Banyumas &nbsp;•&nbsp; Harap melakukan Presensi Mandiri pada aplikasi SiRENA sebelum rapat dimulai &nbsp;•&nbsp; Jagalah ketertiban dan kebersihan ruang rapat demi kenyamanan bersama &nbsp;•&nbsp; Terima kasih.
                 </p>
             </div>
         </div>

@@ -127,12 +127,12 @@ class DashboardController extends Controller
                 ->filter(function($a) use ($user, $submittedPresenceIds) {
                     return $user->hasAccessToAgenda($a) 
                         && !in_array($a->id, $submittedPresenceIds) 
-                        && !$a->isPresensiExpired();
+                        && $a->canPresensiBeFilled();
                 });
 
             $kpi['pending_presence'] = $fillableAgendas->count();
             $firstPending = $fillableAgendas->first();
-            $links['pending_presence'] = $firstPending ? route('agenda.show', $firstPending->id) : route('calendar');
+            $links['pending_presence'] = $firstPending ? route('agenda.show', $firstPending->id) : null;
 
             // Staff Highlight Alerts
             $todayPendingPresences = Agenda::where('tanggal', $todayStr)
@@ -141,13 +141,23 @@ class DashboardController extends Controller
                 ->filter(fn($a) => $user->hasAccessToAgenda($a) && !in_array($a->id, $submittedPresenceIds));
 
             foreach ($todayPendingPresences as $agenda) {
-                $highlights[] = [
-                    'type' => 'presence',
-                    'agenda_id' => $agenda->id,
-                    'text' => "Agenda hari ini: '{$agenda->judul}' jam " . substr($agenda->jam_mulai, 0, 5) . " — Anda belum mengisi absen mandiri.",
-                    'action_text' => 'Absen Sekarang',
-                    'url' => route('agenda.show', $agenda->id),
-                ];
+                if ($agenda->canPresensiBeFilled()) {
+                    $highlights[] = [
+                        'type' => 'presence',
+                        'agenda_id' => $agenda->id,
+                        'text' => "Agenda hari ini: '{$agenda->judul}' jam " . substr($agenda->jam_mulai, 0, 5) . " — Anda belum mengisi absen mandiri.",
+                        'action_text' => 'Absen Sekarang',
+                        'url' => route('agenda.show', $agenda->id),
+                    ];
+                } elseif ($agenda->isPresensiNotStarted()) {
+                    $highlights[] = [
+                        'type' => 'presence',
+                        'agenda_id' => $agenda->id,
+                        'text' => "Agenda hari ini: '{$agenda->judul}' jam " . substr($agenda->jam_mulai, 0, 5) . " — Absen mandiri dapat diisi saat rapat dimulai.",
+                        'action_text' => 'Lihat Agenda',
+                        'url' => route('agenda.show', $agenda->id),
+                    ];
+                }
             }
 
         } elseif ($user->role === 'sekretaris_bidang') {
@@ -271,6 +281,13 @@ class DashboardController extends Controller
             $firstPending = $pendingReviews->first();
             $links['ketua_pending_reviews'] = $firstPending ? route('notulensi.review', $firstPending->agenda_id) : null;
 
+            $startOfWeek = Carbon::today()->startOfWeek(Carbon::MONDAY);
+            $endOfWeek = Carbon::today()->endOfWeek(Carbon::SUNDAY);
+            $kpi['ketua_week_agendas'] = Agenda::whereBetween('tanggal', [$startOfWeek->toDateString(), $endOfWeek->toDateString()])
+                ->get()
+                ->filter(fn($a) => $user->hasAccessToAgenda($a))
+                ->count();
+
             foreach ($pendingReviews as $notulensi) {
                 $highlights[] = [
                     'type' => 'review',
@@ -290,6 +307,11 @@ class DashboardController extends Controller
             $kpi['ketua_pending_reviews'] = $pendingReviews->count();
             $firstPending = $pendingReviews->first();
             $links['ketua_pending_reviews'] = $firstPending ? route('notulensi.review', $firstPending->agenda_id) : null;
+
+            $startOfWeek = Carbon::today()->startOfWeek(Carbon::MONDAY);
+            $endOfWeek = Carbon::today()->endOfWeek(Carbon::SUNDAY);
+            $kpi['ketua_week_agendas'] = Agenda::whereBetween('tanggal', [$startOfWeek->toDateString(), $endOfWeek->toDateString()])
+                ->count();
 
             foreach ($pendingReviews as $notulensi) {
                 $highlights[] = [

@@ -335,7 +335,7 @@ class AgendarisTest extends TestCase
     /**
      * Test staff in Bidang Sekretariat has cross-bidang agenda access.
      */
-    public function test_sekretariat_staff_has_cross_bidang_agenda_access(): void
+    public function test_sekretariat_staff_cannot_view_other_bidang_private_agenda(): void
     {
         $sekretariat = Bidang::create([
             'nama' => 'Sekretariat',
@@ -366,16 +366,12 @@ class AgendarisTest extends TestCase
             'sekretaris_id' => $this->sekretarisAptika->id,
         ]);
 
-        // Staff Sekretariat should have access to Aptika agenda
-        $this->assertTrue($staffSekretariat->hasAccessToAgenda($agendaAptika));
+        // Staff Sekretariat should NOT have access to Aptika private agenda
+        $this->assertFalse($staffSekretariat->hasAccessToAgenda($agendaAptika));
 
-        // Staff Sekretariat can view detail agenda page for Aptika agenda
+        // Staff Sekretariat receives 403 Forbidden when attempting to view Aptika private agenda
         $response = $this->actingAs($staffSekretariat)->get("/agenda/{$agendaAptika->id}");
-        $response->assertStatus(200);
-
-        // Staff Sekretariat is redirected to view-only mode when attempting to edit a Bidang's notulensi
-        $response = $this->actingAs($staffSekretariat)->get("/agenda/{$agendaAptika->id}/notulensi/edit");
-        $response->assertStatus(302);
+        $response->assertStatus(403);
     }
 
     /**
