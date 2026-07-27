@@ -186,17 +186,17 @@ class DatabaseSeeder extends Seeder
             ],
             'subbag_umum' => [
                 'start' => 70,
-                'bidang' => $sekretariat,
+                'bidang' => $subbagUmum,
                 'subName' => 'Subbag Umum dan Kepegawaian'
             ],
             'subbag_keuangan' => [
                 'start' => 75,
-                'bidang' => $sekretariat,
+                'bidang' => $subbagKeuangan,
                 'subName' => 'Subbag Keuangan'
             ],
             'subbag_perencanaan' => [
                 'start' => 80,
-                'bidang' => $sekretariat,
+                'bidang' => $subbagPerencanaan,
                 'subName' => 'Subbag Perencanaan'
             ]
         ];
