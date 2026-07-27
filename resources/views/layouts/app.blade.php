@@ -792,6 +792,16 @@
                 const newContainer = doc.getElementById('pjax-container');
                 
                 if (currentContainer && newContainer) {
+                    // Remove any orphan footer elements outside #pjax-container inside main
+                    const mainContent = document.getElementById('main-content');
+                    if (mainContent) {
+                        Array.from(mainContent.children).forEach(child => {
+                            if (child.tagName === 'FOOTER') {
+                                child.remove();
+                            }
+                        });
+                    }
+
                     currentContainer.innerHTML = newContainer.innerHTML;
 
                     // Execute script tags inside the new container for PJAX compatibility

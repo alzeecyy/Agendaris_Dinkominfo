@@ -132,7 +132,7 @@
                             @if($ta->singkatan_bidang === 'Semua')
                                 <span class="text-[9px] px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-700 border border-emerald-200 font-bold">Semua</span>
                             @else
-                                <span class="text-[9px] px-2 py-0.5 rounded bg-[#2e2552]/10 text-[#2e2552] font-semibold">{{ $ta->singkatan_bidang }}</span>
+                                <span class="text-[9px] px-2 py-0.5 rounded bg-[#2e2552]/10 text-[#2e2552] font-semibold max-w-[130px] truncate inline-block align-middle" title="{{ $ta->singkatan_bidang }}">{{ \Illuminate\Support\Str::limit($ta->singkatan_bidang, 16, '...') }}</span>
                             @endif
                         </div>
                         <h4 class="text-xs font-bold text-[#2e2552] mt-1.5 line-clamp-1">{{ $ta->judul }}</h4>
@@ -171,7 +171,7 @@
     </div>
 
     <!-- RIGHT PANEL: 7-Day Weekly Agenda Grid -->
-    <div class="flex-1 min-w-0 bg-slate-50/70 border border-[#d4d1f5]/60 rounded-xl md:rounded-3xl p-3 sm:p-5 shadow-xs flex flex-col overflow-hidden">
+    <div class="flex-1 min-w-0 bg-slate-50/70 border border-[#d4d1f5]/60 rounded-xl md:rounded-3xl p-3 sm:p-5 shadow-xs flex flex-col">
         <!-- Calendar Navigation Header -->
         <div class="flex items-center justify-between mb-3 sm:mb-4 gap-2 sm:gap-4 border-b border-[#d4d1f5]/40 pb-2 sm:pb-3 shrink-0">
             <div class="min-w-0">
@@ -209,7 +209,7 @@
 
         <!-- Weekly Grid Layout -->
         <div class="flex-1 w-full flex flex-col overflow-hidden">
-            <div class="flex-1 min-w-0 flex flex-col relative h-full overflow-x-auto overflow-y-auto">
+            <div class="flex-1 min-w-0 flex flex-col relative h-full overflow-x-auto overflow-y-hidden">
                 <div class="min-w-[540px] sm:min-w-full flex-1 flex flex-col h-full min-h-[660px] sm:min-h-[720px]">
             <!-- Dates columns header -->
             <div class="grid grid-cols-8 border-b border-[#d4d1f5]/40 pb-1.5 sm:pb-2 relative z-0 shrink-0">
@@ -246,7 +246,7 @@
                         '13:00' => ['top' => 69.69, 'transform' => 'translate(-50%, -50%)'],
                         '14:00' => ['top' => 81.81, 'transform' => 'translate(-50%, -50%)'],
                         '15:00' => ['top' => 93.93, 'transform' => 'translate(-50%, -90%)'],
-                        '15:30' => ['top' => 100.0, 'transform' => 'translate(-50%, -10%)'],
+                        '15:30' => ['top' => 100.0, 'transform' => 'translate(-50%, -100%)'],
                     ];
                     $timeSlotsData = [
                         ['start' => '07:15', 'top' => 0.0, 'height' => 9.09],

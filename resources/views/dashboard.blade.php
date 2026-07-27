@@ -166,7 +166,40 @@
             @endif
 
         @elseif(Auth::user()->role === 'sekretaris_master')
-            <!-- Card 1: Master Total Month -->
+            <!-- Card 1: Sekdin Pending Approvals -->
+            @if(!empty($links['sekdin_pending_reviews']))
+            <a href="{{ $links['sekdin_pending_reviews'] }}" class="bg-white border border-[#d4d1f5]/60 rounded-2xl md:rounded-[32px] p-3.5 sm:p-5 md:p-6 flex flex-col justify-between shadow-sm hover:border-amber-400 hover:shadow-md hover:scale-[1.01] active:scale-[0.99] transition-all duration-200 group">
+                <div class="flex items-center justify-between">
+                    <span class="text-[10px] sm:text-xs font-bold text-[#5a508f] uppercase">Notulensi Butuh Pengesahan</span>
+                    <div class="p-1.5 sm:p-2 bg-amber-50 text-amber-500 rounded-xl sm:rounded-2xl group-hover:bg-amber-100 transition-colors">
+                        <svg class="w-4 h-4 sm:w-5 sm:h-5 md:w-6 md:h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"></path>
+                        </svg>
+                    </div>
+                </div>
+                <div class="mt-2.5 sm:mt-4">
+                    <h2 class="text-2xl sm:text-3xl md:text-4xl font-black text-amber-600">{{ $kpi['sekdin_pending_reviews'] ?? 0 }}</h2>
+                    <p class="text-[10px] sm:text-xs text-[#5a508f] mt-0.5 sm:mt-1 font-medium">Tinjau &amp; sahkan &rarr;</p>
+                </div>
+            </a>
+            @else
+            <div class="bg-white border border-[#d4d1f5]/60 rounded-2xl md:rounded-[32px] p-3.5 sm:p-5 md:p-6 flex flex-col justify-between shadow-sm">
+                <div class="flex items-center justify-between">
+                    <span class="text-[10px] sm:text-xs font-bold text-[#5a508f] uppercase">Notulensi Butuh Pengesahan</span>
+                    <div class="p-1.5 sm:p-2 bg-amber-50 text-amber-500 rounded-xl sm:rounded-2xl">
+                        <svg class="w-4 h-4 sm:w-5 sm:h-5 md:w-6 md:h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"></path>
+                        </svg>
+                    </div>
+                </div>
+                <div class="mt-2.5 sm:mt-4">
+                    <h2 class="text-2xl sm:text-3xl md:text-4xl font-black text-amber-600">{{ $kpi['sekdin_pending_reviews'] ?? 0 }}</h2>
+                    <p class="text-[10px] sm:text-xs text-[#5a508f] mt-0.5 sm:mt-1 font-medium">Menunggu persetujuan</p>
+                </div>
+            </div>
+            @endif
+
+            <!-- Card 2: Master Total Month -->
             @if(!empty($links['master_month_agendas']))
             <a href="{{ $links['master_month_agendas'] }}" class="bg-white border border-[#d4d1f5]/60 rounded-2xl md:rounded-[32px] p-3.5 sm:p-5 md:p-6 flex flex-col justify-between shadow-sm hover:border-[#8e88dd] hover:shadow-md hover:scale-[1.01] active:scale-[0.99] transition-all duration-200 group">
                 <div class="flex items-center justify-between">
@@ -195,39 +228,6 @@
                 <div class="mt-2.5 sm:mt-4">
                     <h2 class="text-2xl sm:text-3xl md:text-4xl font-black text-[#2e2552]">{{ $kpi['master_month_agendas'] ?? 0 }}</h2>
                     <p class="text-[10px] sm:text-xs text-[#5a508f] mt-0.5 sm:mt-1 font-medium">Total seluruh agenda Dinas Kominfo</p>
-                </div>
-            </div>
-            @endif
-
-            <!-- Card 2: Master Overdue Alerts -->
-            @if(!empty($links['master_overdue_reviews']))
-            <a href="{{ $links['master_overdue_reviews'] }}" class="bg-white border border-[#d4d1f5]/60 rounded-2xl md:rounded-[32px] p-3.5 sm:p-5 md:p-6 flex flex-col justify-between shadow-sm hover:border-rose-400 hover:shadow-md hover:scale-[1.01] active:scale-[0.99] transition-all duration-200 group">
-                <div class="flex items-center justify-between">
-                    <span class="text-[10px] sm:text-xs font-bold text-[#5a508f] uppercase">Notulensi Overdue (>3 Hari)</span>
-                    <div class="p-1.5 sm:p-2 bg-rose-50 text-rose-500 rounded-xl sm:rounded-2xl group-hover:bg-rose-100 transition-colors">
-                        <svg class="w-4 h-4 sm:w-5 sm:h-5 md:w-6 md:h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path>
-                        </svg>
-                    </div>
-                </div>
-                <div class="mt-2.5 sm:mt-4">
-                    <h2 class="text-2xl sm:text-3xl md:text-4xl font-black text-rose-600">{{ $kpi['master_overdue_reviews'] ?? 0 }}</h2>
-                    <p class="text-[10px] sm:text-xs text-[#5a508f] mt-0.5 sm:mt-1 font-medium">Buka draf tertunda &rarr;</p>
-                </div>
-            </a>
-            @else
-            <div class="bg-white border border-[#d4d1f5]/60 rounded-2xl md:rounded-[32px] p-3.5 sm:p-5 md:p-6 flex flex-col justify-between shadow-sm">
-                <div class="flex items-center justify-between">
-                    <span class="text-[10px] sm:text-xs font-bold text-[#5a508f] uppercase">Notulensi Overdue (>3 Hari)</span>
-                    <div class="p-1.5 sm:p-2 bg-rose-50 text-rose-500 rounded-xl sm:rounded-2xl">
-                        <svg class="w-4 h-4 sm:w-5 sm:h-5 md:w-6 md:h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path>
-                        </svg>
-                    </div>
-                </div>
-                <div class="mt-2.5 sm:mt-4">
-                    <h2 class="text-2xl sm:text-3xl md:text-4xl font-black text-rose-600">{{ $kpi['master_overdue_reviews'] ?? 0 }}</h2>
-                    <p class="text-[10px] sm:text-xs text-[#5a508f] mt-0.5 sm:mt-1 font-medium">Draf belum disahkan</p>
                 </div>
             </div>
             @endif

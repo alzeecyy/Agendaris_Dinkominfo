@@ -518,7 +518,7 @@
         
         <!-- Left Column: Info Detail Agenda -->
         <div class="min-w-0 flex flex-col h-full">
-            <div class="bg-white border border-[#d4d1f5]/60 rounded-xl md:rounded-[32px] p-2.5 sm:p-6 md:p-8 shadow-sm h-full flex flex-col justify-start gap-4">
+            <div class="bg-white border border-[#d4d1f5]/60 rounded-xl md:rounded-[32px] p-3 sm:p-6 shadow-sm h-full flex flex-col justify-start gap-4">
                 <div class="space-y-2.5 sm:space-y-6">
                     <!-- Category badge -->
                     <div class="flex items-center justify-between">
@@ -682,10 +682,10 @@
     @endif
 
         <!-- Right Column: Absensi Digital, Notulensi & Rekap Kehadiran Bidang -->
-        <div class="flex flex-col gap-6 min-w-0 h-full">
+        <div class="flex flex-col gap-3.5 sm:gap-6 min-w-0 h-full justify-start">
             <!-- 1. ABSENSI DIGITAL (Pegawai Internal Mandiri) -->
             @if($agenda->butuh_presensi)
-                <div class="bg-white border border-[#d4d1f5]/60 rounded-2xl md:rounded-[32px] p-3.5 sm:p-6 shadow-sm space-y-3 sm:space-y-4">
+                <div class="bg-white border border-[#d4d1f5]/60 rounded-xl md:rounded-[32px] p-3 sm:p-6 shadow-sm space-y-3 sm:space-y-4">
                     <div class="flex items-center justify-between border-b border-[#d4d1f5]/40 pb-3">
                         <h3 class="text-xs font-bold uppercase tracking-wider text-[#2e2552]">Absensi Digital</h3>
                         <span class="text-[10px] font-bold text-[#5a508f] bg-[#f3f2fe] px-2.5 py-0.5 rounded-full border border-[#d4d1f5]/40">
@@ -702,15 +702,15 @@
                                 'alfa' => 'bg-red-50 text-red-700 border-red-200'
                             ];
                             $statusLabels = [
-                                'hadir' => 'Hadir ✓',
-                                'izin' => 'Izin Terdaftar ✓',
-                                'sakit' => 'Sakit Terdaftar ✓',
-                                'alfa' => 'Alfa (Tidak Hadir) ✓'
+                                'hadir' => 'Kehadiran Anda: Hadir ✓',
+                                'izin' => 'Kehadiran Anda: Izin Terdaftar ✓',
+                                'sakit' => 'Kehadiran Anda: Sakit Terdaftar ✓',
+                                'alfa' => 'Kehadiran Anda: Alfa (Tidak Hadir) ✓'
                             ];
                         @endphp
                         <div class="space-y-3">
-                            <div class="w-full text-center py-3 border rounded-xl text-xs font-bold {{ $statusColors[$ownPresensi->status] }}">
-                                Kehadiran Anda: {{ $statusLabels[$ownPresensi->status] }}
+                            <div class="w-full text-center py-2.5 sm:py-3 border rounded-xl text-xs font-bold {{ $statusColors[$ownPresensi->status] }}">
+                                {{ $statusLabels[$ownPresensi->status] }}
                             </div>
                             @if($ownPresensi->keterangan)
                                 <div class="bg-slate-50 border border-slate-200/60 rounded-xl p-3 text-xs">
@@ -721,7 +721,7 @@
                             @if($ownPresensi->tanda_tangan)
                                 <div class="bg-[#fcfbff] border border-slate-200/60 rounded-xl p-3 text-xs flex flex-col items-center">
                                     <span class="w-full block font-bold text-[#2e2552] uppercase text-[9px] tracking-wider mb-1 text-left">Tanda Tangan Digital:</span>
-                                    <div class="border border-slate-100 rounded-lg p-2 bg-white mt-1 flex items-center justify-center h-16 w-36 overflow-hidden shadow-inner">
+                                    <div class="border border-slate-100 rounded-lg p-1.5 bg-white mt-1 flex items-center justify-center h-14 w-32 overflow-hidden shadow-inner">
                                         <img src="{{ asset('storage/' . $ownPresensi->tanda_tangan) }}" alt="Tanda Tangan" class="max-h-full max-w-full object-contain">
                                     </div>
                                 </div>
@@ -821,7 +821,7 @@
 
             <!-- 2. STATUS NOTULENSI AI (Hanya Rapat) ATAU REKAP KEHADIRAN BIDANG (Jika Non-Rapat / Tanpa Notulensi) -->
             @if($agenda->kategori === 'rapat' && $agenda->notulensi)
-                <div class="bg-white border border-[#d4d1f5]/60 rounded-xl md:rounded-[32px] p-2.5 sm:p-6 shadow-sm space-y-2.5 sm:space-y-4 flex-1 flex flex-col justify-start">
+                <div class="bg-white border border-[#d4d1f5]/60 rounded-xl md:rounded-[32px] p-3 sm:p-6 shadow-sm space-y-2.5 sm:space-y-4 flex flex-col justify-start">
                     <h3 class="text-[11px] sm:text-xs font-bold uppercase tracking-wider text-[#2e2552]">Dokumentasi Notulensi</h3>
                     
                     @php
@@ -863,7 +863,7 @@
                         }
                     @endphp
                     
-                    <div class="flex flex-col gap-2.5 sm:gap-4">
+                    <div class="flex flex-col gap-2.5 sm:gap-4 flex-1 justify-between">
                         <div class="flex items-center justify-between border-b border-[#d4d1f5]/40 pb-2">
                             <span class="text-[11px] sm:text-xs text-[#5a508f]">Status Notulen:</span>
                             <span class="text-[9px] sm:text-[10px] px-2 py-0.5 rounded-full border font-bold uppercase {{ $notulenColor }}">

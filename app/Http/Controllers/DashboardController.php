@@ -213,18 +213,25 @@ class DashboardController extends Controller
                 ->count();
             $links['master_month_agendas'] = route('calendar');
 
-            // Sekre Master KPI 2: All notulensi waiting review > 3 days (Overdue alerts)
-            $overdueReviews = Notulensi::where('status', 'menunggu_review')
-                ->where('created_at', '<=', Carbon::now()->subDays(3))
-                ->get();
-            $kpi['master_overdue_reviews'] = $overdueReviews->count();
-            $firstOverdue = $overdueReviews->first();
-            $links['master_overdue_reviews'] = $firstOverdue ? route('notulensi.review', $firstOverdue->agenda_id) : null;
+            // Sekre Master KPI 2: Pending notulensi reviews waiting for Sekdin signoff/approval
+            $pendingReviews = Notulensi::where('status', 'menunggu_review')
+                ->with('agenda.sekretaris')
+                ->get()
+                ->filter(function($notulensi) use ($user) {
+                    return $notulensi->agenda && $user->isApproverOfAgenda($notulensi->agenda);
+                });
 
-            if ($kpi['master_overdue_reviews'] > 0) {
+            $kpi['sekdin_pending_reviews'] = $pendingReviews->count();
+            $firstPending = $pendingReviews->first();
+            $links['sekdin_pending_reviews'] = $firstPending ? route('notulensi.review', $firstPending->agenda_id) : null;
+
+            foreach ($pendingReviews as $notulensi) {
                 $highlights[] = [
-                    'type' => 'alert',
-                    'text' => "Peringatan: terdapat {$kpi['master_overdue_reviews']} notulensi dinas yang tertunda dan belum disahkan pimpinan selama lebih dari 3 hari.",
+                    'type' => 'review',
+                    'agenda_id' => $notulensi->agenda_id,
+                    'text' => "Notulensi rapat '{$notulensi->agenda->judul}' menunggu pengesahan Anda.",
+                    'action_text' => 'Tinjau & Sahkan',
+                    'url' => route('notulensi.review', $notulensi->agenda_id),
                 ];
             }
 
@@ -389,9 +396,16 @@ class DashboardController extends Controller
                     }
                 }
                 if (!empty($matchedSingkatans)) {
-                    $badgeLabel = implode(', ', $matchedSingkatans);
+                    $cleaned = array_map(function($s) {
+                        return str_replace(
+                            ['Subbag Umum & Kepegawaian', 'Subbag Perencanaan & Keuangan', 'Subbag Keuangan & Perencanaan'],
+                            ['Subbag Umum', 'Subbag Keuangan', 'Subbag Keuangan'],
+                            $s
+                        );
+                    }, $matchedSingkatans);
+                    $badgeLabel = \Illuminate\Support\Str::limit(implode(', ', $cleaned), 16, '...');
                 } else {
-                    $badgeLabel = $agenda->sekretaris->bidang->singkatan ?? 'Dinas';
+                    $badgeLabel = \Illuminate\Support\Str::limit($agenda->sekretaris->bidang->singkatan ?? 'Dinas', 16, '...');
                 }
             }
 
