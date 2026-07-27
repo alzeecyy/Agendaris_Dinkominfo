@@ -209,8 +209,8 @@
 
         <!-- Weekly Grid Layout -->
         <div class="flex-1 w-full flex flex-col overflow-hidden">
-            <div class="flex-1 min-w-0 flex flex-col relative h-full overflow-x-auto overflow-y-hidden">
-                <div class="min-w-[540px] sm:min-w-full flex-1 flex flex-col h-full">
+            <div class="flex-1 min-w-0 flex flex-col relative h-full overflow-x-auto overflow-y-auto">
+                <div class="min-w-[540px] sm:min-w-full flex-1 flex flex-col h-full min-h-[460px]">
             <!-- Dates columns header -->
             <div class="grid grid-cols-8 border-b border-[#d4d1f5]/40 pb-1.5 sm:pb-2 relative z-0 shrink-0">
                 <!-- Time axes column -->
@@ -234,7 +234,7 @@
             </div>
 
             <!-- Grid container with time axes rows & events overlay -->
-            <div class="h-[360px] sm:h-[420px] lg:h-full lg:flex-1 grid grid-cols-8 relative z-10 select-none border-b border-[#d4d1f5]/40">
+            <div class="min-h-[460px] sm:min-h-[520px] flex-1 grid grid-cols-8 relative z-10 select-none border-b border-[#d4d1f5]/40">
                 @php
                     $labelTimes = [
                         '07:15' => 0.0,
@@ -327,64 +327,81 @@
                             
                             <!-- Event Card Container -->
                             @if($event->has_access)
-                                 @php
-                                     $tooltipPosition = $topPct < 15 ? 'top-full mt-2' : 'bottom-full mb-2';
-                                     
-                                     $arrowClass = $topPct < 15 
-                                         ? 'after:bottom-full after:border-b-' . ($event->kategori === 'rapat' ? '[#ffe4e6]' : ($event->kategori === 'sosialisasi' ? '[#dbeafe]' : ($event->kategori === 'pelatihan' ? '[#d1fae5]' : '[#f1f5f9]')))
-                                         : 'after:top-full after:border-t-' . ($event->kategori === 'rapat' ? '[#ffe4e6]' : ($event->kategori === 'sosialisasi' ? '[#dbeafe]' : ($event->kategori === 'pelatihan' ? '[#d1fae5]' : '[#f1f5f9]')));
+                                  @php
+                                      $dayIso = $date->dayOfWeekIso;
+                                      if ($dayIso === 1) {
+                                          $alignClass = 'left-0 translate-x-0';
+                                          $arrowAlignClass = 'after:left-6 after:translate-x-0';
+                                      } elseif ($dayIso >= 6) {
+                                          $alignClass = 'right-0 left-auto translate-x-0';
+                                          $arrowAlignClass = 'after:right-6 after:left-auto after:translate-x-0';
+                                      } else {
+                                          $alignClass = 'left-1/2 -translate-x-1/2';
+                                          $arrowAlignClass = 'after:left-1/2 after:-translate-x-1/2';
+                                      }
 
-                                     $tooltipStyles = [
-                                         'rapat' => [
-                                             'bg' => 'bg-[#ffe4e6]',
-                                             'border' => 'border-[#fda4af]',
-                                             'text' => 'text-[#881337]',
-                                             'subtext' => 'text-[#b91c1c]',
-                                             'header_text' => 'text-[#be123c]',
-                                         ],
-                                         'sosialisasi' => [
-                                             'bg' => 'bg-[#dbeafe]',
-                                             'border' => 'border-[#bfdbfe]',
-                                             'text' => 'text-[#1e3a8a]',
-                                             'subtext' => 'text-[#1d4ed8]',
-                                             'header_text' => 'text-[#1d4ed8]',
-                                         ],
-                                         'pelatihan' => [
-                                             'bg' => 'bg-[#d1fae5]',
-                                             'border' => 'border-[#a7f3d0]',
-                                             'text' => 'text-[#064e3b]',
-                                             'subtext' => 'text-[#047857]',
-                                             'header_text' => 'text-[#047857]',
-                                         ],
-                                         'kegiatan_lainnya' => [
-                                             'bg' => 'bg-[#f1f5f9]',
-                                             'border' => 'border-[#cbd5e1]',
-                                             'text' => 'text-[#0f172a]',
-                                             'subtext' => 'text-[#475569]',
-                                             'header_text' => 'text-[#475569]',
-                                         ],
-                                     ];
-                                     $tStyle = $tooltipStyles[$event->kategori] ?? $tooltipStyles['kegiatan_lainnya'];
-                                 @endphp
-                                 <a href="{{ route('agenda.show', $event->id) }}" 
-                                    class="absolute p-2 border rounded-2xl text-left shadow-sm z-10 transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md hover:z-30 flex flex-col justify-between group {{ $cardColorClass }}"
-                                    style="top: calc({{ number_format($topPct, 2, '.', '') }}% + 2px); height: calc({{ number_format($heightPct, 2, '.', '') }}% - 4px); left: calc({{ number_format($leftPos, 2, '.', '') }}% + 2px); width: calc({{ number_format($colWidth, 2, '.', '') }}% - 4px);">
-                                      <div class="min-w-0 w-full overflow-hidden">
-                                          <div class="flex items-center justify-between text-[8px] font-bold opacity-80 gap-1 uppercase min-w-0">
+                                      if ($topPct + $heightPct > 55) {
+                                          $tooltipPosition = 'top-2 mt-0 ' . $alignClass;
+                                          $arrowClass = 'after:hidden';
+                                      } elseif ($topPct < 15) {
+                                          $tooltipPosition = 'top-full mt-2 ' . $alignClass;
+                                          $arrowClass = 'after:bottom-full ' . $arrowAlignClass . ' after:border-b-' . ($event->kategori === 'rapat' ? '[#ffe4e6]' : ($event->kategori === 'sosialisasi' ? '[#dbeafe]' : ($event->kategori === 'pelatihan' ? '[#d1fae5]' : '[#f1f5f9]')));
+                                      } else {
+                                          $tooltipPosition = 'bottom-full mb-2 ' . $alignClass;
+                                          $arrowClass = 'after:top-full ' . $arrowAlignClass . ' after:border-t-' . ($event->kategori === 'rapat' ? '[#ffe4e6]' : ($event->kategori === 'sosialisasi' ? '[#dbeafe]' : ($event->kategori === 'pelatihan' ? '[#d1fae5]' : '[#f1f5f9]')));
+                                      }
+                                      
+                                      $tooltipStyles = [
+                                          'rapat' => [
+                                              'bg' => 'bg-[#ffe4e6]',
+                                              'border' => 'border-[#fda4af]',
+                                              'text' => 'text-[#881337]',
+                                              'subtext' => 'text-[#b91c1c]',
+                                              'header_text' => 'text-[#be123c]',
+                                          ],
+                                          'sosialisasi' => [
+                                              'bg' => 'bg-[#dbeafe]',
+                                              'border' => 'border-[#bfdbfe]',
+                                              'text' => 'text-[#1e3a8a]',
+                                              'subtext' => 'text-[#1d4ed8]',
+                                              'header_text' => 'text-[#1d4ed8]',
+                                          ],
+                                          'pelatihan' => [
+                                              'bg' => 'bg-[#d1fae5]',
+                                              'border' => 'border-[#a7f3d0]',
+                                              'text' => 'text-[#064e3b]',
+                                              'subtext' => 'text-[#047857]',
+                                              'header_text' => 'text-[#047857]',
+                                          ],
+                                          'kegiatan_lainnya' => [
+                                              'bg' => 'bg-[#f1f5f9]',
+                                              'border' => 'border-[#cbd5e1]',
+                                              'text' => 'text-[#0f172a]',
+                                              'subtext' => 'text-[#475569]',
+                                              'header_text' => 'text-[#475569]',
+                                          ],
+                                      ];
+                                      $tStyle = $tooltipStyles[$event->kategori] ?? $tooltipStyles['kegiatan_lainnya'];
+                                  @endphp
+                                  <a href="{{ route('agenda.show', $event->id) }}" 
+                                     class="absolute p-1.5 sm:p-2 border rounded-xl sm:rounded-2xl text-left shadow-sm z-10 transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md hover:z-30 flex flex-col justify-between group {{ $cardColorClass }}"
+                                     style="top: calc({{ number_format($topPct, 2, '.', '') }}% + 2px); height: calc({{ number_format($heightPct, 2, '.', '') }}% - 4px); left: calc({{ number_format($leftPos, 2, '.', '') }}% + 2px); width: calc({{ number_format($colWidth, 2, '.', '') }}% - 4px);">
+                                      <div class="min-w-0 w-full overflow-hidden shrink-0">
+                                          <div class="flex items-center justify-between text-[8px] font-bold opacity-90 gap-1 uppercase min-w-0">
                                               <span class="whitespace-nowrap shrink-0">{{ substr($event->jam_mulai, 0, 5) }} - {{ substr($event->jam_selesai, 0, 5) }}</span>
                                               <span class="px-1 py-0.5 rounded bg-black/10 text-[8px] font-semibold truncate">{{ $event->singkatan_bidang }}</span>
                                           </div>
                                           <h4 class="text-[10px] font-bold mt-0.5 leading-tight line-clamp-2 break-all">{{ $event->judul }}</h4>
                                       </div>
-                                      <div class="text-[8px] opacity-80 truncate flex items-center gap-0.5 font-medium w-full overflow-hidden">
+                                      <div class="text-[8px] opacity-90 truncate flex items-center gap-0.5 font-semibold w-full overflow-hidden shrink-0 mt-0.5">
                                           <svg class="w-2.5 h-2.5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path>
                                           </svg>
                                           <span class="truncate">{{ $event->lokasi }}</span>
                                       </div>
 
-                                     <!-- Floating Tooltip on Hover -->
-                                     <div class="absolute {{ $tooltipPosition }} {{ $arrowClass }} {{ $tStyle['bg'] }} {{ $tStyle['border'] }} {{ $tStyle['text'] }} left-1/2 -translate-x-1/2 w-60 p-3 rounded-2xl shadow-2xl z-50 text-[10px] pointer-events-none opacity-0 group-hover:opacity-100 transition-all duration-200 border after:content-[''] after:absolute after:left-1/2 after:-translate-x-1/2 after:border-4 after:border-transparent">
+                                      <!-- Floating Tooltip on Hover -->
+                                      <div class="absolute {{ $tooltipPosition }} {{ $arrowClass }} {{ $tStyle['bg'] }} {{ $tStyle['border'] }} {{ $tStyle['text'] }} w-56 sm:w-60 p-3 rounded-2xl shadow-2xl z-50 text-[10px] pointer-events-none opacity-0 group-hover:opacity-100 transition-all duration-200 border after:content-[''] after:absolute after:border-4 after:border-transparent">
                                          <div class="font-bold border-b border-black/10 pb-1 flex justify-between items-start gap-2">
                                              <span class="{{ $tStyle['header_text'] }} font-extrabold uppercase leading-tight mr-2">{{ $event->singkatan_bidang }}</span>
                                              <span class="{{ $tStyle['subtext'] }} whitespace-nowrap shrink-0 text-right mt-0.5">{{ substr($event->jam_mulai, 0, 5) }} - {{ substr($event->jam_selesai, 0, 5) }}</span>
