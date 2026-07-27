@@ -881,8 +881,8 @@
                                         <h4 class="text-xs font-extrabold text-[#2e2552]">
                                             {{ $hasDraftContent ? 'Draf Notulensi Tersedia' : 'Belum Ada Draf Notulensi' }}
                                         </h4>
-                                        <p class="text-[10.5px] text-[#5a508f] font-medium leading-relaxed">
-                                            {{ $hasDraftContent ? 'Draf notulensi rapat telah diisi/diunggah. Klik tombol di bawah untuk melengkapi atau mengedit.' : 'Notulensi rapat belum diisi/diunggah. Anda dapat mencatat hasil pembahasan atau mengunggah audio rapat.' }}
+                                        <p class="text-[10.5px] text-[#5a508f] font-medium leading-normal">
+                                            {{ $hasDraftContent ? 'Draf notulensi rapat telah dibuat.' : 'Notulensi rapat belum diisi/diunggah.' }}
                                         </p>
                                     </div>
                                 </div>
