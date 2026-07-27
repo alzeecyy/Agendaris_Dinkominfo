@@ -798,7 +798,7 @@
 
             <!-- 2. STATUS NOTULENSI AI (Hanya Rapat) ATAU REKAP KEHADIRAN BIDANG (Jika Non-Rapat / Tanpa Notulensi) -->
             @if($agenda->kategori === 'rapat' && $agenda->notulensi)
-                <div class="bg-white border border-[#d4d1f5]/60 rounded-xl md:rounded-[32px] p-2.5 sm:p-6 shadow-sm space-y-2.5 sm:space-y-4 flex-1 flex flex-col justify-between">
+                <div class="bg-white border border-[#d4d1f5]/60 rounded-xl md:rounded-[32px] p-2.5 sm:p-6 shadow-sm space-y-2.5 sm:space-y-4 flex-1 flex flex-col justify-start">
                     <h3 class="text-[11px] sm:text-xs font-bold uppercase tracking-wider text-[#2e2552]">Dokumentasi Notulensi</h3>
                     
                     @php
@@ -943,7 +943,7 @@
                     </div>
                 </div>
             @elseif($agenda->butuh_presensi && (Auth::user()->role !== 'staff' || Auth::user()->isSekretariat()))
-                <div class="bg-white border border-[#d4d1f5]/60 rounded-xl md:rounded-[32px] p-2.5 sm:p-6 shadow-sm space-y-2.5 sm:space-y-4 flex-1 flex flex-col justify-between">
+                <div class="bg-white border border-[#d4d1f5]/60 rounded-xl md:rounded-[32px] p-2.5 sm:p-6 shadow-sm space-y-2.5 sm:space-y-4 flex-1 flex flex-col justify-start">
                     <div class="flex items-center justify-between border-b border-[#d4d1f5]/40 pb-2">
                         <h3 class="text-[11px] sm:text-xs font-bold uppercase tracking-wider text-[#2e2552]">Rekap Kehadiran Bidang</h3>
                         <span class="text-[9.5px] text-[#5a508f] font-bold">Klik untuk detail</span>

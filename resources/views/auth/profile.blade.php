@@ -65,23 +65,11 @@
                 </div>
             </div>
 
-            @php
-                $bidSuffix = Auth::user()->bidang ? ' ' . (Auth::user()->bidang->singkatan ?? Auth::user()->bidang->nama) : '';
-                $roleLabels = [
-                    'admin' => 'Administrator',
-                    'sekretaris_master' => 'Sekretaris Dinas',
-                    'ketua_master' => 'Kepala Dinas',
-                    'sekretaris_bidang' => 'Admin Bidang' . $bidSuffix,
-                    'ketua_bidang' => 'Ketua Bidang' . $bidSuffix,
-                    'staff' => 'Staff Pegawai',
-                ];
-            @endphp
-
             <!-- Row 3: Hak Akses & Status Akun -->
             <div class="space-y-1">
                 <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">HAK AKSES SISTEM</span>
                 <div class="text-xs sm:text-sm font-bold text-[#09103c] bg-slate-50/80 border border-slate-200/70 rounded-xl px-3.5 py-2 shadow-xs">
-                    {{ $roleLabels[Auth::user()->role] ?? Auth::user()->role }}
+                    {{ Auth::user()->role_label }}
                 </div>
             </div>
 

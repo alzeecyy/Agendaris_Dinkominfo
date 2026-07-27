@@ -54,15 +54,6 @@
             <!-- Profile Area -->
             @auth
                 @php
-                    $bidSuffix = Auth::user()->bidang ? ' ' . (Auth::user()->bidang->singkatan ?? Auth::user()->bidang->nama) : '';
-                    $roleLabels = [
-                        'admin' => 'Administrator',
-                        'sekretaris_master' => 'Sekretaris Dinas',
-                        'ketua_master' => 'Kepala Dinas',
-                        'sekretaris_bidang' => 'Admin Bidang' . $bidSuffix,
-                        'ketua_bidang' => 'Ketua Bidang' . $bidSuffix,
-                        'staff' => 'Staff Pegawai',
-                    ];
                     $roleColors = [
                         'admin' => 'bg-red-50 text-red-700 border-red-100',
                         'sekretaris_master' => 'bg-emerald-50 text-emerald-700 border-emerald-100',
@@ -79,7 +70,7 @@
                                 <div class="text-xs md:text-sm font-black text-[#09103c] leading-none">{{ Auth::user()->name }}</div>
                                 <div>
                                     <span class="inline-block text-[8px] md:text-[9px] font-extrabold px-2 py-0.5 rounded-full border {{ $roleColors[Auth::user()->role] ?? 'bg-slate-100 border-slate-200 text-slate-700' }} uppercase tracking-wider leading-none">
-                                        {{ $roleLabels[Auth::user()->role] ?? 'User' }}
+                                        {{ Auth::user()->role_label }}
                                     </span>
                                 </div>
                                 <div class="text-[9px] md:text-[10px] text-slate-500 font-bold font-mono leading-none">NIP. {{ Auth::user()->nip }}</div>
@@ -88,19 +79,15 @@
                                 {{ substr(Auth::user()->name, 0, 2) }}
                             </div>
                         </button>
-
+                        <!-- Floating Dropdown Menu -->
                         <div x-show="openAdminMenu" 
                              @click.away="openAdminMenu = false" 
                              x-cloak
                              x-transition:enter="transition ease-out duration-150 transform"
                              x-transition:enter-start="opacity-0 scale-95 -translate-y-1"
                              x-transition:enter-end="opacity-100 scale-100 translate-y-0"
-                             class="absolute right-0 mt-2 w-60 bg-white border border-[#d4d1f5]/80 rounded-2xl shadow-xl z-50 p-3.5 space-y-3 text-[#2e2552]">
+                             class="absolute right-0 mt-2 w-52 bg-white border border-[#d4d1f5]/80 rounded-2xl shadow-xl z-50 p-2 space-y-1 text-[#2e2552]">
                             
-                            <div class="pb-2.5 border-b border-[#d4d1f5]/50 flex items-center gap-2.5">
-                                <div class="w-8 h-8 bg-red-50 text-red-600 rounded-xl flex items-center justify-center font-black text-xs border border-red-100 shrink-0">
-                                    Ad
-                                </div>
                                 <div class="min-w-0 flex-1">
                                     <div class="text-xs font-black text-[#2e2552] truncate">{{ Auth::user()->name }}</div>
                                     <div class="text-[10px] text-[#5a508f] font-mono truncate">NIP. {{ Auth::user()->nip }}</div>
@@ -123,7 +110,7 @@
                             <div class="text-xs md:text-sm font-black text-[#09103c] leading-none">{{ Auth::user()->name }}</div>
                             <div>
                                 <span class="inline-block text-[8px] md:text-[9px] font-extrabold px-2 py-0.5 rounded-full border {{ $roleColors[Auth::user()->role] ?? 'bg-slate-100 border-slate-200 text-slate-700' }} uppercase tracking-wider leading-none">
-                                    {{ $roleLabels[Auth::user()->role] ?? 'User' }}
+                                    {{ Auth::user()->role_label }}
                                 </span>
                             </div>
                             <div class="text-[9px] md:text-[10px] text-slate-500 font-bold font-mono leading-none">NIP. {{ Auth::user()->nip }}</div>

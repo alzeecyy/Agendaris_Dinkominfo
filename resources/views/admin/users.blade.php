@@ -239,22 +239,7 @@ class="space-y-6">
                                         'staff' => 'bg-blue-50 text-blue-700 border-blue-200',
                                     ];
 
-                                    $bidName = $user->bidang ? ($user->bidang->singkatan ?? $user->bidang->nama) : '';
-                                    $isSubbagUser = $user->bidang ? $user->bidang->isSubbagian() : false;
-
-                                    if ($user->role === 'sekretaris_master') {
-                                        $displayText = 'Sekretaris Dinas';
-                                    } elseif ($user->role === 'ketua_master') {
-                                        $displayText = 'Kepala Dinas';
-                                    } elseif ($isSubbagUser) {
-                                        $displayText = $user->jabatan;
-                                    } elseif ($user->role === 'sekretaris_bidang') {
-                                        $displayText = $bidName ? "Admin Bidang {$bidName}" : 'Admin Bidang';
-                                    } elseif ($user->role === 'ketua_bidang') {
-                                        $displayText = $bidName ? "Ketua Bidang {$bidName}" : 'Ketua Bidang';
-                                    } else {
-                                        $displayText = 'Staff';
-                                    }
+                                    $displayText = $user->role_label;
                                 @endphp
                                 <span class="inline-block whitespace-nowrap text-[10px] px-2.5 py-0.5 rounded-full border font-bold {{ $roleBadge[$user->role] ?? 'bg-slate-100 text-slate-500' }}">
                                     {{ $displayText }}

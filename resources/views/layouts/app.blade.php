@@ -216,15 +216,6 @@
             <!-- Right Profile Dropdown -->
             @if(Auth::check())
                 @php
-                    $bidSuffix = Auth::user()->bidang ? ' ' . (Auth::user()->bidang->singkatan ?? Auth::user()->bidang->nama) : '';
-                    $roleLabels = [
-                        'admin' => 'Administrator',
-                        'sekretaris_master' => 'Sekretaris Dinas',
-                        'ketua_master' => 'Kepala Dinas',
-                        'sekretaris_bidang' => 'Admin Bidang' . $bidSuffix,
-                        'ketua_bidang' => 'Ketua Bidang' . $bidSuffix,
-                        'staff' => 'Staff Pegawai',
-                    ];
                     $roleColors = [
                         'admin' => 'bg-red-50 text-red-700 border-red-100',
                         'sekretaris_master' => 'bg-emerald-50 text-emerald-700 border-emerald-100',
@@ -240,7 +231,7 @@
                             <div class="text-xs sm:text-sm font-black text-[#09103c] leading-tight">{{ Auth::user()->name }}</div>
                             <div>
                                 <span class="inline-block text-[8.5px] sm:text-[9px] font-extrabold px-2 py-0.5 rounded-full border {{ $roleColors[Auth::user()->role] ?? 'bg-slate-100 border-slate-200 text-slate-700' }} uppercase tracking-wider">
-                                    {{ $roleLabels[Auth::user()->role] ?? 'User' }}
+                                    {{ Auth::user()->role_label }}
                                 </span>
                             </div>
                             <div class="text-[9.5px] sm:text-[10px] text-slate-700 font-extrabold font-mono">NIP. {{ Auth::user()->nip }}</div>

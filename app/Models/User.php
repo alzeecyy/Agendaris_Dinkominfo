@@ -98,6 +98,56 @@ class User extends Authenticatable
     }
 
     /**
+     * Get user role display label nicely formatted for header, badges, and profile.
+     */
+    public function getRoleLabelAttribute(): string
+    {
+        if ($this->isAdmin()) {
+            return 'Administrator';
+        }
+        if ($this->isSekretarisMaster()) {
+            return 'Sekretaris Dinas';
+        }
+        if ($this->isKetuaMaster()) {
+            return 'Kepala Dinas';
+        }
+
+        $bid = $this->bidang;
+        $bidName = $bid ? ($bid->singkatan ?? $bid->nama) : '';
+        $isSubbag = $bid ? (str_contains(strtolower($bid->nama), 'subbag') || str_contains(strtolower($bid->singkatan), 'subbag')) : false;
+
+        if (!$isSubbag && str_contains(strtolower((string)$this->jabatan), 'subbag')) {
+            $isSubbag = true;
+        }
+
+        if ($this->isSekretarisBidang()) {
+            if ($isSubbag) {
+                if ($bidName && str_contains(strtolower($bidName), 'subbag')) {
+                    return 'Admin ' . $bidName;
+                }
+                return $this->jabatan ?: ($bidName ? 'Admin ' . $bidName : 'Admin Subbag');
+            }
+            return $bidName ? "Admin Bidang {$bidName}" : 'Admin Bidang';
+        }
+
+        if ($this->isKetuaBidang()) {
+            if ($isSubbag) {
+                return $this->jabatan ?: ($bidName ? "Kasubag {$bidName}" : 'Kasubag');
+            }
+            return $bidName ? "Ketua Bidang {$bidName}" : 'Ketua Bidang';
+        }
+
+        if ($this->isStaff()) {
+            if ($isSubbag) {
+                return "Staff " . ($bidName ?: 'Subbag');
+            }
+            return $bidName ? "Staff {$bidName}" : 'Staff Pegawai';
+        }
+
+        return ucfirst(str_replace('_', ' ', $this->role));
+    }
+
+    /**
      * Checks if this user can view the Agenda Hari Ini (TV / Monitoring Board) page.
      * Allowed: Pimpinan (Ketua Master/Bidang), Sekretaris (Master/Bidang), and Sekretariat Staff.
      * Regular staff of Aptika, IKP, Statistika, etc. are excluded to avoid confusion.
