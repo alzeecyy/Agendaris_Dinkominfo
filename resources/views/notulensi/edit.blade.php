@@ -7,16 +7,16 @@
     
     <!-- Top Header & Breadcrumbs -->
     <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-[#d4d1f5]/40 pb-4">
-        <div class="space-y-1">
+        <div>
             <a href="{{ route('agenda.show', $agenda->id) }}" 
-               class="inline-flex items-center gap-2 text-xs font-bold text-[#5a508f] hover:text-[#2e2552] transition-colors">
+               class="inline-flex items-center gap-2 text-xs font-bold text-[#5a508f] hover:text-[#2e2552] transition-colors mb-3">
                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 12H5m7 7l-7-7 7-7"></path>
                 </svg>
                 <span>Kembali ke Detail Agenda</span>
             </a>
-            <h1 class="text-xl font-black text-[#2e2552] tracking-tight pt-1">Kelola Notulensi Rapat</h1>
-            <p class="text-xs text-[#5a508f] font-medium">Lengkapi informasi rapat, ketik catatan atau unggah rekaman audio, rapikan notulensi dengan AI, lalu simpan draf atau ajukan ke pimpinan.</p>
+            <h1 class="text-xl font-black text-[#2e2552]">Kelola Notulensi Rapat</h1>
+            <p class="text-xs text-[#5a508f] font-medium mt-1">Lengkapi informasi rapat, unggah rekaman suara, edit notulensi AI, lalu simpan atau ajukan ke pimpinan.</p>
         </div>
 
         <!-- Status Badge -->
@@ -42,7 +42,7 @@
         </div>
     </div>
 
-    <!-- Active Transcribing Prominent Top Banner (Immediately Visible Without Scrolling) -->
+    <!-- Active AI Transcribing Prominent Top Banner (Immediately Visible Without Scrolling) -->
     @if($notulensi->is_transcribing)
         <div class="p-4 bg-amber-50 border border-amber-300 rounded-3xl flex items-center justify-between gap-4 shadow-sm animate-pulse">
             <div class="flex items-center gap-3">
@@ -53,7 +53,7 @@
                     </svg>
                 </div>
                 <div>
-                    <h4 class="text-xs font-black uppercase text-amber-900 tracking-wider">Status Transkripsi Audio Sedang Aktif</h4>
+                    <h4 class="text-xs font-black uppercase text-amber-900 tracking-wider">Status AI: Transkripsi Sedang Aktif</h4>
                     <p class="text-xs text-amber-800 font-medium">Sistem sedang memproses berkas suara rapat secara offline. Halaman ini akan diperbarui otomatis saat selesai.</p>
                 </div>
             </div>
@@ -61,16 +61,10 @@
         </div>
         <script>
             (function() {
-                let errorCount = 0;
-                const maxErrors = 5;
                 const checkStatus = function() {
                     fetch('{{ route("notulensi.status", $agenda->id) }}?_t=' + Date.now(), { cache: 'no-store', headers: { 'Cache-Control': 'no-cache' } })
-                        .then(r => {
-                            if (!r.ok) throw new Error('HTTP ' + r.status);
-                            return r.json();
-                        })
+                        .then(r => r.json())
                         .then(data => {
-                            errorCount = 0;
                             if (!data.is_transcribing) {
                                 window.location.reload();
                             } else {
@@ -78,16 +72,7 @@
                             }
                         })
                         .catch(e => {
-                            errorCount++;
-                            if (errorCount < maxErrors) {
-                                setTimeout(checkStatus, 4000);
-                            } else {
-                                console.warn('Koneksi terputus saat memantau status transkripsi.');
-                                const statusBadge = document.getElementById('ai-status-badge');
-                                if (statusBadge) {
-                                    statusBadge.innerHTML = '<div class="flex items-center justify-between text-xs text-amber-900 font-bold p-1"><span>Koneksi terganggu. Menghentikan pemantauan otomatis.</span> <button onclick="window.location.reload()" class="px-3 py-1 bg-amber-600 text-white rounded-lg text-[10px] font-black">Muat Ulang Halaman</button></div>';
-                                }
-                            }
+                            setTimeout(checkStatus, 3000);
                         });
                 };
                 setTimeout(checkStatus, 2000);
@@ -156,7 +141,7 @@
                                 </p>
                             @enderror
 
-                            <div id="alert-surat-kosong" x-show="showNomorSuratAlert" x-cloak class="p-3 bg-amber-50 border border-amber-300/80 rounded-2xl mt-2 text-amber-900 text-xs flex items-center gap-2.5 shadow-xs">
+                            <div x-show="showNomorSuratAlert" x-cloak x-transition id="alert-surat-kosong" class="p-3 bg-amber-50 border border-amber-300/80 rounded-2xl mt-2 text-amber-900 text-xs flex items-center gap-2.5 shadow-xs">
                                 <svg class="w-5 h-5 text-amber-600 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
                                 </svg>
@@ -169,64 +154,54 @@
                     </div>
                 </div>
 
-                <!-- CARD 2: Catatan Mentah & Transkrip Rapat (Dapat Diketik Manual atau Hasil Transkripsi Audio) -->
+                <!-- CARD 2: Hasil Rapat Mentah / Teks Catatan Rapat -->
                 <div class="bg-white border border-[#d4d1f5]/60 rounded-3xl p-6 shadow-sm space-y-4">
-                    <div class="flex items-center justify-between border-b border-[#d4d1f5]/30 pb-3">
+                    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-[#d4d1f5]/30 pb-3">
                         <div class="flex items-center gap-2.5">
-                            <div class="w-8 h-8 rounded-xl bg-indigo-50 text-indigo-600 flex items-center justify-center font-bold">
+                            <div class="w-8 h-8 rounded-xl bg-indigo-50 text-indigo-600 flex items-center justify-center font-bold shrink-0">
                                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
                                 </svg>
                             </div>
                             <div>
-                                <h3 class="text-sm font-extrabold text-[#2e2552]">Catatan Mentah / Transkrip Rapat</h3>
-                                <p class="text-[11px] text-[#5a508f]">Ketik catatan rapat secara manual atau dapatkan hasil transkripsi audio otomatis.</p>
+                                <h3 class="text-sm font-extrabold text-[#2e2552]">Teks Catatan Rapat</h3>
+                                <p class="text-[11px] text-[#5a508f]">Teks hasil transkrip audio atau catatan mentah rapat.</p>
                             </div>
                         </div>
 
-                        <!-- Button Rapikan Teks AI -->
-                        <button type="button" @click="refineText" :disabled="loading"
-                                class="inline-flex items-center gap-1.5 px-4 py-2 bg-gradient-to-r from-[#1b3bbb] to-indigo-600 hover:from-[#09103c] hover:to-[#1b3bbb] text-white text-xs font-bold rounded-xl shadow-md transition-all disabled:opacity-50">
-                            <svg class="w-4 h-4 animate-spin" x-show="loading" fill="none" viewBox="0 0 24 24" style="display: none;">
+                        <!-- Button Rapikan & Analisis Catatan -->
+                        <button type="button" @click="regenerateSummary" :disabled="loading"
+                                class="inline-flex items-center justify-center gap-1.5 px-3.5 py-2 bg-[#1b3bbb] hover:bg-[#09103c] text-white text-[10px] font-extrabold uppercase tracking-wider rounded-xl shadow-sm transition-all disabled:opacity-50 shrink-0 cursor-pointer">
+                            <svg class="w-3.5 h-3.5 animate-spin" x-show="loading" fill="none" viewBox="0 0 24 24" style="display: none;">
                                 <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
                                 <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                             </svg>
-                            <svg class="w-4 h-4" x-show="!loading" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
-                            </svg>
-                            <span x-text="loading ? 'Merapikan...' : 'Rapikan Teks'"></span>
+                            <span x-text="loading ? 'Memproses...' : 'Rapikan & Analisis Catatan'"></span>
                         </button>
                     </div>
 
-                    <!-- Textarea Input Catatan Mentah -->
-                    <div class="space-y-1.5">
-                        <textarea name="transkrip_raw" id="transkrip_raw" rows="10" x-model="transkripRaw" placeholder="Ketik catatan mentah rapat di sini (atau biarkan terisi otomatis setelah memproses audio)..."
-                                  class="w-full px-4 py-3 bg-[#f8f7ff] border border-[#d4d1f5] rounded-2xl text-[#2e2552] text-xs focus:outline-none focus:ring-2 focus:ring-[#8e88dd] focus:bg-white leading-relaxed font-mono transition-colors"></textarea>
-                    </div>
-
-                    <p class="text-[11.5px] text-[#5a508f] font-medium leading-relaxed bg-[#f8f7ff] p-3 rounded-2xl border border-[#d4d1f5]/50">
-                        <strong>Tips:</strong> Anda bisa langsung mengetik catatan rapat, poin-poin singkat, atau menyalin teks pembahasan. Setelah selesai, klik tombol <strong>Rapikan Teks</strong> di atas untuk menyusun dokumen notulensi formal secara otomatis di bawah.
-                    </p>
+                    <textarea name="transkrip_raw" id="transkrip_raw" rows="10" placeholder="Ketik atau tempel (paste) catatan mentah hasil rapat di sini (misal: poin diskusi, bahasan, atau usulan)... Lalu klik tombol 'Rapikan & Analisis Catatan' di kanan atas."
+                              class="w-full px-4 py-3 bg-[#f8f7ff] border border-[#d4d1f5] rounded-2xl text-[#2e2552] text-sm focus:outline-none focus:ring-2 focus:ring-[#8e88dd] focus:bg-white leading-relaxed font-mono transition-colors">{{ $notulensi->transkrip_raw }}</textarea>
                 </div>
 
-                <!-- CARD 3: Hasil Ringkasan & Notulensi Resmi -->
+                <!-- CARD 3: Hasil Ringkasan & Notulensi Rapat -->
                 <div class="bg-white border border-[#d4d1f5]/60 rounded-3xl p-6 shadow-sm space-y-4">
                     <div class="flex items-center justify-between border-b border-[#d4d1f5]/30 pb-3">
                         <div class="flex items-center gap-2.5">
                             <div class="w-8 h-8 rounded-xl bg-[#1b3bbb]/10 text-[#1b3bbb] flex items-center justify-center font-bold">
                                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
                                 </svg>
                             </div>
                             <div>
-                                <h3 class="text-sm font-extrabold text-[#2e2552]">Hasil Ringkasan & Notulensi Resmi</h3>
-                                <p class="text-[11px] text-[#5a508f]">Dokumen resmi terstruktur (ringkasan eksekutif, poin pembahasan, dan keputusan rapat).</p>
+                                <h3 class="text-sm font-extrabold text-[#2e2552]">Hasil Ringkasan & Notulensi</h3>
+                                <p class="text-[11px] text-[#5a508f]">Edit dan rapikan hasil ringkasan rapat (poin keputusan, bahasan, dan tindak lanjut).</p>
                             </div>
                         </div>
                     </div>
 
                     <div class="space-y-1.5">
-                        <textarea name="ringkasan" id="ringkasan" rows="12" placeholder="Tulis atau rapikan notulensi rapat resmi di sini..."
+                        <textarea name="ringkasan" id="ringkasan" rows="12" placeholder="Tulis ringkasan dan notulensi rapat di sini..."
                                   class="w-full px-4 py-3 bg-[#f8f7ff] border border-[#d4d1f5] rounded-2xl text-[#2e2552] text-sm focus:outline-none focus:ring-2 focus:ring-[#8e88dd] focus:bg-white font-mono leading-relaxed transition-colors">{{ trim(preg_replace('/```(?:markdown)?/i', '', $notulensi->ringkasan)) }}</textarea>
                     </div>
                 </div>
@@ -254,14 +229,14 @@
 
                         <div class="flex flex-col sm:flex-row items-center gap-3 w-full sm:w-auto justify-end">
                             <button type="submit" @click="isDirty = false" formaction="{{ route('notulensi.save', $agenda->id) }}" formmethod="POST"
-                                     class="w-full sm:w-auto px-5 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 border border-slate-300 text-xs font-bold rounded-xl shadow-xs transition-all flex items-center justify-center gap-1.5">
+                                    class="w-full sm:w-auto px-5 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 border border-slate-300 text-xs font-bold rounded-xl shadow-xs transition-all flex items-center justify-center gap-1.5">
                                 <svg class="w-4 h-4 text-slate-600 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4"/>
                                 </svg>
                                 <span>Simpan Progress Draft</span>
                             </button>
                             <button type="button" @click="submitForReview($event)"
-                                     class="w-full sm:w-auto px-6 py-2.5 bg-gradient-to-r from-[#1b3bbb] to-indigo-600 hover:from-[#09103c] hover:to-[#1b3bbb] text-white text-xs font-bold rounded-xl shadow-md shadow-[#1b3bbb]/20 transition-all flex items-center justify-center gap-2">
+                                    class="w-full sm:w-auto px-6 py-2.5 bg-gradient-to-r from-[#1b3bbb] to-indigo-600 hover:from-[#09103c] hover:to-[#1b3bbb] text-white text-xs font-bold rounded-xl shadow-md shadow-[#1b3bbb]/20 transition-all flex items-center justify-center gap-2">
                                 <span>Ajukan untuk Persetujuan</span>
                                 <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"/>
@@ -274,37 +249,78 @@
             </form>
         </div>
 
-        <!-- RIGHT COLUMN (1/3 width): Sidebar Cards -->
+        <!-- RIGHT COLUMN (1/3 width): Audio AI Tools & Sidebar Cards -->
         <div class="space-y-6">
             
-            <!-- SIDEBAR CARD: Panduan Pengisian Notulensi -->
-            <div class="bg-white border border-[#d4d1f5]/60 rounded-3xl p-5 shadow-sm space-y-4">
-                <div class="flex items-center gap-2 border-b border-[#d4d1f5]/30 pb-3">
-                    <div class="w-7 h-7 rounded-lg bg-indigo-50 text-indigo-600 flex items-center justify-center font-bold">
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+            <!-- PANDUAN PENGISIAN NOTULENSI (High Contrast & High Readability Guide) -->
+            <div class="bg-white border border-[#d4d1f5]/80 rounded-3xl p-5 md:p-6 shadow-sm space-y-4">
+                <!-- Header -->
+                <div class="flex items-center gap-3 border-b border-[#d4d1f5]/50 pb-3">
+                    <div class="w-8 h-8 rounded-xl bg-[#1b3bbb]/10 text-[#1b3bbb] flex items-center justify-center font-bold shrink-0">
+                        <svg class="w-4 h-4 text-[#1b3bbb]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
                         </svg>
                     </div>
-                    <h3 class="text-xs font-black uppercase tracking-wider text-[#2e2552]">Panduan Pengisian</h3>
+                    <div>
+                        <h3 class="text-xs font-black uppercase tracking-wider text-[#2e2552]">Panduan Pembuatan Notulensi</h3>
+                        <p class="text-xs text-slate-500 font-semibold">3 langkah mudah dari input hingga pengesahan</p>
+                    </div>
                 </div>
 
-                <div class="space-y-3 text-xs text-[#5a508f] leading-relaxed">
-                    <div class="p-3 bg-[#f8f7ff] rounded-2xl border border-[#d4d1f5]/50 space-y-1">
-                        <span class="font-extrabold text-[#2e2552] block text-[11px]">1. Catat Poin Rapat / Audio</span>
-                        <p class="text-[10.5px]">Ketik catatan rapat di kolom <strong>Catatan Mentah</strong>, atau unggah rekaman audio di bawah jika tersedia.</p>
+                <!-- Timeline Steps -->
+                <div class="relative space-y-4">
+                    <!-- Connecting Vertical Line (Starts at circle 1, stops at circle 3) -->
+                    <div class="absolute left-3.5 top-3.5 bottom-12 w-0.5 bg-indigo-100 z-0"></div>
+
+                    <!-- Step 1 -->
+                    <div class="relative z-10 flex items-start gap-3">
+                        <div class="w-7 h-7 rounded-full bg-[#1b3bbb] text-white text-xs font-black flex items-center justify-center shrink-0 shadow-xs">
+                            1
+                        </div>
+                        <div class="space-y-1.5 pt-0.5">
+                            <h4 class="text-xs font-black text-[#2e2552] uppercase tracking-wide">1. Pilih Metode Input</h4>
+                            <div class="space-y-1 text-xs text-slate-700 font-medium leading-normal">
+                                <div class="p-2 bg-indigo-50/70 border border-indigo-100 rounded-xl">
+                                    <span class="font-bold text-[#1b3bbb]">🎙️ Rekaman Audio:</span>
+                                    <span class="text-slate-800">Unggah berkas suara rapat di kanan (otomatis ditranskrip).</span>
+                                </div>
+                                <div class="p-2 bg-purple-50/70 border border-purple-100 rounded-xl">
+                                    <span class="font-bold text-purple-700">✍️ Catatan Teks:</span>
+                                    <span class="text-slate-800">Ketik / tempel catatan pada kolom <strong>"Teks Catatan Rapat"</strong>.</span>
+                                </div>
+                            </div>
+                        </div>
                     </div>
-                    <div class="p-3 bg-[#f8f7ff] rounded-2xl border border-[#d4d1f5]/50 space-y-1">
-                        <span class="font-extrabold text-[#2e2552] block text-[11px]">2. Susun Notulensi dengan AI</span>
-                        <p class="text-[10.5px]">Tekan <strong>Rapikan Teks</strong> untuk menyusun catatan kasar menjadi format notulensi rapat resmi dalam 1-2 detik.</p>
+
+                    <!-- Step 2 -->
+                    <div class="relative z-10 flex items-start gap-3">
+                        <div class="w-7 h-7 rounded-full bg-[#1b3bbb] text-white text-xs font-black flex items-center justify-center shrink-0 shadow-xs">
+                            2
+                        </div>
+                        <div class="space-y-1 pt-0.5">
+                            <h4 class="text-xs font-black text-[#2e2552] uppercase tracking-wide">2. Rapikan & Analisis</h4>
+                            <p class="text-xs text-slate-800 font-medium leading-relaxed">
+                                Klik tombol <strong class="text-[#1b3bbb]">"Rapikan & Analisis Catatan"</strong> untuk menyusun notulensi, lalu pastikan <strong class="text-slate-900">Nomor Surat Dasar</strong> sudah terisi.
+                            </p>
+                        </div>
                     </div>
-                    <div class="p-3 bg-[#f8f7ff] rounded-2xl border border-[#d4d1f5]/50 space-y-1">
-                        <span class="font-extrabold text-[#2e2552] block text-[11px]">3. Isi Nomor Surat & Ajukan</span>
-                        <p class="text-[10.5px]">Pastikan <strong>Nomor Surat Dasar</strong> terisi, periksa draf, lalu klik <strong>Ajukan untuk Persetujuan</strong> ke pimpinan.</p>
+
+                    <!-- Step 3 -->
+                    <div class="relative z-10 flex items-start gap-3">
+                        <div class="w-7 h-7 rounded-full bg-emerald-600 text-white text-xs font-black flex items-center justify-center shrink-0 shadow-xs">
+                            3
+                        </div>
+                        <div class="space-y-1 pt-0.5">
+                            <h4 class="text-xs font-black text-emerald-800 uppercase tracking-wide">3. Ajukan ke Pimpinan</h4>
+                            <p class="text-xs text-slate-800 font-medium leading-relaxed">
+                                Klik <strong class="text-emerald-700">"Ajukan untuk Persetujuan"</strong> di bagian bawah agar notulensi dikirim ke Pimpinan untuk disahkan.
+                            </p>
+                        </div>
                     </div>
                 </div>
             </div>
 
-            <!-- SIDEBAR CARD: Rekaman Suara Rapat (Audio Input & List) -->
+            <!-- SIDEBAR CARD 1: Audio Rekaman Suara Rapat -->
             <div class="bg-white border border-[#d4d1f5]/60 rounded-3xl p-5 shadow-sm space-y-4">
                 <div class="flex items-center justify-between border-b border-[#d4d1f5]/30 pb-3">
                     <div class="flex items-center gap-2">
@@ -313,60 +329,28 @@
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z"></path>
                             </svg>
                         </div>
-                        <div>
-                            <h3 class="text-xs font-black uppercase tracking-wider text-[#2e2552]">Rekaman Suara Rapat</h3>
-                        </div>
+                        <h3 class="text-xs font-black uppercase tracking-wider text-[#2e2552]">Rekaman Suara Rapat</h3>
                     </div>
                     <span class="text-[10px] font-bold text-slate-500 bg-slate-100 px-2 py-0.5 rounded-full">
                         {{ count($notulensi->audio_files ?? []) }}/3
                     </span>
                 </div>
 
-                <!-- Status Notification (Error, Complete, or In-Progress) -->
-                @if($notulensi->is_transcribing)
-                    <div id="ai-status-badge" class="p-4 bg-gradient-to-br from-amber-50 to-orange-50 border border-amber-200 rounded-2xl space-y-2 text-amber-900 text-xs shadow-sm">
-                        <div class="flex items-center gap-2 font-black text-amber-900 uppercase tracking-wider text-[11px]">
-                            <svg class="w-4 h-4 animate-spin text-amber-600 shrink-0" fill="none" viewBox="0 0 24 24">
-                                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                            </svg>
-                            <span>Status: Mentranskripsi Audio</span>
-                        </div>
-                        <p class="text-[11px] text-amber-800 font-medium leading-relaxed">
-                            Rekaman sedang diproses. Proses ini membutuhkan waktu beberapa saat. Jangan tutup halaman selama proses berlangsung.
-                        </p>
-                    </div>
-                @elseif(!empty($notulensi->audio_files) && count($notulensi->audio_files) > 0)
+                <!-- AI Status Notification (Error or Complete) -->
+                @if(!empty($notulensi->audio_files) && count($notulensi->audio_files) > 0 && !$notulensi->is_transcribing)
                     @if($notulensi->transkrip_error)
-                        <div class="p-4 bg-rose-50 border border-rose-200 rounded-2xl space-y-2 text-rose-800 text-xs">
-                            <div class="flex items-center gap-1.5 font-bold text-rose-900">
-                                <svg class="w-4 h-4 text-rose-600 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                                </svg>
-                                <span>Transkripsi Belum Berhasil Diproses</span>
-                            </div>
-                            <p class="text-[10.5px] text-rose-700 leading-relaxed font-medium">
-                                Transkripsi belum berhasil diproses. Silakan coba lagi menggunakan rekaman yang sudah tersimpan.
-                            </p>
-                            
-                            <form action="{{ route('notulensi.process.audio', $agenda->id) }}" method="POST" onsubmit="if (typeof window.showHeavyLoading === 'function') window.showHeavyLoading('Memproses Ulang', 'Menjalankan ulang proses transkripsi audio rapat...');">
-                                @csrf
-                                <button type="submit" class="w-full mt-1 py-2 bg-rose-600 hover:bg-rose-700 text-white text-xs font-bold rounded-xl shadow-sm transition-all flex items-center justify-center gap-1.5">
-                                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
-                                    </svg>
-                                    <span>Coba Lagi Transkripsi</span>
-                                </button>
-                            </form>
+                        <div class="p-3.5 bg-rose-50 border border-rose-200 rounded-2xl space-y-1 text-rose-800 text-[11px]">
+                            <span class="font-bold block">Gagal Transkripsi:</span>
+                            <p class="text-[10px] leading-relaxed">{{ $notulensi->transkrip_error }}</p>
                         </div>
                     @elseif(!empty($notulensi->transkrip_raw))
-                        <div class="p-3 bg-blue-50 border border-blue-200 rounded-2xl space-y-1.5 text-blue-900 text-xs">
+                        <div class="p-3.5 bg-blue-50 border border-blue-200 rounded-2xl space-y-2 text-blue-900 text-xs">
                             <div class="flex items-center justify-between text-[10px] font-bold text-blue-800">
-                                <span>Status Audio:</span>
-                                <span class="bg-blue-100 text-blue-800 px-2 py-0.5 rounded-md uppercase">Terhubung</span>
+                                <span>Status Transkripsi:</span>
+                                <span class="bg-blue-100 text-blue-800 px-2 py-0.5 rounded-md">Selesai</span>
                             </div>
                             <p class="text-[10px] text-blue-700 leading-relaxed font-medium">
-                                Rekaman audio tersimpan. Teks transkrip tersedia di kolom utama.
+                                Transkripsi selesai. Teks transkrip dan ringkasan dapat diperiksa di sebelah kiri.
                             </p>
                         </div>
                     @endif
@@ -383,7 +367,7 @@
                                     </p>
                                     
                                     <!-- Delete Audio Form -->
-                                    <form action="{{ route('notulensi.audio.delete', [$agenda->id, $index]) }}" method="POST" data-confirm="Apakah Anda yakin ingin menghapus rekaman audio ini?">
+                                    <form action="{{ route('notulensi.audio.delete', [$agenda->id, $index]) }}" method="POST" data-title="Hapus Rekaman Audio?" data-confirm="Berkas suara rapat ini akan dihapus permanen dari sistem." data-confirm-btn="Hapus Audio">
                                         @csrf
                                         @method('DELETE')
                                         <button type="submit" class="text-rose-600 hover:text-rose-500 p-1 hover:bg-rose-50 rounded-lg transition-colors" title="Hapus Rekaman">
@@ -403,49 +387,29 @@
                     </div>
                 @endif
 
-                <!-- Upload Audio Form with XHR Realtime Progress -->
+                <!-- Upload Audio Form -->
                 @if(empty($notulensi->audio_files) || count($notulensi->audio_files) < 3)
-                    <div class="p-4 bg-[#f8f7ff] border border-[#d4d1f5]/60 border-dashed rounded-2xl space-y-3">
-                        <div class="space-y-0.5 text-center">
-                            <h4 class="text-xs font-bold text-[#2e2552]">Unggah Berkas Audio Rapat</h4>
-                            <p class="text-[10px] text-[#5a508f]">Format yang didukung: MP3, WAV, M4A, OGG</p>
-                            <p class="text-[9.5px] font-semibold text-slate-500">Maksimal ukuran file: 40MB per berkas</p>
+                    <div class="p-4 bg-[#f8f7ff] border border-[#d4d1f5]/60 border-dashed rounded-2xl text-center space-y-3">
+                        <div class="space-y-0.5">
+                            <h4 class="text-xs font-bold text-[#2e2552]">Unggah Berkas Audio</h4>
+                            <p class="text-[10px] text-[#5a508f]">.mp3, .wav, .m4a (Maks 20MB / 60 Menit)</p>
                         </div>
 
-                        <form id="audio-upload-form" action="{{ route('notulensi.upload', $agenda->id) }}" method="POST" enctype="multipart/form-data">
+                        <form action="{{ route('notulensi.upload', $agenda->id) }}" method="POST" enctype="multipart/form-data">
                             @csrf
-                            <input type="file" name="audio" accept=".mp3,.wav,.m4a,.ogg,audio/*" onchange="uploadAudioXhr(this)" class="hidden" id="audio-input-compact">
-                            
+                            <input type="file" name="audio" required accept="audio/*" onchange="showUploadLoading('compact'); this.form.submit()" class="hidden" id="audio-input-compact">
                             <label id="compact-upload-btn" for="audio-input-compact" class="w-full py-2.5 bg-[#1b3bbb] hover:bg-[#09103c] text-white text-xs font-bold rounded-xl cursor-pointer shadow-sm transition-all flex items-center justify-center gap-1.5">
                                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
                                 </svg>
                                 <span>Pilih Berkas Audio</span>
                             </label>
-
-                            <!-- Realtime Upload Progress Bar -->
-                            <div id="upload-progress-container" style="display: none;" class="space-y-2 p-3 bg-white border border-[#d4d1f5]/80 rounded-xl text-left">
-                                <div class="flex items-center justify-between text-[10.5px] font-bold text-[#2e2552]">
-                                    <span id="upload-file-name" class="truncate max-w-[170px] text-[#1b3bbb]">file.mp3</span>
-                                    <span id="upload-file-size" class="text-slate-400">0 MB</span>
-                                </div>
-                                
-                                <div class="w-full bg-slate-100 rounded-full h-2.5 overflow-hidden">
-                                    <div id="upload-progress-bar" class="bg-gradient-to-r from-[#1b3bbb] to-indigo-600 h-2.5 rounded-full transition-all duration-200" style="width: 0%"></div>
-                                </div>
-
-                                <div class="flex items-center justify-between text-[10px] font-bold">
-                                    <span id="upload-status-text" class="text-[#5a508f]">Mengunggah rekaman...</span>
-                                    <span id="upload-percentage" class="text-[#1b3bbb]">0%</span>
-                                </div>
-                            </div>
-
-                            <!-- Upload Error Alert & Retry Button -->
-                            <div id="upload-error-container" style="display: none;" class="p-3 bg-rose-50 border border-rose-200 rounded-xl space-y-2 text-rose-800 text-xs text-left">
-                                <p id="upload-error-message" class="text-[10.5px] font-medium">Gagal mengunggah berkas audio.</p>
-                                <button type="button" onclick="document.getElementById('audio-input-compact').click()" class="w-full py-1.5 bg-rose-600 hover:bg-rose-700 text-white text-[10px] font-bold rounded-lg transition-colors">
-                                    Coba Lagi Unggah Audio
-                                </button>
+                            <div id="compact-upload-loading" style="display: none;" class="flex items-center justify-center gap-2 text-xs font-bold text-[#5a508f] py-1">
+                                <svg class="w-4 h-4 animate-spin text-[#1b3bbb]" fill="none" viewBox="0 0 24 24">
+                                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                </svg>
+                                <span>Mengunggah audio...</span>
                             </div>
                         </form>
                     </div>
@@ -457,14 +421,14 @@
 
                 <!-- Dedicated "Proses Audio" Button -->
                 @if(!empty($notulensi->audio_files) && count($notulensi->audio_files) > 0 && !$notulensi->is_transcribing)
-                    <form action="{{ route('notulensi.process.audio', $agenda->id) }}" method="POST" class="pt-2 border-t border-[#d4d1f5]/40" onsubmit="if (typeof window.showHeavyLoading === 'function') window.showHeavyLoading('Transkripsi Audio Rapat', 'Sistem sedang memproses berkas audio rapat secara offline. Mohon tunggu...');">
+                    <form action="{{ route('notulensi.process.audio', $agenda->id) }}" method="POST" class="pt-2 border-t border-[#d4d1f5]/40" onsubmit="if (typeof window.showHeavyLoading === 'function') window.showHeavyLoading('Transkripsi Audio Rapat', 'AI sedang memproses berkas audio rapat secara offline. Mohon tunggu...');">
                         @csrf
                         <button type="submit" class="w-full py-3 bg-gradient-to-r from-[#1b3bbb] to-indigo-600 hover:from-[#09103c] hover:to-[#1b3bbb] text-white text-xs font-extrabold rounded-2xl shadow-md shadow-[#1b3bbb]/20 transition-all flex items-center justify-center gap-2">
                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"></path>
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
                             </svg>
-                            <span>Proses Transkripsi Audio</span>
+                            <span>Proses Audio</span>
                         </button>
                     </form>
                 @endif
@@ -482,27 +446,20 @@
                 loading: false,
                 isDirty: false,
                 showNomorSuratAlert: false,
-                transkripRaw: @json($notulensi->transkrip_raw ?? ''),
                 init() {
                     this.$nextTick(() => {
                         const form = document.getElementById('notulen-form');
                         if (form) {
                             form.querySelectorAll('input, textarea, select').forEach(el => {
-                                el.addEventListener('input', () => { this.isDirty = true; });
+                                el.addEventListener('input', () => { 
+                                    this.isDirty = true; 
+                                    if (el.id === 'nomor_surat_dasar' && el.value.trim()) {
+                                        this.showNomorSuratAlert = false;
+                                    }
+                                });
                                 el.addEventListener('change', () => { this.isDirty = true; });
                             });
                             form.addEventListener('submit', () => { this.isDirty = false; });
-                        }
-
-                        const nomorSuratInput = document.getElementById('nomor_surat_dasar');
-                        if (nomorSuratInput) {
-                            nomorSuratInput.addEventListener('input', () => {
-                                if (nomorSuratInput.value.trim() !== '') {
-                                    this.showNomorSuratAlert = false;
-                                    nomorSuratInput.classList.remove('border-rose-500', 'ring-2', 'ring-rose-200');
-                                    nomorSuratInput.classList.add('border-[#d4d1f5]');
-                                }
-                            });
                         }
                     });
 
@@ -518,12 +475,12 @@
                     const nomorSuratValue = nomorSuratInput ? nomorSuratInput.value.trim() : '';
 
                     if (!nomorSuratValue) {
-                        this.showNomorSuratAlert = true;
-
                         if (event) {
                             event.preventDefault();
                             event.stopPropagation();
                         }
+
+                        this.showNomorSuratAlert = true;
 
                         if (nomorSuratInput) {
                             nomorSuratInput.scrollIntoView({ behavior: 'smooth', block: 'center' });
@@ -538,7 +495,13 @@
                                 title: 'Nomor Surat Belum Diisi!',
                                 text: 'Kolom Nomor Surat Dasar wajib diisi terlebih dahulu sebelum mengajukan notulensi ke Pimpinan.',
                                 confirmButtonText: 'Isi Nomor Surat Sekarang',
-                                confirmButtonColor: '#1b3bbb'
+                                confirmButtonColor: '#1b3bbb',
+                                customClass: {
+                                    popup: 'rounded-3xl p-5 max-w-md shadow-2xl',
+                                    title: 'text-base font-black text-[#09103c]',
+                                    htmlContainer: 'text-xs text-slate-600 font-medium leading-relaxed mt-1',
+                                    confirmButton: 'px-5 py-2 bg-[#1b3bbb] text-white text-xs font-bold rounded-xl shadow-sm'
+                                }
                             });
                         } else {
                             alert('Nomor Surat Dasar wajib diisi sebelum mengajukan notulensi!');
@@ -554,39 +517,43 @@
                         form.submit();
                     }
                 },
-                refineText() {
-                    const rawText = (this.transkripRaw || '').trim();
-                    if (!rawText) {
+                regenerateSummary() {
+                    const transcript = document.getElementById('transkrip_raw').value;
+                    if (!transcript.trim()) {
                         Swal.fire({
-                            text: 'Catatan mentah rapat masih kosong! Silakan ketik catatan rapat terlebih dahulu.',
+                            title: 'Catatan Rapat Masih Kosong!',
+                            text: 'Silakan ketik / tempel catatan mentah rapat di kolom teks atau unggah berkas audio terlebih dahulu.',
                             icon: 'warning',
-                            confirmButtonText: 'OK'
+                            confirmButtonText: 'Pengertian',
+                            confirmButtonColor: '#1b3bbb'
                         });
                         return;
                     }
 
                     Swal.fire({
-                        text: 'Rapikan dan susun catatan mentah menjadi notulensi resmi terstruktur?',
+                        title: 'Rapikan Catatan Rapat?',
+                        text: 'Sistem akan menganalisis dan menyusun catatan mentah ini ke dalam dokumen ringkasan resmi. Isi ringkasan saat ini akan diperbarui.',
                         icon: 'question',
                         showCancelButton: true,
-                        confirmButtonText: 'Ya, Rapikan',
-                        cancelButtonText: 'Batal'
+                        confirmButtonText: 'Ya, Rapikan Catatan',
+                        cancelButtonText: 'Batal',
+                        confirmButtonColor: '#1b3bbb'
                     }).then((result) => {
                         if (!result.isConfirmed) return;
 
                         this.loading = true;
                         if (typeof window.showHeavyLoading === 'function') {
-                            window.showHeavyLoading('Merapikan Teks', 'Sedang merapikan dan menyusun catatan rapat mentah...');
+                            window.showHeavyLoading('Merapikan Catatan Rapat', 'Sistem sedang menganalisis & merapikan isi catatan rapat. Mohon tunggu...');
                         }
 
-                        fetch('{{ route("notulensi.refine-text", $agenda->id) }}', {
+                        fetch('{{ route("notulensi.regenerate", $agenda->id) }}', {
                             method: 'POST',
                             headers: {
                                 'Content-Type': 'application/json',
                                 'X-CSRF-TOKEN': '{{ csrf_token() }}'
                             },
                             body: JSON.stringify({
-                                teks_raw: rawText
+                                transkrip_raw: transcript
                             })
                         })
                         .then(res => res.json())
@@ -597,13 +564,13 @@
                                 document.getElementById('ringkasan').value = res.data.trim();
                                 this.isDirty = true;
                                 Swal.fire({
-                                    text: 'Catatan berhasil dirapikan! Ringkasan notulensi telah diperbarui. Silakan periksa dan simpan draft.',
+                                    text: 'Analisis transkrip berhasil! Ringkasan telah diperbarui. Silakan edit dan rapikan sesuai kebutuhan.',
                                     icon: 'success',
                                     confirmButtonText: 'OK'
                                 });
                             } else {
                                 Swal.fire({
-                                    text: res.message || 'Gagal merapikan teks catatan.',
+                                    text: res.message || 'Gagal memproses analisis transkrip.',
                                     icon: 'error',
                                     confirmButtonText: 'OK'
                                 });
@@ -613,7 +580,7 @@
                             this.loading = false;
                             if (typeof window.hideHeavyLoading === 'function') window.hideHeavyLoading();
                             Swal.fire({
-                                text: 'Terjadi kesalahan koneksi saat merapikan teks.',
+                                text: 'Terjadi kesalahan koneksi saat memproses analisis.',
                                 icon: 'error',
                                 confirmButtonText: 'OK'
                             });
@@ -624,115 +591,13 @@
         }
     }
 
-    function uploadAudioXhr(input) {
-        if (!input.files || !input.files[0]) return;
-        const file = input.files[0];
-
-        // Check 0-byte file
-        if (file.size === 0) {
-            Swal.fire({
-                icon: 'error',
-                title: 'Berkas Kosong!',
-                text: 'Berkas audio yang dipilih berukuran 0 byte (kosong) dan tidak dapat diproses.',
-                confirmButtonColor: '#1b3bbb'
-            });
-            input.value = '';
-            return;
+    function showUploadLoading(type) {
+        if (type === 'compact') {
+            const btn = document.getElementById('compact-upload-btn');
+            const loading = document.getElementById('compact-upload-loading');
+            if (btn) btn.style.display = 'none';
+            if (loading) loading.style.display = 'flex';
         }
-
-        // Check file extension (.mp3, .wav, .m4a, .ogg)
-        const allowedExts = ['mp3', 'wav', 'm4a', 'ogg'];
-        const fileName = file.name;
-        const ext = fileName.split('.').pop().toLowerCase();
-        if (!allowedExts.includes(ext)) {
-            Swal.fire({
-                icon: 'error',
-                title: 'Format Tidak Didukung!',
-                text: 'Format berkas ".' + ext.toUpperCase() + '" tidak didukung. Harap unggah berkas berformat MP3, WAV, M4A, atau OGG.',
-                confirmButtonColor: '#1b3bbb'
-            });
-            input.value = '';
-            return;
-        }
-
-        // Check 40MB limit (40 * 1024 * 1024 bytes)
-        const maxSizeBytes = 40 * 1024 * 1024;
-        if (file.size > maxSizeBytes) {
-            Swal.fire({
-                icon: 'error',
-                title: 'Ukuran Terlalu Besar!',
-                text: 'Ukuran berkas audio (' + (file.size / (1024*1024)).toFixed(1) + ' MB) melebihi batas maksimal 40 MB.',
-                confirmButtonColor: '#1b3bbb'
-            });
-            input.value = '';
-            return;
-        }
-
-        const btn = document.getElementById('compact-upload-btn');
-        const container = document.getElementById('upload-progress-container');
-        const errContainer = document.getElementById('upload-error-container');
-        const bar = document.getElementById('upload-progress-bar');
-        const percentage = document.getElementById('upload-percentage');
-        const statusText = document.getElementById('upload-status-text');
-        const fileNameEl = document.getElementById('upload-file-name');
-        const fileSizeEl = document.getElementById('upload-file-size');
-
-        if (btn) btn.style.display = 'none';
-        if (errContainer) errContainer.style.display = 'none';
-        if (container) container.style.display = 'block';
-
-        if (fileNameEl) fileNameEl.innerText = file.name;
-        if (fileSizeEl) fileSizeEl.innerText = (file.size / (1024*1024)).toFixed(1) + ' MB';
-
-        const formData = new FormData();
-        formData.append('audio', file);
-        formData.append('_token', '{{ csrf_token() }}');
-
-        const xhr = new XMLHttpRequest();
-        xhr.open('POST', '{{ route("notulensi.upload", $agenda->id) }}', true);
-
-        xhr.upload.onprogress = function(e) {
-            if (e.lengthComputable) {
-                const percent = Math.round((e.loaded / e.total) * 100);
-                if (bar) bar.style.width = percent + '%';
-                if (percentage) percentage.innerText = percent + '%';
-                if (statusText) {
-                    if (percent < 100) {
-                        statusText.innerText = 'Mengunggah rekaman... (' + percent + '%)';
-                    } else {
-                        statusText.innerText = 'Upload selesai, memproses berkas...';
-                    }
-                }
-            }
-        };
-
-        xhr.onload = function() {
-            if (xhr.status >= 200 && xhr.status < 300) {
-                if (statusText) statusText.innerText = 'Upload berhasil! Menyegarkan...';
-                setTimeout(function() {
-                    window.location.reload();
-                }, 500);
-            } else {
-                showUploadError('Gagal mengunggah berkas audio. Server merespons error (Status ' + xhr.status + ').');
-            }
-        };
-
-        xhr.onerror = function() {
-            showUploadError('Terjadi kesalahan koneksi saat mengunggah berkas audio. Silakan periksa koneksi internet Anda.');
-        };
-
-        function showUploadError(msg) {
-            if (container) container.style.display = 'none';
-            if (btn) btn.style.display = 'flex';
-            if (errContainer) {
-                errContainer.style.display = 'block';
-                const errMsg = document.getElementById('upload-error-message');
-                if (errMsg) errMsg.innerText = msg;
-            }
-            input.value = '';
-        }
-
-        xhr.send(formData);
     }
 
     if (typeof Alpine !== 'undefined') {

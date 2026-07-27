@@ -106,8 +106,8 @@
     <!-- Breadcrumbs / Back button -->
     <div class="flex items-center justify-between gap-2">
         <a href="{{ route('calendar', ['date' => $agenda->tanggal->toDateString()]) }}" 
-           class="inline-flex items-center gap-1.5 text-[11px] sm:text-xs font-bold text-[#5a508f] hover:text-[#2e2552] transition-colors min-w-0">
-            <svg class="w-3.5 h-3.5 sm:w-4 sm:h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+           class="inline-flex items-center gap-2 px-3 py-1.5 rounded-xl bg-white border border-[#d4d1f5]/80 text-xs font-bold text-[#5a508f] hover:text-[#1b3bbb] hover:border-[#1b3bbb]/40 transition-all shadow-2xs min-w-0">
+            <svg class="w-4 h-4 shrink-0 text-[#5a508f]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 12H5m7 7l-7-7 7-7"></path>
             </svg>
             <span class="truncate">Kembali ke Kalender Rinci</span>
@@ -128,7 +128,7 @@
                             class="px-2.5 py-1.5 sm:px-4 sm:py-2 bg-white border border-[#d4d1f5] hover:bg-[#8e88dd]/15 text-[11px] sm:text-xs font-bold text-[#2e2552] rounded-xl transition-all shadow-sm shrink-0">
                         Edit Agenda
                     </button>
-                    <form action="{{ route('agenda.destroy', $agenda->id) }}" method="POST" data-confirm="Apakah Anda yakin ingin menghapus agenda ini beserta seluruh presensi/notulensinya?">
+                    <form action="{{ route('agenda.destroy', $agenda->id) }}" method="POST" data-title="Hapus Agenda Ini?" data-confirm="Agenda beserta seluruh data presensi & notulensi akan dihapus permanen dari sistem." data-confirm-btn="Hapus Agenda">
                         @csrf
                         @method('DELETE')
                         <button type="submit" class="px-2.5 py-1.5 sm:px-4 sm:py-2 bg-rose-50 hover:bg-rose-100 text-rose-600 border border-rose-200 text-[11px] sm:text-xs font-bold rounded-xl transition-all shadow-sm shrink-0">
@@ -277,13 +277,9 @@
                                     bidangs: {{ json_encode(array_values($initialBidangs)) }},
                                     isSekBid: {{ Auth::user()->isSekretarisBidang() ? "true" : "false" }},
                                     ownBidangId: "{{ Auth::user()->bidang_id }}",
-                                    searchParticipant: '',
-
-                                    filteredUsers(users) {
-                                        if (!this.searchParticipant || !this.searchParticipant.trim()) return users;
-                                        let q = this.searchParticipant.toLowerCase().trim();
-                                        return users.filter(u => (u.name && u.name.toLowerCase().includes(q)) || (u.jabatan && u.jabatan.toLowerCase().includes(q)));
-                                    },
+                                    bidangsUserData: {{ json_encode($bidangsUserData) }},
+                                    selectedParticipants: {{ json_encode(array_values($initialParticipants)) }},
+                                    participantModalOpen: false,
 
                                     toggleSemua() {
                                         if (this.semua) {
@@ -299,19 +295,9 @@
                                             if (!this.bidangs.includes(this.ownBidangId)) {
                                                 this.bidangs.push(this.ownBidangId);
                                             }
-                                            if (this.bidangs.length > 3) {
-                                                Swal.fire({
-                                                    title: 'Batas Maksimal Bidang',
-                                                    text: 'Sekretaris / Admin Bidang hanya dapat memilih maksimal 3 bidang (bidang Anda + maksimal 2 bidang tambahan).',
-                                                    icon: 'warning',
-                                                    confirmButtonText: 'Mengerti',
-                                                    confirmButtonColor: '#1b3bbb',
-                                                    customClass: {
-                                                        popup: 'rounded-3xl shadow-2xl border border-[#d4d1f5]',
-                                                        confirmButton: 'px-5 py-2.5 bg-[#1b3bbb] text-white text-xs font-bold rounded-xl shadow-md'
-                                                    }
-                                                });
-                                                this.bidangs = this.bidangs.filter(bId => String(bId) !== String(id));
+                                            if (this.bidangs.length > 2) {
+                                                alert("Admin Bidang hanya dapat memilih maksimal 1 bidang tambahan.");
+                                                this.bidangs = [this.ownBidangId, id];
                                             }
                                         }
                                         this.semua = (this.bidangs.length === this.totalCount);
@@ -426,19 +412,7 @@
                                                 </button>
                                             </div>
 
-                                            <div class="p-4 sm:p-5 overflow-y-auto space-y-4 flex-1">
-                                                <!-- Search Bar for Participants -->
-                                                <div class="relative">
-                                                    <input type="text" x-model="searchParticipant" placeholder="Cari nama atau jabatan peserta..." 
-                                                           class="w-full pl-9 pr-8 py-2 bg-slate-100/90 border border-slate-200/90 rounded-xl text-xs text-slate-800 placeholder-slate-400 focus:bg-white focus:border-[#1b3bbb] focus:ring-2 focus:ring-[#1b3bbb]/10 transition-all font-medium">
-                                                    <svg class="w-4 h-4 text-slate-400 absolute left-3 top-2.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
-                                                    </svg>
-                                                    <button type="button" x-show="searchParticipant.length > 0" @click="searchParticipant = ''" class="absolute right-2.5 top-2.5 text-slate-400 hover:text-slate-600">
-                                                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
-                                                    </button>
-                                                </div>
-
+                                            <div class="p-5 overflow-y-auto space-y-4 flex-1">
                                                 <template x-if="bidangs.length === 0">
                                                     <div class="p-8 text-center bg-slate-50 rounded-2xl border border-dashed border-slate-200">
                                                         <p class="text-xs text-slate-500 font-bold">Pilih minimal satu bidang di atas terlebih dahulu untuk mengelola peserta.</p>
@@ -458,7 +432,7 @@
                                                         </div>
 
                                                         <div class="grid grid-cols-1 sm:grid-cols-2 gap-1.5">
-                                                            <template x-for="user in filteredUsers(bidang.users)" :key="user.id">
+                                                            <template x-for="user in bidang.users" :key="user.id">
                                                                 <label class="flex items-start gap-2.5 p-2 bg-white rounded-xl border border-slate-200/60 hover:border-indigo-200 cursor-pointer select-none transition-all">
                                                                     <input type="checkbox" :value="user.id" x-model="selectedParticipants" class="w-4 h-4 rounded border-slate-300 text-indigo-600 focus:ring-indigo-500 mt-0.5 shrink-0">
                                                                     <div class="min-w-0">
@@ -514,19 +488,7 @@
                 </div>
             </div>
         @endif
-    <!-- STICKY MOBILE PROMPT: ABSEN SEKARANG (Only on mobile when eligible & hasn't filled presensi) -->
-    @if($agenda->butuh_presensi && !$ownPresensi && $agenda->canPresensiBeFilled() && Auth::user()->hasAccessToAgenda($agenda))
-        <div class="lg:hidden sticky top-14 z-30 p-3 bg-gradient-to-r from-[#1b3bbb] to-indigo-700 text-white rounded-2xl shadow-lg flex items-center justify-between gap-3 border border-indigo-500/30 animate-pulse">
-            <div class="flex items-center gap-2 min-w-0">
-                <span class="w-2.5 h-2.5 rounded-full bg-emerald-400 shrink-0"></span>
-                <span class="text-xs font-black truncate">Presensi Digital Dibuka!</span>
-            </div>
-            <button @click="openAbsenModal = true; initSignaturePad()" 
-                    class="px-3.5 py-1.5 bg-white text-[#1b3bbb] hover:bg-indigo-50 font-black text-xs rounded-xl shadow-xs shrink-0 transition-all active:scale-95 cursor-pointer">
-                Absen Sekarang
-            </button>
-        </div>
-    @endif
+    </div>
 
     <!-- TOP GRID: Card Rapat (Left) vs Absensi/Notulensi/Rekap (Right) -->
     <div class="grid grid-cols-1 lg:grid-cols-2 gap-3.5 sm:gap-6 items-stretch">
@@ -555,7 +517,18 @@
                             {{ $badgeStyles[$agenda->kategori] ?? 'bg-slate-100 text-slate-700 border-slate-200' }}">
                             {{ $kategoriLabels[$agenda->kategori] ?? $agenda->kategori }}
                         </span>
-                        <span class="text-[9.5px] sm:text-xs text-[#5a508f]">Dibuat oleh: <strong class="text-[#2e2552]">{{ $agenda->sekretaris->name }}</strong></span>
+                        <div class="flex items-center gap-1.5 text-[9.5px] sm:text-xs text-[#5a508f]">
+                            <span>Dibuat oleh: <strong class="text-[#2e2552]">{{ $agenda->sekretaris->name }}</strong></span>
+                            @if($agenda->sekretaris?->bidang)
+                                <span class="px-2 py-0.5 rounded-full bg-indigo-50 border border-indigo-200 text-[#1b3bbb] text-[9px] sm:text-[10px] font-black uppercase tracking-wider" title="{{ $agenda->sekretaris->bidang->nama }}">
+                                    {{ $agenda->sekretaris->bidang->singkatan ?? $agenda->sekretaris->bidang->nama }}
+                                </span>
+                            @elseif($agenda->sekretaris?->isSekretarisDinas() || $agenda->sekretaris?->isSekretaris())
+                                <span class="px-2 py-0.5 rounded-full bg-purple-50 border border-purple-200 text-purple-700 text-[9px] sm:text-[10px] font-black uppercase tracking-wider">
+                                    Sekretariat Dinas
+                                </span>
+                            @endif
+                        </div>
                     </div>
 
                     <div class="space-y-1 sm:space-y-2">
@@ -803,12 +776,12 @@
                         @else
                             <!-- KONDISI 2: Berlangsung normal saat waktu rapat -->
                             <div class="space-y-2">
-                                <div class="p-2.5 bg-emerald-50 border border-emerald-200 rounded-xl flex items-center justify-between text-xs">
-                                    <span class="text-[#5a508f] font-medium flex items-center gap-1 text-[10px]">
-                                        <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
+                                <div class="p-2.5 bg-rose-50 border border-rose-200 rounded-xl flex items-center justify-between text-xs">
+                                    <span class="text-rose-800 font-medium flex items-center gap-1 text-[10px]">
+                                        <span class="w-1.5 h-1.5 rounded-full bg-rose-500 animate-pulse"></span>
                                         <span>Status Kehadiran:</span>
                                     </span>
-                                    <span class="px-2 py-0.5 rounded bg-emerald-100 text-emerald-700 font-extrabold uppercase text-[9px] border border-emerald-300">Belum Absen</span>
+                                    <span class="px-2 py-0.5 rounded bg-rose-100 text-rose-700 font-extrabold uppercase text-[9px] border border-rose-300">Belum Absen</span>
                                 </div>
                                 <button @click="openAbsenModal = true; initSignaturePad()" 
                                         class="w-full py-1.5 sm:py-2.5 bg-[#2e2552] hover:bg-[#3d326a] text-white font-bold text-[11px] sm:text-xs rounded-xl shadow-md transition-all flex items-center justify-center gap-1.5">
@@ -844,6 +817,9 @@
                         } elseif ($notulensi->transkrip_error) {
                             $notulenLabel = 'Gagal Transkripsi';
                             $notulenColor = 'bg-rose-50 text-rose-600 border-rose-200';
+                        } elseif ($notulensi->status === 'revisi') {
+                            $notulenLabel = 'Perlu Revisi Sekretaris';
+                            $notulenColor = 'bg-rose-50 text-rose-700 border-rose-200';
                         } elseif ($notulensi->status === 'draft') {
                             if ($hasDraftContent) {
                                 $notulenLabel = 'Draft Belum Direview';
@@ -853,11 +829,11 @@
                                 $notulenColor = 'bg-slate-100 text-slate-500 border-slate-200';
                             }
                         } elseif ($notulensi->status === 'menunggu_review') {
-                            $notulenLabel = 'Menunggu Review Ketua';
-                            $notulenColor = 'bg-amber-50 text-amber-600 border-amber-200';
+                            $notulenLabel = 'Menunggu Review Pimpinan';
+                            $notulenColor = 'bg-amber-50 text-amber-700 border-amber-200';
                         } elseif ($notulensi->status === 'disahkan') {
                             $notulenLabel = 'Telah Disahkan Pimpinan';
-                            $notulenColor = 'bg-emerald-50 text-emerald-600 border-emerald-200';
+                            $notulenColor = 'bg-emerald-50 text-emerald-700 border-emerald-200';
                         } else {
                             $notulenLabel = strtoupper($notulensi->status);
                             $notulenColor = 'bg-slate-50 text-slate-600 border-slate-200';
@@ -872,34 +848,32 @@
                             </span>
                         </div>
 
-                        @if($agenda->notulensi->status === 'draft')
-                            @if($isSecretaryOfAgenda)
-                                @if($agenda->notulensi->transkrip_error)
-                                    <div class="bg-rose-50 border border-rose-200 text-rose-800 p-2.5 sm:p-4 rounded-xl text-xs space-y-2">
-                                        <p class="font-bold flex items-center gap-1">
-                                            <svg class="w-4 h-4 text-rose-600 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-                                            <span>Transkripsi Belum Berhasil Diproses</span>
-                                        </p>
-                                        <p class="text-[10.5px] text-rose-700 leading-relaxed font-medium">Transkripsi belum berhasil diproses. Silakan coba lagi menggunakan rekaman yang tersimpan.</p>
-                                        <form action="{{ route('notulensi.process.audio', $agenda->id) }}" method="POST" onsubmit="if (typeof window.showHeavyLoading === 'function') window.showHeavyLoading('Memproses Ulang AI', 'Menjalankan ulang proses transkripsi AI audio rapat...');">
-                                            @csrf
-                                            <button type="submit" class="w-full py-2 bg-rose-600 hover:bg-rose-700 text-white font-bold text-xs rounded-xl shadow-sm transition-all flex items-center justify-center gap-1.5">
-                                                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path></svg>
-                                                <span>Coba Lagi Transkripsi AI</span>
-                                            </button>
-                                        </form>
-                                    </div>
-                                @endif
+                        @if($agenda->notulensi->status === 'revisi')
+                            @if($agenda->notulensi->catatan_revisi)
+                                <div class="bg-rose-50 border border-rose-200 text-rose-800 p-3 rounded-xl text-xs space-y-1">
+                                    <p class="font-extrabold flex items-center gap-1.5 text-rose-700">
+                                        <svg class="w-4 h-4 text-rose-600 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
+                                        <span>Catatan Revisi Pimpinan:</span>
+                                    </p>
+                                    <p class="italic text-slate-700 font-medium pl-5.5">"{{ $agenda->notulensi->catatan_revisi }}"</p>
+                                </div>
+                            @endif
 
-                                @if($agenda->notulensi->catatan_revisi)
-                                    <div class="bg-rose-50 border border-rose-200 text-rose-700 p-2.5 sm:p-4 rounded-xl text-xs space-y-1">
-                                        <p class="font-bold">Butuh Revisi / Perbaikan:</p>
-                                        <p class="italic">"{{ $agenda->notulensi->catatan_revisi }}"</p>
-                                    </div>
-                                @endif
+                            @if($isSecretaryOfAgenda)
+                                <a href="{{ route('notulensi.edit', $agenda->id) }}" 
+                                   class="w-full py-1.5 sm:py-2.5 bg-rose-600 hover:bg-rose-700 text-white font-bold text-[11px] sm:text-xs rounded-xl shadow-md transition-all flex items-center justify-center gap-1.5">
+                                    <span>Perbaiki & Edit Notulensi</span>
+                                </a>
+                            @else
+                                <p class="text-xs text-rose-700 text-center py-2 italic font-medium">
+                                    Draf notulensi perlu perbaikan dan sedang dikembalikan ke sekretaris.
+                                </p>
+                            @endif
+                        @elseif($agenda->notulensi->status === 'draft')
+                            @if($isSecretaryOfAgenda)
                                 <a href="{{ route('notulensi.edit', $agenda->id) }}" 
                                    class="w-full py-1.5 sm:py-2.5 bg-[#2e2552] hover:bg-[#3d326a] text-white font-bold text-[11px] sm:text-xs rounded-xl shadow-md transition-all flex items-center justify-center gap-1.5">
-                                    <span>Kelola Transkrip & AI Notulen</span>
+                                    <span>Kelola & Edit Notulen</span>
                                 </a>
                             @else
                                 <p class="text-xs text-[#8e88dd] text-center py-2 italic">
@@ -909,37 +883,62 @@
                         @elseif($agenda->notulensi->status === 'menunggu_review')
                             @if($isApproverOfAgenda)
                                 <a href="{{ route('notulensi.review', $agenda->id) }}" 
-                                   class="w-full py-1.5 sm:py-2.5 bg-gradient-to-r from-amber-600 to-orange-600 hover:from-amber-500 hover:to-orange-500 text-white font-bold text-[11px] sm:text-xs rounded-xl shadow-lg transition-all flex items-center justify-center gap-1.5">
+                                   class="w-full py-2 sm:py-2.5 bg-gradient-to-r from-amber-600 to-orange-600 hover:from-amber-500 hover:to-orange-500 text-white font-bold text-[11px] sm:text-xs rounded-xl shadow-md transition-all flex items-center justify-center gap-1.5">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
                                     <span>Tinjau & Sahkan Notulensi</span>
                                 </a>
-                            @endif
-
-                            @if($isSecretaryOfAgenda)
-                                <div class="space-y-1.5 sm:space-y-2">
+                            @elseif($isSecretaryOfAgenda)
+                                <div class="space-y-2">
                                     <a href="{{ route('notulensi.edit', $agenda->id) }}" 
-                                       class="w-full py-1.5 sm:py-2.5 bg-[#2e2552] hover:bg-[#3d326a] text-white font-bold text-[11px] sm:text-xs rounded-xl shadow-md transition-all flex items-center justify-center gap-1.5">
+                                       class="w-full py-2 sm:py-2.5 bg-[#2e2552] hover:bg-[#3d326a] text-white font-bold text-[11px] sm:text-xs rounded-xl shadow-md transition-all flex items-center justify-center gap-1.5">
                                         <span>Kelola & Edit Notulensi</span>
                                     </a>
                                     <a href="{{ route('notulensi.review', $agenda->id) }}" 
-                                       class="w-full py-1.5 sm:py-2 bg-slate-100 hover:bg-slate-200 text-[#5a508f] font-bold text-[11px] sm:text-xs rounded-xl border border-[#d4d1f5] transition-all flex items-center justify-center gap-1.5">
-                                        <span>Pratinjau Mode Baca</span>
+                                       class="w-full py-2 bg-slate-100 hover:bg-slate-200 text-[#2e2552] font-bold text-[11px] sm:text-xs rounded-xl border border-[#d4d1f5] transition-all flex items-center justify-center gap-1.5">
+                                        <svg class="w-4 h-4 text-[#5a508f]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
+                                        <span>Lihat Draf Notulensi</span>
                                     </a>
                                 </div>
-                            @endif
-
-                            @if(!$isApproverOfAgenda && !$isSecretaryOfAgenda)
-                                <p class="text-xs text-[#5a508f] text-center py-2.5 bg-[#f8f7ff] border border-[#d4d1f5]/40 rounded-xl font-medium">
-                                    Menunggu verifikasi dari pimpinan berwenang.
-                                </p>
+                            @else
+                                <div class="space-y-2">
+                                    <a href="{{ route('notulensi.review', $agenda->id) }}" 
+                                       class="w-full py-2 sm:py-2.5 bg-indigo-50 hover:bg-indigo-100 text-[#1b3bbb] font-extrabold text-[11px] sm:text-xs rounded-xl border border-indigo-200 shadow-2xs transition-all flex items-center justify-center gap-1.5">
+                                        <svg class="w-4 h-4 text-[#1b3bbb]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
+                                        <span>Lihat Draf Notulensi</span>
+                                    </a>
+                                    <p class="text-[10.5px] text-[#5a508f] text-center italic">
+                                        Status: Sedang dalam proses pengajuan & verifikasi Pimpinan.
+                                    </p>
+                                </div>
                             @endif
                         @elseif($agenda->notulensi->status === 'disahkan')
-                            <a href="{{ route('notulensi.review', $agenda->id) }}" 
-                               class="w-full py-1.5 sm:py-2.5 bg-[#2e2552] hover:bg-[#3d326a] text-white font-bold text-[11px] sm:text-xs rounded-xl shadow-md transition-all flex items-center justify-center gap-1.5">
-                                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path>
-                                </svg>
-                                <span>Lihat Notulensi Rapat Resmi</span>
-                            </a>
+                            <div class="space-y-2">
+                                <a href="{{ route('notulensi.review', $agenda->id) }}" 
+                                   class="w-full py-2 sm:py-2.5 bg-[#2e2552] hover:bg-[#3d326a] text-white font-bold text-[11px] sm:text-xs rounded-xl shadow-md transition-all flex items-center justify-center gap-1.5">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path>
+                                    </svg>
+                                    <span>Lihat Notulensi Rapat Resmi</span>
+                                </a>
+
+                                <div class="grid grid-cols-2 gap-2">
+                                    <a href="{{ route('notulensi.export.pdf', $agenda->id) }}" target="_blank" data-no-pjax
+                                       class="py-2 bg-rose-50 hover:bg-rose-100 text-rose-700 font-extrabold text-[11px] rounded-xl border border-rose-200 transition-all flex items-center justify-center gap-1.5 shadow-2xs">
+                                        <svg class="w-3.5 h-3.5 text-rose-600 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                                        </svg>
+                                        <span>Unduh PDF</span>
+                                    </a>
+
+                                    <a href="{{ route('notulensi.export.docx', $agenda->id) }}" target="_blank" data-no-pjax
+                                       class="py-2 bg-blue-50 hover:bg-blue-100 text-blue-700 font-extrabold text-[11px] rounded-xl border border-blue-200 transition-all flex items-center justify-center gap-1.5 shadow-2xs">
+                                        <svg class="w-3.5 h-3.5 text-blue-600 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                                        </svg>
+                                        <span>Unduh Word</span>
+                                    </a>
+                                </div>
+                            </div>
                         @endif
                     </div>
                 </div>
@@ -1041,7 +1040,7 @@
                                 </div>
                             </div>
                             @if($isSecretaryOfAgenda)
-                                <form action="{{ route('notulensi.external.delete', $guest->id) }}" method="POST" class="shrink-0" data-confirm="Apakah Anda yakin ingin menghapus tamu eksternal ini?">
+                                <form action="{{ route('notulensi.external.delete', $guest->id) }}" method="POST" class="shrink-0" data-title="Hapus Tamu Eksternal?" data-confirm="Data tamu eksternal ini akan dihapus dari daftar presensi rapat." data-confirm-btn="Hapus Tamu">
                                     @csrf
                                     @method('DELETE')
                                     <button type="submit" class="text-rose-600 hover:text-rose-500 p-1.5 hover:bg-rose-50 rounded-xl transition-colors" title="Hapus Tamu">

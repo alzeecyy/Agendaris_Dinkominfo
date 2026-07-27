@@ -31,16 +31,6 @@ class ProcessMeetingAudio implements ShouldQueue
     }
 
     /**
-     * The number of times the job may be attempted.
-     */
-    public $tries = 1;
-
-    /**
-     * The maximum number of seconds the job can run before timing out.
-     */
-    public $timeout = 300;
-
-    /**
      * Execute the job.
      */
     public function handle(): void
@@ -51,22 +41,8 @@ class ProcessMeetingAudio implements ShouldQueue
         try {
             Log::info("ProcessMeetingAudio job started for notulensi ID: " . $this->notulensi->id);
             
-            // Refresh model from DB to get the latest state
+            // Refresh model from DB to get the latest audio_files array
             $this->notulensi->refresh();
-
-            // Idempotency guard: if is_transcribing was already reset (e.g., by a concurrent job),
-            // or if the notulensi has been deleted, bail out gracefully
-            if (!$this->notulensi->is_transcribing) {
-                Log::warning("ProcessMeetingAudio: is_transcribing is already false. Skipping duplicate job for notulensi ID: " . $this->notulensi->id);
-                return;
-            }
-
-            // Guard: if notulensi has been approved/signed off since job was dispatched, don't overwrite
-            if ($this->notulensi->status === 'disahkan') {
-                Log::warning("ProcessMeetingAudio: Notulensi ID " . $this->notulensi->id . " was already disahkan. Skipping.");
-                $this->notulensi->update(['is_transcribing' => false]);
-                return;
-            }
             
             $agenda = $this->notulensi->agenda;
             $apiKey = env('GEMINI_API_KEY');
@@ -110,10 +86,10 @@ class ProcessMeetingAudio implements ShouldQueue
                 try {
                     $transcribedText = null;
 
-                    // 1. Try Gemini Multimodal STT first (Super fast 3-5s response, zero RAM paging crash)
+                    // 1. Primary STT Engine: Gemini Multimodal STT (Fast cloud transcription for files <= 20MB)
                     if ($apiKey && filesize($audioFile) <= 20 * 1024 * 1024) {
                         try {
-                            Log::info("ProcessMeetingAudio: Transcribing {$audioName} via Gemini Multimodal STT...");
+                            Log::info("ProcessMeetingAudio: Transcribing {$audioName} via Primary Engine (Gemini Multimodal STT)...");
                             $mimeType = 'audio/mp3';
                             $ext = strtolower(pathinfo($audioFile, PATHINFO_EXTENSION));
                             if ($ext === 'wav') $mimeType = 'audio/wav';
@@ -158,9 +134,9 @@ class ProcessMeetingAudio implements ShouldQueue
                         }
                     }
 
-                    // 2. Fallback to local Whisper CPP if Gemini STT failed or offline
+                    // 2. Fallback STT Engine: Local Whisper.cpp (If Gemini STT failed, offline, or file > 20MB)
                     if (empty($transcribedText)) {
-                        Log::info("ProcessMeetingAudio: Transcribing audio file #" . ($index + 1) . " ({$audioName}) via Local Whisper...");
+                        Log::info("ProcessMeetingAudio: Transcribing {$audioName} via Fallback Engine (Local Whisper.cpp)...");
                         
                         $cmd = '"' . $pythonPath . '" "' . $scriptPath . '" "' . $audioFile . '"';
                         $descriptors = [
@@ -213,7 +189,7 @@ class ProcessMeetingAudio implements ShouldQueue
                 Log::error("ProcessMeetingAudio: All audio transcriptions failed or returned empty.");
                 $this->notulensi->update([
                     'is_transcribing' => false,
-                    'transkrip_error' => 'Transkripsi gagal: Whisper tidak dapat memproses berkas audio. Pastikan berkas audio valid dan memuat suara percakapan.',
+                    'transkrip_error' => 'Transkripsi gagal: Tidak dapat memproses berkas audio. Pastikan berkas audio valid dan memuat suara percakapan.',
                 ]);
                 return;
             }
@@ -240,39 +216,35 @@ class ProcessMeetingAudio implements ShouldQueue
             }
 
             $prompt = "Role & Task:\n" .
-                      "Kamu adalah asisten eksekutif profesional yang bertugas mengolah, merapikan, dan menyusun ulang dokumen/teks mentah dari pengguna menjadi notulensi formal.\n\n" .
-                      "Strict Guardrails (Anti-Halusinasi):\n" .
+                      "Kamu adalah asisten eksekutif profesional yang bertugas mengolah, merapikan, dan menyusun ulang catatan/transkrip mentah dari pengguna menjadi dokumen notulensi rapat formal.\n\n" .
+                      "Strict Guardrails (Aturan Anti-Halusinasi & Faktual):\n" .
                       "1. Faktual & Setia pada Teks: Hanya gunakan informasi yang secara eksplisit tertulis pada teks sumber. DILARANG MENAMBAHKAN asumsi, inferensi berlebihan, lokasi, nama platform, atau fakta baru yang tidak ada di teks.\n" .
-                      "2. Handling Ambiguitas: Jika ada informasi yang ambigu, membingungkan, atau tidak logis pada teks sumber, tuliskan apa adanya atau kategorikan sebagai 'Perlu Klarifikasi'. JANGAN memperbaikinya dengan asumsi sendiri.\n" .
-                      "3. Eliminasi OOT: Buang percakapan santai, bercandaan, atau typo tanpa mengubah fakta inti dari poin utama.\n" .
-                      "4. No Speculation: Jika sebuah data tidak disebutkan (seperti waktu pasti, nama PIC, atau link), biarkan kosong atau tulis 'Tidak disebutkan'. Jangan menebak.\n" .
-                      "5. Verifikasi Istilah Teknis: Jika ada istilah teknis, nama perintah, atau kode khusus, pertahankan sesuai teks asli.\n" .
-                      "6. Khusus Transkrip Audio (STT):\n" .
-                      "   - Diizinkan memperbaiki kata yang jelas merupakan kesalahan dengar/fonetik (contoh: 'kelala' -> 'kelola', 'tangga' -> 'tanggal').\n" .
-                      "   - Namun, jika istilah/nama peran tetap meragukan dan tidak ada padanan konteksnya yang pasti, pertahankan kata aslinya dan masukkan ke dalam 'CATATAN & PERLU KLARIFIKASI'.\n\n" .
-                      "Output Formatting Rules:\n" .
-                      "1. No Conversational Filler: LANGSUNG tampilkan hasil olahan teks. DILARANG menggunakan kalimat pengantar/pembuka (misal: 'Berikut adalah hasil...') dan DILARANG menggunakan kalimat penutup.\n" .
-                      "2. No Emojis: DILARANG menggunakan emoji atau karakter emotikon apa pun di seluruh dokumen demi kebutuhan ekspor PDF.\n\n" .
-                      "STRUKTUR OUTPUT MARKDOWN MANDATORI (TANPA EMOJI):\n\n" .
-                      "### RINGKASAN EKSEKUTIF RAPAT\n" .
-                      "[Tuliskan 1-2 paragraf ringkasan eksekutif yang merangkum keseluruhan isi pembicaraan rapat secara padat, jelas, faktual, tanpa asumsi]\n\n" .
-                      "### POIN-POIN PEMBAHASAN UTAMA\n" .
-                      "1. **[Judul Topik/Bahasan Utama]**\n" .
-                      "   - Penjelasan dan rincian pembahasan yang disampaikan narasumber/peserta.\n" .
-                      "2. **[Judul Topik/Bahasan Selanjutnya]**\n" .
-                      "   - Penjelasan dan rincian pembahasan lanjutan.\n\n" .
-                      "### KEPUTUSAN & TINDAK LANJUT\n" .
-                      "1. **[Keputusan/Kesepakatan Pertama]**: Penjelasan rincian keputusan atau langkah konkret yang disepakati.\n" .
-                      "2. **[Tindak Lanjut]**: Rencana penanganan atau tugas kelanjutan setelah rapat (jika PIC/waktu tidak disebutkan, tulis 'Tidak disebutkan').\n\n" .
-                      "### CATATAN & PERLU KLARIFIKASI\n" .
-                      "- [Cantumkan HANYA jika terdapat poin yang ambigu, kontradiktif, atau belum jelas di teks sumber. Jika tidak ada, hilangkan bagian ini]\n\n" .
-                      "Berikut teks transkrip percakapan rapat:\n\n" . $combinedTranscript;
+                      "2. Penanganan Istilah & Ambiguitas:\n" .
+                      "   - Jika ada informasi yang ambigu, membingungkan, atau tidak logis pada teks sumber (misal: \"rapat via gdrive\"), tuliskan apa adanya di bagian khusus atau kategorikan sebagai \"CATATAN & PERLU KLARIFIKASI\". JANGAN mencoba memperbaikinya dengan asumsi sendiri.\n" .
+                      "   - Khusus Transkrip Audio / Speech-to-Text (STT): Kamu diizinkan membetulkan kata-kata salah dengar/typo fonetik yang jelas dan berisiko rendah (contoh: \"kelala\" menjadi \"kelola\", \"tangga\" menjadi \"tanggal\"). Namun, jika istilah teknis atau nama peran tetap meragukan, pertahankan kata aslinya dan masukkan ke bagian clarification.\n" .
+                      "3. Eliminasi OOT: Buang percakapan santai, bercandaan, atau typo yang tidak relevan tanpa mengubah fakta inti dari poin utama.\n" .
+                      "4. Handling Data Kosong: Jika data seperti PIC, tenggat waktu, atau tanggal tidak disebutkan di teks sumber, tuliskan \"Tidak disebutkan\" secara eksplisit. Jangan menebak.\n\n" .
+                      "Output Formatting Guidelines (Standar Ekspor PDF):\n" .
+                      "1. NO CONVERSATIONAL PREFACE/OUTRO: Langsung berikan hasil akhir berupa dokumen Markdown. DILARANG menggunakan kalimat pembuka/pengantar (seperti \"Berikut adalah hasil...\", \"Ini notulensinya...\") maupun kalimat penutup/salam.\n" .
+                      "2. NO EMOJIS: Dilarang keras menggunakan emoji atau simbol emotikon apa pun dalam seluruh isi teks demi kebutuhan ekspor PDF.\n" .
+                      "3. Struktur Dokumen: Gunakan hirarki heading Markdown berikut secara konsisten:\n" .
+                      "   # RINGKASAN EKSEKUTIF RAPAT\n" .
+                      "   [Tuliskan 1-2 paragraf ringkasan eksekutif secara padat, faktual, dan profesional]\n\n" .
+                      "   # POIN-POIN PEMBAHASAN UTAMA\n" .
+                      "   1. **[Judul Topik/Bahasan Utama]**\n" .
+                      "      - Rincian pembahasan dan penjelasan yang disampaikan narasumber/peserta.\n\n" .
+                      "   # KEPUTUSAN & TINDAK LANJUT\n" .
+                      "   1. **[Keputusan/Kesepakatan Pertama]**: Penjelasan rincian keputusan atau langkah konkret yang disepakati. PIC: [Nama/Tidak disebutkan], Tenggat Waktu: [Tanggal/Tidak disebutkan].\n\n" .
+                      "   # CATATAN & PERLU KLARIFIKASI\n" .
+                      "   - [Tuliskan istilah ambigu/meragukan atau ketik 'Tidak ada' jika semua data sudah jelas].\n\n" .
+                      "Berikut teks sumber (transkrip / catatan mentah rapat):\n\n" . $combinedTranscript;
 
-            // 1. Try Gemini API first (Super fast 1-2s response)
-            if ($apiKey) {
+            // 1. Primary LLM Engine: Google Gemini API (Super fast 1-2s response)
+            if (!$summarized && $apiKey) {
                 try {
-                    Log::info("ProcessMeetingAudio: calling Gemini API for summarization...");
-                    $response = Http::withoutVerifying()->timeout(25)->post("https://generativelanguage.googleapis.com/v1beta/models/gemini-flash-latest:generateContent?key=" . $apiKey, [
+                    Log::info("ProcessMeetingAudio: calling Primary LLM Engine (Gemini API) to summarize...");
+                    $url = "https://generativelanguage.googleapis.com/v1beta/models/gemini-flash-latest:generateContent?key=" . $apiKey;
+                    $responseSummary = Http::withoutVerifying()->timeout(45)->post($url, [
                         'contents' => [
                             [
                                 'parts' => [
@@ -287,10 +259,10 @@ class ProcessMeetingAudio implements ShouldQueue
                             'topP' => 0.2
                         ]
                     ]);
-
-                    if ($response->successful()) {
-                        $result = $response->json();
-                        $sumText = $result['candidates'][0]['content']['parts'][0]['text'] ?? null;
+                    
+                    if ($responseSummary->successful()) {
+                        $sumResult = $responseSummary->json();
+                        $sumText = $sumResult['candidates'][0]['content']['parts'][0]['text'] ?? null;
                         if ($sumText) {
                             $sumText = trim(preg_replace('/```(?:markdown)?/i', '', $sumText));
                             $this->notulensi->update([
@@ -304,24 +276,24 @@ class ProcessMeetingAudio implements ShouldQueue
                                 'status' => 'draft'
                             ]);
                             $summarized = true;
-                            Log::info("ProcessMeetingAudio completed and summarized via Gemini API successfully.");
+                            Log::info("ProcessMeetingAudio completed and summarized via Primary LLM Engine (Gemini API) successfully.");
                         }
                     } else {
-                        Log::error("ProcessMeetingAudio: Gemini API request failed with status: " . $response->status() . " Body: " . $response->body());
+                        Log::error("ProcessMeetingAudio: Primary LLM (Gemini) failed with status " . $responseSummary->status() . ": " . $responseSummary->body());
                     }
                 } catch (\Exception $e) {
-                    Log::error("ProcessMeetingAudio exception during Gemini API call: " . $e->getMessage());
+                    Log::error("ProcessMeetingAudio exception during Primary LLM (Gemini) call: " . $e->getMessage());
                 }
             }
 
-            // 2. Fallback to custom OpenAI-compatible API / Qwen if offline or Gemini fails
+            // 2. Fallback LLM Engine: Custom OpenAI-compatible API / Local Qwen 2.5 (If offline or Gemini failed)
             $llmApiBase = env('LLM_API_BASE');
             $llmApiKey = env('LLM_API_KEY', 'none');
             $llmModel = env('LLM_MODEL', 'qwen2.5:1.5b');
 
             if (!$summarized && $llmApiBase) {
                 try {
-                    Log::info("ProcessMeetingAudio: calling custom OpenAI-compatible API ({$llmApiBase}) with model: {$llmModel}...");
+                    Log::info("ProcessMeetingAudio: calling Fallback LLM Engine ({$llmApiBase}) with model: {$llmModel}...");
                     $url = rtrim($llmApiBase, '/') . '/chat/completions';
                     $response = Http::timeout(45)->withHeaders([
                         'Authorization' => 'Bearer ' . $llmApiKey,
@@ -330,7 +302,7 @@ class ProcessMeetingAudio implements ShouldQueue
                         'model' => $llmModel,
                         'temperature' => 0.1,
                         'top_p' => 0.2,
-                        'max_tokens' => 1200,
+                        'max_tokens' => 3000,
                         'messages' => [
                             [
                                 'role' => 'user',
@@ -355,13 +327,13 @@ class ProcessMeetingAudio implements ShouldQueue
                                 'status' => 'draft'
                             ]);
                             $summarized = true;
-                            Log::info("ProcessMeetingAudio completed and summarized via custom LLM API successfully.");
+                            Log::info("ProcessMeetingAudio completed and summarized via Fallback LLM Engine ({$llmModel}) successfully.");
                         }
                     } else {
-                        Log::error("ProcessMeetingAudio: Custom LLM API request failed with status: " . $response->status() . " Body: " . $response->body());
+                        Log::error("ProcessMeetingAudio: Fallback LLM API request failed with status: " . $response->status() . " Body: " . $response->body());
                     }
                 } catch (\Exception $e) {
-                    Log::error("ProcessMeetingAudio exception during custom LLM API call: " . $e->getMessage());
+                    Log::error("ProcessMeetingAudio exception during Fallback LLM API call: " . $e->getMessage());
                 }
             }
 
@@ -503,24 +475,5 @@ class ProcessMeetingAudio implements ShouldQueue
         }
 
         return trim($text);
-    }
-
-    /**
-     * Handle a job failure.
-     * Safety net to ensure is_transcribing is always reset even if the job fails
-     * outside the try/finally block (e.g., serialization errors, timeout kills).
-     */
-    public function failed(\Throwable $exception): void
-    {
-        Log::error("ProcessMeetingAudio FAILED for notulensi ID: " . $this->notulensi->id . " - " . $exception->getMessage());
-
-        try {
-            $this->notulensi->update([
-                'is_transcribing' => false,
-                'transkrip_error' => 'Proses transkripsi gagal secara tidak terduga. Silakan coba lagi.',
-            ]);
-        } catch (\Exception $e) {
-            Log::error("ProcessMeetingAudio failed() cleanup error: " . $e->getMessage());
-        }
     }
 }

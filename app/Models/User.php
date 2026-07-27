@@ -142,7 +142,11 @@ class User extends Authenticatable
     }
 
     /**
-     * Checks if this user is a secretary with management rights for an agenda.
+     * Checks if this user is the authorized secretary who can EDIT an agenda's notulensi.
+     * Rule:
+     * - Only the secretary creator (or secretaries in the same Bidang) can EDIT.
+     * - Sekdin / Sekretariat staff can only edit agendas created by Sekretariat / themselves.
+     * - Sekdin viewing Notulensi created by a Bidang will be View Only.
      */
     public function isSecretaryOfAgenda(Agenda $agenda): bool
     {
@@ -150,20 +154,26 @@ class User extends Authenticatable
             return false;
         }
 
-        // Master secretary or Sekretariat staff has full management rights for any agenda (backup Sekdin)
-        if ($this->isSekretarisMaster() || $this->isSekretariat()) {
+        // Direct creator of the agenda can edit
+        if ((string)$this->id === (string)$agenda->sekretaris_id) {
             return true;
         }
 
-        // The secretary user who created this agenda has rights
-        if ($this->id == $agenda->sekretaris_id && ($this->isSekretarisMaster() || $this->isSekretarisBidang())) {
-            return true;
+        $creator = $agenda->sekretaris;
+
+        // If user is Sekdin / Sekretariat staff:
+        // Can edit ONLY IF the agenda was created by a Sekretariat user or Sekdin
+        if ($this->isSekretariat() || $this->isSekretarisMaster()) {
+            if ($creator && ($creator->isSekretariat() || $creator->isSekretarisMaster())) {
+                return true;
+            }
+            // Sekdin viewing a Bidang's agenda -> CANNOT EDIT (View Only)
+            return false;
         }
 
-        // Bidang secretary has rights if agenda is for 'semua_orang' or includes their bidang_id
+        // If user is a Bidang Secretary, can edit if agenda was created by someone in the same Bidang
         if ($this->isSekretarisBidang()) {
-            $hakAkses = $agenda->hak_akses ?? [];
-            if (in_array('semua_orang', $hakAkses) || in_array((string)$this->bidang_id, array_map('strval', $hakAkses))) {
+            if ($creator && (string)$creator->bidang_id === (string)$this->bidang_id) {
                 return true;
             }
         }
