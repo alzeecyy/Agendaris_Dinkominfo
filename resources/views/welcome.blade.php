@@ -32,13 +32,13 @@
     </style>
     <script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
 </head>
-<<<body class="h-screen max-h-screen flex flex-col text-[#09103c] relative overflow-hidden antialiased">
+<body class="min-h-screen flex flex-col text-[#09103c] relative antialiased py-3 sm:py-5 md:py-6">
     <!-- Background glowing spots -->
     <div class="absolute top-0 right-1/4 w-[450px] h-[450px] bg-blue-300/20 rounded-full filter blur-[100px] pointer-events-none"></div>
     <div class="absolute bottom-0 left-10 w-[350px] h-[350px] bg-[#1b3bbb]/5 rounded-full filter blur-[80px] pointer-events-none"></div>
 
     <!-- Outer Portal Container -->
-    <div class="h-full max-h-screen w-full max-w-[1100px] mx-auto p-3 sm:p-4 md:p-5 flex flex-col justify-between gap-3 sm:gap-4 md:gap-5 z-10 box-border">
+    <div class="flex-1 w-full max-w-[1100px] mx-auto px-3 sm:px-5 flex flex-col justify-between gap-4 sm:gap-6 z-10 box-border">
         
         <!-- Header / Top Bar -->
         <header class="flex items-center justify-between relative bg-white/80 backdrop-blur-md rounded-2xl border border-slate-200/80 px-4 py-2.5 md:px-5 md:py-3 shadow-sm text-[#09103c] z-50 shrink-0">
@@ -140,7 +140,7 @@
         </header>
 
         <!-- Main Content Portal -->
-        <main class="flex-1 flex flex-col items-center justify-center gap-3 sm:gap-4 md:gap-5 py-1 sm:py-2 w-full min-h-0 shrink">
+        <main class="flex-1 flex flex-col items-center justify-center gap-4 sm:gap-6 py-4 my-auto w-full">
             <!-- Hero Welcome Card -->
             <div class="w-full bg-white/80 backdrop-blur-md rounded-2xl md:rounded-[24px] border border-slate-200/80 p-4 sm:p-5 md:p-6 shadow-sm text-center space-y-1.5 sm:space-y-2 max-w-3xl animate-fade-in shrink">
                 <div class="flex justify-center">
