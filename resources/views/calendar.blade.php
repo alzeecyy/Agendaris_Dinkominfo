@@ -210,7 +210,7 @@
         <!-- Weekly Grid Layout -->
         <div class="flex-1 w-full flex flex-col overflow-hidden">
             <div class="flex-1 min-w-0 flex flex-col relative h-full overflow-x-auto overflow-y-auto">
-                <div class="min-w-[540px] sm:min-w-full flex-1 flex flex-col h-full min-h-[560px] sm:min-h-[620px]">
+                <div class="min-w-[540px] sm:min-w-full flex-1 flex flex-col h-full min-h-[660px] sm:min-h-[720px]">
             <!-- Dates columns header -->
             <div class="grid grid-cols-8 border-b border-[#d4d1f5]/40 pb-1.5 sm:pb-2 relative z-0 shrink-0">
                 <!-- Time axes column -->
@@ -234,19 +234,19 @@
             </div>
 
             <!-- Grid container with time axes rows & events overlay -->
-            <div class="min-h-[560px] sm:min-h-[620px] flex-1 grid grid-cols-8 relative z-10 select-none border-b border-[#d4d1f5]/40">
+            <div class="min-h-[660px] sm:min-h-[720px] flex-1 grid grid-cols-8 relative z-10 select-none border-b border-[#d4d1f5]/40">
                 @php
                     $labelTimes = [
-                        '07:15' => 0.0,
-                        '08:00' => 9.09,
-                        '09:00' => 21.21,
-                        '10:00' => 33.33,
-                        '11:00' => 45.45,
-                        '12:00' => 57.57,
-                        '13:00' => 69.69,
-                        '14:00' => 81.81,
-                        '15:00' => 93.93,
-                        '15:30' => 100.0
+                        '07:15' => ['top' => 0.0, 'transform' => 'translate(-50%, 2px)'],
+                        '08:00' => ['top' => 9.09, 'transform' => 'translate(-50%, -30%)'],
+                        '09:00' => ['top' => 21.21, 'transform' => 'translate(-50%, -50%)'],
+                        '10:00' => ['top' => 33.33, 'transform' => 'translate(-50%, -50%)'],
+                        '11:00' => ['top' => 45.45, 'transform' => 'translate(-50%, -50%)'],
+                        '12:00' => ['top' => 57.57, 'transform' => 'translate(-50%, -50%)'],
+                        '13:00' => ['top' => 69.69, 'transform' => 'translate(-50%, -50%)'],
+                        '14:00' => ['top' => 81.81, 'transform' => 'translate(-50%, -50%)'],
+                        '15:00' => ['top' => 93.93, 'transform' => 'translate(-50%, -90%)'],
+                        '15:30' => ['top' => 100.0, 'transform' => 'translate(-50%, -10%)'],
                     ];
                     $timeSlotsData = [
                         ['start' => '07:15', 'top' => 0.0, 'height' => 9.09],
@@ -263,8 +263,8 @@
                 
                 <!-- 1. Y-Axis Time Labels Column -->
                 <div class="border-r border-[#d4d1f5]/40 h-full relative z-10 select-none pointer-events-none">
-                    @foreach($labelTimes as $timeStr => $topPct)
-                        <span class="absolute left-1/2 flex items-center justify-center bg-white px-1.5 z-20 text-[10px] font-extrabold text-[#5a508f] pointer-events-none" style="top: {{ number_format($topPct, 2, '.', '') }}%; transform: translate(-50%, {{ $topPct == 0 ? '0%' : ($topPct == 100 ? '-100%' : '-50%') }});">
+                    @foreach($labelTimes as $timeStr => $item)
+                        <span class="absolute left-1/2 flex items-center justify-center bg-white px-1 z-20 text-[10px] font-extrabold text-[#5a508f] pointer-events-none" style="top: {{ number_format($item['top'], 2, '.', '') }}%; transform: {{ $item['transform'] }};">
                             {{ $timeStr }}
                         </span>
                     @endforeach
