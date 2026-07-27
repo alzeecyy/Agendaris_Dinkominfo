@@ -411,10 +411,8 @@ class DashboardController extends Controller
             ];
         });
 
-        // Hide non-accessible agendas completely for staff/pegawai role
-        if ($user->role === 'staff') {
-            $agendas = $agendas->filter(fn($a) => $a->has_access);
-        }
+        // Filter agendas: only keep agendas accessible to the user (Masters see all, Bidang/Staff see their own)
+        $agendas = $agendas->filter(fn($a) => $a->has_access);
 
         // Group agendas by date for easier rendering in the grid
         $agendasByDate = [];

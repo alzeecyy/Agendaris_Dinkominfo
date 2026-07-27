@@ -210,7 +210,7 @@
         <!-- Weekly Grid Layout -->
         <div class="flex-1 w-full flex flex-col overflow-hidden">
             <div class="flex-1 min-w-0 flex flex-col relative h-full overflow-x-auto overflow-y-auto">
-                <div class="min-w-[540px] sm:min-w-full flex-1 flex flex-col h-full min-h-[460px]">
+                <div class="min-w-[540px] sm:min-w-full flex-1 flex flex-col h-full min-h-[560px] sm:min-h-[620px]">
             <!-- Dates columns header -->
             <div class="grid grid-cols-8 border-b border-[#d4d1f5]/40 pb-1.5 sm:pb-2 relative z-0 shrink-0">
                 <!-- Time axes column -->
@@ -234,7 +234,7 @@
             </div>
 
             <!-- Grid container with time axes rows & events overlay -->
-            <div class="min-h-[460px] sm:min-h-[520px] flex-1 grid grid-cols-8 relative z-10 select-none border-b border-[#d4d1f5]/40">
+            <div class="min-h-[560px] sm:min-h-[620px] flex-1 grid grid-cols-8 relative z-10 select-none border-b border-[#d4d1f5]/40">
                 @php
                     $labelTimes = [
                         '07:15' => 0.0,
@@ -264,7 +264,7 @@
                 <!-- 1. Y-Axis Time Labels Column -->
                 <div class="border-r border-[#d4d1f5]/40 h-full relative z-10 select-none pointer-events-none">
                     @foreach($labelTimes as $timeStr => $topPct)
-                        <span class="absolute left-1/2 flex items-center justify-center bg-white px-1.5 z-20 text-[10px] font-extrabold text-[#5a508f] pointer-events-none" style="top: {{ number_format($topPct, 2, '.', '') }}%; transform: translate(-50%, {{ $topPct == 0 ? '10px' : ($topPct == 100 ? '-100%' : '-50%') }});">
+                        <span class="absolute left-1/2 flex items-center justify-center bg-white px-1.5 z-20 text-[10px] font-extrabold text-[#5a508f] pointer-events-none" style="top: {{ number_format($topPct, 2, '.', '') }}%; transform: translate(-50%, {{ $topPct == 0 ? '0%' : ($topPct == 100 ? '-100%' : '-50%') }});">
                             {{ $timeStr }}
                         </span>
                     @endforeach
