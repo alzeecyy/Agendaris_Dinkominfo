@@ -454,10 +454,10 @@
 
     <!-- MODAL: ADD AGENDA FORM -->
     <div x-show="openAddModal" x-cloak 
-         class="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-slate-950/60 backdrop-blur-md transition-all duration-300">
+         class="fixed inset-0 z-50 flex items-start justify-center py-4 sm:py-6 px-3 sm:px-4 bg-slate-950/60 backdrop-blur-md transition-all duration-300 overflow-y-auto">
         
         <div @click.away="openAddModal = false" 
-             class="bg-white border border-slate-200/80 rounded-[24px] w-full max-w-xl shadow-2xl overflow-hidden relative text-slate-800"
+             class="bg-white border border-slate-200/80 rounded-[24px] w-full max-w-xl shadow-2xl overflow-hidden relative text-slate-800 my-auto"
              x-transition:enter="transition ease-out duration-300 transform"
              x-transition:enter-start="opacity-0 scale-95 translate-y-2"
              x-transition:enter-end="opacity-100 scale-100 translate-y-0"
@@ -488,8 +488,8 @@
                 </button>
             </div>
 
-            <!-- Form Content (Responsive & Scrollable on Mobile) -->
-            <form action="{{ route('agenda.store') }}" method="POST" class="p-4 sm:px-5 sm:py-3.5 space-y-2.5 max-h-[80vh] sm:max-h-none overflow-y-auto">
+            <!-- Form Content (Scrollable) -->
+            <form action="{{ route('agenda.store') }}" method="POST" class="p-4 sm:px-5 sm:py-3.5 space-y-2.5">
                 @csrf
 
                 <!-- Title & Category Row -->
