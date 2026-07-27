@@ -22,7 +22,10 @@ class NotulensiController extends Controller
         $user = Auth::user();
 
         if (!$user->isSecretaryOfAgenda($agenda)) {
-            abort(403, 'Akses ditolak. Anda tidak memiliki wewenang untuk mengedit notulensi ini.');
+            if ($agenda->notulensi) {
+                return redirect()->route('notulensi.review', $agenda->id)->with('info', 'Anda hanya memiliki akses Mode Baca (View Only) untuk notulensi bidang ini.');
+            }
+            return redirect()->route('agenda.show', $agenda->id)->with('error', 'Akses ditolak. Notulensi rapat bidang ini hanya dapat dikelola oleh sekretaris bidang penyelenggara.');
         }
 
         $notulensi = $agenda->notulensi;
@@ -333,10 +336,6 @@ class NotulensiController extends Controller
         $isSecretaryOfAgenda = $user->isSecretaryOfAgenda($agenda);
         // Verify that user is the authorized Ketua (Master or Bidang)
         $isApprover = $user->isApproverOfAgenda($agenda);
-
-        if ($notulensi->status === 'menunggu_review' && !$isApprover && !$isSecretaryOfAgenda) {
-            abort(403, 'Akses ditolak. Notulensi sedang dalam proses peninjauan oleh pimpinan.');
-        }
 
         $approverInfo = $this->getApproverSignatureInfo($agenda, $notulensi);
 
@@ -695,29 +694,36 @@ class NotulensiController extends Controller
 
         if ($apiKey) {
             try {
+                $promptText = "Role & Task:\n" .
+                              "Kamu adalah asisten eksekutif profesional yang bertugas mengolah, merapikan, dan menyusun ulang catatan/transkrip mentah dari pengguna menjadi dokumen notulensi rapat formal.\n\n" .
+                              "Strict Guardrails (Aturan Anti-Halusinasi & Faktual):\n" .
+                              "1. Faktual & Setia pada Teks: Hanya gunakan informasi yang secara eksplisit tertulis pada teks sumber. DILARANG MENAMBAHKAN asumsi, inferensi berlebihan, lokasi, nama platform, atau fakta baru yang tidak ada di teks.\n" .
+                              "2. Penanganan Istilah & Ambiguitas:\n" .
+                              "   - Jika ada informasi yang ambigu, membingungkan, atau tidak logis pada teks sumber (misal: \"rapat via gdrive\"), tuliskan apa adanya di bagian khusus atau kategorikan sebagai \"CATATAN & PERLU KLARIFIKASI\". JANGAN mencoba memperbaikinya dengan asumsi sendiri.\n" .
+                              "   - Khusus Transkrip Audio / Speech-to-Text (STT): Kamu diizinkan membetulkan kata-kata salah dengar/typo fonetik yang jelas dan berisiko rendah (contoh: \"kelala\" menjadi \"kelola\", \"tangga\" menjadi \"tanggal\"). Namun, jika istilah teknis atau nama peran tetap meragukan, pertahankan kata aslinya dan masukkan ke bagian clarification.\n" .
+                              "3. Eliminasi OOT: Buang percakapan santai, bercandaan, atau typo yang tidak relevan tanpa mengubah fakta inti dari poin utama.\n" .
+                              "4. Handling Data Kosong: Jika data seperti PIC, tenggat waktu, atau tanggal tidak disebutkan di teks sumber, tuliskan \"Tidak disebutkan\" secara eksplisit. Jangan menebak.\n\n" .
+                              "Output Formatting Guidelines (Standar Ekspor PDF):\n" .
+                              "1. NO CONVERSATIONAL PREFACE/OUTRO: Langsung berikan hasil akhir berupa dokumen Markdown. DILARANG menggunakan kalimat pembuka/pengantar (seperti \"Berikut adalah hasil...\", \"Ini notulensinya...\") maupun kalimat penutup/salam.\n" .
+                              "2. NO EMOJIS: Dilarang keras menggunakan emoji atau simbol emotikon apa pun dalam seluruh isi teks demi kebutuhan ekspor PDF.\n" .
+                              "3. Struktur Dokumen: Gunakan hirarki heading Markdown berikut secara konsisten:\n" .
+                              "   # RINGKASAN EKSEKUTIF RAPAT\n" .
+                              "   [Tuliskan 1-2 paragraf ringkasan eksekutif secara padat, faktual, dan profesional]\n\n" .
+                              "   # POIN-POIN PEMBAHASAN UTAMA\n" .
+                              "   1. **[Judul Topik/Bahasan Utama]**\n" .
+                              "      - Rincian pembahasan dan penjelasan yang disampaikan narasumber/peserta.\n\n" .
+                              "   # KEPUTUSAN & TINDAK LANJUT\n" .
+                              "   1. **[Keputusan/Kesepakatan Pertama]**: Penjelasan rincian keputusan atau langkah konkret yang disepakati. PIC: [Nama/Tidak disebutkan], Tenggat Waktu: [Tanggal/Tidak disebutkan].\n\n" .
+                              "   # CATATAN & PERLU KLARIFIKASI\n" .
+                              "   - [Tuliskan istilah ambigu/meragukan atau ketik 'Tidak ada' jika semua data sudah jelas].\n\n" .
+                              "Berikut teks sumber (transkrip / catatan mentah rapat):\n\n" . $transcript;
+
                 $response = \Illuminate\Support\Facades\Http::timeout(45)->post("https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash:generateContent?key=" . $apiKey, [
                     'contents' => [
                         [
                             'parts' => [
                                 [
-                                     'text' => "Anda adalah Sekretaris Profesional & Notulis Rapat Senior. Tugas Anda adalah menganalisis teks transkrip percakapan rapat berikut dan menyusun RINGKASAN & NOTULENSI RAPAT yang sangat rapi, terstruktur, profesional, dan mudah dipahami.\n\n" .
-                                               "STRUKTUR OUTPUT MARKDOWN MANDATORI:\n\n" .
-                                               "### 📌 RINGKASAN EKSEKUTIF RAPAT\n" .
-                                               "[Tuliskan 1-2 paragraf ringkasan eksekutif yang merangkum keseluruhan isi pembicaraan rapat secara padat, jelas, dan profesional]\n\n" .
-                                               "### 💡 POIN-POIN PEMBAHASAN UTAMA\n" .
-                                               "1. **[Judul Topik/Bahasan Utama]**\n" .
-                                               "   - Rincian pembahasan dan penjelasan yang disampaikan narasumber/peserta.\n" .
-                                               "2. **[Judul Topik/Bahasan Selanjutnya]**\n" .
-                                               "   - Rincian pembahasan dan penjelasan lanjutan.\n\n" .
-                                               "### 📝 KEPUTUSAN & TINDAK LANJUT\n" .
-                                               "1. **[Keputusan/Kesepakatan Pertama]**: Penjelasan rincian keputusan atau langkah konkret yang disepakati.\n" .
-                                               "2. **[Tindak Lanjut]**: Rencana penanganan atau tugas kelanjutan setelah rapat.\n\n" .
-                                               "ATURAN PENULISAN:\n" .
-                                               "- Gunakan bahasa Indonesia baku yang formal dan mudah dipahami.\n" .
-                                               "- Ekstrak seluruh poin penting dari SELURUH bagian transkrip.\n" .
-                                               "- Jangan membuat informasi fiktif di luar transkrip asli.\n" .
-                                               "- Tuliskan jawaban LANGSUNG dalam format markdown sesuai struktur di atas tanpa kata pengantar tambahan.\n\n" .
-                                               "Berikut teks transkrip percakapan rapat:\n\n" . $transcript
+                                     'text' => $promptText
                                 ]
                             ]
                         ]

@@ -192,7 +192,14 @@ class="w-full flex flex-col gap-3.5 sm:gap-5 select-none">
                             <a href="{{ route('agenda.show', $agenda->id) }}">{{ $agenda->judul }}</a>
                         </h3>
                         
-                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-1.5 sm:gap-2 text-[11px] sm:text-xs font-medium text-slate-600">
+                        <div class="grid grid-cols-1 sm:grid-cols-3 gap-1.5 sm:gap-2 text-[11px] sm:text-xs font-medium text-slate-600">
+                            <div class="flex items-center gap-1.5">
+                                <svg class="w-3.5 h-3.5 sm:w-4 sm:h-4 text-purple-600 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path>
+                                </svg>
+                                <span>Penyelenggara: <strong class="text-slate-800">{{ $agenda->sekretaris?->bidang->singkatan ?? ($agenda->sekretaris?->isSekretarisDinas() || $agenda->sekretaris?->isSekretaris() ? 'Sekretariat Dinas' : $agenda->sekretaris->name) }}</strong></span>
+                            </div>
+
                             <div class="flex items-center gap-1.5">
                                 <svg class="w-3.5 h-3.5 sm:w-4 sm:h-4 text-rose-500 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path>

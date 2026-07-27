@@ -1014,16 +1014,27 @@
                 // Handle forms with data-confirm attributes (SweetAlert2)
                 if (form.hasAttribute('data-confirm')) {
                     e.preventDefault();
+                    const title = form.getAttribute('data-title') || 'Konfirmasi Verifikasi';
                     const message = form.getAttribute('data-confirm');
-                    const confirmBtnText = form.getAttribute('data-confirm-btn') || 'Ya, Lanjutkan';
+                    const confirmBtnText = form.getAttribute('data-confirm-btn') || 'Verifikasi';
                     
                     Swal.fire({
+                        title: title,
                         text: message,
-                        icon: 'warning',
+                        icon: 'question',
                         showCancelButton: true,
                         confirmButtonText: confirmBtnText,
                         cancelButtonText: 'Batal',
-                        allowOutsideClick: false
+                        confirmButtonColor: '#1b3bbb',
+                        cancelButtonColor: '#64748b',
+                        allowOutsideClick: false,
+                        customClass: {
+                            popup: 'rounded-3xl p-5 sm:p-6 max-w-md shadow-2xl',
+                            title: 'text-base font-black text-[#09103c]',
+                            htmlContainer: 'text-xs text-slate-600 font-medium leading-relaxed mt-1',
+                            confirmButton: 'px-5 py-2 bg-[#1b3bbb] hover:bg-[#09103c] text-white text-xs font-bold rounded-xl shadow-sm transition-all',
+                            cancelButton: 'px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold rounded-xl transition-all'
+                        }
                     }).then((result) => {
                         if (result.isConfirmed) {
                             window.showHeavyLoading('Memproses...', 'Mohon tunggu sejenak...');

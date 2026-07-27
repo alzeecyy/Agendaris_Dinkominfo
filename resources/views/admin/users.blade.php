@@ -248,14 +248,16 @@ class="space-y-6">
                                     </button>
                                     <span class="text-[#d4d1f5]">|</span>
                                     <!-- Reset password -->
-                                    <form action="{{ route('admin.users.reset-password', $user->id) }}" method="POST" data-confirm="Apakah Anda yakin ingin me-reset password pegawai ini ke default: password?">
+                                    <form action="{{ route('admin.users.reset-password', $user->id) }}" method="POST" data-title="Reset Kata Sandi Pegawai?" data-confirm="Kata sandi pegawai ini akan dikembalikan ke default: password." data-confirm-btn="Reset Sandi">
                                         @csrf
                                         <button type="submit" class="text-amber-600 hover:text-amber-700 transition-colors">Reset</button>
                                     </form>
                                     <span class="text-[#d4d1f5]">|</span>
                                     <!-- Toggle status -->
                                     <form action="{{ route('admin.users.toggle-status', $user->id) }}" method="POST"
-                                          data-confirm="{{ $user->active ? 'Apakah Anda yakin ingin menonaktifkan akun pegawai ini? Pegawai tersebut tidak akan bisa masuk ke sistem.' : 'Apakah Anda yakin ingin mengaktifkan kembali akun pegawai ini?' }}">
+                                          data-title="{{ $user->active ? 'Nonaktifkan Akun Pegawai?' : 'Aktifkan Akun Pegawai?' }}"
+                                          data-confirm="{{ $user->active ? 'Pegawai ini tidak akan bisa masuk ke sistem sampai diaktifkan kembali.' : 'Akun pegawai ini akan diaktifkan kembali agar bisa masuk ke sistem.' }}"
+                                          data-confirm-btn="{{ $user->active ? 'Nonaktifkan Akun' : 'Aktifkan Akun' }}">
                                         @csrf
                                         @if($user->active)
                                             <button type="submit" class="text-rose-600 hover:text-rose-500 transition-colors">Nonaktifkan</button>

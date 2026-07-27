@@ -84,44 +84,101 @@ class ProcessMeetingAudio implements ShouldQueue
                 }
 
                 try {
-                    Log::info("ProcessMeetingAudio: Transcribing audio file #" . ($index + 1) . " ({$audioName})...");
-                    
-                    $cmd = '"' . $pythonPath . '" "' . $scriptPath . '" "' . $audioFile . '"';
-                    $descriptors = [
-                        0 => ["pipe", "r"],
-                        1 => ["pipe", "w"],
-                        2 => ["pipe", "w"],
-                    ];
+                    $transcribedText = null;
 
-                    $process = proc_open($cmd, $descriptors, $pipes, base_path());
-                    $output = '';
-                    $stderr = '';
+                    // 1. Primary STT Engine: Gemini Multimodal STT (Fast cloud transcription for files <= 20MB)
+                    if ($apiKey && filesize($audioFile) <= 20 * 1024 * 1024) {
+                        try {
+                            Log::info("ProcessMeetingAudio: Transcribing {$audioName} via Primary Engine (Gemini Multimodal STT)...");
+                            $mimeType = 'audio/mp3';
+                            $ext = strtolower(pathinfo($audioFile, PATHINFO_EXTENSION));
+                            if ($ext === 'wav') $mimeType = 'audio/wav';
+                            if ($ext === 'm4a') $mimeType = 'audio/m4a';
+                            if ($ext === 'ogg') $mimeType = 'audio/ogg';
+                            if ($ext === 'flac') $mimeType = 'audio/flac';
+                            if ($ext === 'aac') $mimeType = 'audio/aac';
+                            if ($ext === 'webm') $mimeType = 'audio/webm';
 
-                    if (is_resource($process)) {
-                        fclose($pipes[0]);
-                        $output = stream_get_contents($pipes[1]);
-                        $stderr = stream_get_contents($pipes[2]);
-                        fclose($pipes[1]);
-                        fclose($pipes[2]);
-                        $returnCode = proc_close($process);
+                            $audioBase64 = base64_encode(file_get_contents($audioFile));
+
+                            $sttResponse = Http::withoutVerifying()->timeout(60)->post("https://generativelanguage.googleapis.com/v1beta/models/gemini-flash-latest:generateContent?key=" . $apiKey, [
+                                'contents' => [
+                                    [
+                                        'parts' => [
+                                            [
+                                                'inlineData' => [
+                                                    'mimeType' => $mimeType,
+                                                    'data' => $audioBase64
+                                                ]
+                                            ],
+                                            [
+                                                'text' => "Transkripsikan percakapan suara dari audio rapat ini secara lengkap, rinci, dan akurat ke dalam Bahasa Indonesia baku. Tuliskan HANYA teks transkrip percakapan suara tanpa kata pengantar atau penjelasan tambahan."
+                                            ]
+                                        ]
+                                    ]
+                                ]
+                            ]);
+
+                            if ($sttResponse->successful()) {
+                                $sttResult = $sttResponse->json();
+                                $sttText = $sttResult['candidates'][0]['content']['parts'][0]['text'] ?? null;
+                                if (!empty($sttText)) {
+                                    $transcribedText = trim($sttText);
+                                    Log::info("ProcessMeetingAudio: Gemini Multimodal STT successful for {$audioName}.");
+                                }
+                            } else {
+                                Log::error("ProcessMeetingAudio: Gemini Multimodal STT failed with status " . $sttResponse->status() . ": " . $sttResponse->body());
+                            }
+                        } catch (\Exception $e) {
+                            Log::error("ProcessMeetingAudio: Gemini Multimodal STT exception: " . $e->getMessage());
+                        }
                     }
 
-                    if ($output) {
-                        $data = json_decode($output, true);
-                        if (json_last_error() === JSON_ERROR_NONE && isset($data['status']) && $data['status'] === 'success') {
-                            $cleanedText = self::cleanTranscriptText($data['text'] ?? '');
-                            if (!empty($cleanedText)) {
-                                if (count($audioFiles) > 1) {
-                                    $transcriptBlocks[] = "📌 BAGIAN REKAMAN " . ($index + 1) . ": " . mb_strtoupper($audioName) . "\n" . str_repeat("—", 50) . "\n" . $cleanedText;
-                                } else {
-                                    $transcriptBlocks[] = $cleanedText;
-                                }
+                    // 2. Fallback STT Engine: Local Whisper.cpp (If Gemini STT failed, offline, or file > 20MB)
+                    if (empty($transcribedText)) {
+                        Log::info("ProcessMeetingAudio: Transcribing {$audioName} via Fallback Engine (Local Whisper.cpp)...");
+                        
+                        $cmd = '"' . $pythonPath . '" "' . $scriptPath . '" "' . $audioFile . '"';
+                        $descriptors = [
+                            0 => ["pipe", "r"],
+                            1 => ["pipe", "w"],
+                            2 => ["pipe", "w"],
+                        ];
+
+                        $process = proc_open($cmd, $descriptors, $pipes, base_path());
+                        $output = '';
+                        $stderr = '';
+
+                        if (is_resource($process)) {
+                            fclose($pipes[0]);
+                            $output = stream_get_contents($pipes[1]);
+                            $stderr = stream_get_contents($pipes[2]);
+                            fclose($pipes[1]);
+                            fclose($pipes[2]);
+                            $returnCode = proc_close($process);
+                        }
+
+                        if ($output) {
+                            $data = json_decode($output, true);
+                            if (json_last_error() === JSON_ERROR_NONE && isset($data['status']) && $data['status'] === 'success') {
+                                $transcribedText = self::cleanTranscriptText($data['text'] ?? '');
+                            } else {
+                                Log::error("ProcessMeetingAudio: Whisper error on file " . $audioName . ": Output: " . $output . " Stderr: " . $stderr);
                             }
                         } else {
-                            Log::error("ProcessMeetingAudio: Whisper error on file " . $audioName . ": Output: " . $output . " Stderr: " . $stderr);
+                            Log::error("ProcessMeetingAudio: Empty output from Python process. Stderr: " . $stderr);
                         }
-                    } else {
-                        Log::error("ProcessMeetingAudio: Empty output from Python process. Stderr: " . $stderr);
+                    }
+
+                    if (!empty($transcribedText)) {
+                        $cleanedText = self::cleanTranscriptText($transcribedText);
+                        if (!empty($cleanedText)) {
+                            if (count($audioFiles) > 1) {
+                                $transcriptBlocks[] = "📌 BAGIAN REKAMAN " . ($index + 1) . ": " . mb_strtoupper($audioName) . "\n" . str_repeat("—", 50) . "\n" . $cleanedText;
+                            } else {
+                                $transcriptBlocks[] = $cleanedText;
+                            }
+                        }
                     }
                 } catch (\Exception $e) {
                     Log::error("ProcessMeetingAudio exception for " . $audioName . ": " . $e->getMessage());
@@ -132,7 +189,7 @@ class ProcessMeetingAudio implements ShouldQueue
                 Log::error("ProcessMeetingAudio: All audio transcriptions failed or returned empty.");
                 $this->notulensi->update([
                     'is_transcribing' => false,
-                    'transkrip_error' => 'Transkripsi gagal: Whisper tidak dapat memproses berkas audio. Pastikan berkas audio valid dan memuat suara percakapan.',
+                    'transkrip_error' => 'Transkripsi gagal: Tidak dapat memproses berkas audio. Pastikan berkas audio valid dan memuat suara percakapan.',
                 ]);
                 return;
             }
@@ -158,40 +215,93 @@ class ProcessMeetingAudio implements ShouldQueue
                 Log::info("ProcessMeetingAudio: Transcript too short ({$textLen} chars). Skipped LLM summarization.");
             }
 
-            $prompt = "Anda adalah Sekretaris Profesional & Notulis Rapat Senior. Tugas Anda adalah menganalisis teks transkrip percakapan rapat berikut dan menyusun RINGKASAN & NOTULENSI RAPAT yang sangat rapi, terstruktur, profesional, dan mudah dipahami.\n\n" .
-                      "STRUKTUR OUTPUT MARKDOWN MANDATORI:\n\n" .
-                      "### 📌 RINGKASAN EKSEKUTIF RAPAT\n" .
-                      "[Tuliskan 1-2 paragraf ringkasan eksekutif yang merangkum keseluruhan isi pembicaraan rapat secara padat, jelas, dan profesional]\n\n" .
-                      "### 💡 POIN-POIN PEMBAHASAN UTAMA\n" .
-                      "1. **[Judul Topik/Bahasan Utama]**\n" .
-                      "   - Rincian pembahasan dan penjelasan yang disampaikan narasumber/peserta.\n" .
-                      "2. **[Judul Topik/Bahasan Selanjutnya]**\n" .
-                      "   - Rincian pembahasan dan penjelasan lanjutan.\n\n" .
-                      "### 📝 KEPUTUSAN & TINDAK LANJUT\n" .
-                      "1. **[Keputusan/Kesepakatan Pertama]**: Penjelasan rincian keputusan atau langkah konkret yang disepakati.\n" .
-                      "2. **[Tindak Lanjut]**: Rencana penanganan atau tugas kelanjutan setelah rapat.\n\n" .
-                      "ATURAN PENULISAN:\n" .
-                      "- Gunakan bahasa Indonesia baku yang formal dan mudah dipahami.\n" .
-                      "- Ekstrak seluruh poin penting dari SELURUH bagian transkrip (termasuk jika terdiri dari beberapa bagian audio/rekaman).\n" .
-                      "- Jangan membuat informasi fiktif di luar transkrip asli.\n" .
-                      "- Tuliskan jawaban LANGSUNG dalam format markdown sesuai struktur di atas tanpa kata pengantar tambahan.\n\n" .
-                      "Berikut teks transkrip percakapan rapat:\n\n" . $combinedTranscript;
+            $prompt = "Role & Task:\n" .
+                      "Kamu adalah asisten eksekutif profesional yang bertugas mengolah, merapikan, dan menyusun ulang catatan/transkrip mentah dari pengguna menjadi dokumen notulensi rapat formal.\n\n" .
+                      "Strict Guardrails (Aturan Anti-Halusinasi & Faktual):\n" .
+                      "1. Faktual & Setia pada Teks: Hanya gunakan informasi yang secara eksplisit tertulis pada teks sumber. DILARANG MENAMBAHKAN asumsi, inferensi berlebihan, lokasi, nama platform, atau fakta baru yang tidak ada di teks.\n" .
+                      "2. Penanganan Istilah & Ambiguitas:\n" .
+                      "   - Jika ada informasi yang ambigu, membingungkan, atau tidak logis pada teks sumber (misal: \"rapat via gdrive\"), tuliskan apa adanya di bagian khusus atau kategorikan sebagai \"CATATAN & PERLU KLARIFIKASI\". JANGAN mencoba memperbaikinya dengan asumsi sendiri.\n" .
+                      "   - Khusus Transkrip Audio / Speech-to-Text (STT): Kamu diizinkan membetulkan kata-kata salah dengar/typo fonetik yang jelas dan berisiko rendah (contoh: \"kelala\" menjadi \"kelola\", \"tangga\" menjadi \"tanggal\"). Namun, jika istilah teknis atau nama peran tetap meragukan, pertahankan kata aslinya dan masukkan ke bagian clarification.\n" .
+                      "3. Eliminasi OOT: Buang percakapan santai, bercandaan, atau typo yang tidak relevan tanpa mengubah fakta inti dari poin utama.\n" .
+                      "4. Handling Data Kosong: Jika data seperti PIC, tenggat waktu, atau tanggal tidak disebutkan di teks sumber, tuliskan \"Tidak disebutkan\" secara eksplisit. Jangan menebak.\n\n" .
+                      "Output Formatting Guidelines (Standar Ekspor PDF):\n" .
+                      "1. NO CONVERSATIONAL PREFACE/OUTRO: Langsung berikan hasil akhir berupa dokumen Markdown. DILARANG menggunakan kalimat pembuka/pengantar (seperti \"Berikut adalah hasil...\", \"Ini notulensinya...\") maupun kalimat penutup/salam.\n" .
+                      "2. NO EMOJIS: Dilarang keras menggunakan emoji atau simbol emotikon apa pun dalam seluruh isi teks demi kebutuhan ekspor PDF.\n" .
+                      "3. Struktur Dokumen: Gunakan hirarki heading Markdown berikut secara konsisten:\n" .
+                      "   # RINGKASAN EKSEKUTIF RAPAT\n" .
+                      "   [Tuliskan 1-2 paragraf ringkasan eksekutif secara padat, faktual, dan profesional]\n\n" .
+                      "   # POIN-POIN PEMBAHASAN UTAMA\n" .
+                      "   1. **[Judul Topik/Bahasan Utama]**\n" .
+                      "      - Rincian pembahasan dan penjelasan yang disampaikan narasumber/peserta.\n\n" .
+                      "   # KEPUTUSAN & TINDAK LANJUT\n" .
+                      "   1. **[Keputusan/Kesepakatan Pertama]**: Penjelasan rincian keputusan atau langkah konkret yang disepakati. PIC: [Nama/Tidak disebutkan], Tenggat Waktu: [Tanggal/Tidak disebutkan].\n\n" .
+                      "   # CATATAN & PERLU KLARIFIKASI\n" .
+                      "   - [Tuliskan istilah ambigu/meragukan atau ketik 'Tidak ada' jika semua data sudah jelas].\n\n" .
+                      "Berikut teks sumber (transkrip / catatan mentah rapat):\n\n" . $combinedTranscript;
 
-            $llmApiBase = env('LLM_API_BASE');
-            $llmApiKey = env('LLM_API_KEY') ?: $apiKey;
-            $llmModel = env('LLM_MODEL') ?: 'gemini-3.5-flash';
-
-            // Try custom OpenAI-compatible API first (e.g. local Qwen, Ollama, LM Studio)
-            if ($llmApiBase) {
+            // 1. Primary LLM Engine: Google Gemini API (Super fast 1-2s response)
+            if (!$summarized && $apiKey) {
                 try {
-                    Log::info("ProcessMeetingAudio: calling custom OpenAI-compatible API ({$llmApiBase}) with model: {$llmModel}...");
+                    Log::info("ProcessMeetingAudio: calling Primary LLM Engine (Gemini API) to summarize...");
+                    $url = "https://generativelanguage.googleapis.com/v1beta/models/gemini-flash-latest:generateContent?key=" . $apiKey;
+                    $responseSummary = Http::withoutVerifying()->timeout(45)->post($url, [
+                        'contents' => [
+                            [
+                                'parts' => [
+                                    [
+                                        'text' => $prompt
+                                    ]
+                                ]
+                            ]
+                        ],
+                        'generationConfig' => [
+                            'temperature' => 0.1,
+                            'topP' => 0.2
+                        ]
+                    ]);
+                    
+                    if ($responseSummary->successful()) {
+                        $sumResult = $responseSummary->json();
+                        $sumText = $sumResult['candidates'][0]['content']['parts'][0]['text'] ?? null;
+                        if ($sumText) {
+                            $sumText = trim(preg_replace('/```(?:markdown)?/i', '', $sumText));
+                            $this->notulensi->update([
+                                'transkrip_raw' => $combinedTranscript,
+                                'ringkasan' => $sumText,
+                                'pembahasan' => null,
+                                'keputusan' => null,
+                                'kesimpulan' => null,
+                                'transkrip_error' => null,
+                                'last_edited_by_id' => $this->secretaryId,
+                                'status' => 'draft'
+                            ]);
+                            $summarized = true;
+                            Log::info("ProcessMeetingAudio completed and summarized via Primary LLM Engine (Gemini API) successfully.");
+                        }
+                    } else {
+                        Log::error("ProcessMeetingAudio: Primary LLM (Gemini) failed with status " . $responseSummary->status() . ": " . $responseSummary->body());
+                    }
+                } catch (\Exception $e) {
+                    Log::error("ProcessMeetingAudio exception during Primary LLM (Gemini) call: " . $e->getMessage());
+                }
+            }
+
+            // 2. Fallback LLM Engine: Custom OpenAI-compatible API / Local Qwen 2.5 (If offline or Gemini failed)
+            $llmApiBase = env('LLM_API_BASE');
+            $llmApiKey = env('LLM_API_KEY', 'none');
+            $llmModel = env('LLM_MODEL', 'qwen2.5:1.5b');
+
+            if (!$summarized && $llmApiBase) {
+                try {
+                    Log::info("ProcessMeetingAudio: calling Fallback LLM Engine ({$llmApiBase}) with model: {$llmModel}...");
                     $url = rtrim($llmApiBase, '/') . '/chat/completions';
-                    $response = Http::timeout(15)->withHeaders([
+                    $response = Http::timeout(45)->withHeaders([
                         'Authorization' => 'Bearer ' . $llmApiKey,
                         'Content-Type' => 'application/json'
                     ])->post($url, [
                         'model' => $llmModel,
-                        'temperature' => 0.0,
+                        'temperature' => 0.1,
+                        'top_p' => 0.2,
                         'max_tokens' => 3000,
                         'messages' => [
                             [
@@ -217,57 +327,13 @@ class ProcessMeetingAudio implements ShouldQueue
                                 'status' => 'draft'
                             ]);
                             $summarized = true;
-                            Log::info("ProcessMeetingAudio completed and summarized via custom LLM API successfully.");
+                            Log::info("ProcessMeetingAudio completed and summarized via Fallback LLM Engine ({$llmModel}) successfully.");
                         }
                     } else {
-                        Log::error("ProcessMeetingAudio: Custom LLM API request failed with status: " . $response->status() . " Body: " . $response->body());
+                        Log::error("ProcessMeetingAudio: Fallback LLM API request failed with status: " . $response->status() . " Body: " . $response->body());
                     }
                 } catch (\Exception $e) {
-                    Log::error("ProcessMeetingAudio exception during custom LLM API call: " . $e->getMessage());
-                }
-            }
-
-            // Fallback to Google Gemini API if custom API is not used but key is present
-            if (!$summarized && $apiKey) {
-                try {
-                    Log::info("ProcessMeetingAudio: calling Gemini API to summarize...");
-                    $url = "https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash:generateContent?key=" . $apiKey;
-                    $responseSummary = Http::timeout(45)->post($url, [
-                        'contents' => [
-                            [
-                                'parts' => [
-                                    [
-                                        'text' => $prompt
-                                    ]
-                                ]
-                            ]
-                        ],
-                        'generationConfig' => [
-                            'temperature' => 0.0
-                        ]
-                    ]);
-                    
-                    if ($responseSummary->successful()) {
-                        $sumResult = $responseSummary->json();
-                        $sumText = $sumResult['candidates'][0]['content']['parts'][0]['text'] ?? null;
-                        if ($sumText) {
-                            $sumText = trim(preg_replace('/```(?:markdown)?/i', '', $sumText));
-                            $this->notulensi->update([
-                                'transkrip_raw' => $combinedTranscript,
-                                'ringkasan' => $sumText,
-                                'pembahasan' => null,
-                                'keputusan' => null,
-                                'kesimpulan' => null,
-                                'transkrip_error' => null,
-                                'last_edited_by_id' => $this->secretaryId,
-                                'status' => 'draft'
-                            ]);
-                            $summarized = true;
-                            Log::info("ProcessMeetingAudio completed and summarized via Gemini API successfully.");
-                        }
-                    }
-                } catch (\Exception $e) {
-                    Log::error("ProcessMeetingAudio exception during Gemini API call: " . $e->getMessage());
+                    Log::error("ProcessMeetingAudio exception during Fallback LLM API call: " . $e->getMessage());
                 }
             }
 
