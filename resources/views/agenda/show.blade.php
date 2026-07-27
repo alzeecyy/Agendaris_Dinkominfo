@@ -359,21 +359,31 @@
                                         </label>
                                     @endif
 
-                                    <div class="grid grid-cols-1 gap-2 {{ Auth::user()->isSekretarisBidang() ? '' : 'pl-6' }} mt-1">
-                                        @foreach($allBidangs as $b)
-                                            <label class="flex items-center text-xs text-[#5a508f] cursor-pointer select-none font-medium">
-                                                <input type="checkbox" name="bidangs[]" value="{{ $b->id }}" x-model="bidangs" @change="check('{{ $b->id }}')"
-                                                       @if(Auth::user()->isSekretarisBidang() && Auth::user()->bidang_id == $b->id) disabled @endif
-                                                       class="mr-2 rounded border-[#d4d1f5] text-[#8e88dd]">
-                                                <span class="{{ Auth::user()->isSekretarisBidang() && Auth::user()->bidang_id == $b->id ? 'font-bold text-[#2e2552]' : '' }}">
-                                                    {{ $b->nama }}
-                                                    @if(Auth::user()->isSekretarisBidang() && Auth::user()->bidang_id == $b->id)
-                                                        <span class="text-[9px] text-[#5a508f] lowercase ml-1">(Wajib ikut / Tidak bisa di-uncheck)</span>
-                                                    @endif
-                                                </span>
-                                            </label>
-                                        @endforeach
-                                    </div>
+                                     <div class="grid grid-cols-1 gap-1 mt-1">
+                                         @foreach($allBidangs as $b)
+                                             @php
+                                                 $isSub = (str_contains(strtolower($b->nama), 'subbag') || str_contains(strtolower($b->singkatan), 'subbag')) && strcasecmp($b->singkatan, 'Sekretariat') !== 0;
+                                             @endphp
+                                             <label class="flex items-center justify-between px-2 py-1 rounded-lg hover:bg-slate-50 transition-all cursor-pointer select-none {{ $isSub ? 'pl-6' : '' }}">
+                                                 <div class="flex items-center gap-2">
+                                                     @if($isSub)
+                                                         <span class="text-slate-400 text-[11px] font-bold shrink-0 -mr-1">└</span>
+                                                     @endif
+                                                     <input type="checkbox" name="bidangs[]" value="{{ $b->id }}" x-model="bidangs" @change="check('{{ $b->id }}')"
+                                                            @if(Auth::user()->isSekretarisBidang() && Auth::user()->bidang_id == $b->id) disabled @endif
+                                                            class="w-3.5 h-3.5 rounded border-[#d4d1f5] text-[#8e88dd]">
+                                                     <span class="text-xs text-[#5a508f] {{ Auth::user()->isSekretarisBidang() && Auth::user()->bidang_id == $b->id ? 'font-bold text-[#2e2552]' : 'font-medium' }}">
+                                                         {{ $b->nama }} <span class="text-slate-400 font-normal">({{ $b->singkatan }})</span>
+                                                     </span>
+                                                 </div>
+                                                 @if(Auth::user()->isSekretarisBidang() && Auth::user()->bidang_id == $b->id)
+                                                     <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold bg-amber-50 text-amber-700 border border-amber-200/70 shrink-0 ml-2">
+                                                         Wajib Hadir
+                                                     </span>
+                                                 @endif
+                                             </label>
+                                         @endforeach
+                                     </div>
 
                                     <!-- Kelola Peserta Button Bar -->
                                     <div class="pt-2.5 mt-2 border-t border-[#d4d1f5]/40 flex items-center justify-between">
