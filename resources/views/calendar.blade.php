@@ -454,10 +454,10 @@
 
     <!-- MODAL: ADD AGENDA FORM -->
     <div x-show="openAddModal" x-cloak 
-         class="fixed inset-0 z-50 flex items-start justify-center py-4 sm:py-6 px-3 sm:px-4 bg-slate-950/60 backdrop-blur-md transition-all duration-300 overflow-y-auto">
+         class="fixed inset-0 z-50 flex items-center justify-center p-2 sm:p-4 bg-slate-950/60 backdrop-blur-md transition-all duration-300">
         
         <div @click.away="openAddModal = false" 
-             class="bg-white border border-slate-200/80 rounded-[24px] w-full max-w-xl shadow-2xl overflow-hidden relative text-slate-800 my-auto"
+             class="bg-white border border-slate-200/80 rounded-[22px] w-full max-w-lg shadow-2xl overflow-hidden relative text-slate-800 my-auto"
              x-transition:enter="transition ease-out duration-300 transform"
              x-transition:enter-start="opacity-0 scale-95 translate-y-2"
              x-transition:enter-end="opacity-100 scale-100 translate-y-0"
@@ -469,27 +469,27 @@
             <div class="h-1.5 w-full bg-gradient-to-r from-indigo-500 via-indigo-600 to-violet-600"></div>
 
             <!-- Modal Header -->
-            <div class="px-5 py-3 border-b border-slate-100 flex items-center justify-between bg-gradient-to-b from-slate-50/60 to-white">
-                <div class="flex items-center gap-2.5">
-                    <div class="w-8 h-8 rounded-xl bg-indigo-50 border border-indigo-100/80 text-indigo-600 flex items-center justify-center shrink-0 shadow-xs">
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <div class="px-4 py-2.5 border-b border-slate-100 flex items-center justify-between bg-gradient-to-b from-slate-50/60 to-white">
+                <div class="flex items-center gap-2">
+                    <div class="w-7 h-7 rounded-lg bg-indigo-50 border border-indigo-100/80 text-indigo-600 flex items-center justify-center shrink-0 shadow-xs">
+                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
                         </svg>
                     </div>
                     <div>
-                        <h3 class="text-base font-extrabold text-slate-800 tracking-tight leading-tight">Buat Agenda Kegiatan Baru</h3>
-                        <p class="text-[11px] text-slate-500 font-medium">Jadwalkan rapat atau kegiatan Dinkominfo</p>
+                        <h3 class="text-sm font-extrabold text-slate-800 tracking-tight leading-tight">Buat Agenda Kegiatan Baru</h3>
+                        <p class="text-[10px] text-slate-500 font-medium">Jadwalkan rapat atau kegiatan Dinkominfo</p>
                     </div>
                 </div>
-                <button @click="openAddModal = false" class="w-7 h-7 rounded-full bg-slate-100/80 hover:bg-slate-200/80 text-slate-400 hover:text-slate-600 transition-all flex items-center justify-center shrink-0">
-                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <button @click="openAddModal = false" class="w-6 h-6 rounded-full bg-slate-100/80 hover:bg-slate-200/80 text-slate-400 hover:text-slate-600 transition-all flex items-center justify-center shrink-0">
+                    <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
                     </svg>
                 </button>
             </div>
 
-            <!-- Form Content (Scrollable) -->
-            <form action="{{ route('agenda.store') }}" method="POST" class="p-4 sm:px-5 sm:py-3.5 space-y-2.5">
+            <!-- Form Content -->
+            <form action="{{ route('agenda.store') }}" method="POST" class="p-3.5 sm:p-4 space-y-2">
                 @csrf
 
                 <!-- Title & Category Row -->
@@ -579,6 +579,7 @@
                     totalCount: {{ $totalBidangCount }},
                     bidangs: {{ Auth::user()->isSekretarisBidang() ? json_encode([(string)Auth::user()->bidang_id]) : "[]" }},
                     isSekBid: {{ Auth::user()->isSekretarisBidang() ? "true" : "false" }},
+                    isSekretariatScope: {{ Auth::user()->isSekretariatScope() ? "true" : "false" }},
                     ownBidangId: "{{ Auth::user()->bidang_id }}",
                     bidangsUserData: {{ json_encode($bidangsUserData) }},
                     selectedParticipants: [],
@@ -609,13 +610,13 @@
                     checkBidang(id) {
                         this.isDirty = true;
                         if (this.isSekBid) {
-                            if (!this.bidangs.includes(this.ownBidangId)) {
-                                this.bidangs.push(this.ownBidangId);
+                            if (this.ownBidangId && !this.bidangs.includes(String(this.ownBidangId))) {
+                                this.bidangs.push(String(this.ownBidangId));
                             }
-                            if (this.bidangs.length > 3) {
+                            if (!this.isSekretariatScope && this.bidangs.length > 3) {
                                 Swal.fire({
                                     title: "Batas Maksimal Bidang",
-                                    text: "Sekretaris / Admin Bidang hanya dapat memilih maksimal 3 bidang (bidang Anda + maksimal 2 bidang tambahan).",
+                                    text: "Admin Bidang hanya dapat memilih maksimal 3 bidang (bidang Anda + maksimal 2 bidang tambahan).",
                                     icon: "warning",
                                     confirmButtonText: "Mengerti",
                                     confirmButtonColor: "#1b3bbb",
@@ -683,7 +684,7 @@
                     </template>
 
                     <div class="bg-slate-50/70 border border-slate-200/80 rounded-xl p-2.5 space-y-2">
-                        @if(Auth::user()->isSekretarisBidang())
+                        @if(Auth::user()->isSekretarisBidang() && !Auth::user()->isSekretariatScope())
                             <input type="hidden" name="bidangs[]" value="{{ Auth::user()->bidang_id }}">
                         @else
                             <label class="flex items-center gap-2 px-2 py-1 bg-white rounded-lg border border-slate-200/60 hover:border-indigo-200 transition-all cursor-pointer select-none">
@@ -693,25 +694,25 @@
                             </label>
                         @endif
                         
-                        <div class="grid grid-cols-1 gap-1">
+                        <div class="grid grid-cols-1 gap-0.5 max-h-[145px] overflow-y-auto pr-1">
                             @foreach($bidangs as $bid)
                                 @php
                                     $isSubbag = (str_contains(strtolower($bid->nama), 'subbag') || str_contains(strtolower($bid->singkatan), 'subbag')) && strcasecmp($bid->singkatan, 'Sekretariat') !== 0;
                                 @endphp
-                                <label class="flex items-center justify-between px-2.5 py-1 rounded-lg border border-transparent hover:border-slate-200 hover:bg-white transition-all cursor-pointer select-none {{ $isSubbag ? 'pl-6' : '' }}">
-                                    <div class="flex items-center gap-2.5">
+                                <label class="flex items-center justify-between px-2 py-1 rounded-lg border border-transparent hover:border-slate-200 hover:bg-white transition-all cursor-pointer select-none {{ $isSubbag ? 'pl-6' : '' }}">
+                                    <div class="flex items-center gap-2">
                                         @if($isSubbag)
                                             <span class="text-slate-400 text-[11px] font-bold shrink-0 -mr-1">└</span>
                                         @endif
                                         <input type="checkbox" name="bidangs[]" value="{{ $bid->id }}" x-model="bidangs" @change="checkBidang('{{ $bid->id }}')"
                                                @if(Auth::user()->isSekretarisBidang() && Auth::user()->bidang_id == $bid->id) disabled @endif
                                                class="w-3.5 h-3.5 rounded border-slate-300 text-indigo-600 focus:ring-indigo-500 focus:ring-offset-0 transition-all shrink-0">
-                                        <span class="text-xs text-slate-700 font-medium {{ Auth::user()->isSekretarisBidang() && Auth::user()->bidang_id == $bid->id ? 'font-bold text-slate-900' : '' }}">
+                                        <span class="text-[11.5px] text-slate-700 font-medium {{ Auth::user()->isSekretarisBidang() && Auth::user()->bidang_id == $bid->id ? 'font-bold text-slate-900' : '' }}">
                                             {{ $bid->nama }} <span class="text-slate-400 font-normal">({{ $bid->singkatan }})</span>
                                         </span>
                                     </div>
                                     @if(Auth::user()->isSekretarisBidang() && Auth::user()->bidang_id == $bid->id)
-                                        <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold bg-amber-50 text-amber-700 border border-amber-200/70 shrink-0 ml-2">
+                                        <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[9.5px] font-bold bg-amber-50 text-amber-700 border border-amber-200/70 shrink-0 ml-2">
                                             Wajib Hadir
                                         </span>
                                     @endif

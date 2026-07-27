@@ -121,6 +121,11 @@ class User extends Authenticatable
         );
     }
 
+    public function isSekretariatScope(): bool
+    {
+        return $this->isSekretarisMaster() || $this->isKetuaMaster() || $this->isSekretariat();
+    }
+
     /**
      * Get user role display label nicely formatted for header, badges, and profile.
      */
@@ -198,23 +203,49 @@ class User extends Authenticatable
             return false; // Admins don't participate in agendas or view their content
         }
 
-        if ($this->isSekretarisMaster() || $this->isKetuaMaster() || $this->isSekretariat()) {
-            return true; // Masters & Sekretariat staff can view all agendas across all bidangs
+        // Direct creator of agenda always has access
+        if ((string)$this->id === (string)$agenda->sekretaris_id) {
+            return true;
         }
 
-        // If specific meeting_participants are saved for this agenda, check if user is invited
-        if ($agenda->participants()->exists()) {
-            return $agenda->participants()->where('users.id', $this->id)->exists();
-        }
-
-        // For Bidang roles & Staff fallback:
         $hakAkses = $agenda->hak_akses ?? [];
-        
         if (in_array('semua_orang', $hakAkses)) {
             return true;
         }
 
-        return in_array((string)$this->bidang_id, array_map('strval', $hakAkses));
+        // If specific meeting_participants are saved for this agenda, check if user is invited
+        if ($agenda->participants()->exists()) {
+            if ($agenda->participants()->where('users.id', $this->id)->exists()) {
+                return true;
+            }
+        }
+
+        // Check if user's bidang_id is explicitly in target hak_akses
+        if ($this->bidang_id && in_array((string)$this->bidang_id, array_map('strval', $hakAkses))) {
+            return true;
+        }
+
+        // For Sekretariat Scope (Sekretaris Master, Sekdin, Sekretariat staff, Subbags):
+        // Can access agendas targeted to any Sekretariat / Subbag bidang
+        if ($this->isSekretariatScope()) {
+            $sekretariatBidangIds = \Illuminate\Support\Facades\Cache::remember('sekretariat_scope_bidang_ids', 600, function() {
+                return \App\Models\Bidang::where('nama', 'like', '%Subbag%')
+                    ->orWhere('singkatan', 'like', '%Subbag%')
+                    ->orWhere('singkatan', 'Sekretariat')
+                    ->orWhere('nama', 'Sekretariat')
+                    ->pluck('id')
+                    ->map(fn($id) => (string)$id)
+                    ->toArray();
+            });
+
+            foreach ($hakAkses as $targetBidangId) {
+                if (in_array((string)$targetBidangId, $sekretariatBidangIds)) {
+                    return true;
+                }
+            }
+        }
+
+        return false;
     }
 
     /**

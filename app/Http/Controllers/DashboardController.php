@@ -447,21 +447,10 @@ class DashboardController extends Controller
             }])->orderBy('nama')->get();
         }
 
-        // Find today's events for the highlighting/side summary panel, filtered by bidang if not master
+        // Find today's events for the highlighting/side summary panel
         $todayStr = Carbon::today()->toDateString();
-        $todayAgendas = $agendas->filter(function($a) use ($todayStr, $user) {
-            if ($a->tanggal !== $todayStr) {
-                return false;
-            }
-            // Masters (sekretaris_master, ketua_master) and Sekretariat staff can see all agendas regardless of bidang_id
-            if ($user->isSekretarisMaster() || $user->isKetuaMaster() || $user->isSekretariat()) {
-                return true;
-            }
-            // Bidang-level roles: filter by their own bidang or semua_orang
-            if ($user->bidang_id) {
-                return in_array((string)$user->bidang_id, $a->hak_akses) || in_array('semua_orang', $a->hak_akses);
-            }
-            return true;
+        $todayAgendas = $agendas->filter(function($a) use ($todayStr) {
+            return $a->tanggal === $todayStr && $a->has_access;
         });
 
         return view('calendar', compact('dates', 'selectedDate', 'agendasByDate', 'bidangs', 'todayAgendas', 'miniCalendarDatesWithEvents'));

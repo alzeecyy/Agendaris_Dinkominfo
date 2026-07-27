@@ -276,6 +276,7 @@
                                     totalCount: {{ $totalBidangCount }},
                                     bidangs: {{ json_encode(array_values($initialBidangs)) }},
                                     isSekBid: {{ Auth::user()->isSekretarisBidang() ? "true" : "false" }},
+                                    isSekretariatScope: {{ Auth::user()->isSekretariatScope() ? "true" : "false" }},
                                     ownBidangId: "{{ Auth::user()->bidang_id }}",
                                     bidangsUserData: {{ json_encode($bidangsUserData) }},
                                     selectedParticipants: {{ json_encode(array_values($initialParticipants)) }},
@@ -292,12 +293,12 @@
 
                                     check(id) {
                                         if (this.isSekBid) {
-                                            if (!this.bidangs.includes(this.ownBidangId)) {
-                                                this.bidangs.push(this.ownBidangId);
+                                            if (this.ownBidangId && !this.bidangs.includes(String(this.ownBidangId))) {
+                                                this.bidangs.push(String(this.ownBidangId));
                                             }
-                                            if (this.bidangs.length > 2) {
-                                                alert("Admin Bidang hanya dapat memilih maksimal 1 bidang tambahan.");
-                                                this.bidangs = [this.ownBidangId, id];
+                                            if (!this.isSekretariatScope && this.bidangs.length > 3) {
+                                                alert("Admin Bidang hanya dapat memilih maksimal 2 bidang tambahan.");
+                                                this.bidangs = this.bidangs.filter(bId => String(bId) !== String(id));
                                             }
                                         }
                                         this.semua = (this.bidangs.length === this.totalCount);
@@ -350,7 +351,7 @@
                                         <input type="hidden" name="participants[]" :value="userId">
                                     </template>
 
-                                    @if(Auth::user()->isSekretarisBidang())
+                                    @if(Auth::user()->isSekretarisBidang() && !Auth::user()->isSekretariatScope())
                                         <input type="hidden" name="bidangs[]" value="{{ Auth::user()->bidang_id }}">
                                     @else
                                         <label class="flex items-center text-xs text-[#2e2552] font-bold mb-1 cursor-pointer select-none">

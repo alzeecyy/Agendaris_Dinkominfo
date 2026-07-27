@@ -29,17 +29,12 @@ class AgendaController extends Controller
 
         $todayDate = Carbon::today('Asia/Jakarta')->format('Y-m-d');
 
-        $query = Agenda::with(['sekretaris', 'notulensi', 'presensis.user'])
-            ->whereDate('tanggal', $todayDate);
+        $rawAgendas = Agenda::with(['sekretaris', 'notulensi', 'presensis.user'])
+            ->whereDate('tanggal', $todayDate)
+            ->orderBy('jam_mulai', 'asc')
+            ->get();
 
-        if (!$user->isSekretarisMaster() && !$user->isKetuaMaster() && !$user->isSekretariat()) {
-            $query->where(function ($q) use ($user) {
-                $q->whereJsonContains('hak_akses', 'semua_orang')
-                  ->orWhereJsonContains('hak_akses', (string)$user->bidang_id);
-            });
-        }
-
-        $agendas = $query->orderBy('jam_mulai', 'asc')->get();
+        $agendas = $rawAgendas->filter(fn($a) => $user->hasAccessToAgenda($a))->values();
 
         $nowTime = Carbon::now('Asia/Jakarta')->format('H:i:s');
 
@@ -87,8 +82,8 @@ class AgendaController extends Controller
         ];
 
         // Validate hak_akses depending on role
-        if ($user->isSekretarisBidang()) {
-            $rules['semua_orang'] = 'nullable|prohibited'; // Bidang Secretary cannot check semua_orang
+        if ($user->isSekretarisBidang() && !$user->isSekretariatScope()) {
+            $rules['semua_orang'] = 'nullable|prohibited'; // Standard Bidang Secretary cannot check semua_orang
         } else {
             $rules['semua_orang'] = 'nullable|boolean';
         }
@@ -108,15 +103,15 @@ class AgendaController extends Controller
         ]);
 
         // Determine hak_akses
-        if ($user->isSekretarisBidang()) {
+        if ($user->isSekretarisBidang() && !$user->isSekretariatScope()) {
             $bidangs = $request->input('bidangs', []);
             // Enforce own bidang is checked
             if (!in_array((string)$user->bidang_id, array_map('strval', $bidangs))) {
                 $bidangs[] = (string)$user->bidang_id;
             }
-            // Max 3 bidangs allowed
+            // Max 3 bidangs allowed for standard Bidangs
             if (count($bidangs) > 3) {
-                return back()->withErrors(['bidangs' => 'Admin Bidang / Sekretaris hanya diperbolehkan memilih bidangnya sendiri dan maksimal 2 bidang tambahan (maksimal 3 bidang).'])->withInput();
+                return back()->withErrors(['bidangs' => 'Admin Bidang hanya diperbolehkan memilih bidangnya sendiri dan maksimal 2 bidang tambahan (maksimal 3 bidang).'])->withInput();
             }
             $hakAkses = $bidangs;
         } else {
@@ -380,15 +375,15 @@ class AgendaController extends Controller
         }
 
         // Determine hak_akses
-        if ($user->isSekretarisBidang()) {
+        if ($user->isSekretarisBidang() && !$user->isSekretariatScope()) {
             $bidangs = $request->input('bidangs', []);
             // Enforce own bidang is checked
             if (!in_array((string)$user->bidang_id, array_map('strval', $bidangs))) {
                 $bidangs[] = (string)$user->bidang_id;
             }
-            // Max 3 bidangs allowed
+            // Max 3 bidangs allowed for standard Bidangs
             if (count($bidangs) > 3) {
-                return back()->withErrors(['bidangs' => 'Admin Bidang / Sekretaris hanya diperbolehkan memilih bidangnya sendiri dan maksimal 2 bidang tambahan (maksimal 3 bidang).'])->withInput();
+                return back()->withErrors(['bidangs' => 'Admin Bidang hanya diperbolehkan memilih bidangnya sendiri dan maksimal 2 bidang tambahan (maksimal 3 bidang).'])->withInput();
             }
             $newHakAkses = $bidangs;
         } else {
