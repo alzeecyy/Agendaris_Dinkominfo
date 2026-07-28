@@ -7,9 +7,24 @@
     openAddModal: {{ ((Auth::user()->isSekretarisMaster() || Auth::user()->isSekretarisBidang()) && ($errors->any() || request()->has('open_add'))) ? 'true' : 'false' }}, 
     selectedDate: '{{ $selectedDate->toDateString() }}', 
     selectedTime: '07:15', 
+    selectedEndTime: '{{ $selectedDate->isFriday() ? "15:15" : "15:30" }}',
     kategori: '',
     showMonthPicker: false,
-    pickerYear: {{ $selectedDate->year }}
+    pickerYear: {{ $selectedDate->year }},
+
+    updateEndTimeForDate(dateStr) {
+        if (!dateStr) return;
+        let parts = dateStr.split('-');
+        if (parts.length === 3) {
+            let d = new Date(parseInt(parts[0]), parseInt(parts[1]) - 1, parseInt(parts[2]));
+            this.selectedEndTime = (d.getDay() === 5) ? '15:15' : '15:30';
+        }
+    },
+
+    init() {
+        this.updateEndTimeForDate(this.selectedDate);
+        this.$watch('selectedDate', (val) => this.updateEndTimeForDate(val));
+    }
 }" class="h-full flex flex-col lg:flex-row gap-4 sm:gap-6">
     
     <!-- LEFT PANEL: Mini Calendar & Quick Add -->
@@ -535,7 +550,7 @@
                     </div>
                     <div class="space-y-1">
                         <label for="jam_selesai" class="block text-[11px] font-bold text-slate-700 uppercase tracking-wider">Jam Selesai <span class="text-rose-500 font-bold">*</span></label>
-                        <input type="time" name="jam_selesai" id="jam_selesai" required value="{{ now()->isFriday() ? '15:15' : '15:30' }}"
+                        <input type="time" name="jam_selesai" id="jam_selesai" required x-model="selectedEndTime"
                                class="w-full px-2.5 py-2 bg-slate-50 border border-slate-200/90 rounded-xl text-slate-800 text-xs font-semibold focus:bg-white focus:border-indigo-600 focus:ring-2 focus:ring-indigo-500/20 transition-all">
                     </div>
                 </div>
