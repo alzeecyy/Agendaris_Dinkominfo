@@ -252,68 +252,74 @@
         <!-- RIGHT COLUMN (1/3 width): Audio AI Tools & Sidebar Cards -->
         <div class="space-y-6">
             
-            <!-- PANDUAN PENGISIAN NOTULENSI (High Contrast & High Readability Guide) -->
-            <div class="bg-white border border-[#d4d1f5]/80 rounded-3xl p-5 md:p-6 shadow-sm space-y-4">
+            <!-- PANDUAN PENGISIAN NOTULENSI (Spacious & Highly Legible Guide Card) -->
+            <div class="bg-white border border-[#d4d1f5]/80 rounded-3xl p-6 sm:p-7 shadow-xs space-y-6">
                 <!-- Header -->
-                <div class="flex items-center gap-3 border-b border-[#d4d1f5]/50 pb-3">
-                    <div class="w-8 h-8 rounded-xl bg-[#1b3bbb]/10 text-[#1b3bbb] flex items-center justify-center font-bold shrink-0">
-                        <svg class="w-4 h-4 text-[#1b3bbb]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <div class="flex items-center gap-3.5 border-b border-[#d4d1f5]/50 pb-4">
+                    <div class="w-9 h-9 rounded-2xl bg-[#1b3bbb]/10 text-[#1b3bbb] flex items-center justify-center font-bold shrink-0 shadow-2xs">
+                        <svg class="w-5 h-5 text-[#1b3bbb]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
                         </svg>
                     </div>
                     <div>
-                        <h3 class="text-xs font-black uppercase tracking-wider text-[#2e2552]">Panduan Pembuatan Notulensi</h3>
-                        <p class="text-xs text-slate-500 font-semibold">3 langkah mudah dari input hingga pengesahan</p>
+                        <h3 class="text-xs sm:text-sm font-black uppercase tracking-wider text-[#2e2552]">Panduan Pembuatan Notulensi</h3>
+                        <p class="text-xs text-[#5a508f] font-medium mt-0.5">3 langkah mudah dari input hingga pengesahan</p>
                     </div>
                 </div>
 
-                <!-- Timeline Steps -->
-                <div class="relative space-y-4">
-                    <!-- Connecting Vertical Line (Starts at circle 1, stops at circle 3) -->
-                    <div class="absolute left-3.5 top-3.5 bottom-12 w-0.5 bg-indigo-100 z-0"></div>
+                <!-- Timeline Steps Container with Generous Spacing -->
+                <div class="relative space-y-7 pl-1">
+                    <!-- Connecting Vertical Line (Cleanly Centered behind badges) -->
+                    <div class="absolute left-4 top-4 bottom-6 w-0.5 bg-indigo-100 rounded-full"></div>
 
                     <!-- Step 1 -->
-                    <div class="relative z-10 flex items-start gap-3">
-                        <div class="w-7 h-7 rounded-full bg-[#1b3bbb] text-white text-xs font-black flex items-center justify-center shrink-0 shadow-xs">
+                    <div class="relative flex items-start gap-4">
+                        <div class="w-8 h-8 rounded-full bg-[#1b3bbb] text-white text-xs font-black flex items-center justify-center shrink-0 shadow-sm ring-4 ring-white z-10">
                             1
                         </div>
-                        <div class="space-y-1.5 pt-0.5">
-                            <h4 class="text-xs font-black text-[#2e2552] uppercase tracking-wide">1. Pilih Metode Input</h4>
-                            <div class="space-y-1 text-xs text-slate-700 font-medium leading-normal">
-                                <div class="p-2 bg-indigo-50/70 border border-indigo-100 rounded-xl">
-                                    <span class="font-bold text-[#1b3bbb]">🎙️ Rekaman Audio:</span>
-                                    <span class="text-slate-800">Unggah berkas suara rapat di kanan (otomatis ditranskrip).</span>
+                        <div class="space-y-3 pt-0.5 min-w-0 flex-1">
+                            <h4 class="text-xs sm:text-sm font-extrabold text-[#2e2552] uppercase tracking-wide">1. Pilih Metode Input</h4>
+                            <div class="space-y-2.5 text-xs text-slate-700 font-medium">
+                                <div class="p-3.5 bg-indigo-50/70 border border-indigo-100/90 rounded-2xl space-y-1">
+                                    <div class="font-extrabold text-[#1b3bbb] text-xs flex items-center gap-1.5">
+                                        <span>🎙️</span>
+                                        <span>Rekaman Audio</span>
+                                    </div>
+                                    <p class="text-xs text-slate-600 leading-relaxed font-normal">Unggah berkas suara rapat di panel bawah (otomatis ditranskrip oleh sistem).</p>
                                 </div>
-                                <div class="p-2 bg-purple-50/70 border border-purple-100 rounded-xl">
-                                    <span class="font-bold text-purple-700">✍️ Catatan Teks:</span>
-                                    <span class="text-slate-800">Ketik / tempel catatan pada kolom <strong>"Teks Catatan Rapat"</strong>.</span>
+                                <div class="p-3.5 bg-purple-50/70 border border-purple-100/90 rounded-2xl space-y-1">
+                                    <div class="font-extrabold text-purple-700 text-xs flex items-center gap-1.5">
+                                        <span>✍️</span>
+                                        <span>Catatan Teks</span>
+                                    </div>
+                                    <p class="text-xs text-slate-600 leading-relaxed font-normal">Ketik / tempel catatan pada kolom <strong class="text-slate-800 font-bold">"Teks Catatan Rapat"</strong>.</p>
                                 </div>
                             </div>
                         </div>
                     </div>
 
                     <!-- Step 2 -->
-                    <div class="relative z-10 flex items-start gap-3">
-                        <div class="w-7 h-7 rounded-full bg-[#1b3bbb] text-white text-xs font-black flex items-center justify-center shrink-0 shadow-xs">
+                    <div class="relative flex items-start gap-4">
+                        <div class="w-8 h-8 rounded-full bg-[#1b3bbb] text-white text-xs font-black flex items-center justify-center shrink-0 shadow-sm ring-4 ring-white z-10">
                             2
                         </div>
-                        <div class="space-y-1 pt-0.5">
-                            <h4 class="text-xs font-black text-[#2e2552] uppercase tracking-wide">2. Rapikan & Analisis</h4>
-                            <p class="text-xs text-slate-800 font-medium leading-relaxed">
-                                Klik tombol <strong class="text-[#1b3bbb]">"Rapikan & Analisis Catatan"</strong> untuk menyusun notulensi, lalu pastikan <strong class="text-slate-900">Nomor Surat Dasar</strong> sudah terisi.
+                        <div class="space-y-2 pt-0.5 min-w-0 flex-1">
+                            <h4 class="text-xs sm:text-sm font-extrabold text-[#2e2552] uppercase tracking-wide">2. Rapikan & Analisis</h4>
+                            <p class="text-xs text-slate-600 font-normal leading-relaxed">
+                                Klik tombol <strong class="text-[#1b3bbb] font-bold">"Rapikan & Analisis Catatan"</strong> untuk menyusun notulensi, lalu pastikan <strong class="text-slate-800 font-bold">Nomor Surat Dasar</strong> sudah terisi.
                             </p>
                         </div>
                     </div>
 
                     <!-- Step 3 -->
-                    <div class="relative z-10 flex items-start gap-3">
-                        <div class="w-7 h-7 rounded-full bg-emerald-600 text-white text-xs font-black flex items-center justify-center shrink-0 shadow-xs">
+                    <div class="relative flex items-start gap-4">
+                        <div class="w-8 h-8 rounded-full bg-emerald-600 text-white text-xs font-black flex items-center justify-center shrink-0 shadow-sm ring-4 ring-white z-10">
                             3
                         </div>
-                        <div class="space-y-1 pt-0.5">
-                            <h4 class="text-xs font-black text-emerald-800 uppercase tracking-wide">3. Ajukan ke Pimpinan</h4>
-                            <p class="text-xs text-slate-800 font-medium leading-relaxed">
-                                Klik <strong class="text-emerald-700">"Ajukan untuk Persetujuan"</strong> di bagian bawah agar notulensi dikirim ke Pimpinan untuk disahkan.
+                        <div class="space-y-2 pt-0.5 min-w-0 flex-1">
+                            <h4 class="text-xs sm:text-sm font-extrabold text-emerald-900 uppercase tracking-wide">3. Ajukan ke Pimpinan</h4>
+                            <p class="text-xs text-slate-600 font-normal leading-relaxed">
+                                Klik <strong class="text-emerald-700 font-bold">"Ajukan untuk Persetujuan"</strong> di bagian bawah agar notulensi dikirim ke Pimpinan untuk disahkan.
                             </p>
                         </div>
                     </div>
