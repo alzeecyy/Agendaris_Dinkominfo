@@ -134,56 +134,7 @@
                 </div>
             </div>
 
-<<<<<<< HEAD
-            <!-- Today's Highlights Panel -->
-            <div
-                class="bg-slate-50/70 border border-[#d4d1f5]/60 rounded-3xl p-4 sm:p-5 shadow-xs flex-1 flex flex-col min-h-0">
-                <div class="flex items-center justify-between shrink-0 mb-3 sm:mb-4">
-                    <h3 class="text-xs font-bold uppercase tracking-wider text-[#2e2552]">Kegiatan Hari Ini</h3>
-                    <span
-                        class="text-[10px] bg-[#2e2552]/10 text-[#2e2552] px-2.5 py-0.5 rounded-full border border-[#2e2552]/20 font-bold">
-                        {{ count($todayAgendas) }} Agenda
-                    </span>
-                </div>
 
-                <div class="space-y-3 flex-1 min-h-0 overflow-y-auto pr-1">
-                    @forelse($todayAgendas as $ta)
-                        <div
-                            class="p-3 bg-white border border-[#d4d1f5]/40 rounded-2xl hover:border-[#8e88dd]/40 transition-all duration-200 shadow-2xs">
-                            <div class="flex items-center justify-between gap-2">
-                                <span class="text-[10px] text-[#5a508f] font-bold">{{ substr($ta->jam_mulai, 0, 5) }} -
-                                    {{ substr($ta->jam_selesai, 0, 5) }}</span>
-                                @if($ta->singkatan_bidang === 'Semua')
-                                    <span
-                                        class="text-[9px] px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-700 border border-emerald-200 font-bold">Semua</span>
-                                @else
-                                    <span
-                                        class="text-[9px] px-2 py-0.5 rounded bg-[#2e2552]/10 text-[#2e2552] font-semibold max-w-[130px] truncate inline-block align-middle"
-                                        title="{{ $ta->singkatan_bidang }}">{{ \Illuminate\Support\Str::limit($ta->singkatan_bidang, 16, '...') }}</span>
-                                @endif
-                            </div>
-                            <h4 class="text-xs font-bold text-[#2e2552] mt-1.5 line-clamp-1">{{ $ta->judul }}</h4>
-                            <p class="text-[10px] text-[#5a508f] mt-0.5 truncate flex items-center gap-1">
-                                <svg class="w-3 h-3 text-[#8e88dd]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                        d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z">
-                                    </path>
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                        d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path>
-                                </svg>
-                                <span>{{ $ta->lokasi }}</span>
-                            </p>
-                            @if($ta->has_access)
-                                <a href="{{ route('agenda.show', $ta->id) }}"
-                                    class="inline-flex items-center gap-1 text-[9px] text-[#8e88dd] hover:text-[#2e2552] font-semibold mt-2 group">
-                                    <span>Buka Detail</span>
-                                    <svg class="w-3 h-3 group-hover:translate-x-0.5 transition-transform" fill="none"
-                                        stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7">
-                                        </path>
-                                    </svg>
-                                </a>
-=======
         <!-- Today's Highlights Panel -->
         <div class="bg-slate-50/70 border border-[#d4d1f5]/60 rounded-3xl p-4 sm:p-5 shadow-xs flex flex-col min-h-0 max-h-full">
             <div class="flex items-center justify-between shrink-0 mb-3 sm:mb-4">
@@ -504,24 +455,7 @@
                                         <span class="truncate">Rapat Terbatas</span>
                                     </h4>
                                 </div>
->>>>>>> f71c0863407152d9a5d4ccbdbc01a4cd9de7083a
-                            @endif
-                        </div>
-                    @empty
-                        <p class="text-xs text-slate-400 text-center py-4 italic">Tidak ada agenda untuk hari ini.</p>
-                    @endforelse
-                </div>
 
-<<<<<<< HEAD
-                <!-- Quick Add Agenda Button (Secretaries & Admin Subbag/Bidang Only) -->
-                @if(Auth::user()->isSekretarisMaster() || Auth::user()->isSekretarisBidang())
-                    <div class="shrink-0 pt-3">
-                        <button
-                            @click="openAddModal = true; selectedDate = '{{ $selectedDate->toDateString() }}'; selectedTime = '07:15'"
-                            class="w-full py-2.5 bg-[#2e2552] hover:bg-[#3d326a] active:scale-[0.98] text-white font-bold rounded-2xl text-xs transition-all duration-200 shadow-md shadow-[#2e2552]/20 flex items-center justify-center gap-2 cursor-pointer">
-                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
-=======
                 <!-- Date & Hours Row -->
                 <div class="grid grid-cols-2 sm:grid-cols-3 gap-3">
                     <div class="col-span-2 sm:col-span-1 space-y-1">
@@ -849,7 +783,7 @@
                                 class="inline-flex items-center gap-1.5 px-3 py-1.5 border rounded-xl text-xs font-bold transition-all shadow-2xs cursor-pointer active:scale-95">
                             <svg class="w-3.5 h-3.5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"></path>
->>>>>>> f71c0863407152d9a5d4ccbdbc01a4cd9de7083a
+
                             </svg>
                             <span>Tambah Agenda Baru</span>
                         </button>
@@ -1692,47 +1626,7 @@
                                                         x-text="selectedParticipants.map(String).includes(String(kadinUser.id)) ? 'Hapus Centang' : 'Centang'"></span>
                                                 </button>
                                             </div>
-<<<<<<< HEAD
 
-                                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-1.5">
-                                                <label
-                                                    class="flex items-start gap-2.5 p-2 bg-[#f8f7ff] hover:bg-indigo-50/50 rounded-xl border border-[#d4d1f5]/60 hover:border-[#1b3bbb] cursor-pointer select-none transition-all">
-                                                    <input type="checkbox" :value="kadinUser.id"
-                                                        x-model="selectedParticipants"
-                                                        @change="isDirty = true; if(kadinUserId) kadinTarget = selectedParticipants.map(String).includes(String(kadinUserId));"
-                                                        class="w-4 h-4 rounded border-slate-300 text-[#1b3bbb] focus:ring-[#1b3bbb] mt-0.5 shrink-0">
-                                                    <div class="min-w-0 flex-1">
-                                                        <div class="text-xs font-bold text-[#2e2552] leading-tight truncate"
-                                                            x-text="kadinUser.name"></div>
-                                                        <div class="text-[10px] text-[#5a508f] font-medium truncate"
-                                                            x-text="kadinUser.jabatan"></div>
-=======
-                                            <button type="button" @click="toggleBidangUsers(bidang.id)" class="text-[11px] font-extrabold text-[#1b3bbb] hover:underline cursor-pointer">
-                                                <span x-text="isBidangAllChecked(bidang.id) ? 'Hapus Centang Staf' : 'Centang Semua Staf'"></span>
-                                            </button>
-                                        </div>
-
-                                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-1.5">
-                                            <template x-for="user in filteredUsers(bidang.users)" :key="user.id">
-                                                <label class="flex items-start gap-2.5 p-2.5 rounded-xl border select-none transition-all cursor-pointer"
-                                                       :class="isPimpinan(user) 
-                                                                ? 'bg-amber-50/80 border-amber-200/90 hover:border-amber-300' 
-                                                                : (isNotulis(user) 
-                                                                    ? 'bg-indigo-50/80 border-indigo-200/90 hover:border-indigo-300' 
-                                                                    : 'bg-[#f8f7ff] hover:bg-indigo-50/50 border-[#d4d1f5]/60 hover:border-[#1b3bbb]')">
-                                                    
-                                                    <input type="checkbox" 
-                                                           :value="user.id" 
-                                                           x-model="selectedParticipants" 
-                                                           :disabled="isMandatoryUser(user)"
-                                                           @change="isDirty = true" 
-                                                           class="w-4 h-4 rounded border-slate-300 text-[#1b3bbb] focus:ring-[#1b3bbb] mt-0.5 shrink-0"
-                                                           :class="isMandatoryUser(user) ? 'opacity-70 cursor-not-allowed' : ''">
-                                                    
-                                                    <div class="min-w-0 flex-1">
-                                                        <div class="text-xs font-bold text-[#2e2552] leading-tight truncate" x-text="user.name"></div>
-                                                        <div class="text-[10px] text-[#5a508f] font-medium truncate mt-0.5" x-text="user.jabatan"></div>
->>>>>>> f71c0863407152d9a5d4ccbdbc01a4cd9de7083a
                                                     </div>
                                                 </label>
                                             </div>
