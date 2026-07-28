@@ -632,7 +632,7 @@
                             @yield('content')
                         </div>
 
-                        <footer class="border-t border-[#d4d1f5]/50 py-3 mt-3.5 text-center text-slate-400 text-[9.5px] sm:text-[10.5px] font-semibold tracking-wider w-full shrink-0 h-11 flex items-center justify-center">
+                        <footer class="border-t border-[#d4d1f5]/50 py-5 mt-12 sm:mt-16 text-center text-slate-400 text-[9.5px] sm:text-[10.5px] font-semibold tracking-wider w-full shrink-0 flex items-center justify-center mb-16 sm:mb-6">
                             &copy; 2026 Dinas Komunikasi dan Informatika Kabupaten Banyumas.
                         </footer>
                     </div>
