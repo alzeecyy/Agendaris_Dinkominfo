@@ -86,16 +86,16 @@
             document.querySelectorAll('.agenda-row').forEach(row => {
                 if (row.style.display !== 'none') {
                     if (visibleIndex % 2 === 0) {
-                        row.classList.remove('bg-[#fcfbff]');
+                        row.style.backgroundColor = '#ffffff';
                     } else {
-                        row.classList.add('bg-[#fcfbff]');
+                        row.style.backgroundColor = '#f4f7ff';
                     }
                     visibleIndex++;
                 }
             });
         });
     }
-}" 
+} 
 x-init="
     $watch('searchQuery', () => resetPagination());
     $watch('filterKategori', () => resetPagination());
@@ -231,14 +231,14 @@ class="space-y-6">
 
         <div class="overflow-x-auto">
             <table class="w-full text-left text-[10.5px] sm:text-sm text-[#2e2552]">
-                <thead class="bg-[#ebf2ff] text-[#1b3bbb] border-y border-[#bfd5ff] select-none">
-                    <tr>
-                        <th class="py-3 px-3 sm:px-4 text-[10px] sm:text-xs font-black uppercase tracking-wider">Nama Agenda Kegiatan</th>
-                        <th class="py-3 px-3 sm:px-4 text-[10px] sm:text-xs font-black uppercase tracking-wider text-center">Kategori</th>
-                        <th class="py-3 px-3 sm:px-4 text-[10px] sm:text-xs font-black uppercase tracking-wider whitespace-nowrap">Tanggal & Jam</th>
-                        <th class="py-3 px-3 sm:px-4 text-[10px] sm:text-xs font-black uppercase tracking-wider">Lokasi</th>
-                        <th class="py-3 px-3 sm:px-4 text-[10px] sm:text-xs font-black uppercase tracking-wider text-center leading-tight">Status<br class="hidden sm:inline"> Kehadiran</th>
-                        <th class="py-3 px-3 sm:px-4 text-[10px] sm:text-xs font-black uppercase tracking-wider text-center whitespace-nowrap">Notulensi</th>
+                <thead style="background-color: #ebf2ff !important; color: #1b3bbb !important;" class="bg-[#ebf2ff] text-[#1b3bbb] border-y border-[#bfd5ff] select-none">
+                    <tr style="background-color: #ebf2ff !important;">
+                        <th style="background-color: #ebf2ff !important; color: #1b3bbb !important;" class="py-3 px-3 sm:px-4 text-[10px] sm:text-xs font-black uppercase tracking-wider">Nama Agenda Kegiatan</th>
+                        <th style="background-color: #ebf2ff !important; color: #1b3bbb !important;" class="py-3 px-3 sm:px-4 text-[10px] sm:text-xs font-black uppercase tracking-wider text-center">Kategori</th>
+                        <th style="background-color: #ebf2ff !important; color: #1b3bbb !important;" class="py-3 px-3 sm:px-4 text-[10px] sm:text-xs font-black uppercase tracking-wider whitespace-nowrap">Tanggal & Jam</th>
+                        <th style="background-color: #ebf2ff !important; color: #1b3bbb !important;" class="py-3 px-3 sm:px-4 text-[10px] sm:text-xs font-black uppercase tracking-wider">Lokasi</th>
+                        <th style="background-color: #ebf2ff !important; color: #1b3bbb !important;" class="py-3 px-3 sm:px-4 text-[10px] sm:text-xs font-black uppercase tracking-wider text-center leading-tight">Status<br class="hidden sm:inline"> Kehadiran</th>
+                        <th style="background-color: #ebf2ff !important; color: #1b3bbb !important;" class="py-3 px-3 sm:px-4 text-[10px] sm:text-xs font-black uppercase tracking-wider text-center whitespace-nowrap">Notulensi</th>
                     </tr>
                 </thead>
                 <tbody class="divide-y divide-[#d4d1f5]/30">
