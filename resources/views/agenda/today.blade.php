@@ -176,7 +176,7 @@ class="w-full flex flex-col gap-3.5 sm:gap-5 select-none">
                 @endphp
 
                 <div x-show="activeTab === 'semua' || activeTab === '{{ $tabCategory }}'" x-transition
-                     class="bg-white rounded-xl sm:rounded-2xl md:rounded-[28px] p-3.5 sm:p-6 border-l-4 {{ $statusColor }} border-slate-200/80 shadow-xs hover:shadow-md transition-all space-y-3 sm:space-y-4">
+                     class="bg-white rounded-xl sm:rounded-2xl md:rounded-[28px] p-3.5 sm:p-6 border border-[#d4d1f5] hover:border-[#1b3bbb]/60 transition-all space-y-3 sm:space-y-4">
                     
                     <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 sm:gap-3 border-b border-slate-100 pb-2.5 sm:pb-3">
                         <div class="flex flex-wrap items-center gap-1.5 sm:gap-2">
