@@ -162,7 +162,7 @@ class="w-full flex flex-col gap-3.5 sm:gap-5 select-none">
             @endif
         </div>
     @else
-        <div class="space-y-3 sm:space-y-4 mb-12 sm:mb-16">
+        <div class="space-y-3 sm:space-y-4 pb-8 sm:pb-12">
             @foreach($agendas as $agenda)
                 @php
                     $nowTime = \Carbon\Carbon::now()->format('H:i:s');

@@ -608,11 +608,14 @@
 
                     <!-- Dynamic Page Content -->
                     <div id="pjax-container" class="flex-1 min-w-0 w-full flex flex-col justify-between">
-                        <div class="flex-1 min-w-0 w-full flex flex-col">
+                        <div class="flex-1 min-w-0 w-full flex flex-col pb-12 sm:pb-16">
                             @yield('content')
                         </div>
 
-                        <footer class="mt-16 sm:mt-24 border-t border-[#d4d1f5]/60 pt-6 pb-8 text-center text-slate-400 text-[9px] sm:text-[10px] font-semibold tracking-wider w-full shrink-0">
+                        <!-- Explicit Spacer to prevent browser flex margin collapse -->
+                        <div class="h-12 sm:h-20 shrink-0 pointer-events-none"></div>
+
+                        <footer class="border-t border-[#d4d1f5]/60 pt-6 pb-8 text-center text-slate-400 text-[9px] sm:text-[10px] font-semibold tracking-wider w-full shrink-0">
                             &copy; 2026 Dinas Komunikasi dan Informatika Kabupaten Banyumas.
                         </footer>
                     </div>
