@@ -32,12 +32,13 @@
                 <div class="relative w-full sm:w-72">
                     <select id="bidang-filter-select" 
                             onchange="window.location.href = this.value"
-                            class="w-full pl-3.5 pr-10 py-2.5 bg-white border border-[#d4d1f5] hover:border-[#1b3bbb] rounded-xl text-xs font-bold text-[#09103c] shadow-sm appearance-none focus:outline-none focus:ring-2 focus:ring-[#1b3bbb]/20 transition-all cursor-pointer">
+                            style="background-image: none !important; -webkit-appearance: none !important; -moz-appearance: none !important; appearance: none !important;"
+                            class="w-full pl-8 pr-8 py-2.5 bg-white border border-[#d4d1f5] hover:border-[#1b3bbb] rounded-xl text-xs font-bold text-[#09103c] shadow-sm appearance-none focus:outline-none focus:ring-2 focus:ring-[#1b3bbb]/20 transition-all cursor-pointer truncate">
                         <option value="{{ route('notulensi.arsip', ['bidang_id' => 'semua']) }}" {{ $selectedBidangId === 'semua' ? 'selected' : '' }}>
-                            🏛️ Semua Bidang ({{ $bidangCounts['semua'] ?? 0 }} Notulensi)
+                            Semua Bidang ({{ $bidangCounts['semua'] ?? 0 }} Notulensi)
                         </option>
                         <option value="{{ route('notulensi.arsip', ['bidang_id' => 'lintas_dinas']) }}" {{ $selectedBidangId === 'lintas_dinas' ? 'selected' : '' }}>
-                            🌐 Rapat Lintas Dinas ({{ $bidangCounts['lintas_dinas'] ?? 0 }} Notulensi)
+                            Rapat Lintas Dinas ({{ $bidangCounts['lintas_dinas'] ?? 0 }} Notulensi)
                         </option>
                         @foreach($bidangs as $b)
                             @php
@@ -45,13 +46,20 @@
                                 $labelName = $b->singkatan ?: $b->nama;
                             @endphp
                             <option value="{{ route('notulensi.arsip', ['bidang_id' => $b->id]) }}" {{ (string)$selectedBidangId === (string)$b->id ? 'selected' : '' }}>
-                                🏢 {{ $labelName }} ({{ $count }} Notulensi)
+                                {{ $labelName }} ({{ $count }} Notulensi)
                             </option>
                         @endforeach
                     </select>
-                    <div class="absolute right-3 top-1/2 -translate-y-1/2 text-[#1b3bbb] pointer-events-none">
+                    <!-- Icon Left -->
+                    <div class="absolute left-2.5 top-1/2 -translate-y-1/2 text-[#1b3bbb] pointer-events-none">
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path>
+                        </svg>
+                    </div>
+                    <!-- Custom Arrow Right -->
+                    <div class="absolute right-2.5 top-1/2 -translate-y-1/2 text-[#1b3bbb] pointer-events-none">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
                         </svg>
                     </div>
                 </div>
@@ -93,7 +101,7 @@
                                     <svg class="w-3.5 h-3.5 text-emerald-600 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
                                     </svg>
-                                    <span>TELAH DISAHKAN ✓</span>
+                                    <span>TELAH DISAHKAN</span>
                                 </span>
                             </div>
 
