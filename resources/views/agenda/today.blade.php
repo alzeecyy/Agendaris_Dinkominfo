@@ -3,7 +3,7 @@
 @section('title', 'Kegiatan Hari Ini')
 
 @section('content')
-<div x-data="{ 
+<div class="pb-12 sm:pb-16" x-data="{ 
     activeTab: 'semua', 
     tvMode: false,
     tvTheme: 'cerah',

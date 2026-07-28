@@ -3,7 +3,7 @@
 @section('title', 'Dashboard Utama')
 
 @section('content')
-<div class="space-y-2.5 sm:space-y-6">
+<div class="space-y-2.5 sm:space-y-6 pb-12 sm:pb-16">
 
     <!-- KPI Summary Grid (Greeting & Cards) -->
     <div class="grid grid-cols-2 md:grid-cols-3 gap-2 sm:gap-6 items-stretch">
