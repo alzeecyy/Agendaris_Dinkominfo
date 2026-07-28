@@ -158,7 +158,10 @@ class AgendaController extends Controller
         // Determine participants to attach
         $allowedUsersQuery = \App\Models\User::where('role', '!=', 'admin')->where('active', true);
         if (!in_array('semua_orang', $hakAkses)) {
-            $allowedUsersQuery->whereIn('bidang_id', $hakAkses);
+            $allowedUsersQuery->where(function($q) use ($hakAkses) {
+                $q->whereIn('bidang_id', $hakAkses)
+                  ->orWhere('role', 'ketua_master');
+            });
         }
         $allowedUserIds = $allowedUsersQuery->pluck('id')->toArray();
 
@@ -432,7 +435,10 @@ class AgendaController extends Controller
         // Pre-compute target participant list for validation before entering transaction
         $allowedUsersQuery = \App\Models\User::where('role', '!=', 'admin')->where('active', true);
         if (!in_array('semua_orang', $newHakAkses)) {
-            $allowedUsersQuery->whereIn('bidang_id', $newHakAkses);
+            $allowedUsersQuery->where(function($q) use ($newHakAkses) {
+                $q->whereIn('bidang_id', $newHakAkses)
+                  ->orWhere('role', 'ketua_master');
+            });
         }
         $allowedUserIds = $allowedUsersQuery->pluck('id')->toArray();
 

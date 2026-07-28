@@ -281,10 +281,21 @@
                                                      'name' => $u->name,
                                                      'nip' => $u->nip ?? '-',
                                                      'jabatan' => $u->jabatan ?? '-',
+                                                     'role' => $u->role,
                                                  ];
                                              })->values()->toArray(),
                                          ];
                                      })->values()->toArray();
+                                     $kadinUser = \App\Models\User::where('role', 'ketua_master')->first();
+                                     $kadinUserId = $kadinUser ? (string)$kadinUser->id : '';
+                                     $kadinUserData = $kadinUser ? [
+                                         'id' => (string)$kadinUser->id,
+                                         'name' => $kadinUser->name,
+                                         'nip' => $kadinUser->nip ?? '-',
+                                         'jabatan' => $kadinUser->jabatan ?? 'Kepala Dinas / Kadin',
+                                         'role' => $kadinUser->role,
+                                     ] : null;
+                                     $isKadinTargetInitial = in_array('kadin', (array)($agenda->hak_akses ?? [])) || ($kadinUserId && in_array($kadinUserId, array_map('strval', $initialParticipants)));
                                  @endphp
                                  <div x-data='{
                                      semua: {{ $isSemua ? "true" : "false" }},
@@ -295,10 +306,29 @@
                                      isSekretariatScope: {{ Auth::user()->isSekretariatScope() ? "true" : "false" }},
                                      ownBidangId: "{{ Auth::user()->bidang_id }}",
                                      sekId: "{{ $sekretariatId }}",
+                                     kadinUserId: "{{ $kadinUserId }}",
+                                     kadinUser: {{ json_encode($kadinUserData) }},
+                                     kadinTarget: {{ $isKadinTargetInitial ? "true" : "false" }},
                                      bidangsUserData: {{ json_encode($bidangsUserData) }},
                                      selectedParticipants: {{ json_encode(array_values($initialParticipants)) }},
                                      participantModalOpen: false,
                                      searchParticipant: "",
+
+                                     toggleKadinTarget() {
+                                         let kId = String(this.kadinUserId);
+                                         let curParts = (this.selectedParticipants || []).map(String);
+                                         let curBids = (this.bidangs || []).map(String);
+
+                                         if (this.kadinTarget) {
+                                             if (!curBids.includes("kadin")) curBids.push("kadin");
+                                             if (kId && !curParts.includes(kId)) curParts.push(kId);
+                                         } else {
+                                             curBids = curBids.filter(b => b !== "kadin");
+                                             if (kId) curParts = curParts.filter(p => p !== kId);
+                                         }
+                                         this.bidangs = curBids;
+                                         this.selectedParticipants = curParts;
+                                     },
 
                                      filteredUsers(users) {
                                          if (!users || !Array.isArray(users)) return [];
@@ -367,6 +397,9 @@
                                                  });
                                              }
                                          });
+                                         if (this.kadinTarget && this.kadinUserId) {
+                                             activeUserIds.push(String(this.kadinUserId));
+                                         }
                                          let currentSelected = (this.selectedParticipants || []).map(String);
                                          let newSelection = currentSelected.filter(id => activeUserIds.includes(id));
                                          activeUserIds.forEach(id => {
@@ -375,6 +408,9 @@
                                              }
                                          });
                                          this.selectedParticipants = newSelection;
+                                         if (this.kadinUserId) {
+                                             this.kadinTarget = this.selectedParticipants.map(String).includes(String(this.kadinUserId));
+                                         }
                                      },
 
                                      toggleBidangUsers(bidangId) {
@@ -418,6 +454,16 @@
                                      @endif
 
                                      <div class="grid grid-cols-1 gap-1 mt-1">
+                                          <!-- Checkbox Kepala Dinas (Kadin) -->
+                                          <label class="flex items-center justify-between px-2 py-1 rounded-lg hover:bg-slate-50 transition-all cursor-pointer select-none">
+                                              <div class="flex items-center gap-2">
+                                                  <input type="checkbox" value="kadin" x-model="kadinTarget" @change="toggleKadinTarget()"
+                                                         class="w-3.5 h-3.5 rounded border-[#d4d1f5] text-[#8e88dd]">
+                                                  <span class="text-xs text-[#5a508f] font-medium">
+                                                      Kepala Dinas <span class="text-slate-400 font-normal">(Kadin)</span>
+                                                  </span>
+                                              </div>
+                                          </label>
                                          @foreach($allBidangs as $b)
                                              @php
                                                  $isSub = (str_contains(strtolower($b->nama), 'subbag') || str_contains(strtolower($b->singkatan), 'subbag')) && strcasecmp($b->singkatan, 'Sekretariat') !== 0;
@@ -511,6 +557,31 @@
                                                      </div>
                                                  </template>
 
+                                                 <!-- Group Card Khusus Kepala Dinas (Kadin) -->
+                                                  <template x-if="kadinUser && kadinTarget && (!searchParticipant || kadinUser.name.toLowerCase().includes(searchParticipant.toLowerCase()) || kadinUser.jabatan.toLowerCase().includes(searchParticipant.toLowerCase()))">
+                                                      <div class="bg-slate-50 border border-slate-200/80 rounded-2xl p-3.5 space-y-2.5">
+                                                          <div class="flex items-center justify-between pb-2 border-b border-slate-200/60">
+                                                              <div class="flex items-center gap-2">
+                                                                  <span class="w-2.5 h-2.5 rounded-full bg-[#1b3bbb]"></span>
+                                                                  <span class="text-xs font-black text-[#09103c]">Kepala Dinas (Kadin)</span>
+                                                              </div>
+                                                              <button type="button" @click="toggleKadinTarget()" class="text-[10.5px] font-extrabold text-[#1b3bbb] hover:underline cursor-pointer">
+                                                                  <span x-text="selectedParticipants.map(String).includes(String(kadinUser.id)) ? 'Hapus Centang' : 'Centang'"></span>
+                                                              </button>
+                                                          </div>
+
+                                                          <div class="grid grid-cols-1 sm:grid-cols-2 gap-1.5">
+                                                              <label class="flex items-start gap-2.5 p-2 bg-white rounded-xl border border-slate-200/60 hover:border-indigo-200 cursor-pointer select-none transition-all">
+                                                                  <input type="checkbox" :value="kadinUser.id" x-model="selectedParticipants" @change="if(kadinUserId) kadinTarget = selectedParticipants.map(String).includes(String(kadinUserId));" class="w-4 h-4 rounded border-slate-300 text-indigo-600 focus:ring-indigo-500 mt-0.5 shrink-0">
+                                                                  <div class="min-w-0 flex-1">
+                                                                      <div class="text-xs font-bold text-slate-800 leading-tight truncate" x-text="kadinUser.name"></div>
+                                                                      <div class="text-[10px] text-slate-500 font-medium truncate" x-text="kadinUser.jabatan || 'Kepala Dinas / Kadin'"></div>
+                                                                  </div>
+                                                              </label>
+                                                          </div>
+                                                      </div>
+                                                  </template>
+
                                                  <template x-for="bidang in visibleBidangs" :key="bidang.id">
                                                      <div class="bg-slate-50 border border-slate-200/80 rounded-2xl p-3.5 space-y-2.5">
                                                          <div class="flex items-center justify-between pb-2 border-b border-slate-200/60">
@@ -528,8 +599,13 @@
                                                              <template x-for="user in filteredUsers(bidang.users)" :key="user.id">
                                                                  <label class="flex items-start gap-2.5 p-2 bg-white rounded-xl border border-slate-200/60 hover:border-indigo-200 cursor-pointer select-none transition-all">
                                                                      <input type="checkbox" :value="user.id" x-model="selectedParticipants" class="w-4 h-4 rounded border-slate-300 text-indigo-600 focus:ring-indigo-500 mt-0.5 shrink-0">
-                                                                     <div class="min-w-0">
-                                                                         <div class="text-xs font-bold text-slate-800 leading-tight truncate" x-text="user.name"></div>
+                                                                     <div class="min-w-0 flex-1">
+                                                                         <div class="flex items-center gap-1.5 flex-wrap">
+                                                                             <div class="text-xs font-bold text-slate-800 leading-tight truncate" x-text="user.name"></div>
+                                                                             <template x-if="user.role === 'ketua_master' || (user.jabatan && user.jabatan.toLowerCase().includes('kadin'))">
+                                                                                 <span class="inline-flex items-center px-1.5 py-0.5 rounded text-[9px] font-black bg-amber-100 text-amber-800 border border-amber-300 shrink-0">KADIN</span>
+                                                                             </template>
+                                                                         </div>
                                                                          <div class="text-[10px] text-slate-500 font-medium truncate" x-text="user.jabatan || 'Pegawai'"></div>
                                                                      </div>
                                                                  </label>
