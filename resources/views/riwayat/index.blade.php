@@ -143,7 +143,8 @@ class="space-y-6">
                 <!-- Kategori Filter -->
                 <div class="relative w-full">
                     <select x-model="filterKategori" 
-                            class="w-full pl-8 pr-8 py-2 bg-white border border-[#d4d1f5]/80 rounded-xl text-xs text-[#2e2552] font-semibold !appearance-none !bg-none [background-image:none] cursor-pointer focus:outline-none focus:ring-2 focus:ring-[#1b3bbb] transition-all shadow-2xs truncate">
+                            style="background-image: none !important; -webkit-appearance: none !important; -moz-appearance: none !important; appearance: none !important;"
+                            class="w-full pl-8 pr-8 py-2 bg-white border border-[#d4d1f5]/80 rounded-xl text-xs text-[#2e2552] font-semibold cursor-pointer focus:outline-none focus:ring-2 focus:ring-[#1b3bbb] transition-all shadow-2xs truncate">
                         <option value="">Semua Kategori</option>
                         <option value="rapat">Rapat</option>
                         <option value="sosialisasi">Sosialisasi</option>
@@ -179,7 +180,8 @@ class="space-y-6">
                 <!-- Status Kehadiran Filter -->
                 <div class="relative w-full">
                     <select x-model="filterStatus" 
-                            class="w-full pl-8 pr-8 py-2 bg-white border border-[#d4d1f5]/80 rounded-xl text-xs text-[#2e2552] font-semibold !appearance-none !bg-none [background-image:none] cursor-pointer focus:outline-none focus:ring-2 focus:ring-[#1b3bbb] transition-all shadow-2xs truncate">
+                            style="background-image: none !important; -webkit-appearance: none !important; -moz-appearance: none !important; appearance: none !important;"
+                            class="w-full pl-8 pr-8 py-2 bg-white border border-[#d4d1f5]/80 rounded-xl text-xs text-[#2e2552] font-semibold cursor-pointer focus:outline-none focus:ring-2 focus:ring-[#1b3bbb] transition-all shadow-2xs truncate">
                         <option value="">Semua Kehadiran</option>
                         <option value="hadir">Hadir</option>
                         <option value="izin">Izin</option>
@@ -203,7 +205,8 @@ class="space-y-6">
                 <!-- Status Notulensi Filter -->
                 <div class="relative w-full">
                     <select x-model="filterNotulensiStatus" 
-                            class="w-full pl-8 pr-8 py-2 bg-white border border-[#d4d1f5]/80 rounded-xl text-xs text-[#2e2552] font-semibold !appearance-none !bg-none [background-image:none] cursor-pointer focus:outline-none focus:ring-2 focus:ring-[#1b3bbb] transition-all shadow-2xs truncate">
+                            style="background-image: none !important; -webkit-appearance: none !important; -moz-appearance: none !important; appearance: none !important;"
+                            class="w-full pl-8 pr-8 py-2 bg-white border border-[#d4d1f5]/80 rounded-xl text-xs text-[#2e2552] font-semibold cursor-pointer focus:outline-none focus:ring-2 focus:ring-[#1b3bbb] transition-all shadow-2xs truncate">
                         <option value="">Semua Status Notulen</option>
                         <option value="draft">Belum Ada Draft</option>
                         <option value="menunggu_review">Menunggu Review</option>
