@@ -318,18 +318,23 @@ class NotulensiController extends Controller
     {
         $user = Auth::user();
 
-        if (!$user->hasAccessToAgenda($agenda)) {
-            $prevUrl = url()->previous();
-            if (empty($prevUrl) || $prevUrl === url()->current()) {
-                return redirect()->route('agenda.today')->with('warning', 'Akses ditolak. Anda tidak terdaftar sebagai peserta dalam rapat ini.');
-            }
-            return redirect()->back()->with('warning', 'Akses ditolak. Anda tidak terdaftar sebagai peserta dalam rapat ini.');
-        }
-
         $notulensi = $agenda->notulensi;
         if (!$notulensi || !in_array($notulensi->status, ['menunggu_review', 'disahkan'])) {
             return redirect()->route('agenda.show', $agenda->id)
                 ->with('error', 'Notulensi belum tersedia.');
+        }
+
+        $canView = $user->isKetuaMaster() 
+            || $user->isSekretarisMaster() 
+            || $notulensi->status === 'disahkan' 
+            || $user->hasAccessToAgenda($agenda);
+
+        if (!$canView) {
+            $prevUrl = url()->previous();
+            if (empty($prevUrl) || $prevUrl === url()->current()) {
+                return redirect()->route('agenda.today')->with('warning', 'Akses ditolak. Anda tidak memiliki wewenang untuk membaca notulensi ini.');
+            }
+            return redirect()->back()->with('warning', 'Akses ditolak. Anda tidak memiliki wewenang untuk membaca notulensi ini.');
         }
 
         // Verify if user is the authorized secretary
@@ -453,13 +458,18 @@ class NotulensiController extends Controller
     {
         $user = Auth::user();
 
-        if (!$user->hasAccessToAgenda($agenda)) {
-            abort(403);
-        }
-
         $notulensi = $agenda->notulensi;
         if (!$notulensi || $notulensi->status !== 'disahkan') {
             abort(400, 'Dokumen belum disahkan.');
+        }
+
+        $canView = $user->isKetuaMaster() 
+            || $user->isSekretarisMaster() 
+            || $notulensi->status === 'disahkan' 
+            || $user->hasAccessToAgenda($agenda);
+
+        if (!$canView) {
+            abort(403, 'Akses ditolak.');
         }
 
         // Get internal attendees (only invited meeting_participants)
@@ -553,13 +563,18 @@ class NotulensiController extends Controller
     {
         $user = Auth::user();
 
-        if (!$user->hasAccessToAgenda($agenda)) {
-            abort(403);
-        }
-
         $notulensi = $agenda->notulensi;
         if (!$notulensi || $notulensi->status !== 'disahkan') {
             abort(400, 'Dokumen belum disahkan.');
+        }
+
+        $canView = $user->isKetuaMaster() 
+            || $user->isSekretarisMaster() 
+            || $notulensi->status === 'disahkan' 
+            || $user->hasAccessToAgenda($agenda);
+
+        if (!$canView) {
+            abort(403, 'Akses ditolak.');
         }
 
         // Get internal attendees (only invited meeting_participants)
@@ -856,6 +871,67 @@ class NotulensiController extends Controller
             'status' => 'error',
             'message' => 'Analisis AI gagal. Tidak ada API key yang dikonfigurasi (GEMINI_API_KEY) dan server Ollama lokal tidak dapat dijangkau atau tidak merespons. Pastikan Ollama berjalan di ' . ($llmApiBase ?? 'localhost:11434') . '.'
         ], 503);
+    }
+
+    /**
+     * Show official archive of approved notulensi for all bidangs & subbags.
+     */
+    public function arsipDinas(Request $request)
+    {
+        $user = Auth::user();
+        if ($user->isAdmin()) {
+            return redirect()->route('admin.users.index');
+        }
+
+        $selectedBidangId = $request->query('bidang_id', 'semua');
+        $searchQuery = trim($request->query('search', ''));
+
+        $query = Notulensi::where('status', 'disahkan')
+            ->with(['agenda.sekretaris.bidang', 'approver', 'lastEditedBy']);
+
+        // Search filter
+        if (!empty($searchQuery)) {
+            $query->whereHas('agenda', function($q) use ($searchQuery) {
+                $q->where('judul', 'like', "%{$searchQuery}%")
+                  ->orWhere('nomor_surat_dasar', 'like', "%{$searchQuery}%")
+                  ->orWhere('lokasi', 'like', "%{$searchQuery}%");
+            });
+        }
+
+        // Bidang filter: Categorized strictly by organizer bidang (sekretaris.bidang_id)
+        if ($selectedBidangId === 'lintas_dinas') {
+            $query->whereHas('agenda', function($q) {
+                $q->whereJsonContains('hak_akses', 'semua_orang');
+            });
+        } elseif ($selectedBidangId !== 'semua' && is_numeric($selectedBidangId)) {
+            $query->whereHas('agenda', function($q) use ($selectedBidangId) {
+                $q->whereHas('sekretaris', function($sq) use ($selectedBidangId) {
+                    $sq->where('bidang_id', $selectedBidangId);
+                });
+            });
+        }
+
+        $notulensiList = $query->orderBy('updated_at', 'desc')->get();
+
+        // Get all active Bidangs for filter tabs
+        $bidangs = \App\Models\Bidang::orderBy('nama', 'asc')->get();
+
+        // Calculate exact counts for each Bidang tab based on organizer bidang
+        $allApproved = Notulensi::where('status', 'disahkan')->with('agenda.sekretaris')->get();
+        $bidangCounts = [
+            'semua' => $allApproved->count(),
+            'lintas_dinas' => $allApproved->filter(fn($n) => $n->agenda && in_array('semua_orang', (array)($n->agenda->hak_akses ?? [])))->count(),
+        ];
+
+        foreach ($bidangs as $b) {
+            $bidangCounts[$b->id] = $allApproved->filter(function($n) use ($b) {
+                if (!$n->agenda) return false;
+                $creatorBidangId = $n->agenda->sekretaris?->bidang_id;
+                return (string)$creatorBidangId === (string)$b->id;
+            })->count();
+        }
+
+        return view('notulensi.arsip', compact('notulensiList', 'bidangs', 'selectedBidangId', 'bidangCounts', 'searchQuery'));
     }
 
     /**

@@ -218,8 +218,11 @@ class User extends Authenticatable
             return true;
         }
 
-        // Kepala Dinas (ketua_master) is only invited if rapat is Lintas Dinas (semua_orang) or explicitly added in participants
+        // Kepala Dinas (ketua_master) has access if rapat is Lintas Dinas (semua_orang), created by Sekdin, or explicitly added in participants
         if ($this->isKetuaMaster()) {
+            if ($agenda->sekretaris?->isSekretarisMaster()) {
+                return true;
+            }
             return false;
         }
 

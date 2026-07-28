@@ -261,8 +261,33 @@ class="w-full flex flex-col gap-3.5 sm:gap-5 select-none">
                             @endif
 
                             @if($agenda->notulensi)
-                                <a href="{{ route('notulensi.review', $agenda->id) }}" class="px-2.5 py-1 sm:px-3 sm:py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg sm:rounded-xl text-[11px] sm:text-xs font-bold transition-all flex items-center gap-1">
-                                    <span>📄 Notulensi ({{ ucfirst($agenda->notulensi->status) }})</span>
+                                @php
+                                    $notulensiSt = $agenda->notulensi->status ?? 'draft';
+                                    $notulensiBadges = [
+                                        'draft' => [
+                                            'label' => 'Notulensi (Draf)',
+                                            'class' => 'bg-slate-100 text-slate-700 border-slate-200 hover:bg-slate-200'
+                                        ],
+                                        'menunggu_review' => [
+                                            'label' => 'Notulensi (Sedang Ditinjau)',
+                                            'class' => 'bg-amber-50 text-amber-700 border-amber-200/80 hover:bg-amber-100'
+                                        ],
+                                        'disahkan' => [
+                                            'label' => 'Notulensi (Telah Disahkan ✓)',
+                                            'class' => 'bg-emerald-50 text-emerald-700 border-emerald-200 hover:bg-emerald-100'
+                                        ],
+                                        'revisi' => [
+                                            'label' => 'Notulensi (Perlu Revisi)',
+                                            'class' => 'bg-rose-50 text-rose-700 border-rose-200 hover:bg-rose-100'
+                                        ],
+                                    ];
+                                    $stMeta = $notulensiBadges[$notulensiSt] ?? [
+                                        'label' => 'Notulensi',
+                                        'class' => 'bg-slate-100 text-slate-700 border-slate-200'
+                                    ];
+                                @endphp
+                                <a href="{{ route('notulensi.review', $agenda->id) }}" class="px-2.5 py-1 sm:px-3 sm:py-1.5 border rounded-lg sm:rounded-xl text-[11px] sm:text-xs font-bold transition-all flex items-center gap-1.5 {{ $stMeta['class'] }}">
+                                    <span>📄 {{ $stMeta['label'] }}</span>
                                 </a>
                             @endif
                         </div>
