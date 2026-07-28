@@ -468,7 +468,7 @@
                                     <span class="text-[#2e2552]">Agenda Kegiatan</span>
                                     <span class="text-[#8e88dd]">{{ $date->translatedFormat('d M Y') }}</span>
                                 </div>
-                                <div class="space-y-2 max-h-48 overflow-y-auto pr-1">
+                                <div class="space-y-2 max-h-48 overflow-y-auto no-scrollbar pr-1">
                                     @foreach($dayEvents as $evt)
                                         @php
                                             $badgeColors = [

@@ -52,6 +52,19 @@
             background: transparent;
         }
 
+        /* Hide scrollbar utility */
+        .no-scrollbar::-webkit-scrollbar,
+        .scrollbar-none::-webkit-scrollbar {
+            display: none !important;
+            width: 0 !important;
+            height: 0 !important;
+        }
+        .no-scrollbar,
+        .scrollbar-none {
+            -ms-overflow-style: none !important;
+            scrollbar-width: none !important;
+        }
+
         /* Color Palette Override from Purple to Royal Blue/Navy */
         .text-\[\#2e2552\] { color: #09103c !important; }
         .bg-\[\#2e2552\] { background-color: #1b3bbb !important; }
