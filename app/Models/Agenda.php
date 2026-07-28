@@ -68,13 +68,13 @@ class Agenda extends Model
     public function getInternalParticipants()
     {
         if ($this->participants()->exists()) {
-            $invited = $this->participants()->where('active', true)->where('role', '!=', 'admin')->get();
+            $invited = $this->participants()->with('bidang')->where('active', true)->where('role', '!=', 'admin')->get();
             $attendedUserIds = Presensi::where('agenda_id', $this->id)
                 ->whereIn('status', ['hadir', 'izin', 'sakit', 'alfa'])
                 ->pluck('user_id');
 
             if ($attendedUserIds->isNotEmpty()) {
-                $attendedUsers = User::whereIn('id', $attendedUserIds)
+                $attendedUsers = User::with('bidang')->whereIn('id', $attendedUserIds)
                     ->where('active', true)
                     ->where('role', '!=', 'admin')
                     ->get();
@@ -86,7 +86,7 @@ class Agenda extends Model
         }
 
         $hakAkses = $this->hak_akses ?? [];
-        $query = User::where('role', '!=', 'admin')->where('active', true);
+        $query = User::with('bidang')->where('role', '!=', 'admin')->where('active', true);
         if (!in_array('semua_orang', $hakAkses)) {
             $query->whereIn('bidang_id', $hakAkses);
         }

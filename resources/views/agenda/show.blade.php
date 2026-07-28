@@ -1365,60 +1365,115 @@ sekId: "{{ $sekretariatId }}",
                         @endif
                     </div>
                     
-                    <div class="max-h-[460px] overflow-y-auto pr-1">
-                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                            @foreach($participants as $part)
-                                <div class="flex items-center justify-between gap-3 p-3 bg-[#f8f7ff] border border-[#d4d1f5]/40 hover:border-[#8e88dd]/60 rounded-2xl shadow-xs transition-all">
-                                    <div class="min-w-0 flex-1">
-                                        <div class="text-xs font-bold text-[#2e2552] truncate" title="{{ $part->name }}">{{ $part->name }}</div>
-                                        <div class="text-[10px] text-[#5a508f] truncate font-medium mt-0.5" title="{{ $part->jabatan }}">{{ $part->jabatan }}</div>
-                                    </div>
-                                    @if(Auth::user()->isAdmin() || $isSecretaryOfAgenda)
-                                        <form action="{{ route('agenda.absen.koreksi', $agenda->id) }}" method="POST" class="shrink-0">
-                                            @csrf
-                                            <input type="hidden" name="user_id" value="{{ $part->id }}">
-                                            <select name="status" onchange="submitStatusKoreksi(this)" 
-                                                    class="text-[11px] bg-white border border-[#d4d1f5] rounded-xl text-[#2e2552] px-2.5 py-1.5 font-bold focus:outline-none focus:ring-1 focus:ring-[#8e88dd] cursor-pointer shadow-xs">
-                                                <option value="Belum Absen" {{ ($part->status_presensi === 'Belum Absen' || !$part->status_presensi) ? 'selected' : '' }}>Belum Absen</option>
-                                                <option value="hadir" {{ $part->status_presensi === 'hadir' ? 'selected' : '' }}>Hadir</option>
-                                                <option value="izin" {{ $part->status_presensi === 'izin' ? 'selected' : '' }}>Izin</option>
-                                                <option value="sakit" {{ $part->status_presensi === 'sakit' ? 'selected' : '' }}>Sakit</option>
-                                                <option value="alfa" {{ $part->status_presensi === 'alfa' ? 'selected' : '' }}>Alfa</option>
-                                            </select>
-                                        </form>
-                                    @else
-                                        <span class="text-[10px] px-2.5 py-1 rounded-xl font-bold uppercase border {{ $part->status_presensi === 'hadir' ? 'bg-emerald-50 text-emerald-700 border-emerald-200' : ($part->status_presensi === 'izin' ? 'bg-amber-50 text-amber-700 border-amber-200' : ($part->status_presensi === 'sakit' ? 'bg-rose-50 text-rose-700 border-rose-200' : ($part->status_presensi === 'alfa' ? 'bg-red-50 text-red-700 border-red-200' : 'bg-slate-100 text-slate-600 border-slate-200'))) }}">
-                                            {{ $part->status_presensi ?: 'Belum' }}
-                                        </span>
-                                    @endif
-                                </div>
-                            @endforeach
+                    <div class="max-h-[460px] overflow-y-auto pr-1 space-y-4">
+                        @php
+                            $groupedParticipants = $participants->groupBy(function($part) {
+                                return ($part->role === 'ketua_master' || !$part->bidang_id) ? 0 : $part->bidang_id;
+                            })->sortBy(function($parts, $bidangId) {
+                                if ($bidangId == 0) return -1;
+                                $bid = $parts->first()->bidang;
+                                return $bid ? $bid->id : $bidangId;
+                            });
+                        @endphp
 
-                            @foreach($externalParticipants as $guest)
-                                <div class="flex items-center justify-between gap-3 p-3 bg-[#f0effd] border border-[#d4d1f5]/60 rounded-2xl shadow-xs">
-                                    <div class="min-w-0 flex-1">
-                                        <div class="flex items-center gap-1.5 min-w-0">
-                                            <div class="text-xs font-bold text-[#2e2552] truncate" title="{{ $guest->nama }}">{{ $guest->nama }}</div>
-                                            <span class="inline-block shrink-0 px-1.5 py-0.5 bg-[#8e88dd]/20 text-[#2e2552] text-[8px] font-black rounded uppercase tracking-wider">Tamu</span>
-                                        </div>
-                                        <div class="text-[10px] text-[#5a508f] truncate font-medium mt-0.5" title="{{ $guest->jabatan }} - {{ $guest->instansi }}">
-                                            {{ $guest->jabatan }} di <strong>{{ $guest->instansi }}</strong>
-                                        </div>
+                        @forelse($groupedParticipants as $bidId => $groupParts)
+                            @php
+                                if ($bidId == 0) {
+                                    $groupTitle = 'Kepala Dinas';
+                                } else {
+                                    $firstBid = $groupParts->first()->bidang;
+                                    $groupTitle = $firstBid ? $firstBid->nama : 'Lainnya';
+                                }
+                            @endphp
+
+                            <div class="bg-slate-50/70 border border-[#d4d1f5]/80 rounded-2xl p-3.5 space-y-3 shadow-2xs">
+                                <div class="flex items-center justify-between pb-2 border-b border-[#d4d1f5]/50">
+                                    <div class="flex items-center gap-2">
+                                        <span class="w-2.5 h-2.5 rounded-full bg-[#1b3bbb] shrink-0"></span>
+                                        <h4 class="text-xs font-black text-[#09103c]">{{ $groupTitle }}</h4>
                                     </div>
-                                    @if($isSecretaryOfAgenda)
-                                        <form action="{{ route('notulensi.external.delete', $guest->id) }}" method="POST" class="shrink-0" data-title="Hapus Tamu Eksternal?" data-confirm="Data tamu eksternal ini akan dihapus dari daftar presensi rapat." data-confirm-btn="Hapus Tamu">
-                                            @csrf
-                                            @method('DELETE')
-                                            <button type="submit" class="text-rose-600 hover:text-rose-500 p-1.5 hover:bg-rose-50 rounded-xl transition-colors" title="Hapus Tamu">
-                                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
-                                                </svg>
-                                            </button>
-                                        </form>
-                                    @endif
+                                    <span class="text-[10px] bg-[#2e2552]/10 text-[#2e2552] px-2.5 py-0.5 rounded-full font-bold">
+                                        {{ count($groupParts) }} Pegawai
+                                    </span>
                                 </div>
-                            @endforeach
-                        </div>
+
+                                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                                    @foreach($groupParts as $part)
+                                        <div class="flex items-center justify-between gap-3 p-3 bg-white border border-[#d4d1f5]/40 hover:border-[#8e88dd]/60 rounded-2xl shadow-xs transition-all">
+                                            <div class="min-w-0 flex-1">
+                                                <div class="text-xs font-bold text-[#2e2552] truncate" title="{{ $part->name }}">{{ $part->name }}</div>
+                                                <div class="text-[10px] text-[#5a508f] truncate font-medium mt-0.5" title="{{ $part->jabatan }}">{{ $part->jabatan }}</div>
+                                            </div>
+                                            @if(Auth::user()->isAdmin() || $isSecretaryOfAgenda)
+                                                <form action="{{ route('agenda.absen.koreksi', $agenda->id) }}" method="POST" class="shrink-0">
+                                                    @csrf
+                                                    <input type="hidden" name="user_id" value="{{ $part->id }}">
+                                                    <select name="status" onchange="submitStatusKoreksi(this)" 
+                                                            class="text-[11px] bg-white border border-[#d4d1f5] rounded-xl text-[#2e2552] px-2.5 py-1.5 font-bold focus:outline-none focus:ring-1 focus:ring-[#8e88dd] cursor-pointer shadow-xs">
+                                                        <option value="Belum Absen" {{ ($part->status_presensi === 'Belum Absen' || !$part->status_presensi) ? 'selected' : '' }}>Belum Absen</option>
+                                                        <option value="hadir" {{ $part->status_presensi === 'hadir' ? 'selected' : '' }}>Hadir</option>
+                                                        <option value="izin" {{ $part->status_presensi === 'izin' ? 'selected' : '' }}>Izin</option>
+                                                        <option value="sakit" {{ $part->status_presensi === 'sakit' ? 'selected' : '' }}>Sakit</option>
+                                                        <option value="alfa" {{ $part->status_presensi === 'alfa' ? 'selected' : '' }}>Alfa</option>
+                                                    </select>
+                                                </form>
+                                            @else
+                                                <span class="text-[10px] px-2.5 py-1 rounded-xl font-bold uppercase border {{ $part->status_presensi === 'hadir' ? 'bg-emerald-50 text-emerald-700 border-emerald-200' : ($part->status_presensi === 'izin' ? 'bg-amber-50 text-amber-700 border-amber-200' : ($part->status_presensi === 'sakit' ? 'bg-rose-50 text-rose-700 border-rose-200' : ($part->status_presensi === 'alfa' ? 'bg-red-50 text-red-700 border-red-200' : 'bg-slate-100 text-slate-600 border-slate-200'))) }}">
+                                                    {{ $part->status_presensi ?: 'Belum' }}
+                                                </span>
+                                            @endif
+                                        </div>
+                                    @endforeach
+                                </div>
+                            </div>
+                        @empty
+                            @if($externalParticipants->isEmpty())
+                                <div class="p-6 text-center bg-slate-50 rounded-2xl border border-dashed border-slate-200">
+                                    <p class="text-xs text-slate-500 font-bold">Belum ada peserta terdaftar.</p>
+                                </div>
+                            @endif
+                        @endforelse
+
+                        @if($externalParticipants->isNotEmpty())
+                            <div class="bg-slate-50/70 border border-[#d4d1f5]/80 rounded-2xl p-3.5 space-y-3 shadow-2xs">
+                                <div class="flex items-center justify-between pb-2 border-b border-[#d4d1f5]/50">
+                                    <div class="flex items-center gap-2">
+                                        <span class="w-2.5 h-2.5 rounded-full bg-[#1b3bbb] shrink-0"></span>
+                                        <h4 class="text-xs font-black text-[#09103c]">Tamu Eksternal</h4>
+                                    </div>
+                                    <span class="text-[10px] bg-[#8e88dd]/20 text-[#2e2552] px-2.5 py-0.5 rounded-full font-bold">
+                                        {{ count($externalParticipants) }} Tamu
+                                    </span>
+                                </div>
+
+                                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                                    @foreach($externalParticipants as $guest)
+                                        <div class="flex items-center justify-between gap-3 p-3 bg-[#f0effd] border border-[#d4d1f5]/60 rounded-2xl shadow-xs">
+                                            <div class="min-w-0 flex-1">
+                                                <div class="flex items-center gap-1.5 min-w-0">
+                                                    <div class="text-xs font-bold text-[#2e2552] truncate" title="{{ $guest->nama }}">{{ $guest->nama }}</div>
+                                                    <span class="inline-block shrink-0 px-1.5 py-0.5 bg-[#8e88dd]/20 text-[#2e2552] text-[8px] font-black rounded uppercase tracking-wider">Tamu</span>
+                                                </div>
+                                                <div class="text-[10px] text-[#5a508f] truncate font-medium mt-0.5" title="{{ $guest->jabatan }} - {{ $guest->instansi }}">
+                                                    {{ $guest->jabatan }} di <strong>{{ $guest->instansi }}</strong>
+                                                </div>
+                                            </div>
+                                            @if($isSecretaryOfAgenda)
+                                                <form action="{{ route('notulensi.external.delete', $guest->id) }}" method="POST" class="shrink-0" data-title="Hapus Tamu Eksternal?" data-confirm="Data tamu eksternal ini akan dihapus dari daftar presensi rapat." data-confirm-btn="Hapus Tamu">
+                                                    @csrf
+                                                    @method('DELETE')
+                                                    <button type="submit" class="text-rose-600 hover:text-rose-500 p-1.5 hover:bg-rose-50 rounded-xl transition-colors" title="Hapus Tamu">
+                                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+                                                        </svg>
+                                                    </button>
+                                                </form>
+                                            @endif
+                                        </div>
+                                    @endforeach
+                                </div>
+                            </div>
+                        @endif
                     </div>
                 </div>
 
@@ -1441,60 +1496,115 @@ sekId: "{{ $sekretariatId }}",
                     @endif
                 </div>
                 
-                <div class="max-h-[460px] overflow-y-auto pr-1">
-                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
-                        @foreach($participants as $part)
-                            <div class="flex items-center justify-between gap-3 p-3 bg-[#f8f7ff] border border-[#d4d1f5]/40 hover:border-[#8e88dd]/60 rounded-2xl shadow-xs transition-all">
-                                <div class="min-w-0 flex-1">
-                                    <div class="text-xs font-bold text-[#2e2552] truncate" title="{{ $part->name }}">{{ $part->name }}</div>
-                                    <div class="text-[10px] text-[#5a508f] truncate font-medium mt-0.5" title="{{ $part->jabatan }}">{{ $part->jabatan }}</div>
-                                </div>
-                                @if(Auth::user()->isAdmin() || $isSecretaryOfAgenda)
-                                    <form action="{{ route('agenda.absen.koreksi', $agenda->id) }}" method="POST" class="shrink-0">
-                                        @csrf
-                                        <input type="hidden" name="user_id" value="{{ $part->id }}">
-                                        <select name="status" onchange="submitStatusKoreksi(this)" 
-                                                class="text-[11px] bg-white border border-[#d4d1f5] rounded-xl text-[#2e2552] px-2.5 py-1.5 font-bold focus:outline-none focus:ring-1 focus:ring-[#8e88dd] cursor-pointer shadow-xs">
-                                            <option value="Belum Absen" {{ ($part->status_presensi === 'Belum Absen' || !$part->status_presensi) ? 'selected' : '' }}>Belum Absen</option>
-                                            <option value="hadir" {{ $part->status_presensi === 'hadir' ? 'selected' : '' }}>Hadir</option>
-                                            <option value="izin" {{ $part->status_presensi === 'izin' ? 'selected' : '' }}>Izin</option>
-                                            <option value="sakit" {{ $part->status_presensi === 'sakit' ? 'selected' : '' }}>Sakit</option>
-                                            <option value="alfa" {{ $part->status_presensi === 'alfa' ? 'selected' : '' }}>Alfa</option>
-                                        </select>
-                                    </form>
-                                @else
-                                    <span class="text-[10px] px-2.5 py-1 rounded-xl font-bold uppercase border {{ $part->status_presensi === 'hadir' ? 'bg-emerald-50 text-emerald-700 border-emerald-200' : ($part->status_presensi === 'izin' ? 'bg-amber-50 text-amber-700 border-amber-200' : ($part->status_presensi === 'sakit' ? 'bg-rose-50 text-rose-700 border-rose-200' : ($part->status_presensi === 'alfa' ? 'bg-red-50 text-red-700 border-red-200' : 'bg-slate-100 text-slate-600 border-slate-200'))) }}">
-                                        {{ $part->status_presensi ?: 'Belum' }}
-                                    </span>
-                                @endif
-                            </div>
-                        @endforeach
+                <div class="max-h-[460px] overflow-y-auto pr-1 space-y-4">
+                    @php
+                        $groupedParticipants = $participants->groupBy(function($part) {
+                            return ($part->role === 'ketua_master' || !$part->bidang_id) ? 0 : $part->bidang_id;
+                        })->sortBy(function($parts, $bidangId) {
+                            if ($bidangId == 0) return -1;
+                            $bid = $parts->first()->bidang;
+                            return $bid ? $bid->id : $bidangId;
+                        });
+                    @endphp
 
-                        @foreach($externalParticipants as $guest)
-                            <div class="flex items-center justify-between gap-3 p-3 bg-[#f0effd] border border-[#d4d1f5]/60 rounded-2xl shadow-xs">
-                                <div class="min-w-0 flex-1">
-                                    <div class="flex items-center gap-1.5 min-w-0">
-                                        <div class="text-xs font-bold text-[#2e2552] truncate" title="{{ $guest->nama }}">{{ $guest->nama }}</div>
-                                        <span class="inline-block shrink-0 px-1.5 py-0.5 bg-[#8e88dd]/20 text-[#2e2552] text-[8px] font-black rounded uppercase tracking-wider">Tamu</span>
-                                    </div>
-                                    <div class="text-[10px] text-[#5a508f] truncate font-medium mt-0.5" title="{{ $guest->jabatan }} - {{ $guest->instansi }}">
-                                        {{ $guest->jabatan }} di <strong>{{ $guest->instansi }}</strong>
-                                    </div>
+                    @forelse($groupedParticipants as $bidId => $groupParts)
+                        @php
+                            if ($bidId == 0) {
+                                $groupTitle = 'Kepala Dinas';
+                            } else {
+                                $firstBid = $groupParts->first()->bidang;
+                                $groupTitle = $firstBid ? $firstBid->nama : 'Lainnya';
+                            }
+                        @endphp
+
+                        <div class="bg-slate-50/70 border border-[#d4d1f5]/80 rounded-2xl p-3.5 space-y-3 shadow-2xs">
+                            <div class="flex items-center justify-between pb-2 border-b border-[#d4d1f5]/50">
+                                <div class="flex items-center gap-2">
+                                    <span class="w-2.5 h-2.5 rounded-full bg-[#1b3bbb] shrink-0"></span>
+                                    <h4 class="text-xs font-black text-[#09103c]">{{ $groupTitle }}</h4>
                                 </div>
-                                @if($isSecretaryOfAgenda)
-                                    <form action="{{ route('notulensi.external.delete', $guest->id) }}" method="POST" class="shrink-0" data-title="Hapus Tamu Eksternal?" data-confirm="Data tamu eksternal ini akan dihapus dari daftar presensi rapat." data-confirm-btn="Hapus Tamu">
-                                        @csrf
-                                        @method('DELETE')
-                                        <button type="submit" class="text-rose-600 hover:text-rose-500 p-1.5 hover:bg-rose-50 rounded-xl transition-colors" title="Hapus Tamu">
-                                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
-                                            </svg>
-                                        </button>
-                                    </form>
-                                @endif
+                                <span class="text-[10px] bg-[#2e2552]/10 text-[#2e2552] px-2.5 py-0.5 rounded-full font-bold">
+                                    {{ count($groupParts) }} Pegawai
+                                </span>
                             </div>
-                        @endforeach
-                    </div>
+
+                            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
+                                @foreach($groupParts as $part)
+                                    <div class="flex items-center justify-between gap-3 p-3 bg-white border border-[#d4d1f5]/40 hover:border-[#8e88dd]/60 rounded-2xl shadow-xs transition-all">
+                                        <div class="min-w-0 flex-1">
+                                            <div class="text-xs font-bold text-[#2e2552] truncate" title="{{ $part->name }}">{{ $part->name }}</div>
+                                            <div class="text-[10px] text-[#5a508f] truncate font-medium mt-0.5" title="{{ $part->jabatan }}">{{ $part->jabatan }}</div>
+                                        </div>
+                                        @if(Auth::user()->isAdmin() || $isSecretaryOfAgenda)
+                                            <form action="{{ route('agenda.absen.koreksi', $agenda->id) }}" method="POST" class="shrink-0">
+                                                @csrf
+                                                <input type="hidden" name="user_id" value="{{ $part->id }}">
+                                                <select name="status" onchange="submitStatusKoreksi(this)" 
+                                                        class="text-[11px] bg-white border border-[#d4d1f5] rounded-xl text-[#2e2552] px-2.5 py-1.5 font-bold focus:outline-none focus:ring-1 focus:ring-[#8e88dd] cursor-pointer shadow-xs">
+                                                    <option value="Belum Absen" {{ ($part->status_presensi === 'Belum Absen' || !$part->status_presensi) ? 'selected' : '' }}>Belum Absen</option>
+                                                    <option value="hadir" {{ $part->status_presensi === 'hadir' ? 'selected' : '' }}>Hadir</option>
+                                                    <option value="izin" {{ $part->status_presensi === 'izin' ? 'selected' : '' }}>Izin</option>
+                                                    <option value="sakit" {{ $part->status_presensi === 'sakit' ? 'selected' : '' }}>Sakit</option>
+                                                    <option value="alfa" {{ $part->status_presensi === 'alfa' ? 'selected' : '' }}>Alfa</option>
+                                                </select>
+                                            </form>
+                                        @else
+                                            <span class="text-[10px] px-2.5 py-1 rounded-xl font-bold uppercase border {{ $part->status_presensi === 'hadir' ? 'bg-emerald-50 text-emerald-700 border-emerald-200' : ($part->status_presensi === 'izin' ? 'bg-amber-50 text-amber-700 border-amber-200' : ($part->status_presensi === 'sakit' ? 'bg-rose-50 text-rose-700 border-rose-200' : ($part->status_presensi === 'alfa' ? 'bg-red-50 text-red-700 border-red-200' : 'bg-slate-100 text-slate-600 border-slate-200'))) }}">
+                                                {{ $part->status_presensi ?: 'Belum' }}
+                                            </span>
+                                        @endif
+                                    </div>
+                                @endforeach
+                            </div>
+                        </div>
+                    @empty
+                        @if($externalParticipants->isEmpty())
+                            <div class="p-6 text-center bg-slate-50 rounded-2xl border border-dashed border-slate-200">
+                                <p class="text-xs text-slate-500 font-bold">Belum ada peserta terdaftar.</p>
+                            </div>
+                        @endif
+                    @endforelse
+
+                    @if($externalParticipants->isNotEmpty())
+                        <div class="bg-slate-50/70 border border-[#d4d1f5]/80 rounded-2xl p-3.5 space-y-3 shadow-2xs">
+                            <div class="flex items-center justify-between pb-2 border-b border-[#d4d1f5]/50">
+                                <div class="flex items-center gap-2">
+                                    <span class="w-2.5 h-2.5 rounded-full bg-[#1b3bbb] shrink-0"></span>
+                                    <h4 class="text-xs font-black text-[#09103c]">Tamu Eksternal</h4>
+                                </div>
+                                <span class="text-[10px] bg-[#8e88dd]/20 text-[#2e2552] px-2.5 py-0.5 rounded-full font-bold">
+                                    {{ count($externalParticipants) }} Tamu
+                                </span>
+                            </div>
+
+                            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
+                                @foreach($externalParticipants as $guest)
+                                    <div class="flex items-center justify-between gap-3 p-3 bg-[#f0effd] border border-[#d4d1f5]/60 rounded-2xl shadow-xs">
+                                        <div class="min-w-0 flex-1">
+                                            <div class="flex items-center gap-1.5 min-w-0">
+                                                <div class="text-xs font-bold text-[#2e2552] truncate" title="{{ $guest->nama }}">{{ $guest->nama }}</div>
+                                                <span class="inline-block shrink-0 px-1.5 py-0.5 bg-[#8e88dd]/20 text-[#2e2552] text-[8px] font-black rounded uppercase tracking-wider">Tamu</span>
+                                            </div>
+                                            <div class="text-[10px] text-[#5a508f] truncate font-medium mt-0.5" title="{{ $guest->jabatan }} - {{ $guest->instansi }}">
+                                                {{ $guest->jabatan }} di <strong>{{ $guest->instansi }}</strong>
+                                            </div>
+                                        </div>
+                                        @if($isSecretaryOfAgenda)
+                                            <form action="{{ route('notulensi.external.delete', $guest->id) }}" method="POST" class="shrink-0" data-title="Hapus Tamu Eksternal?" data-confirm="Data tamu eksternal ini akan dihapus dari daftar presensi rapat." data-confirm-btn="Hapus Tamu">
+                                                @csrf
+                                                @method('DELETE')
+                                                <button type="submit" class="text-rose-600 hover:text-rose-500 p-1.5 hover:bg-rose-50 rounded-xl transition-colors" title="Hapus Tamu">
+                                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+                                                    </svg>
+                                                </button>
+                                            </form>
+                                        @endif
+                                    </div>
+                                @endforeach
+                            </div>
+                        </div>
+                    @endif
                 </div>
             </div>
         @endif
