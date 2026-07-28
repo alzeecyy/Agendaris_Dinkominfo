@@ -628,12 +628,12 @@
 
                     <!-- Dynamic Page Content -->
                     <div id="pjax-container" class="flex-1 min-w-0 w-full flex flex-col justify-between">
-                        <div class="flex-1 min-w-0 w-full flex flex-col pb-8 sm:pb-12">
+                        <div class="flex-1 min-w-0 w-full flex flex-col pb-3 sm:pb-4">
                             @yield('content')
                         </div>
 
-                        <!-- Footer copyright text without interfering horizontal line -->
-                        <footer class="pt-6 pb-2 mt-8 sm:mt-12 text-center text-slate-400 text-[10.5px] sm:text-xs font-semibold tracking-wider w-full shrink-0 flex items-center justify-center">
+                        <!-- Footer line placed neatly below content -->
+                        <footer class="border-t border-[#d4d1f5]/60 py-3.5 mt-6 sm:mt-8 text-center text-slate-400 text-[10px] sm:text-xs font-semibold tracking-wider w-full shrink-0 flex items-center justify-center">
                             &copy; 2026 Dinas Komunikasi dan Informatika Kabupaten Banyumas.
                         </footer>
                     </div>

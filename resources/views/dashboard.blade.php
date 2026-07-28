@@ -347,7 +347,7 @@
     </div>
 
     <!-- MAIN TWO COLUMN GRID -->
-    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 items-start">
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 items-stretch">
         
         <!-- LEFT/MID COLUMN: MONTHLY CALENDAR CARD -->
         <div x-data="{ showMonthPicker: false, pickerYear: {{ $selectedMonth->year }} }" class="lg:col-span-2 bg-white border border-[#d4d1f5]/60 rounded-2xl md:rounded-[32px] p-3.5 sm:p-6 shadow-sm flex flex-col">
@@ -521,10 +521,10 @@
         </div>
 
         <!-- RIGHT COLUMN: ACTIONABLE HIGHLIGHTS & HISTORY -->
-        <div class="space-y-4 sm:space-y-6">
+        <div class="space-y-4 sm:space-y-6 flex flex-col h-full justify-between">
             
             <!-- Highlights Panel -->
-            <div class="bg-white border border-[#d4d1f5]/60 rounded-2xl md:rounded-[32px] p-3.5 sm:p-6 shadow-sm space-y-3 sm:space-y-4">
+            <div class="bg-white border border-[#d4d1f5]/60 rounded-2xl md:rounded-[32px] p-3.5 sm:p-6 shadow-sm space-y-3 sm:space-y-4 shrink-0">
                 <h3 class="text-[11px] sm:text-xs font-bold uppercase tracking-wider text-[#2e2552]">Perhatian Khusus</h3>
                 
                 <div class="space-y-2.5 sm:space-y-3">
@@ -550,13 +550,13 @@
             </div>
 
             <!-- Recent Activity History Card -->
-            <div class="bg-white border border-[#d4d1f5]/60 rounded-2xl md:rounded-[32px] p-3.5 sm:p-6 shadow-sm space-y-3 sm:space-y-4">
-                <div class="flex items-center justify-between">
+            <div class="bg-white border border-[#d4d1f5]/60 rounded-2xl md:rounded-[32px] p-3.5 sm:p-6 shadow-sm flex-1 flex flex-col">
+                <div class="flex items-center justify-between mb-3.5 sm:mb-4">
                     <h3 class="text-[11px] sm:text-xs font-bold uppercase tracking-wider text-[#2e2552]">Riwayat Kegiatan</h3>
                     <a href="{{ route('riwayat') }}" class="text-[10px] text-[#8e88dd] hover:text-[#2e2552] font-bold transition-colors">Lihat Semua</a>
                 </div>
 
-                <div class="space-y-3">
+                <div class="space-y-3 flex-1 flex flex-col justify-start">
                     @forelse($riwayatRingkas as $rw)
                         <div class="p-3 bg-[#fcfbff] border border-[#d4d1f5]/20 rounded-2xl flex items-center justify-between gap-3 text-xs">
                             <div class="min-w-0 flex-1">

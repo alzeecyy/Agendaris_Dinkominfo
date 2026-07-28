@@ -97,7 +97,7 @@
                     </div>
                     
                     <div class="space-y-1 sm:border-l sm:border-[#d4d1f5]/40 sm:pl-3">
-                        <span class="text-[10px] font-bold text-[#8e88dd] uppercase tracking-wider block">Penyusun / Sekretaris Notulensi</span>
+                        <span class="text-[10px] font-bold text-[#8e88dd] uppercase tracking-wider block">Penyusun / Admin Notulensi</span>
                         @if($notulis)
                             <p class="font-extrabold text-[#2e2552] flex items-center gap-1.5">
                                 <svg class="w-4 h-4 text-[#1b3bbb] shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -106,7 +106,7 @@
                                 <span>{{ $notulis->name }}</span>
                             </p>
                             <p class="text-[10.5px] text-[#5a508f] truncate">
-                                {{ $notulis->jabatan ?? 'Sekretaris Rapat' }} 
+                                {{ $notulis->jabatan ?? 'Admin Rapat' }} 
                                 @if(isset($notulis->bidang))
                                     ({{ $notulis->bidang->singkatan }})
                                 @endif
@@ -241,7 +241,7 @@
                             </h4>
                             <form action="{{ route('notulensi.review.revision', $agenda->id) }}" method="POST" class="space-y-3">
                                 @csrf
-                                <textarea name="catatan_revisi" rows="3" required placeholder="Tuliskan bagian notulensi yang perlu diperbaiki oleh sekretaris..."
+                                <textarea name="catatan_revisi" rows="3" required placeholder="Tuliskan bagian notulensi yang perlu diperbaiki oleh admin..."
                                           class="w-full p-3 bg-white border border-rose-200 rounded-xl text-xs text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-rose-500/20 font-medium"></textarea>
                                 <div class="flex items-center justify-end gap-2">
                                     <button type="button" @click="openRevisiPanel = false" class="px-3 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-600 text-xs font-semibold rounded-lg">Batal</button>

@@ -304,14 +304,31 @@
                                      isSekBid: {{ Auth::user()->isSekretarisBidang() ? "true" : "false" }},
                                      isSekretariatScope: {{ Auth::user()->isSekretariatScope() ? "true" : "false" }},
                                      ownBidangId: "{{ Auth::user()->bidang_id }}",
-                                     sekId: "{{ $sekretariatId }}",
+sekId: "{{ $sekretariatId }}",
                                      kadinUserId: "{{ $kadinUserId }}",
                                      kadinUser: {{ json_encode($kadinUserData) }},
                                      kadinTarget: {{ $isKadinTargetInitial ? "true" : "false" }},
                                      bidangsUserData: {{ json_encode($bidangsUserData) }},
+                                     currentUserId: "{{ Auth::id() }}",
                                      selectedParticipants: {{ json_encode(array_values($initialParticipants)) }},
                                      participantModalOpen: false,
                                      searchParticipant: "",
+
+                                     isPimpinan(user) {
+                                         if (!user) return false;
+                                         let r = user.role;
+                                         let j = (user.jabatan || "").toLowerCase();
+                                         return r === "ketua_bidang" || r === "ketua_master" || r === "sekretaris_master" || j.includes("kepala") || j.includes("kabid") || j.includes("kasubbag") || j.includes("kadin") || j.includes("sekdin");
+                                     },
+
+                                     isNotulis(user) {
+                                         if (!user) return false;
+                                         return String(user.id) === String(this.currentUserId);
+                                     },
+
+                                     isMandatoryUser(user) {
+                                         return this.isPimpinan(user) || this.isNotulis(user);
+                                     },
 
                                      toggleKadinTarget() {
                                          let kId = String(this.kadinUserId);
@@ -330,15 +347,29 @@
                                      },
 
                                      filteredUsers(users) {
-                                         if (!users || !Array.isArray(users)) return [];
-                                         if (!this.searchParticipant || !this.searchParticipant.trim()) return users;
-                                         let q = this.searchParticipant.toLowerCase().trim();
-                                         return users.filter(u => 
-                                             (u.name && String(u.name).toLowerCase().includes(q)) || 
-                                             (u.jabatan && String(u.jabatan).toLowerCase().includes(q)) ||
-                                             (u.nip && String(u.nip).toLowerCase().includes(q))
-                                         );
-                                     },
+                                          if (!users || !Array.isArray(users)) return [];
+                                          let list = users;
+                                          if (this.searchParticipant && this.searchParticipant.trim()) {
+                                              let q = this.searchParticipant.toLowerCase().trim();
+                                              list = users.filter(u => 
+                                                  (u.name && String(u.name).toLowerCase().includes(q)) || 
+                                                  (u.jabatan && String(u.jabatan).toLowerCase().includes(q)) ||
+                                                  (u.nip && String(u.nip).toLowerCase().includes(q))
+                                              );
+                                          }
+                                          return [...list].sort((a, b) => {
+                                              let aPimpinan = this.isPimpinan(a) ? 2 : 0;
+                                              let bPimpinan = this.isPimpinan(b) ? 2 : 0;
+                                              let aNotulis = this.isNotulis(a) ? 1 : 0;
+                                              let bNotulis = this.isNotulis(b) ? 1 : 0;
+                                              let aScore = aPimpinan + aNotulis;
+                                              let bScore = bPimpinan + bNotulis;
+                                              if (aScore !== bScore) {
+                                                  return bScore - aScore;
+                                              }
+                                              return (a.name || "").localeCompare(b.name || "");
+                                          });
+                                      },
 
                                      get visibleBidangs() {
                                          let selectedBidangIds = (this.bidangs || []).map(String);
@@ -389,15 +420,24 @@
                                      syncParticipants() {
                                          let selectedBidangIds = (this.bidangs || []).map(String);
                                          let activeUserIds = [];
+                                         let mandatoryUserIds = [];
                                          (this.bidangsUserData || []).forEach(b => {
                                              if (selectedBidangIds.includes(String(b.id))) {
                                                  (b.users || []).forEach(u => {
-                                                     activeUserIds.push(String(u.id));
+                                                     let uId = String(u.id);
+                                                     activeUserIds.push(uId);
+                                                     if (this.isMandatoryUser(u)) {
+                                                         mandatoryUserIds.push(uId);
+                                                     }
                                                  });
                                              }
                                          });
                                          if (this.kadinTarget && this.kadinUserId) {
-                                             activeUserIds.push(String(this.kadinUserId));
+                                             let kId = String(this.kadinUserId);
+                                             activeUserIds.push(kId);
+                                             if (this.kadinUser && this.isMandatoryUser(this.kadinUser)) {
+                                                 mandatoryUserIds.push(kId);
+                                             }
                                          }
                                          let currentSelected = (this.selectedParticipants || []).map(String);
                                          let newSelection = currentSelected.filter(id => activeUserIds.includes(id));
@@ -406,6 +446,14 @@
                                                  newSelection.push(id);
                                              }
                                          });
+                                         mandatoryUserIds.forEach(id => {
+                                             if (!newSelection.includes(id)) {
+                                                 newSelection.push(id);
+                                             }
+                                         });
+                                         if (this.currentUserId && activeUserIds.includes(String(this.currentUserId)) && !newSelection.includes(String(this.currentUserId))) {
+                                             newSelection.push(String(this.currentUserId));
+                                         }
                                          this.selectedParticipants = newSelection;
                                          if (this.kadinUserId) {
                                              this.kadinTarget = this.selectedParticipants.map(String).includes(String(this.kadinUserId));
@@ -416,17 +464,19 @@
                                          let b = this.bidangsUserData.find(item => String(item.id) === String(bidangId));
                                          if (!b) return;
                                          let bUserIds = b.users.map(u => String(u.id));
+                                         let mandatoryIds = b.users.filter(u => this.isMandatoryUser(u)).map(u => String(u.id));
                                          let currentSelected = this.selectedParticipants.map(String);
-                                         let allChecked = bUserIds.every(id => currentSelected.includes(id));
+                                         let nonMandatoryIds = bUserIds.filter(id => !mandatoryIds.includes(id));
+                                         let allNonMandatoryChecked = nonMandatoryIds.every(id => currentSelected.includes(id));
 
-                                         if (!allChecked) {
+                                         if (!allNonMandatoryChecked) {
                                              bUserIds.forEach(id => {
                                                  if (!currentSelected.includes(id)) {
                                                      currentSelected.push(id);
                                                  }
                                              });
                                          } else {
-                                             currentSelected = currentSelected.filter(id => !bUserIds.includes(id));
+                                             currentSelected = currentSelected.filter(id => !bUserIds.includes(id) || mandatoryIds.includes(id));
                                          }
                                          this.selectedParticipants = currentSelected;
                                      },
@@ -435,7 +485,8 @@
                                          let b = this.bidangsUserData.find(item => String(item.id) === String(bidangId));
                                          if (!b || !b.users || b.users.length === 0) return false;
                                          let currentSelected = this.selectedParticipants.map(String);
-                                         return b.users.every(u => currentSelected.includes(String(u.id)));
+                                         let nonMandatoryIds = b.users.filter(u => !this.isMandatoryUser(u)).map(u => String(u.id));
+                                         return nonMandatoryIds.every(id => currentSelected.includes(id));
                                      }
                                  }'>
                                      <!-- Hidden Inputs for Selected Participants -->
@@ -582,36 +633,43 @@
                                                   </template>
 
                                                  <template x-for="bidang in visibleBidangs" :key="bidang.id">
-                                                     <div class="bg-slate-50 border border-slate-200/80 rounded-2xl p-3.5 space-y-2.5">
-                                                         <div class="flex items-center justify-between pb-2 border-b border-slate-200/60">
-                                                             <div class="flex items-center gap-2">
-                                                                 <span class="w-2.5 h-2.5 rounded-full bg-[#1b3bbb]"></span>
-                                                                 <span class="text-xs font-black text-[#09103c]" x-text="bidang.nama + ' (' + bidang.singkatan + ')'"></span>
-                                                                 <span class="text-[10px] font-bold text-slate-400" x-text="'(' + filteredUsers(bidang.users).length + ' orang)'"></span>
-                                                             </div>
-                                                             <button type="button" @click="toggleBidangUsers(bidang.id)" class="text-[10.5px] font-extrabold text-[#1b3bbb] hover:underline cursor-pointer">
-                                                                 <span x-text="isBidangAllChecked(bidang.id) ? 'Hapus Centang Semua' : 'Centang Semua'"></span>
-                                                             </button>
-                                                         </div>
+                                                      <div class="bg-slate-50 border border-slate-200/80 rounded-2xl p-3.5 space-y-2.5">
+                                                          <div class="flex items-center justify-between pb-2 border-b border-slate-200/60">
+                                                              <div class="flex items-center gap-2">
+                                                                  <span class="w-2.5 h-2.5 rounded-full bg-[#1b3bbb]"></span>
+                                                                  <span class="text-xs font-black text-[#09103c]" x-text="bidang.nama + ' (' + bidang.singkatan + ')'"></span>
+                                                                  <span class="text-[10px] font-bold text-slate-400" x-text="'(' + filteredUsers(bidang.users).length + ' orang)'"></span>
+                                                              </div>
+                                                              <button type="button" @click="toggleBidangUsers(bidang.id)" class="text-[10.5px] font-extrabold text-[#1b3bbb] hover:underline cursor-pointer">
+                                                                  <span x-text="isBidangAllChecked(bidang.id) ? 'Hapus Centang Staf' : 'Centang Semua Staf'"></span>
+                                                              </button>
+                                                          </div>
 
-                                                         <div class="grid grid-cols-1 sm:grid-cols-2 gap-1.5">
-                                                             <template x-for="user in filteredUsers(bidang.users)" :key="user.id">
-                                                                 <label class="flex items-start gap-2.5 p-2 bg-white rounded-xl border border-slate-200/60 hover:border-indigo-200 cursor-pointer select-none transition-all">
-                                                                     <input type="checkbox" :value="user.id" x-model="selectedParticipants" class="w-4 h-4 rounded border-slate-300 text-indigo-600 focus:ring-indigo-500 mt-0.5 shrink-0">
-                                                                     <div class="min-w-0 flex-1">
-                                                                         <div class="flex items-center gap-1.5 flex-wrap">
-                                                                             <div class="text-xs font-bold text-slate-800 leading-tight truncate" x-text="user.name"></div>
-                                                                             <template x-if="user.role === 'ketua_master' || (user.jabatan && user.jabatan.toLowerCase().includes('kadin'))">
-                                                                                 <span class="inline-flex items-center px-1.5 py-0.5 rounded text-[9px] font-black bg-amber-100 text-amber-800 border border-amber-300 shrink-0">KADIN</span>
-                                                                             </template>
-                                                                         </div>
-                                                                         <div class="text-[10px] text-slate-500 font-medium truncate" x-text="user.jabatan || 'Pegawai'"></div>
-                                                                     </div>
-                                                                 </label>
-                                                             </template>
-                                                         </div>
-                                                     </div>
-                                                 </template>
+                                                          <div class="grid grid-cols-1 sm:grid-cols-2 gap-1.5">
+                                                              <template x-for="user in filteredUsers(bidang.users)" :key="user.id">
+                                                                  <label class="flex items-start gap-2.5 p-2.5 rounded-xl border select-none transition-all cursor-pointer"
+                                                                         :class="isPimpinan(user) 
+                                                                                  ? 'bg-amber-50/80 border-amber-200/90 hover:border-amber-300' 
+                                                                                  : (isNotulis(user) 
+                                                                                      ? 'bg-indigo-50/80 border-indigo-200/90 hover:border-indigo-300' 
+                                                                                      : 'bg-white hover:bg-indigo-50/50 border-slate-200/60 hover:border-indigo-200')">
+                                                                      
+                                                                      <input type="checkbox" 
+                                                                             :value="user.id" 
+                                                                             x-model="selectedParticipants" 
+                                                                             :disabled="isMandatoryUser(user)"
+                                                                             class="w-4 h-4 rounded border-slate-300 text-indigo-600 focus:ring-indigo-500 mt-0.5 shrink-0"
+                                                                             :class="isMandatoryUser(user) ? 'opacity-70 cursor-not-allowed' : ''">
+                                                                      
+                                                                      <div class="min-w-0 flex-1">
+                                                                           <div class="text-xs font-bold text-slate-800 leading-tight truncate" x-text="user.name"></div>
+                                                                           <div class="text-[10px] text-slate-500 font-medium truncate mt-0.5" x-text="user.jabatan || 'Pegawai'"></div>
+                                                                      </div>
+                                                                  </label>
+                                                              </template>
+                                                          </div>
+                                                      </div>
+                                                  </template>
                                              </div>
 
                                             <!-- Modal Footer -->
@@ -750,6 +808,65 @@
                             </div>
                         </div>
                     </div>
+
+                    @php
+                        $invitedBidangLabels = [];
+                        $hakAksesRaw = (array)($agenda->hak_akses ?? []);
+                        if (in_array('semua_orang', $hakAksesRaw)) {
+                            $invitedBidangLabels[] = [
+                                'name' => 'Semua Bidang & Subbag (Lintas Dinas)',
+                                'bg' => 'bg-emerald-50 border-emerald-200 text-emerald-700',
+                            ];
+                        } else {
+                            foreach ($hakAksesRaw as $hId) {
+                                if ($hId === 'kadin') {
+                                    $invitedBidangLabels[] = [
+                                        'name' => 'Kadin',
+                                        'bg' => 'bg-amber-50 border-amber-200 text-amber-900',
+                                    ];
+                                } else {
+                                    $bObj = \App\Models\Bidang::find($hId);
+                                    if ($bObj) {
+                                        $invitedBidangLabels[] = [
+                                            'name' => $bObj->singkatan ?? $bObj->nama,
+                                            'bg' => 'bg-indigo-50 border-indigo-200 text-[#1b3bbb]',
+                                        ];
+                                    }
+                                }
+                            }
+                            if (empty($invitedBidangLabels) && $agenda->participants()->exists()) {
+                                $partBidangIds = $agenda->participants()->pluck('bidang_id')->unique()->filter()->toArray();
+                                foreach ($partBidangIds as $pbId) {
+                                    $bObj = \App\Models\Bidang::find($pbId);
+                                    if ($bObj) {
+                                        $invitedBidangLabels[] = [
+                                            'name' => $bObj->singkatan ?? $bObj->nama,
+                                            'bg' => 'bg-indigo-50 border-indigo-200 text-[#1b3bbb]',
+                                        ];
+                                    }
+                                }
+                            }
+                        }
+                    @endphp
+
+                    @if(!empty($invitedBidangLabels))
+                        <!-- Bidang / Subbag Peserta Rapat (Bidang Diundang) -->
+                        <div class="px-3 py-2 bg-slate-50/80 border border-[#d4d1f5]/50 rounded-2xl flex flex-col sm:flex-row sm:items-center gap-1.5 justify-between">
+                            <span class="text-[9.5px] font-extrabold text-[#5a508f] uppercase tracking-wider shrink-0 flex items-center gap-1">
+                                <svg class="w-3.5 h-3.5 text-[#8e88dd]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2.25 2.25 0 11-4.5 0 2.25 2.25 0 014.5 0zm-13.5 0a2.25 2.25 0 11-4.5 0 2.25 2.25 0 014.5 0z"></path>
+                                </svg>
+                                <span>Peserta / Bidang Diundang:</span>
+                            </span>
+                            <div class="flex items-center gap-1 flex-wrap">
+                                @foreach($invitedBidangLabels as $lbl)
+                                    <span class="px-2 py-0.5 rounded-full border text-[8.5px] sm:text-[9px] font-black uppercase tracking-wider shadow-2xs {{ $lbl['bg'] }}">
+                                        {{ $lbl['name'] }}
+                                    </span>
+                                @endforeach
+                            </div>
+                        </div>
+                    @endif
                     <!-- Nomor Surat (KHUSUS AGENDA RAPAT - PERSIS DI BAWAH GRID TANGGAL/LOKASI) -->
                     @if($agenda->kategori === 'rapat')
                         <div class="p-3.5 sm:p-4 bg-[#f8f7ff] border border-[#d4d1f5]/40 rounded-2xl space-y-2">
@@ -976,7 +1093,7 @@
 
             <!-- 2. REKAP KEHADIRAN BIDANG (Hanya untuk Non-Rapat: Sosialisasi, Pelatihan, dll - Tepat di bawah Card Absensi Digital) -->
             @if($agenda->kategori !== 'rapat')
-                @if($agenda->butuh_presensi && Auth::user()->role !== 'staff')
+                @if($agenda->butuh_presensi && $isSecretaryOfAgenda)
                     <div x-data="{ showAllRecap: false }" class="bg-white border border-[#d4d1f5]/60 rounded-xl md:rounded-[24px] p-3.5 sm:p-5 shadow-sm flex-1 flex flex-col justify-between space-y-3">
                         <div class="space-y-3">
                             <div class="border-b border-[#d4d1f5]/40 pb-2">
@@ -1190,16 +1307,19 @@
     @endif
     </div>
 
-    <!-- BOTTOM SECTION: CONDITIONAL LAYOUT FOR RAPAT VS NON-RAPAT -->
-    @if($agenda->butuh_presensi && Auth::user()->role !== 'staff')
+    <!-- BOTTOM SECTION: CONDITIONAL LAYOUT FOR RAPAT VS NON-RAPAT (KHUSUS SEKRETARIS PEMBUAT AGENDA) -->
+    @if($agenda->butuh_presensi && $isSecretaryOfAgenda)
         @if($agenda->kategori === 'rapat')
             <!-- KHUSUS AGENDA "RAPAT": DUAL COLUMN (REKAP BIDANG KIRI & KOREKSI PRESENSI KANAN) -->
             <div class="grid grid-cols-1 lg:grid-cols-12 gap-5 sm:gap-6 items-stretch">
-                <!-- LEFT COLUMN: REKAP KEHADIRAN BIDANG (KHUSUS RAPAT: DIRECT SCROLLABLE LIST TANPA BUTTON) -->
+                <!-- LEFT COLUMN: REKAP KEHADIRAN BIDANG -->
                 <div class="lg:col-span-5 bg-white border border-[#d4d1f5]/60 rounded-xl md:rounded-[32px] p-4 sm:p-6 shadow-sm flex flex-col justify-between h-full space-y-3 sm:space-y-4">
                     <div class="space-y-3 flex-1 flex flex-col">
-                        <div class="border-b border-[#d4d1f5]/40 pb-2.5">
+                        <div class="border-b border-[#d4d1f5]/40 pb-2.5 flex items-center justify-between">
                             <h3 class="text-xs sm:text-sm font-black uppercase tracking-wider text-[#2e2552]">Rekap Kehadiran Bidang</h3>
+                            <span class="text-[10px] bg-[#1b3bbb]/10 text-[#1b3bbb] font-extrabold px-2.5 py-0.5 rounded-full border border-[#1b3bbb]/20">
+                                {{ count($recap) }} Bidang
+                            </span>
                         </div>
                         
                         <div class="space-y-2 max-h-[460px] overflow-y-auto pr-1 flex-1">
@@ -1235,7 +1355,7 @@
                             <h3 class="text-xs sm:text-sm font-black uppercase tracking-wider text-[#2e2552]">Koreksi Presensi Pegawai</h3>
                             <p class="text-[10.5px] sm:text-xs text-[#5a508f] font-medium mt-0.5">Ubah status presensi pegawai atau tambahkan tamu eksternal secara manual.</p>
                         </div>
-                        @if($isSecretaryOfAgenda)
+                        @if(Auth::user()->isAdmin() || $isSecretaryOfAgenda)
                             <button @click="openGuestModal = true" class="px-3 py-1.5 sm:px-4 sm:py-2.5 bg-[#1b3bbb] hover:bg-[#09103c] text-white text-[11px] sm:text-xs font-bold rounded-xl transition-all shadow-md shadow-[#1b3bbb]/20 flex items-center justify-center gap-1.5 shrink-0">
                                 <svg class="w-3.5 h-3.5 sm:w-4 sm:h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z"></path>
@@ -1253,7 +1373,7 @@
                                         <div class="text-xs font-bold text-[#2e2552] truncate" title="{{ $part->name }}">{{ $part->name }}</div>
                                         <div class="text-[10px] text-[#5a508f] truncate font-medium mt-0.5" title="{{ $part->jabatan }}">{{ $part->jabatan }}</div>
                                     </div>
-                                    @if($isSecretaryOfAgenda)
+                                    @if(Auth::user()->isAdmin() || $isSecretaryOfAgenda)
                                         <form action="{{ route('agenda.absen.koreksi', $agenda->id) }}" method="POST" class="shrink-0">
                                             @csrf
                                             <input type="hidden" name="user_id" value="{{ $part->id }}">
@@ -1311,7 +1431,7 @@
                         <h3 class="text-xs sm:text-sm font-black uppercase tracking-wider text-[#2e2552]">Koreksi Presensi Pegawai</h3>
                         <p class="text-[10.5px] sm:text-xs text-[#5a508f] font-medium mt-0.5">Ubah status presensi pegawai atau tambahkan tamu eksternal secara manual.</p>
                     </div>
-                    @if($isSecretaryOfAgenda)
+                    @if(Auth::user()->isAdmin() || $isSecretaryOfAgenda)
                         <button @click="openGuestModal = true" class="px-3 py-1.5 sm:px-4 sm:py-2.5 bg-[#1b3bbb] hover:bg-[#09103c] text-white text-[11px] sm:text-xs font-bold rounded-xl transition-all shadow-md shadow-[#1b3bbb]/20 flex items-center justify-center gap-1.5 shrink-0">
                             <svg class="w-3.5 h-3.5 sm:w-4 sm:h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z"></path>
@@ -1329,7 +1449,7 @@
                                     <div class="text-xs font-bold text-[#2e2552] truncate" title="{{ $part->name }}">{{ $part->name }}</div>
                                     <div class="text-[10px] text-[#5a508f] truncate font-medium mt-0.5" title="{{ $part->jabatan }}">{{ $part->jabatan }}</div>
                                 </div>
-                                @if($isSecretaryOfAgenda)
+                                @if(Auth::user()->isAdmin() || $isSecretaryOfAgenda)
                                     <form action="{{ route('agenda.absen.koreksi', $agenda->id) }}" method="POST" class="shrink-0">
                                         @csrf
                                         <input type="hidden" name="user_id" value="{{ $part->id }}">

@@ -192,6 +192,30 @@ class AgendaController extends Controller
             }
         }
 
+        // Enforce mandatory participants: Creator (Notulis) and Leaders/Approvers of selected bidangs
+        $creatorId = Auth::id();
+        if ($creatorId && !in_array($creatorId, $targetUserIds) && in_array($creatorId, $allowedUserIds)) {
+            $targetUserIds[] = $creatorId;
+        }
+
+        $leaderUserIds = \App\Models\User::where('active', true)
+            ->whereIn('role', ['ketua_master', 'sekretaris_master', 'ketua_bidang'])
+            ->where(function($q) use ($hakAkses) {
+                if (!in_array('semua_orang', $hakAkses)) {
+                    $q->whereIn('bidang_id', $hakAkses)
+                      ->orWhere('role', 'ketua_master')
+                      ->orWhere('role', 'sekretaris_master');
+                }
+            })
+            ->pluck('id')
+            ->toArray();
+
+        foreach ($leaderUserIds as $lId) {
+            if (!in_array($lId, $targetUserIds) && in_array($lId, $allowedUserIds)) {
+                $targetUserIds[] = $lId;
+            }
+        }
+
         $agenda->participants()->sync($targetUserIds);
 
         // Automatically initialize an empty notulensi record for all rapat agendas
@@ -475,6 +499,30 @@ class AgendaController extends Controller
             $targetUserIds = $allowedUserIds;
             if (count($targetUserIds) === 0) {
                 return back()->withErrors(['bidangs' => 'Bidang yang dipilih tidak memiliki anggota aktif.'])->withInput();
+            }
+        }
+
+        // Enforce mandatory participants: Creator (Notulis) and Leaders/Approvers of selected bidangs
+        $creatorId = $agenda->sekretaris_id ?: Auth::id();
+        if ($creatorId && !in_array($creatorId, $targetUserIds) && in_array($creatorId, $allowedUserIds)) {
+            $targetUserIds[] = $creatorId;
+        }
+
+        $leaderUserIds = \App\Models\User::where('active', true)
+            ->whereIn('role', ['ketua_master', 'sekretaris_master', 'ketua_bidang'])
+            ->where(function($q) use ($newHakAkses) {
+                if (!in_array('semua_orang', $newHakAkses)) {
+                    $q->whereIn('bidang_id', $newHakAkses)
+                      ->orWhere('role', 'ketua_master')
+                      ->orWhere('role', 'sekretaris_master');
+                }
+            })
+            ->pluck('id')
+            ->toArray();
+
+        foreach ($leaderUserIds as $lId) {
+            if (!in_array($lId, $targetUserIds) && in_array($lId, $allowedUserIds)) {
+                $targetUserIds[] = $lId;
             }
         }
 
