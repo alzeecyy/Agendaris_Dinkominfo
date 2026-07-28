@@ -6,8 +6,8 @@
 <div class="space-y-6 max-w-7xl mx-auto pb-20 md:pb-10">
     <!-- Page Header Title -->
     <div>
-        <h1 class="text-xl sm:text-2xl font-black text-[#2e2552] tracking-wide">Arsip Notulensi Resmi Dinas</h1>
-        <p class="text-xs text-[#5a508f] mt-0.5">Kumpulan dokumen notulensi rapat seluruh bidang & unit kerja yang telah disahkan oleh Pimpinan Dinkominfo</p>
+        <h1 class="text-xl sm:text-2xl font-bold text-[#09103c] tracking-wide">Arsip Notulensi Resmi Dinas</h1>
+        <p class="text-xs sm:text-sm font-medium text-[#5a508f] mt-1">Kumpulan dokumen notulensi rapat seluruh bidang & unit kerja yang telah disahkan oleh Pimpinan Dinkominfo</p>
     </div>
 
     <!-- Main Card Container (Unified System Card Layout) -->
@@ -171,14 +171,14 @@
             </div>
         @else
             <!-- Empty State -->
-            <div class="py-12 text-center space-y-3">
-                <div class="w-14 h-14 bg-[#1b3bbb]/10 text-[#1b3bbb] rounded-2xl flex items-center justify-center mx-auto">
+            <div class="py-10 px-4 text-center space-y-3">
+                <div class="w-14 h-14 bg-[#1b3bbb]/10 text-[#1b3bbb] rounded-2xl border border-[#1b3bbb]/20 flex items-center justify-center mx-auto shadow-2xs">
                     <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 01-2-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
                     </svg>
                 </div>
-                <h3 class="text-base font-bold text-[#2e2552]">Belum Ada Dokumen Notulensi Disahkan</h3>
-                <p class="text-xs text-[#5a508f] max-w-md mx-auto font-medium">
+                <h3 class="text-base sm:text-lg font-bold text-[#09103c] tracking-wide">Belum Ada Dokumen Notulensi Disahkan</h3>
+                <p class="text-xs text-[#5a508f] max-w-md mx-auto font-medium leading-relaxed">
                     Dokumen notulensi rapat yang telah disahkan oleh Pimpinan akan otomatis tersimpan dan dapat diakses di sini.
                 </p>
             </div>

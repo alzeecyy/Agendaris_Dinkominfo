@@ -49,20 +49,46 @@
             </a>
 
             <!-- Card 2: Unfilled Presence -->
-            <a href="{{ $links['pending_presence'] ?? route('agenda.today') }}" class="kpi-card bg-white border border-[#d4d1f5]/60 hover:border-rose-400 rounded-xl md:rounded-[32px] p-2.5 sm:p-5 md:p-6 flex flex-col justify-between shadow-sm hover:shadow-md hover:scale-[1.01] active:scale-[0.99] transition-all duration-200 group cursor-pointer">
-                <div class="flex items-center justify-between">
-                    <span class="text-[9px] sm:text-xs font-bold text-[#5a508f] group-hover:text-rose-600 transition-colors uppercase truncate">Belum Presensi</span>
-                    <div class="kpi-icon kpi-icon-rose p-1 sm:p-2 bg-rose-50 text-rose-500 rounded-lg sm:rounded-2xl group-hover:!bg-[#f43f5e] group-hover:!text-white transition-all duration-200 shrink-0">
-                        <svg class="w-3.5 h-3.5 sm:w-5 sm:h-5 md:w-6 md:h-6 text-rose-500 group-hover:!text-white transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                        </svg>
+            @php
+                $pendingPresenceCount = $kpi['pending_presence'] ?? 0;
+            @endphp
+            @if($pendingPresenceCount > 0)
+                <a href="{{ $links['pending_presence'] ?? route('agenda.today') }}" class="kpi-card bg-white border border-[#d4d1f5]/60 hover:border-rose-400 rounded-xl md:rounded-[32px] p-2.5 sm:p-5 md:p-6 flex flex-col justify-between shadow-sm hover:shadow-md hover:scale-[1.01] active:scale-[0.99] transition-all duration-200 group cursor-pointer">
+                    <div class="flex items-center justify-between">
+                        <span class="text-[9px] sm:text-xs font-bold text-[#5a508f] group-hover:text-rose-600 transition-colors uppercase truncate">Belum Presensi</span>
+                        <div class="kpi-icon kpi-icon-rose p-1 sm:p-2 bg-rose-50 text-rose-500 rounded-lg sm:rounded-2xl group-hover:!bg-[#f43f5e] group-hover:!text-white transition-all duration-200 shrink-0">
+                            <svg class="w-3.5 h-3.5 sm:w-5 sm:h-5 md:w-6 md:h-6 text-rose-500 group-hover:!text-white transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                            </svg>
+                        </div>
                     </div>
-                </div>
-                <div class="mt-1.5 sm:mt-4">
-                    <h2 class="text-xl sm:text-3xl md:text-4xl font-black text-rose-600 group-hover:scale-105 origin-left transition-transform duration-200">{{ $kpi['pending_presence'] ?? 0 }}</h2>
-                    <p class="text-[9px] sm:text-xs text-[#5a508f] mt-0.5 sm:mt-1 font-medium truncate">{{ !empty($links['pending_presence']) ? 'Konfirmasi kehadiran →' : 'Tidak ada presensi aktif →' }}</p>
-                </div>
-            </a>
+                    <div class="mt-1.5 sm:mt-4">
+                        <h2 class="text-xl sm:text-3xl md:text-4xl font-black text-rose-600 group-hover:scale-105 origin-left transition-transform duration-200">{{ $pendingPresenceCount }}</h2>
+                        <p class="text-[9px] sm:text-xs text-[#5a508f] mt-0.5 sm:mt-1 font-medium truncate">Konfirmasi kehadiran &rarr;</p>
+                    </div>
+                </a>
+            @else
+                <button type="button" onclick="Swal.fire({
+                    title: 'Tidak Ada Presensi Aktif',
+                    text: 'Saat ini tidak ada agenda rapat yang memerlukan pengisian presensi Anda. Seluruh presensi telah selesai diisi.',
+                    icon: 'success',
+                    confirmButtonColor: '#1b3bbb',
+                    confirmButtonText: 'Selesai'
+                })" class="text-left kpi-card bg-white border border-[#d4d1f5]/60 hover:border-rose-400 rounded-xl md:rounded-[32px] p-2.5 sm:p-5 md:p-6 flex flex-col justify-between shadow-sm hover:shadow-md hover:scale-[1.01] active:scale-[0.99] transition-all duration-200 group cursor-pointer w-full">
+                    <div class="flex items-center justify-between">
+                        <span class="text-[9px] sm:text-xs font-bold text-[#5a508f] group-hover:text-rose-600 transition-colors uppercase truncate">Belum Presensi</span>
+                        <div class="kpi-icon kpi-icon-rose p-1 sm:p-2 bg-rose-50 text-rose-500 rounded-lg sm:rounded-2xl group-hover:!bg-[#f43f5e] group-hover:!text-white transition-all duration-200 shrink-0">
+                            <svg class="w-3.5 h-3.5 sm:w-5 sm:h-5 md:w-6 md:h-6 text-rose-500 group-hover:!text-white transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                            </svg>
+                        </div>
+                    </div>
+                    <div class="mt-1.5 sm:mt-4">
+                        <h2 class="text-xl sm:text-3xl md:text-4xl font-black text-rose-600 group-hover:scale-105 origin-left transition-transform duration-200">0</h2>
+                        <p class="text-[9px] sm:text-xs text-[#5a508f] mt-0.5 sm:mt-1 font-medium truncate">Tidak ada presensi aktif &rarr;</p>
+                    </div>
+                </button>
+            @endif
 
         @elseif(Auth::user()->role === 'sekretaris_bidang')
             <!-- Card 1: Bidang Agendas -->
@@ -82,37 +108,89 @@
             </a>
 
             <!-- Card 2: Waiting Review -->
-            <a href="{{ $links['bidang_pending_reviews'] ?? route('riwayat') }}" class="kpi-card bg-white border border-[#d4d1f5]/60 hover:border-amber-400 rounded-2xl md:rounded-[32px] p-3.5 sm:p-5 md:p-6 flex flex-col justify-between shadow-sm hover:shadow-md hover:scale-[1.01] active:scale-[0.99] transition-all duration-200 group cursor-pointer">
-                <div class="flex items-center justify-between">
-                    <span class="text-[10px] sm:text-xs font-bold text-[#5a508f] group-hover:text-amber-600 transition-colors uppercase">Menunggu Review Ketua</span>
-                    <div class="kpi-icon kpi-icon-amber p-1.5 sm:p-2 bg-amber-50 text-amber-500 rounded-xl sm:rounded-2xl group-hover:!bg-[#f59e0b] group-hover:!text-white transition-all duration-200 shrink-0">
-                        <svg class="w-4 h-4 sm:w-5 sm:h-5 md:w-6 md:h-6 text-amber-500 group-hover:!text-white transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"></path>
-                        </svg>
+            @php
+                $bidangPendingCount = $kpi['bidang_pending_reviews'] ?? 0;
+            @endphp
+            @if($bidangPendingCount > 0)
+                <a href="{{ $links['bidang_pending_reviews'] ?? route('riwayat') }}" class="kpi-card bg-white border border-[#d4d1f5]/60 hover:border-amber-400 rounded-2xl md:rounded-[32px] p-3.5 sm:p-5 md:p-6 flex flex-col justify-between shadow-sm hover:shadow-md hover:scale-[1.01] active:scale-[0.99] transition-all duration-200 group cursor-pointer">
+                    <div class="flex items-center justify-between">
+                        <span class="text-[10px] sm:text-xs font-bold text-[#5a508f] group-hover:text-amber-600 transition-colors uppercase">Menunggu Review Ketua</span>
+                        <div class="kpi-icon kpi-icon-amber p-1.5 sm:p-2 bg-amber-50 text-amber-500 rounded-xl sm:rounded-2xl group-hover:!bg-[#f59e0b] group-hover:!text-white transition-all duration-200 shrink-0">
+                            <svg class="w-4 h-4 sm:w-5 sm:h-5 md:w-6 md:h-6 text-amber-500 group-hover:!text-white transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"></path>
+                            </svg>
+                        </div>
                     </div>
-                </div>
-                <div class="mt-2.5 sm:mt-4">
-                    <h2 class="text-2xl sm:text-3xl md:text-4xl font-black text-amber-600 group-hover:scale-105 origin-left transition-transform duration-200">{{ $kpi['bidang_pending_reviews'] ?? 0 }}</h2>
-                    <p class="text-[10px] sm:text-xs text-[#5a508f] mt-0.5 sm:mt-1 font-medium">Diajukan ke Kepala Bidang &rarr;</p>
-                </div>
-            </a>
+                    <div class="mt-2.5 sm:mt-4">
+                        <h2 class="text-2xl sm:text-3xl md:text-4xl font-black text-amber-600 group-hover:scale-105 origin-left transition-transform duration-200">{{ $bidangPendingCount }}</h2>
+                        <p class="text-[10px] sm:text-xs text-[#5a508f] mt-0.5 sm:mt-1 font-medium">Diajukan ke Kepala Bidang &rarr;</p>
+                    </div>
+                </a>
+            @else
+                <button type="button" onclick="Swal.fire({
+                    title: 'Tidak Ada Notulensi Pending',
+                    text: 'Saat ini tidak ada draf notulensi rapat yang sedang menunggu review dari Kepala Bidang.',
+                    icon: 'info',
+                    confirmButtonColor: '#1b3bbb',
+                    confirmButtonText: 'Mengerti'
+                })" class="text-left kpi-card bg-white border border-[#d4d1f5]/60 hover:border-amber-400 rounded-2xl md:rounded-[32px] p-3.5 sm:p-5 md:p-6 flex flex-col justify-between shadow-sm hover:shadow-md hover:scale-[1.01] active:scale-[0.99] transition-all duration-200 group cursor-pointer w-full">
+                    <div class="flex items-center justify-between">
+                        <span class="text-[10px] sm:text-xs font-bold text-[#5a508f] group-hover:text-amber-600 transition-colors uppercase">Menunggu Review Ketua</span>
+                        <div class="kpi-icon kpi-icon-amber p-1.5 sm:p-2 bg-amber-50 text-amber-500 rounded-xl sm:rounded-2xl group-hover:!bg-[#f59e0b] group-hover:!text-white transition-all duration-200 shrink-0">
+                            <svg class="w-4 h-4 sm:w-5 sm:h-5 md:w-6 md:h-6 text-amber-500 group-hover:!text-white transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"></path>
+                            </svg>
+                        </div>
+                    </div>
+                    <div class="mt-2.5 sm:mt-4">
+                        <h2 class="text-2xl sm:text-3xl md:text-4xl font-black text-amber-600 group-hover:scale-105 origin-left transition-transform duration-200">0</h2>
+                        <p class="text-[10px] sm:text-xs text-[#5a508f] mt-0.5 sm:mt-1 font-medium">Belum ada draf pending &rarr;</p>
+                    </div>
+                </button>
+            @endif
 
         @elseif(Auth::user()->role === 'sekretaris_master')
             <!-- Card 1: Sekdin Pending Approvals -->
-            <a href="{{ $links['sekdin_pending_reviews'] ?? route('riwayat') }}" class="kpi-card bg-white border border-[#d4d1f5]/60 hover:border-amber-400 rounded-2xl md:rounded-[32px] p-3.5 sm:p-5 md:p-6 flex flex-col justify-between shadow-sm hover:shadow-md hover:scale-[1.01] active:scale-[0.99] transition-all duration-200 group cursor-pointer">
-                <div class="flex items-center justify-between">
-                    <span class="text-[10px] sm:text-xs font-bold text-[#5a508f] group-hover:text-amber-600 transition-colors uppercase">Notulensi Butuh Pengesahan</span>
-                    <div class="kpi-icon kpi-icon-amber p-1.5 sm:p-2 bg-amber-50 text-amber-500 rounded-xl sm:rounded-2xl group-hover:!bg-[#f59e0b] group-hover:!text-white transition-all duration-200 shrink-0">
-                        <svg class="w-4 h-4 sm:w-5 sm:h-5 md:w-6 md:h-6 text-amber-500 group-hover:!text-white transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"></path>
-                        </svg>
+            @php
+                $sekdinPendingCount = $kpi['sekdin_pending_reviews'] ?? 0;
+            @endphp
+            @if($sekdinPendingCount > 0)
+                <a href="{{ $links['sekdin_pending_reviews'] ?? route('riwayat') }}" class="kpi-card bg-white border border-[#d4d1f5]/60 hover:border-amber-400 rounded-2xl md:rounded-[32px] p-3.5 sm:p-5 md:p-6 flex flex-col justify-between shadow-sm hover:shadow-md hover:scale-[1.01] active:scale-[0.99] transition-all duration-200 group cursor-pointer">
+                    <div class="flex items-center justify-between">
+                        <span class="text-[10px] sm:text-xs font-bold text-[#5a508f] group-hover:text-amber-600 transition-colors uppercase">Notulensi Butuh Pengesahan</span>
+                        <div class="kpi-icon kpi-icon-amber p-1.5 sm:p-2 bg-amber-50 text-amber-500 rounded-xl sm:rounded-2xl group-hover:!bg-[#f59e0b] group-hover:!text-white transition-all duration-200 shrink-0">
+                            <svg class="w-4 h-4 sm:w-5 sm:h-5 md:w-6 md:h-6 text-amber-500 group-hover:!text-white transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"></path>
+                            </svg>
+                        </div>
                     </div>
-                </div>
-                <div class="mt-2.5 sm:mt-4">
-                    <h2 class="text-2xl sm:text-3xl md:text-4xl font-black text-amber-600 group-hover:scale-105 origin-left transition-transform duration-200">{{ $kpi['sekdin_pending_reviews'] ?? 0 }}</h2>
-                    <p class="text-[10px] sm:text-xs text-[#5a508f] mt-0.5 sm:mt-1 font-medium">Tinjau &amp; sahkan notulensi &rarr;</p>
-                </div>
-            </a>
+                    <div class="mt-2.5 sm:mt-4">
+                        <h2 class="text-2xl sm:text-3xl md:text-4xl font-black text-amber-600 group-hover:scale-105 origin-left transition-transform duration-200">{{ $sekdinPendingCount }}</h2>
+                        <p class="text-[10px] sm:text-xs text-[#5a508f] mt-0.5 sm:mt-1 font-medium">Tinjau &amp; sahkan notulensi &rarr;</p>
+                    </div>
+                </a>
+            @else
+                <button type="button" onclick="Swal.fire({
+                    title: 'Tidak Ada Notulensi Pending',
+                    text: 'Saat ini tidak ada draf notulensi rapat yang membutuhkan pengesahan Anda.',
+                    icon: 'info',
+                    confirmButtonColor: '#1b3bbb',
+                    confirmButtonText: 'Mengerti'
+                })" class="text-left kpi-card bg-white border border-[#d4d1f5]/60 hover:border-amber-400 rounded-2xl md:rounded-[32px] p-3.5 sm:p-5 md:p-6 flex flex-col justify-between shadow-sm hover:shadow-md hover:scale-[1.01] active:scale-[0.99] transition-all duration-200 group cursor-pointer w-full">
+                    <div class="flex items-center justify-between">
+                        <span class="text-[10px] sm:text-xs font-bold text-[#5a508f] group-hover:text-amber-600 transition-colors uppercase">Notulensi Butuh Pengesahan</span>
+                        <div class="kpi-icon kpi-icon-amber p-1.5 sm:p-2 bg-amber-50 text-amber-500 rounded-xl sm:rounded-2xl group-hover:!bg-[#f59e0b] group-hover:!text-white transition-all duration-200 shrink-0">
+                            <svg class="w-4 h-4 sm:w-5 sm:h-5 md:w-6 md:h-6 text-amber-500 group-hover:!text-white transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"></path>
+                            </svg>
+                        </div>
+                    </div>
+                    <div class="mt-2.5 sm:mt-4">
+                        <h2 class="text-2xl sm:text-3xl md:text-4xl font-black text-amber-600 group-hover:scale-105 origin-left transition-transform duration-200">0</h2>
+                        <p class="text-[10px] sm:text-xs text-[#5a508f] mt-0.5 sm:mt-1 font-medium">Belum ada notulensi pending &rarr;</p>
+                    </div>
+                </button>
+            @endif
 
             <!-- Card 2: Master Total Month -->
             <a href="{{ $links['master_month_agendas'] ?? route('calendar') }}" class="kpi-card bg-white border border-[#d4d1f5]/60 hover:border-[#1b3bbb] rounded-2xl md:rounded-[32px] p-3.5 sm:p-5 md:p-6 flex flex-col justify-between shadow-sm hover:shadow-md hover:scale-[1.01] active:scale-[0.99] transition-all duration-200 group cursor-pointer">

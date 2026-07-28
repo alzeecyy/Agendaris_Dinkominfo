@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="csrf-token" content="{{ csrf_token() }}">
-    <title>@yield('title', 'Sirena') - Dinkominfo Banyumas</title>
+    <title>@yield('title', 'Agendaris') - Dinkominfo Banyumas</title>
     <!-- Favicon / Logo Resmi -->
     <link rel="icon" type="image/png" href="{{ asset('images/logo-banyumas-crest.png') }}">
     <link rel="shortcut icon" href="{{ asset('favicon.ico') }}">
@@ -222,8 +222,8 @@
 
                 <img src="{{ asset('images/logo-banyumas-crest.png') }}" alt="Logo Banyumas" class="h-6 sm:h-8 md:h-10 w-auto hover:scale-105 transition-transform duration-300 shrink-0">
                 <div class="flex flex-col justify-center min-w-0">
-                    <h1 class="text-xs sm:text-sm md:text-base font-extrabold leading-tight text-[#09103c] tracking-tight truncate">Dinas Komunikasi dan Informatika</h1>
-                    <span class="text-[9px] sm:text-[10px] md:text-xs text-slate-500 font-semibold tracking-tight leading-normal truncate pb-0.5">Pemerintah Kabupaten Banyumas</span>
+                    <h1 class="text-xs sm:text-sm md:text-base font-bold leading-tight text-[#09103c] tracking-wide truncate">Dinas Komunikasi dan Informatika</h1>
+                    <span class="text-[9px] sm:text-[10px] md:text-xs text-[#5a508f] font-medium leading-normal truncate">Pemerintah Kabupaten Banyumas</span>
                 </div>
             </div>
 
@@ -243,13 +243,13 @@
                     <div x-data="{ openAdminMenu: false }" class="relative shrink-0 select-none">
                         <button type="button" @click="openAdminMenu = !openAdminMenu" class="text-[#09103c] flex items-center gap-3 px-3 py-1.5 sm:px-4 sm:py-2.5 rounded-2xl border border-transparent hover:border-[#1b3bbb]/20 hover:bg-[#1b3bbb]/8 hover:shadow-md transition-all duration-300 text-right cursor-pointer focus:outline-none group">
                             <div class="hidden sm:flex flex-col justify-center gap-0.5 text-right">
-                                <div class="text-xs sm:text-sm font-black text-[#09103c] group-hover:text-[#1b3bbb] transition-colors leading-tight">{{ Auth::user()->name }}</div>
+                                <div class="text-xs sm:text-sm font-bold text-[#09103c] group-hover:text-[#1b3bbb] transition-colors leading-tight">{{ Auth::user()->name }}</div>
                                 <div>
-                                    <span class="inline-block text-[8.5px] sm:text-[9px] font-extrabold px-2 py-0.5 rounded-full border {{ $roleColors[Auth::user()->role] ?? 'bg-slate-100 border-slate-200 text-slate-700' }} uppercase tracking-wider">
+                                    <span class="inline-block text-[8.5px] sm:text-[9px] font-bold px-2 py-0.5 rounded-full border {{ $roleColors[Auth::user()->role] ?? 'bg-slate-100 border-slate-200 text-slate-700' }} uppercase tracking-wider">
                                         {{ Auth::user()->role_label }}
                                     </span>
                                 </div>
-                                <div class="text-[9.5px] sm:text-[10px] text-slate-700 font-extrabold font-mono">NIP. {{ Auth::user()->nip }}</div>
+                                <div class="text-[9.5px] sm:text-[10px] text-[#5a508f] font-semibold">NIP. {{ Auth::user()->nip }}</div>
                             </div>
                             <div class="w-7 h-7 sm:w-8 sm:h-8 md:w-10 md:h-10 bg-[#1b3bbb]/10 rounded-xl md:rounded-2xl flex items-center justify-center font-bold text-[#1b3bbb] text-[10px] sm:text-xs md:text-sm border border-[#1b3bbb]/20 shadow-sm shrink-0 group-hover:bg-[#1b3bbb] group-hover:text-white transition-all">
                                 {{ substr(Auth::user()->name, 0, 2) }}
@@ -266,12 +266,12 @@
                              class="absolute right-0 mt-2 w-56 sm:w-60 bg-white border border-[#d4d1f5]/80 rounded-2xl shadow-xl z-50 p-3 space-y-2.5 text-[#2e2552]">
                             
                             <div class="pb-2 border-b border-[#d4d1f5]/50 flex items-center gap-2">
-                                <div class="w-7 h-7 bg-[#1b3bbb]/10 text-[#1b3bbb] rounded-xl flex items-center justify-center font-black text-xs border border-[#1b3bbb]/20 shrink-0">
+                                <div class="w-7 h-7 bg-[#1b3bbb]/10 text-[#1b3bbb] rounded-xl flex items-center justify-center font-bold text-xs border border-[#1b3bbb]/20 shrink-0">
                                     {{ substr(Auth::user()->name, 0, 2) }}
                                 </div>
                                 <div class="min-w-0 flex-1">
-                                    <div class="text-xs font-black text-[#2e2552] truncate">{{ Auth::user()->name }}</div>
-                                    <div class="text-[9.5px] text-slate-700 font-mono font-bold truncate">NIP. {{ Auth::user()->nip }}</div>
+                                    <div class="text-xs font-bold text-[#09103c] truncate">{{ Auth::user()->name }}</div>
+                                    <div class="text-[9.5px] text-[#5a508f] font-semibold truncate">NIP. {{ Auth::user()->nip }}</div>
                                 </div>
                             </div>
 
@@ -302,13 +302,13 @@
                         <a href="{{ route('profile') }}" 
                            class="text-[#09103c] flex items-center gap-3 px-3 py-1.5 sm:px-4 sm:py-2.5 rounded-2xl border border-transparent hover:border-[#1b3bbb]/20 hover:bg-[#1b3bbb]/8 hover:shadow-md transition-all duration-300 text-right cursor-pointer group">
                             <div class="hidden sm:flex flex-col justify-center gap-0.5 text-right">
-                                <div class="text-xs sm:text-sm font-black text-[#09103c] group-hover:text-[#1b3bbb] transition-colors leading-tight">{{ Auth::user()->name }}</div>
+                                <div class="text-xs sm:text-sm font-bold text-[#09103c] group-hover:text-[#1b3bbb] transition-colors leading-tight">{{ Auth::user()->name }}</div>
                                 <div>
-                                    <span class="inline-block text-[8.5px] sm:text-[9px] font-extrabold px-2 py-0.5 rounded-full border {{ $roleColors[Auth::user()->role] ?? 'bg-slate-100 border-slate-200 text-slate-700' }} uppercase tracking-wider">
+                                    <span class="inline-block text-[8.5px] sm:text-[9px] font-bold px-2 py-0.5 rounded-full border {{ $roleColors[Auth::user()->role] ?? 'bg-slate-100 border-slate-200 text-slate-700' }} uppercase tracking-wider">
                                         {{ Auth::user()->role_label }}
                                     </span>
                                 </div>
-                                <div class="text-[9.5px] sm:text-[10px] text-slate-700 font-extrabold font-mono">NIP. {{ Auth::user()->nip }}</div>
+                                <div class="text-[9.5px] sm:text-[10px] text-[#5a508f] font-semibold">NIP. {{ Auth::user()->nip }}</div>
                             </div>
                             <div class="w-7 h-7 sm:w-8 sm:h-8 md:w-10 md:h-10 bg-[#1b3bbb]/10 rounded-xl md:rounded-2xl flex items-center justify-center font-bold text-[#1b3bbb] text-[10px] sm:text-xs md:text-sm border border-[#1b3bbb]/20 shadow-sm shrink-0 group-hover:bg-[#1b3bbb] group-hover:text-white transition-all">
                                 {{ substr(Auth::user()->name, 0, 2) }}
@@ -349,10 +349,12 @@
                         <span>Tambah Agenda</span>
                     </a>
                 @endif
-                <a href="{{ route('notulensi.arsip') }}" class="flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-bold {{ request()->routeIs('notulensi.arsip') ? 'bg-[#1b3bbb] text-white shadow-md' : 'text-slate-700 hover:bg-[#1b3bbb]/10' }}">
-                    <svg class="w-4 h-4 shrink-0 text-[#1b3bbb]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
-                    <span>Arsip Notulensi Dinas</span>
-                </a>
+                @if(Auth::user()->isKetuaMaster() || Auth::user()->isSekretarisMaster())
+                    <a href="{{ route('notulensi.arsip') }}" class="flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-bold {{ request()->routeIs('notulensi.arsip') ? 'bg-[#1b3bbb] text-white shadow-md' : 'text-slate-700 hover:bg-[#1b3bbb]/10' }}">
+                        <svg class="w-4 h-4 shrink-0 text-[#1b3bbb]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+                        <span>Arsip Notulensi Dinas</span>
+                    </a>
+                @endif
                 <a href="{{ route('riwayat') }}" class="flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-bold {{ request()->routeIs('riwayat') ? 'bg-[#1b3bbb] text-white shadow-md' : 'text-slate-700 hover:bg-[#1b3bbb]/10' }}">
                     <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
                     <span>Riwayat Kegiatan</span>
@@ -446,15 +448,17 @@
                             </a>
                         @endif
 
-                        <!-- Arsip Notulensi Dinas Link -->
-                        <a href="{{ route('notulensi.arsip') }}" 
-                           class="flex items-center gap-3 px-4 py-3 rounded-2xl font-bold text-xs transition-all duration-200 
-                           {{ request()->routeIs('notulensi.arsip') ? 'bg-[#1b3bbb] text-white shadow-lg shadow-[#1b3bbb]/20' : 'text-slate-600 hover:bg-[#1b3bbb]/5 hover:text-[#1b3bbb]' }}">
-                            <svg class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
-                            </svg>
-                            <span>Arsip Notulensi Dinas</span>
-                        </a>
+                        @if(Auth::user()->isKetuaMaster() || Auth::user()->isSekretarisMaster())
+                            <!-- Arsip Notulensi Dinas Link (Only for Kadis & Sekdin) -->
+                            <a href="{{ route('notulensi.arsip') }}" 
+                               class="flex items-center gap-3 px-4 py-3 rounded-2xl font-bold text-xs transition-all duration-200 
+                               {{ request()->routeIs('notulensi.arsip') ? 'bg-[#1b3bbb] text-white shadow-lg shadow-[#1b3bbb]/20' : 'text-slate-600 hover:bg-[#1b3bbb]/5 hover:text-[#1b3bbb]' }}">
+                                <svg class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                                </svg>
+                                <span>Arsip Notulensi Dinas</span>
+                            </a>
+                        @endif
 
                         <!-- Riwayat Link -->
                         <a href="{{ route('riwayat') }}" 
@@ -530,8 +534,8 @@
             </aside>
 
             <!-- MAIN CONTENT AREA CONTAINER -->
-            <main class="flex-1 min-w-0 bg-white rounded-xl sm:rounded-2xl md:rounded-[32px] shadow-md relative overflow-hidden flex flex-col text-[#090c24] border border-[#d4d1f5]/60">
-                <div id="main-content" class="flex-1 min-h-0 w-full overflow-y-auto p-4 sm:p-6 md:p-7 flex flex-col gap-4 sm:gap-5">
+            <main class="flex-1 min-w-0 bg-white rounded-xl sm:rounded-2xl md:rounded-[28px] shadow-md relative overflow-hidden flex flex-col text-[#090c24] border border-[#d4d1f5]/60">
+                <div id="main-content" class="flex-1 min-h-0 w-full overflow-y-auto p-3.5 sm:p-5 md:p-6 flex flex-col gap-3.5 sm:gap-5">
                     
                     <!-- Floating Toast Notifications -->
                     @if(session('success') || session('error') || session('warning'))

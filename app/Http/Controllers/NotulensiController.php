@@ -879,8 +879,8 @@ class NotulensiController extends Controller
     public function arsipDinas(Request $request)
     {
         $user = Auth::user();
-        if ($user->isAdmin()) {
-            return redirect()->route('admin.users.index');
+        if ($user->isAdmin() || (!$user->isKetuaMaster() && !$user->isSekretarisMaster())) {
+            return redirect()->route('dashboard')->with('warning', 'Akses ditolak. Halaman Arsip Notulensi Dinas hanya dapat diakses oleh Kepala Dinas dan Sekretaris Dinas.');
         }
 
         $selectedBidangId = $request->query('bidang_id', 'semua');

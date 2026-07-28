@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Ubah Kata Sandi Baru - SiRENA</title>
+    <title>Ubah Kata Sandi Baru - Agendaris Dinkominfo</title>
     <!-- Favicon / Logo Resmi -->
     <link rel="icon" type="image/png" href="{{ asset('images/logo-banyumas-crest.png') }}">
     <link rel="shortcut icon" href="{{ asset('favicon.ico') }}">
@@ -25,8 +25,8 @@
         <!-- Logo & Header -->
         <div class="text-center flex flex-col items-center justify-center">
             <img src="{{ asset('images/logo-banyumas-crest.png') }}" alt="Logo Kabupaten Banyumas" class="w-16 h-16 object-contain hover:scale-105 transition-transform duration-300">
-            <h1 class="text-xl font-black text-[#09103c] tracking-widest mt-3">PENGAMANAN AKUN</h1>
-            <p class="text-slate-500 text-xs font-semibold mt-1">Pembaruan Kata Sandi Akun Anda</p>
+            <h1 class="text-xl font-extrabold text-[#09103c] tracking-wide mt-3">Pengamanan Akun</h1>
+            <p class="text-slate-500 text-xs font-semibold mt-1">Pembaruan Kata Sandi Akun Agendaris</p>
         </div>
 
         <!-- Premium White Card -->
