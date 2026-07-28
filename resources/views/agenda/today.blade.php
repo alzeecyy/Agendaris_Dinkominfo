@@ -186,8 +186,7 @@ class="w-full flex flex-col gap-3.5 sm:gap-5 select-none">
                 @endphp
 
                 <div x-show="activeTab === 'semua' || activeTab === '{{ $tabCategory }}'" x-transition
-                     style="border: 1.5px solid #1b3bbb !important;"
-                     class="bg-white rounded-xl sm:rounded-2xl md:rounded-[28px] p-3.5 sm:p-6 transition-all space-y-3 sm:space-y-4">
+                     class="bg-white rounded-xl sm:rounded-2xl md:rounded-[22px] p-3 sm:p-4 transition-all space-y-2 sm:space-y-2.5 shadow-sm border border-[#d4d1f5]/80 hover:border-[#1b3bbb]">
                     
                     <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 sm:gap-3 border-b border-slate-100 pb-2.5 sm:pb-3">
                         <div class="flex flex-wrap items-center gap-1.5 sm:gap-2">
@@ -377,7 +376,7 @@ class="w-full flex flex-col gap-3.5 sm:gap-5 select-none">
         </div>
 
         <!-- TV Main Content Display Grid -->
-        <div class="flex-1 min-h-0 py-4 sm:py-5 overflow-y-auto space-y-4 sm:space-y-6 scrollbar-none">
+        <div class="flex-1 min-h-0 py-3 sm:py-4 flex flex-col justify-between overflow-hidden">
             @if($agendas->isEmpty())
                 <div class="h-full flex flex-col items-center justify-center text-center space-y-4">
                     <div :class="tvTheme === 'cerah' ? 'bg-white text-slate-400 border-slate-200' : 'bg-white/5 text-slate-400 border-white/10'" 
@@ -390,8 +389,8 @@ class="w-full flex flex-col gap-3.5 sm:gap-5 select-none">
                     <p :class="tvTheme === 'cerah' ? 'text-slate-500' : 'text-indigo-200'" class="text-sm sm:text-base max-w-lg font-medium">Seluruh kegiatan dinas berjalan lancar. Belum ada jadwal rapat baru untuk hari ini.</p>
                 </div>
             @else
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
-                    @foreach($agendas as $agenda)
+                <div class="grid grid-cols-1 md:grid-cols-2 md:grid-rows-2 gap-3.5 sm:gap-4 h-full">
+                    @foreach($agendas->take(4) as $agenda)
                         @php
                             $nowTime = \Carbon\Carbon::now()->format('H:i:s');
                             $startTime = \Carbon\Carbon::parse($agenda->jam_mulai)->format('H:i:s');
@@ -420,43 +419,71 @@ class="w-full flex flex-col gap-3.5 sm:gap-5 select-none">
                         @endphp
 
                         <div :class="tvTheme === 'cerah' ? '{{ $tvCardStyleCerah }}' : '{{ $tvCardStyleGelap }}'" 
-                             class="rounded-3xl p-5 sm:p-6 lg:p-7 flex flex-col justify-between gap-5 transition-all">
-                            <div class="space-y-3.5">
-                                <div class="flex items-center justify-between gap-3">
-                                    <!-- Time Range Badge -->
-                                    <div class="px-3.5 py-1.5 rounded-2xl {{ $timeBadgeBg }} font-mono text-sm sm:text-base lg:text-lg font-black tracking-wide border flex items-center gap-2">
-                                        <svg class="w-4 h-4 sm:w-5 sm:h-5 text-[#1b3bbb]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                                        </svg>
-                                        <span>{{ \Carbon\Carbon::parse($agenda->jam_mulai)->format('H:i') }} - {{ \Carbon\Carbon::parse($agenda->jam_selesai)->format('H:i') }} WIB</span>
-                                    </div>
-
-                                    <!-- Status Badge -->
-                                    <div class="px-3.5 py-1 rounded-2xl text-xs lg:text-sm font-extrabold tracking-wider uppercase {{ $tvStatusBadge }}">
-                                        {{ $tvStatusLabel }}
-                                    </div>
+                             class="rounded-3xl p-5 sm:p-6 flex flex-col justify-between h-full min-h-0 transition-all border shadow-lg hover:shadow-xl">
+                            
+                            <!-- Top Header: Time Badge & Status -->
+                            <div class="flex items-center justify-between gap-3 border-b pb-3" :class="tvTheme === 'cerah' ? 'border-slate-100' : 'border-slate-800'">
+                                <div class="px-3.5 py-1.5 rounded-2xl {{ $timeBadgeBg }} font-mono text-xs sm:text-sm lg:text-base font-black tracking-wide border flex items-center gap-2 shadow-2xs">
+                                    <svg class="w-4 h-4 text-[#1b3bbb] shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                    </svg>
+                                    <span>{{ \Carbon\Carbon::parse($agenda->jam_mulai)->format('H:i') }} - {{ \Carbon\Carbon::parse($agenda->jam_selesai)->format('H:i') }} WIB</span>
                                 </div>
 
-                                <!-- Agenda Title -->
-                                <h3 :class="tvTheme === 'cerah' ? 'text-[#09103c]' : 'text-white'" class="text-lg sm:text-xl lg:text-2xl font-black leading-snug tracking-tight">
+                                <div class="px-3.5 py-1.5 rounded-2xl text-xs lg:text-sm font-black tracking-wider uppercase {{ $tvStatusBadge }} shadow-2xs">
+                                    {{ $tvStatusLabel }}
+                                </div>
+                            </div>
+
+                            <!-- Middle Section: Title & Rich 4-Pill Info Grid -->
+                            <div class="my-auto space-y-3 py-1">
+                                <h3 :class="tvTheme === 'cerah' ? 'text-[#09103c]' : 'text-white'" class="text-base sm:text-lg lg:text-xl font-black leading-snug tracking-tight line-clamp-2">
                                     {{ $agenda->judul }}
                                 </h3>
 
-                                <!-- Location -->
-                                <div class="pt-1 text-xs sm:text-sm lg:text-base font-bold" :class="tvTheme === 'cerah' ? 'text-slate-600' : 'text-slate-300'">
-                                    <div class="flex items-center gap-2">
-                                        <svg class="w-4.5 h-4.5 text-rose-500 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path>
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path>
-                                        </svg>
-                                        <span>Lokasi / Ruangan: <strong :class="tvTheme === 'cerah' ? 'text-[#09103c]' : 'text-white'" class="font-extrabold">{{ $agenda->lokasi }}</strong></span>
+                                <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs font-semibold">
+                                    <!-- Ruangan / Lokasi (Full Width) -->
+                                    <div :class="tvTheme === 'cerah' ? 'bg-rose-50/80 border-rose-200/80 text-rose-950' : 'bg-rose-950/30 border-rose-800/60 text-rose-200'"
+                                         class="col-span-1 sm:col-span-2 px-3 py-2 rounded-xl border flex items-center gap-2">
+                                        <div class="p-1 bg-rose-500/20 text-rose-600 rounded-lg shrink-0">
+                                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path>
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                                            </svg>
+                                        </div>
+                                        <span class="truncate">Lokasi / Ruangan: <strong class="font-extrabold">{{ $agenda->lokasi }}</strong></span>
+                                    </div>
+
+                                    <!-- Penyelenggara -->
+                                    <div :class="tvTheme === 'cerah' ? 'bg-blue-50/80 border-blue-200/80 text-blue-950' : 'bg-blue-950/30 border-blue-800/60 text-blue-200'"
+                                         class="px-3 py-2 rounded-xl border flex items-center gap-2">
+                                        <div class="p-1 bg-blue-500/20 text-blue-600 rounded-lg shrink-0">
+                                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path>
+                                            </svg>
+                                        </div>
+                                        <span class="truncate">Penyelenggara: <strong class="font-extrabold">{{ $agenda->sekretaris?->bidang->singkatan ?? ($agenda->sekretaris?->isSekretarisDinas() || $agenda->sekretaris?->isSekretaris() ? 'Sekretariat' : $agenda->sekretaris->name) }}</strong></span>
+                                    </div>
+
+                                    <!-- Kategori -->
+                                    <div :class="tvTheme === 'cerah' ? 'bg-indigo-50/80 border-indigo-200/80 text-indigo-950' : 'bg-indigo-950/30 border-indigo-800/60 text-indigo-200'"
+                                         class="px-3 py-2 rounded-xl border flex items-center gap-2">
+                                        <div class="p-1 bg-indigo-500/20 text-indigo-600 rounded-lg shrink-0">
+                                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z"></path>
+                                            </svg>
+                                        </div>
+                                        <span class="truncate">Kategori: <strong class="font-extrabold uppercase">{{ $agenda->kategori }}</strong></span>
                                     </div>
                                 </div>
                             </div>
 
-                            <div class="pt-3 border-t border-slate-200 flex items-center justify-between text-xs lg:text-sm font-bold text-slate-500">
-                                <span>Kategori: <strong class="text-[#1b3bbb] uppercase font-extrabold">{{ $agenda->kategori }}</strong></span>
-                                <span>Lingkup: <strong class="text-purple-700 font-extrabold">{{ in_array('semua_orang', $agenda->hak_akses) ? 'Lintas Dinas' : 'Internal Bidang' }}</strong></span>
+                            <!-- Bottom Metadata Bar -->
+                            <div class="pt-2.5 border-t flex items-center justify-between text-xs font-bold"
+                                 :class="tvTheme === 'cerah' ? 'border-slate-100' : 'border-slate-800'">
+                                <span class="text-[10.5px] px-2.5 py-0.5 rounded-full border bg-purple-50 text-purple-700 border-purple-200 font-extrabold">
+                                    {{ in_array('semua_orang', $agenda->hak_akses) ? '🌐 Rapat Lintas Dinas (Semua Orang)' : '🏢 Rapat Internal Bidang Khusus' }}
+                                </span>
                             </div>
                         </div>
                     @endforeach

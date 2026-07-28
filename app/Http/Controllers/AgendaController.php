@@ -28,15 +28,29 @@ class AgendaController extends Controller
         }
 
         $todayDate = Carbon::today('Asia/Jakarta')->format('Y-m-d');
+        $nowTime = Carbon::now('Asia/Jakarta')->format('H:i:s');
 
-        $rawAgendas = Agenda::with(['sekretaris', 'notulensi', 'presensis.user'])
+        $rawAgendas = Agenda::with(['sekretaris.bidang', 'notulensi', 'presensis.user'])
             ->whereDate('tanggal', $todayDate)
-            ->orderBy('jam_mulai', 'asc')
             ->get();
 
-        $agendas = $rawAgendas->filter(fn($a) => $user->hasAccessToAgenda($a))->values();
+        // Sort priority: 1. Ongoing (Berlangsung), 2. Upcoming (Mendatang), 3. Completed (Selesai at the bottom)
+        $agendas = $rawAgendas->filter(fn($a) => $user->hasAccessToAgenda($a))
+            ->sortBy(function($a) use ($nowTime) {
+                $start = Carbon::parse($a->jam_mulai)->format('H:i:s');
+                $end = Carbon::parse($a->jam_selesai)->format('H:i:s');
 
-        $nowTime = Carbon::now('Asia/Jakarta')->format('H:i:s');
+                if ($nowTime >= $start && $nowTime <= $end) {
+                    $priority = 1; // Ongoing (Berlangsung)
+                } elseif ($nowTime < $start) {
+                    $priority = 2; // Upcoming (Mendatang)
+                } else {
+                    $priority = 3; // Completed (Selesai)
+                }
+
+                return sprintf('%d_%s_%d', $priority, $start, $a->id);
+            })
+            ->values();
 
         $ongoingAgendas = $agendas->filter(function($a) use ($nowTime) {
             $start = Carbon::parse($a->jam_mulai)->format('H:i:s');
