@@ -16,7 +16,7 @@
             <div class="space-y-2 z-10">
                 <span class="text-[10px] font-bold uppercase tracking-widest text-[#8e88dd]">Panel Admin</span>
                 <h3 class="text-xl font-black leading-tight">Kontrol Sistem &amp; Akun Pegawai</h3>
-                <p class="text-xs text-[#bda6ff] leading-relaxed">Kelola otentikasi, pembagian divisi/bidang, serta pemantauan data aktivitas Agendaris.</p>
+                <p class="text-xs text-[#bda6ff] leading-relaxed">Kelola otentikasi, pembagian divisi/bidang, serta pemantauan data aktivitas SiRENA.</p>
             </div>
             
             <div class="mt-6 z-10">
@@ -31,11 +31,11 @@
         </div>
 
         <!-- KPI 1: Pegawai Stats (Clickable to /admin/users) -->
-        <a href="{{ route('admin.users.index') }}" class="kpi-card bg-white border border-[#d4d1f5]/60 hover:border-[#8e88dd] rounded-[32px] p-6 flex flex-col justify-between shadow-sm hover:shadow-md transition-all duration-200 group cursor-pointer">
+        <a href="{{ route('admin.users.index') }}" class="kpi-card bg-white border border-[#d4d1f5]/60 hover:border-[#1b3bbb] rounded-[32px] p-6 flex flex-col justify-between shadow-sm hover:shadow-md hover:scale-[1.01] active:scale-[0.99] transition-all duration-200 group cursor-pointer">
             <div class="flex items-center justify-between">
                 <span class="text-xs font-bold text-[#5a508f] group-hover:text-[#1b3bbb] transition-colors uppercase">Total Akun Pegawai</span>
-                <div class="kpi-icon kpi-icon-navy p-2 bg-[#eef1fd] text-[#8ba0f2] rounded-2xl transition-all duration-200">
-                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <div class="kpi-icon kpi-icon-navy p-2 bg-[#1b3bbb]/10 text-[#1b3bbb] rounded-2xl group-hover:!bg-[#1b3bbb] group-hover:!text-white transition-all duration-200">
+                    <svg class="w-6 h-6 text-[#1b3bbb] group-hover:!text-white transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"></path>
                     </svg>
                 </div>
@@ -50,11 +50,11 @@
         </a>
 
         <!-- KPI 2: Bidang & Agenda (Clickable to /admin/bidang) -->
-        <a href="{{ route('admin.bidang.index') }}" class="kpi-card bg-white border border-[#d4d1f5]/60 hover:border-[#8e88dd] rounded-[32px] p-6 flex flex-col justify-between shadow-sm hover:shadow-md transition-all duration-200 group cursor-pointer">
+        <a href="{{ route('admin.bidang.index') }}" class="kpi-card bg-white border border-[#d4d1f5]/60 hover:border-[#1b3bbb] rounded-[32px] p-6 flex flex-col justify-between shadow-sm hover:shadow-md hover:scale-[1.01] active:scale-[0.99] transition-all duration-200 group cursor-pointer">
             <div class="flex items-center justify-between">
                 <span class="text-xs font-bold text-[#5a508f] group-hover:text-[#1b3bbb] transition-colors uppercase">Bidang &amp; Agenda</span>
-                <div class="kpi-icon kpi-icon-navy p-2 bg-[#f3edfd] text-[#bc8bf2] rounded-2xl transition-all duration-200">
-                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <div class="kpi-icon kpi-icon-navy p-2 bg-[#1b3bbb]/10 text-[#1b3bbb] rounded-2xl group-hover:!bg-[#1b3bbb] group-hover:!text-white transition-all duration-200">
+                    <svg class="w-6 h-6 text-[#1b3bbb] group-hover:!text-white transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path>
                     </svg>
                 </div>
@@ -66,11 +66,11 @@
         </a>
 
         <!-- KPI 3: Agenda Rapat Terkini (Smooth scroll to #agenda-terkini) -->
-        <a href="#agenda-terkini" class="kpi-card bg-white border border-[#d4d1f5]/60 hover:border-[#8e88dd] rounded-[32px] p-6 flex flex-col justify-between shadow-sm hover:shadow-md transition-all duration-200 group cursor-pointer">
+        <a href="#agenda-terkini" class="kpi-card bg-white border border-[#d4d1f5]/60 hover:border-amber-400 rounded-[32px] p-6 flex flex-col justify-between shadow-sm hover:shadow-md hover:scale-[1.01] active:scale-[0.99] transition-all duration-200 group cursor-pointer">
             <div class="flex items-center justify-between">
-                <span class="text-xs font-bold text-[#5a508f] group-hover:text-[#1b3bbb] transition-colors uppercase">Agenda Terkini</span>
-                <div class="kpi-icon kpi-icon-orange p-2 bg-[#fef3cd] text-[#f59e0b] rounded-2xl transition-all duration-200">
-                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <span class="text-xs font-bold text-[#5a508f] group-hover:text-amber-600 transition-colors uppercase">Agenda Terkini</span>
+                <div class="kpi-icon kpi-icon-orange p-2 bg-[#fef3cd] text-[#f59e0b] rounded-2xl group-hover:!bg-[#f59e0b] group-hover:!text-white transition-all duration-200">
+                    <svg class="w-6 h-6 text-[#f59e0b] group-hover:!text-white transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
                     </svg>
                 </div>
@@ -83,7 +83,7 @@
 
         <style>
             .kpi-card:hover .kpi-icon-navy {
-                background-color: #3b5bdb !important;
+                background-color: #1b3bbb !important;
                 color: #ffffff !important;
             }
             .kpi-card:hover .kpi-icon-orange {
@@ -118,13 +118,13 @@
                 
                 <div class="overflow-x-auto">
                     <table class="w-full min-w-[550px] sm:min-w-0 table-auto sm:table-fixed text-left text-xs text-[#2e2552]">
-                        <thead class="text-[10px] font-bold uppercase tracking-wider text-[#5a508f] border-b border-[#d4d1f5]/30">
+                        <thead class="bg-[#ebf2ff] text-[#1b3bbb] border-y border-[#bfd5ff] select-none">
                             <tr>
-                                <th class="py-3 px-3 sm:px-2 sm:w-[35%] whitespace-nowrap">Nama</th>
-                                <th class="py-3 px-3 sm:px-2 sm:hidden text-center whitespace-nowrap">NIP</th>
-                                <th class="py-3 px-3 sm:px-2 text-center sm:w-[25%] whitespace-nowrap">Bidang</th>
-                                <th class="py-3 px-3 sm:px-2 text-center sm:w-[25%] whitespace-nowrap">Role</th>
-                                <th class="py-3 px-3 sm:px-2 text-center sm:w-[15%] whitespace-nowrap">Status</th>
+                                <th class="py-2.5 px-3 sm:px-2 sm:w-[35%] font-black uppercase tracking-wider whitespace-nowrap">Nama</th>
+                                <th class="py-2.5 px-3 sm:px-2 sm:hidden font-black uppercase tracking-wider text-center whitespace-nowrap">NIP</th>
+                                <th class="py-2.5 px-3 sm:px-2 font-black uppercase tracking-wider text-center sm:w-[25%] whitespace-nowrap">Bidang</th>
+                                <th class="py-2.5 px-3 sm:px-2 font-black uppercase tracking-wider text-center sm:w-[25%] whitespace-nowrap">Role</th>
+                                <th class="py-2.5 px-3 sm:px-2 font-black uppercase tracking-wider text-center sm:w-[15%] whitespace-nowrap">Status</th>
                             </tr>
                         </thead>
                         <tbody class="divide-y divide-[#d4d1f5]/20">
@@ -168,12 +168,12 @@
                 
                 <div class="overflow-x-auto">
                     <table class="w-full min-w-[550px] sm:min-w-0 table-auto sm:table-fixed text-left text-xs text-[#2e2552]">
-                        <thead class="text-[10px] font-bold uppercase tracking-wider text-[#5a508f] border-b border-[#d4d1f5]/30">
+                        <thead class="bg-[#ebf2ff] text-[#1b3bbb] border-y border-[#bfd5ff] select-none">
                             <tr>
-                                <th class="py-3 px-3 sm:px-2 sm:w-[40%] whitespace-nowrap">Judul Rapat</th>
-                                <th class="py-3 px-3 sm:px-2 sm:w-[25%] whitespace-nowrap">Tanggal / Waktu</th>
-                                <th class="py-3 px-3 sm:px-2 text-center sm:text-left sm:w-[20%] whitespace-nowrap">Penyelenggara</th>
-                                <th class="py-3 px-3 sm:px-2 text-center sm:w-[15%] whitespace-nowrap">Kategori</th>
+                                <th class="py-2.5 px-3 sm:px-2 sm:w-[40%] font-black uppercase tracking-wider whitespace-nowrap">Judul Rapat</th>
+                                <th class="py-2.5 px-3 sm:px-2 sm:w-[25%] font-black uppercase tracking-wider whitespace-nowrap">Tanggal / Waktu</th>
+                                <th class="py-2.5 px-3 sm:px-2 font-black uppercase tracking-wider text-center sm:text-left sm:w-[20%] whitespace-nowrap">Penyelenggara</th>
+                                <th class="py-2.5 px-3 sm:px-2 font-black uppercase tracking-wider text-center sm:w-[15%] whitespace-nowrap">Kategori</th>
                             </tr>
                         </thead>
                         <tbody class="divide-y divide-[#d4d1f5]/20">

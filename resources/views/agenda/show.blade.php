@@ -101,16 +101,16 @@
             this.signatureData = '';
         }
     }
-}" data-participants='@json($participants)' class="space-y-6">
+}" data-participants='@json($participants)' class="space-y-3.5 sm:space-y-4">
     
     <!-- Breadcrumbs / Back button -->
     <div class="flex items-center justify-between gap-2">
         <a href="{{ route('calendar', ['date' => $agenda->tanggal->toDateString()]) }}" 
-           class="inline-flex items-center gap-2 px-3 py-1.5 rounded-xl bg-white border border-[#d4d1f5]/80 text-xs font-bold text-[#5a508f] hover:text-[#1b3bbb] hover:border-[#1b3bbb]/40 transition-all shadow-2xs min-w-0">
-            <svg class="w-4 h-4 shrink-0 text-[#5a508f]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+           class="inline-flex items-center gap-2 text-xs font-bold text-[#5a508f] hover:text-[#1b3bbb] transition-colors py-1 group">
+            <svg class="w-4 h-4 shrink-0 text-[#5a508f] group-hover:text-[#1b3bbb] group-hover:-translate-x-0.5 transition-all" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 12H5m7 7l-7-7 7-7"></path>
             </svg>
-            <span class="truncate">Kembali ke Kalender Rinci</span>
+            <span>Kembali ke Kalender Rinci</span>
         </a>
         
         @if($isSecretaryOfAgenda)
@@ -194,24 +194,34 @@
                             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                                 <div class="space-y-1">
                                     <label for="tempat_edit" class="block text-xs font-bold text-[#5a508f] uppercase">Tempat / Ruangan <span class="text-rose-500">*</span></label>
-                                    <select id="tempat_edit" name="lokasi" required
-                                            class="w-full px-4 py-2.5 bg-[#f3f2fe] border border-[#d4d1f5] rounded-2xl text-[#2e2552] text-sm focus:outline-none">
-                                        <option value="" disabled {{ empty($agenda->lokasi) ? 'selected' : '' }}>Pilih Lokasi / Ruangan</option>
-                                        <option value="Aula Rapat Dinkominfo" {{ $agenda->lokasi === 'Aula Rapat Dinkominfo' ? 'selected' : '' }}>Aula Rapat Dinkominfo</option>
-                                        <option value="Ruang Pelatihan" {{ $agenda->lokasi === 'Ruang Pelatihan' ? 'selected' : '' }}>Ruang Pelatihan</option>
-                                        <option value="Smart Room Graha Satria" {{ $agenda->lokasi === 'Smart Room Graha Satria' ? 'selected' : '' }}>Smart Room Graha Satria</option>
-                                    </select>
+                                    <div class="relative">
+                                        <select id="tempat_edit" name="lokasi" required
+                                                class="w-full pl-3.5 pr-8 py-2.5 bg-[#f8f7ff] hover:bg-[#f3f2fe] border border-[#d4d1f5] rounded-xl text-[#2e2552] text-xs font-semibold appearance-none focus:bg-white focus:border-[#1b3bbb] focus:ring-2 focus:ring-[#1b3bbb]/20 transition-all cursor-pointer">
+                                            <option value="" disabled {{ empty($agenda->lokasi) ? 'selected' : '' }}>Pilih Lokasi / Ruangan</option>
+                                            <option value="Aula Rapat Dinkominfo" {{ $agenda->lokasi === 'Aula Rapat Dinkominfo' ? 'selected' : '' }}>Aula Rapat Dinkominfo</option>
+                                            <option value="Ruang Pelatihan" {{ $agenda->lokasi === 'Ruang Pelatihan' ? 'selected' : '' }}>Ruang Pelatihan</option>
+                                            <option value="Smart Room Graha Satria" {{ $agenda->lokasi === 'Smart Room Graha Satria' ? 'selected' : '' }}>Smart Room Graha Satria</option>
+                                        </select>
+                                        <div class="absolute right-2.5 top-1/2 -translate-y-1/2 text-[#5a508f] pointer-events-none">
+                                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                                        </div>
+                                    </div>
                                 </div>
 
                                 <div class="space-y-1">
                                     <label class="block text-xs font-bold text-[#5a508f] uppercase">Kategori <span class="text-rose-500">*</span></label>
-                                    <select name="kategori" required class="w-full px-4 py-2.5 bg-[#f3f2fe] border border-[#d4d1f5] rounded-2xl text-[#2e2552] text-sm focus:outline-none">
-                                        <option value="" disabled {{ empty($agenda->kategori) ? 'selected' : '' }}>Pilih Kategori</option>
-                                        <option value="rapat" {{ $agenda->kategori === 'rapat' ? 'selected' : '' }}>Rapat</option>
-                                        <option value="sosialisasi" {{ $agenda->kategori === 'sosialisasi' ? 'selected' : '' }}>Sosialisasi</option>
-                                        <option value="pelatihan" {{ $agenda->kategori === 'pelatihan' ? 'selected' : '' }}>Pelatihan</option>
-                                        <option value="kegiatan_lainnya" {{ $agenda->kategori === 'kegiatan_lainnya' ? 'selected' : '' }}>Kegiatan Lainnya</option>
-                                    </select>
+                                    <div class="relative">
+                                        <select name="kategori" required class="w-full pl-3.5 pr-8 py-2.5 bg-[#f8f7ff] hover:bg-[#f3f2fe] border border-[#d4d1f5] rounded-xl text-[#2e2552] text-xs font-semibold appearance-none focus:bg-white focus:border-[#1b3bbb] focus:ring-2 focus:ring-[#1b3bbb]/20 transition-all cursor-pointer">
+                                            <option value="" disabled {{ empty($agenda->kategori) ? 'selected' : '' }}>Pilih Kategori</option>
+                                            <option value="rapat" {{ $agenda->kategori === 'rapat' ? 'selected' : '' }}>Rapat</option>
+                                            <option value="sosialisasi" {{ $agenda->kategori === 'sosialisasi' ? 'selected' : '' }}>Sosialisasi</option>
+                                            <option value="pelatihan" {{ $agenda->kategori === 'pelatihan' ? 'selected' : '' }}>Pelatihan</option>
+                                            <option value="kegiatan_lainnya" {{ $agenda->kategori === 'kegiatan_lainnya' ? 'selected' : '' }}>Kegiatan Lainnya</option>
+                                        </select>
+                                        <div class="absolute right-2.5 top-1/2 -translate-y-1/2 text-[#5a508f] pointer-events-none">
+                                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
 
@@ -228,152 +238,212 @@
 
                             <div class="space-y-2">
                                 <label class="block text-xs font-bold text-[#5a508f] uppercase">Bidang & Peserta Rapat <span class="text-rose-500">*</span></label>
-                                @php
-                                    $hakAksesArray = $agenda->hak_akses;
-                                    $isSemua = in_array('semua_orang', $hakAksesArray);
-                                    $allBidangs = $bidangsWithUsers;
-                                    $allBidangIds = $allBidangs->pluck('id')->map(fn($id) => (string)$id)->toArray();
-                                    $totalBidangCount = count($allBidangIds);
+                                 @php
+                                     $hakAksesArray = $agenda->hak_akses;
+                                     $isSemua = in_array('semua_orang', $hakAksesArray);
+                                     $allBidangs = $bidangsWithUsers;
+                                     $allBidangIds = $allBidangs->pluck('id')->map(fn($id) => (string)$id)->toArray();
+                                     $totalBidangCount = count($allBidangIds);
+                                     $sekretariatBid = $allBidangs->first(fn($b) => strcasecmp($b->singkatan, 'Sekretariat') === 0 || strcasecmp($b->nama, 'Sekretariat') === 0);
+                                     $sekretariatId = $sekretariatBid ? (string)$sekretariatBid->id : null;
 
-                                    if (Auth::user()->isSekretarisBidang()) {
-                                        $initialBidangs = array_values(array_unique(array_merge([ (string)Auth::user()->bidang_id ], $isSemua ? $allBidangIds : array_filter($hakAksesArray, fn($x) => $x !== 'semua_orang'))));
-                                    } else {
-                                        $initialBidangs = $isSemua ? $allBidangIds : array_values(array_map(fn($x) => (string)$x, array_filter($hakAksesArray, fn($x) => $x !== 'semua_orang')));
-                                    }
+                                     if (Auth::user()->isSekretarisBidang() || Auth::user()->isSekretariatScope()) {
+                                         $mandatoryIds = [(string)Auth::user()->bidang_id];
+                                         if (Auth::user()->isSekretariatScope() && $sekretariatId) {
+                                             $mandatoryIds[] = (string)$sekretariatId;
+                                         }
+                                         $initialBidangs = array_values(array_unique(array_merge($mandatoryIds, $isSemua ? $allBidangIds : array_filter($hakAksesArray, fn($x) => $x !== 'semua_orang'))));
+                                     } else {
+                                         $initialBidangs = $isSemua ? $allBidangIds : array_values(array_map(fn($x) => (string)$x, array_filter($hakAksesArray, fn($x) => $x !== 'semua_orang')));
+                                     }
 
-                                    if ($agenda->participants()->exists()) {
-                                        $initialParticipants = $agenda->participants->pluck('id')->map(fn($id) => (string)$id)->toArray();
-                                    } else {
-                                        $initialParticipants = [];
-                                        foreach ($allBidangs as $b) {
-                                            if (in_array((string)$b->id, $initialBidangs)) {
-                                                foreach ($b->users as $u) {
-                                                    $initialParticipants[] = (string)$u->id;
-                                                }
-                                            }
-                                        }
-                                    }
+                                     if ($agenda->participants()->exists()) {
+                                         $initialParticipants = $agenda->participants->pluck('id')->map(fn($id) => (string)$id)->toArray();
+                                     } else {
+                                         $initialParticipants = [];
+                                         foreach ($allBidangs as $b) {
+                                             if (in_array((string)$b->id, $initialBidangs)) {
+                                                 foreach ($b->users as $u) {
+                                                     $initialParticipants[] = (string)$u->id;
+                                                 }
+                                             }
+                                         }
+                                     }
 
-                                    $bidangsUserData = $allBidangs->map(function($b) {
-                                        return [
-                                            'id' => (string)$b->id,
-                                            'nama' => $b->nama,
-                                            'singkatan' => $b->singkatan,
-                                            'users' => $b->users->map(function($u) {
-                                                return [
-                                                    'id' => (string)$u->id,
-                                                    'name' => $u->name,
-                                                    'nip' => $u->nip ?? '-',
-                                                    'jabatan' => $u->jabatan ?? '-',
-                                                ];
-                                            })->values()->toArray(),
-                                        ];
-                                    })->values()->toArray();
-                                @endphp
-                                <div x-data='{
-                                    semua: {{ $isSemua ? "true" : "false" }},
-                                    allBidangIds: {{ json_encode(array_values($allBidangIds)) }},
-                                    totalCount: {{ $totalBidangCount }},
-                                    bidangs: {{ json_encode(array_values($initialBidangs)) }},
-                                    isSekBid: {{ Auth::user()->isSekretarisBidang() ? "true" : "false" }},
-                                    ownBidangId: "{{ Auth::user()->bidang_id }}",
-                                    bidangsUserData: {{ json_encode($bidangsUserData) }},
-                                    selectedParticipants: {{ json_encode(array_values($initialParticipants)) }},
-                                    participantModalOpen: false,
+                                     $bidangsUserData = $allBidangs->map(function($b) {
+                                         return [
+                                             'id' => (string)$b->id,
+                                             'nama' => $b->nama,
+                                             'singkatan' => $b->singkatan,
+                                             'users' => $b->users->map(function($u) {
+                                                 return [
+                                                     'id' => (string)$u->id,
+                                                     'name' => $u->name,
+                                                     'nip' => $u->nip ?? '-',
+                                                     'jabatan' => $u->jabatan ?? '-',
+                                                 ];
+                                             })->values()->toArray(),
+                                         ];
+                                     })->values()->toArray();
+                                 @endphp
+                                 <div x-data='{
+                                     semua: {{ $isSemua ? "true" : "false" }},
+                                     allBidangIds: {{ json_encode(array_values($allBidangIds)) }},
+                                     totalCount: {{ $totalBidangCount }},
+                                     bidangs: {{ json_encode(array_values($initialBidangs)) }},
+                                     isSekBid: {{ Auth::user()->isSekretarisBidang() ? "true" : "false" }},
+                                     isSekretariatScope: {{ Auth::user()->isSekretariatScope() ? "true" : "false" }},
+                                     ownBidangId: "{{ Auth::user()->bidang_id }}",
+                                     sekId: "{{ $sekretariatId }}",
+                                     bidangsUserData: {{ json_encode($bidangsUserData) }},
+                                     selectedParticipants: {{ json_encode(array_values($initialParticipants)) }},
+                                     participantModalOpen: false,
+                                     searchParticipant: "",
 
-                                    toggleSemua() {
-                                        if (this.semua) {
-                                            this.bidangs = Array.from(this.allBidangIds);
-                                        } else {
-                                            this.bidangs = [];
-                                        }
-                                        this.syncParticipants();
-                                    },
+                                     filteredUsers(users) {
+                                         if (!users || !Array.isArray(users)) return [];
+                                         if (!this.searchParticipant || !this.searchParticipant.trim()) return users;
+                                         let q = this.searchParticipant.toLowerCase().trim();
+                                         return users.filter(u => 
+                                             (u.name && String(u.name).toLowerCase().includes(q)) || 
+                                             (u.jabatan && String(u.jabatan).toLowerCase().includes(q)) ||
+                                             (u.nip && String(u.nip).toLowerCase().includes(q))
+                                         );
+                                     },
 
-                                    check(id) {
-                                        if (this.isSekBid) {
-                                            if (!this.bidangs.includes(this.ownBidangId)) {
-                                                this.bidangs.push(this.ownBidangId);
-                                            }
-                                            if (this.bidangs.length > 2) {
-                                                alert("Admin Bidang hanya dapat memilih maksimal 1 bidang tambahan.");
-                                                this.bidangs = [this.ownBidangId, id];
-                                            }
-                                        }
-                                        this.semua = (this.bidangs.length === this.totalCount);
-                                        this.syncParticipants();
-                                    },
+                                     get visibleBidangs() {
+                                         let selectedBidangIds = (this.bidangs || []).map(String);
+                                         return (this.bidangsUserData || []).filter(b => {
+                                             let isSelected = selectedBidangIds.includes(String(b.id));
+                                             if (!isSelected) return false;
+                                             if (this.searchParticipant && this.searchParticipant.trim()) {
+                                                 return this.filteredUsers(b.users).length > 0;
+                                             }
+                                             return true;
+                                         });
+                                     },
 
-                                    syncParticipants() {
-                                        let activeUserIds = [];
-                                        this.bidangsUserData.forEach(b => {
-                                            if (this.bidangs.includes(b.id)) {
-                                                b.users.forEach(u => {
-                                                    activeUserIds.push(u.id);
-                                                });
-                                            }
-                                        });
-                                        let newSelection = this.selectedParticipants.filter(id => activeUserIds.includes(id));
-                                        activeUserIds.forEach(id => {
-                                            if (!newSelection.includes(id)) {
-                                                newSelection.push(id);
-                                            }
-                                        });
-                                        this.selectedParticipants = newSelection;
-                                    },
+                                     get totalFilteredUsersCount() {
+                                         let count = 0;
+                                         this.visibleBidangs.forEach(b => {
+                                             count += this.filteredUsers(b.users).length;
+                                         });
+                                         return count;
+                                     },
 
-                                    toggleBidangUsers(bidangId) {
-                                        let b = this.bidangsUserData.find(item => item.id === bidangId);
-                                        if (!b) return;
-                                        let bUserIds = b.users.map(u => u.id);
-                                        let allChecked = bUserIds.every(id => this.selectedParticipants.includes(id));
+                                     toggleSemua() {
+                                         if (this.semua) {
+                                             this.bidangs = Array.from(this.allBidangIds);
+                                         } else {
+                                             this.bidangs = [];
+                                         }
+                                         this.syncParticipants();
+                                     },
 
-                                        if (!allChecked) {
-                                            bUserIds.forEach(id => {
-                                                if (!this.selectedParticipants.includes(id)) {
-                                                    this.selectedParticipants.push(id);
-                                                }
-                                            });
-                                        } else {
-                                            this.selectedParticipants = this.selectedParticipants.filter(id => !bUserIds.includes(id));
-                                        }
-                                    },
+                                     check(id) {
+                                         if (this.isSekBid || this.isSekretariatScope) {
+                                             if (this.ownBidangId && !this.bidangs.includes(String(this.ownBidangId))) {
+                                                 this.bidangs.push(String(this.ownBidangId));
+                                             }
+                                             if (this.isSekretariatScope && this.sekId && !this.bidangs.includes(String(this.sekId))) {
+                                                 this.bidangs.push(String(this.sekId));
+                                             }
+                                             if (!this.isSekretariatScope && this.bidangs.length > 3) {
+                                                 alert("Admin Bidang hanya dapat memilih maksimal 2 bidang tambahan.");
+                                                 this.bidangs = this.bidangs.filter(bId => String(bId) !== String(id));
+                                             }
+                                         }
+                                         this.semua = (this.bidangs.length === this.totalCount);
+                                         this.syncParticipants();
+                                     },
 
-                                    isBidangAllChecked(bidangId) {
-                                        let b = this.bidangsUserData.find(item => item.id === bidangId);
-                                        if (!b || b.users.length === 0) return false;
-                                        return b.users.every(u => this.selectedParticipants.includes(u.id));
-                                    }
-                                }'>
-                                    <!-- Hidden Inputs for Selected Participants -->
-                                    <template x-for="userId in selectedParticipants" :key="userId">
-                                        <input type="hidden" name="participants[]" :value="userId">
-                                    </template>
+                                     syncParticipants() {
+                                         let selectedBidangIds = (this.bidangs || []).map(String);
+                                         let activeUserIds = [];
+                                         (this.bidangsUserData || []).forEach(b => {
+                                             if (selectedBidangIds.includes(String(b.id))) {
+                                                 (b.users || []).forEach(u => {
+                                                     activeUserIds.push(String(u.id));
+                                                 });
+                                             }
+                                         });
+                                         let currentSelected = (this.selectedParticipants || []).map(String);
+                                         let newSelection = currentSelected.filter(id => activeUserIds.includes(id));
+                                         activeUserIds.forEach(id => {
+                                             if (!newSelection.includes(id)) {
+                                                 newSelection.push(id);
+                                             }
+                                         });
+                                         this.selectedParticipants = newSelection;
+                                     },
 
-                                    @if(Auth::user()->isSekretarisBidang())
-                                        <input type="hidden" name="bidangs[]" value="{{ Auth::user()->bidang_id }}">
-                                    @else
-                                        <label class="flex items-center text-xs text-[#2e2552] font-bold mb-1 cursor-pointer select-none">
-                                            <input type="checkbox" name="semua_orang" value="1" x-model="semua" @change="toggleSemua()" class="mr-2 rounded border-[#d4d1f5] text-[#8e88dd]">
-                                            Semua Orang (Lintas Dinas)
-                                        </label>
-                                    @endif
+                                     toggleBidangUsers(bidangId) {
+                                         let b = this.bidangsUserData.find(item => String(item.id) === String(bidangId));
+                                         if (!b) return;
+                                         let bUserIds = b.users.map(u => String(u.id));
+                                         let currentSelected = this.selectedParticipants.map(String);
+                                         let allChecked = bUserIds.every(id => currentSelected.includes(id));
 
-                                    <div class="grid grid-cols-1 gap-2 {{ Auth::user()->isSekretarisBidang() ? '' : 'pl-6' }} mt-1">
-                                        @foreach($allBidangs as $b)
-                                            <label class="flex items-center text-xs text-[#5a508f] cursor-pointer select-none font-medium">
-                                                <input type="checkbox" name="bidangs[]" value="{{ $b->id }}" x-model="bidangs" @change="check('{{ $b->id }}')"
-                                                       @if(Auth::user()->isSekretarisBidang() && Auth::user()->bidang_id == $b->id) disabled @endif
-                                                       class="mr-2 rounded border-[#d4d1f5] text-[#8e88dd]">
-                                                <span class="{{ Auth::user()->isSekretarisBidang() && Auth::user()->bidang_id == $b->id ? 'font-bold text-[#2e2552]' : '' }}">
-                                                    {{ $b->nama }}
-                                                    @if(Auth::user()->isSekretarisBidang() && Auth::user()->bidang_id == $b->id)
-                                                        <span class="text-[9px] text-[#5a508f] lowercase ml-1">(Wajib ikut / Tidak bisa di-uncheck)</span>
-                                                    @endif
-                                                </span>
-                                            </label>
-                                        @endforeach
-                                    </div>
+                                         if (!allChecked) {
+                                             bUserIds.forEach(id => {
+                                                 if (!currentSelected.includes(id)) {
+                                                     currentSelected.push(id);
+                                                 }
+                                             });
+                                         } else {
+                                             currentSelected = currentSelected.filter(id => !bUserIds.includes(id));
+                                         }
+                                         this.selectedParticipants = currentSelected;
+                                     },
+
+                                     isBidangAllChecked(bidangId) {
+                                         let b = this.bidangsUserData.find(item => String(item.id) === String(bidangId));
+                                         if (!b || !b.users || b.users.length === 0) return false;
+                                         let currentSelected = this.selectedParticipants.map(String);
+                                         return b.users.every(u => currentSelected.includes(String(u.id)));
+                                     }
+                                 }'>
+                                     <!-- Hidden Inputs for Selected Participants -->
+                                     <template x-for="userId in selectedParticipants" :key="userId">
+                                         <input type="hidden" name="participants[]" :value="userId">
+                                     </template>
+
+                                     @if(Auth::user()->isSekretarisBidang() && !Auth::user()->isSekretariatScope())
+                                         <input type="hidden" name="bidangs[]" value="{{ Auth::user()->bidang_id }}">
+                                     @else
+                                         <label class="flex items-center text-xs text-[#2e2552] font-bold mb-1 cursor-pointer select-none">
+                                             <input type="checkbox" name="semua_orang" value="1" x-model="semua" @change="toggleSemua()" class="mr-2 rounded border-[#d4d1f5] text-[#8e88dd]">
+                                             Semua Orang (Lintas Dinas)
+                                         </label>
+                                     @endif
+
+                                     <div class="grid grid-cols-1 gap-1 mt-1">
+                                         @foreach($allBidangs as $b)
+                                             @php
+                                                 $isSub = (str_contains(strtolower($b->nama), 'subbag') || str_contains(strtolower($b->singkatan), 'subbag')) && strcasecmp($b->singkatan, 'Sekretariat') !== 0;
+                                                 $isMandatory = (Auth::user()->isSekretarisBidang() && Auth::user()->bidang_id == $b->id)
+                                                             || (Auth::user()->isSekretariatScope() && $sekretariatId && (string)$b->id === (string)$sekretariatId);
+                                             @endphp
+                                             <label class="flex items-center justify-between px-2 py-1 rounded-lg hover:bg-slate-50 transition-all cursor-pointer select-none {{ $isSub ? 'pl-6' : '' }}">
+                                                 <div class="flex items-center gap-2">
+                                                     @if($isSub)
+                                                         <span class="text-slate-400 text-[11px] font-bold shrink-0 -mr-1">└</span>
+                                                     @endif
+                                                     <input type="checkbox" name="bidangs[]" value="{{ $b->id }}" x-model="bidangs" @change="check('{{ $b->id }}')"
+                                                            @if($isMandatory) disabled @endif
+                                                            class="w-3.5 h-3.5 rounded border-[#d4d1f5] text-[#8e88dd]">
+                                                     <span class="text-xs text-[#5a508f] {{ $isMandatory ? 'font-bold text-[#2e2552]' : 'font-medium' }}">
+                                                         {{ $b->nama }} <span class="text-slate-400 font-normal">({{ $b->singkatan }})</span>
+                                                     </span>
+                                                 </div>
+                                                 @if($isMandatory)
+                                                     <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold bg-amber-50 text-amber-700 border border-amber-200/70 shrink-0 ml-2">
+                                                         Wajib Hadir
+                                                     </span>
+                                                 @endif
+                                             </label>
+                                         @endforeach
+                                     </div>
 
                                     <!-- Kelola Peserta Button Bar -->
                                     <div class="pt-2.5 mt-2 border-t border-[#d4d1f5]/40 flex items-center justify-between">
@@ -413,38 +483,61 @@
                                             </div>
 
                                             <div class="p-5 overflow-y-auto space-y-4 flex-1">
-                                                <template x-if="bidangs.length === 0">
-                                                    <div class="p-8 text-center bg-slate-50 rounded-2xl border border-dashed border-slate-200">
-                                                        <p class="text-xs text-slate-500 font-bold">Pilih minimal satu bidang di atas terlebih dahulu untuk mengelola peserta.</p>
-                                                    </div>
-                                                </template>
+                                                 <!-- Search Bar for Participants -->
+                                                 <div class="relative">
+                                                     <input type="text" x-model="searchParticipant" placeholder="Cari nama, NIP, atau jabatan peserta..." 
+                                                            class="w-full pl-9 pr-8 py-2 bg-slate-100/90 border border-slate-200/90 rounded-xl text-xs text-slate-800 placeholder-slate-400 focus:bg-white focus:border-[#1b3bbb] focus:ring-2 focus:ring-[#1b3bbb]/10 transition-all font-medium">
+                                                     <svg class="w-4 h-4 text-[#1b3bbb] absolute left-3 top-2.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+                                                     </svg>
+                                                     <button type="button" x-show="searchParticipant.length > 0" @click="searchParticipant = ''" class="absolute right-2.5 top-2.5 text-slate-400 hover:text-slate-600">
+                                                         <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                                                     </button>
+                                                 </div>
 
-                                                <template x-for="bidang in bidangsUserData.filter(b => bidangs.includes(b.id))" :key="bidang.id">
-                                                    <div class="bg-slate-50 border border-slate-200/80 rounded-2xl p-3.5 space-y-2.5">
-                                                        <div class="flex items-center justify-between pb-2 border-b border-slate-200/60">
-                                                            <div class="flex items-center gap-2">
-                                                                <span class="w-2.5 h-2.5 rounded-full bg-[#1b3bbb]"></span>
-                                                                <span class="text-xs font-black text-[#09103c]" x-text="bidang.nama + ' (' + bidang.singkatan + ')'"></span>
-                                                            </div>
-                                                            <button type="button" @click="toggleBidangUsers(bidang.id)" class="text-[10.5px] font-extrabold text-[#1b3bbb] hover:underline cursor-pointer">
-                                                                <span x-text="isBidangAllChecked(bidang.id) ? 'Hapus Centang Semua' : 'Centang Semua'"></span>
-                                                            </button>
-                                                        </div>
+                                                 <template x-if="bidangs.length === 0">
+                                                     <div class="p-8 text-center bg-slate-50 rounded-2xl border border-dashed border-slate-200">
+                                                         <p class="text-xs text-slate-500 font-bold">Pilih minimal satu bidang di atas terlebih dahulu untuk mengelola peserta.</p>
+                                                     </div>
+                                                 </template>
 
-                                                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-1.5">
-                                                            <template x-for="user in bidang.users" :key="user.id">
-                                                                <label class="flex items-start gap-2.5 p-2 bg-white rounded-xl border border-slate-200/60 hover:border-indigo-200 cursor-pointer select-none transition-all">
-                                                                    <input type="checkbox" :value="user.id" x-model="selectedParticipants" class="w-4 h-4 rounded border-slate-300 text-indigo-600 focus:ring-indigo-500 mt-0.5 shrink-0">
-                                                                    <div class="min-w-0">
-                                                                        <div class="text-xs font-bold text-slate-800 leading-tight truncate" x-text="user.name"></div>
-                                                                        <div class="text-[10px] text-slate-500 font-medium truncate" x-text="user.jabatan"></div>
-                                                                    </div>
-                                                                </label>
-                                                            </template>
-                                                        </div>
-                                                    </div>
-                                                </template>
-                                            </div>
+                                                 <template x-if="bidangs.length > 0 && searchParticipant.trim() !== '' && totalFilteredUsersCount === 0">
+                                                     <div class="p-8 text-center bg-slate-50 rounded-2xl border border-dashed border-slate-200">
+                                                         <svg class="w-8 h-8 text-slate-300 mx-auto mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+                                                         </svg>
+                                                         <p class="text-xs text-slate-600 font-bold">Tidak ditemukan peserta dengan kata kunci "<span x-text="searchParticipant"></span>"</p>
+                                                         <p class="text-[11px] text-slate-400 mt-1">Coba gunakan kata kunci nama, NIP, atau jabatan lain</p>
+                                                     </div>
+                                                 </template>
+
+                                                 <template x-for="bidang in visibleBidangs" :key="bidang.id">
+                                                     <div class="bg-slate-50 border border-slate-200/80 rounded-2xl p-3.5 space-y-2.5">
+                                                         <div class="flex items-center justify-between pb-2 border-b border-slate-200/60">
+                                                             <div class="flex items-center gap-2">
+                                                                 <span class="w-2.5 h-2.5 rounded-full bg-[#1b3bbb]"></span>
+                                                                 <span class="text-xs font-black text-[#09103c]" x-text="bidang.nama + ' (' + bidang.singkatan + ')'"></span>
+                                                                 <span class="text-[10px] font-bold text-slate-400" x-text="'(' + filteredUsers(bidang.users).length + ' orang)'"></span>
+                                                             </div>
+                                                             <button type="button" @click="toggleBidangUsers(bidang.id)" class="text-[10.5px] font-extrabold text-[#1b3bbb] hover:underline cursor-pointer">
+                                                                 <span x-text="isBidangAllChecked(bidang.id) ? 'Hapus Centang Semua' : 'Centang Semua'"></span>
+                                                             </button>
+                                                         </div>
+
+                                                         <div class="grid grid-cols-1 sm:grid-cols-2 gap-1.5">
+                                                             <template x-for="user in filteredUsers(bidang.users)" :key="user.id">
+                                                                 <label class="flex items-start gap-2.5 p-2 bg-white rounded-xl border border-slate-200/60 hover:border-indigo-200 cursor-pointer select-none transition-all">
+                                                                     <input type="checkbox" :value="user.id" x-model="selectedParticipants" class="w-4 h-4 rounded border-slate-300 text-indigo-600 focus:ring-indigo-500 mt-0.5 shrink-0">
+                                                                     <div class="min-w-0">
+                                                                         <div class="text-xs font-bold text-slate-800 leading-tight truncate" x-text="user.name"></div>
+                                                                         <div class="text-[10px] text-slate-500 font-medium truncate" x-text="user.jabatan || 'Pegawai'"></div>
+                                                                     </div>
+                                                                 </label>
+                                                             </template>
+                                                         </div>
+                                                     </div>
+                                                 </template>
+                                             </div>
 
                                             <!-- Modal Footer -->
                                             <div class="px-5 py-3.5 bg-slate-50 border-t border-slate-200 flex flex-col sm:flex-row items-center justify-between gap-3 shrink-0">
@@ -491,12 +584,12 @@
     </div>
 
     <!-- TOP GRID: Card Rapat (Left) vs Absensi/Notulensi/Rekap (Right) -->
-    <div class="grid grid-cols-1 lg:grid-cols-2 gap-3.5 sm:gap-6 items-stretch">
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-3 sm:gap-4.5 items-stretch">
         
         <!-- Left Column: Info Detail Agenda -->
-        <div class="space-y-2.5 sm:space-y-6 min-w-0 flex flex-col">
-            <div class="bg-white border border-[#d4d1f5]/60 rounded-xl md:rounded-[32px] p-2.5 sm:p-6 md:p-8 shadow-sm space-y-2.5 sm:space-y-6 h-full flex flex-col justify-between">
-                <div class="space-y-2.5 sm:space-y-6">
+        <div class="min-w-0 flex flex-col h-full">
+            <div class="bg-white border border-[#d4d1f5]/60 rounded-xl md:rounded-[24px] p-3 sm:p-4.5 shadow-sm h-full flex flex-col justify-start gap-2.5">
+                <div class="space-y-2.5 sm:space-y-3.5">
                     <!-- Category badge -->
                     <div class="flex items-center justify-between">
                         @php
@@ -576,8 +669,8 @@
                     </div>
                 </div>
 
-                <!-- Nomor Surat -->
-                <div class="p-4 bg-[#f8f7ff] border border-[#d4d1f5]/40 rounded-2xl space-y-2.5 mt-4">
+                <!-- Nomor Surat (STAYS RIGHT BELOW TANGGAL/LOKASI!) -->
+                <div class="p-3.5 sm:p-4 bg-[#f8f7ff] border border-[#d4d1f5]/40 rounded-2xl space-y-2">
                     <div class="flex items-center justify-between gap-2">
                         <h3 class="text-xs font-bold uppercase tracking-wider text-[#5a508f]">Nomor Surat</h3>
                         @if($isSecretaryOfAgenda || Auth::user()->isAdmin())
@@ -659,10 +752,10 @@
     @endif
 
         <!-- Right Column: Absensi Digital, Notulensi & Rekap Kehadiran Bidang -->
-        <div class="flex flex-col gap-6 min-w-0 h-full">
+        <div class="flex flex-col gap-3 min-w-0 h-full justify-start">
             <!-- 1. ABSENSI DIGITAL (Pegawai Internal Mandiri) -->
             @if($agenda->butuh_presensi)
-                <div class="bg-white border border-[#d4d1f5]/60 rounded-2xl md:rounded-[32px] p-3.5 sm:p-6 shadow-sm space-y-3 sm:space-y-4">
+                <div class="bg-white border border-[#d4d1f5]/60 rounded-xl md:rounded-[24px] p-3 sm:p-4 shadow-sm space-y-2.5">
                     <div class="flex items-center justify-between border-b border-[#d4d1f5]/40 pb-3">
                         <h3 class="text-xs font-bold uppercase tracking-wider text-[#2e2552]">Absensi Digital</h3>
                         <span class="text-[10px] font-bold text-[#5a508f] bg-[#f3f2fe] px-2.5 py-0.5 rounded-full border border-[#d4d1f5]/40">
@@ -679,15 +772,15 @@
                                 'alfa' => 'bg-red-50 text-red-700 border-red-200'
                             ];
                             $statusLabels = [
-                                'hadir' => 'Hadir ✓',
-                                'izin' => 'Izin Terdaftar ✓',
-                                'sakit' => 'Sakit Terdaftar ✓',
-                                'alfa' => 'Alfa (Tidak Hadir) ✓'
+                                'hadir' => 'Kehadiran Anda: Hadir ✓',
+                                'izin' => 'Kehadiran Anda: Izin Terdaftar ✓',
+                                'sakit' => 'Kehadiran Anda: Sakit Terdaftar ✓',
+                                'alfa' => 'Kehadiran Anda: Alfa (Tidak Hadir) ✓'
                             ];
                         @endphp
                         <div class="space-y-3">
-                            <div class="w-full text-center py-3 border rounded-xl text-xs font-bold {{ $statusColors[$ownPresensi->status] }}">
-                                Kehadiran Anda: {{ $statusLabels[$ownPresensi->status] }}
+                            <div class="w-full text-center py-2.5 sm:py-3 border rounded-xl text-xs font-bold {{ $statusColors[$ownPresensi->status] }}">
+                                {{ $statusLabels[$ownPresensi->status] }}
                             </div>
                             @if($ownPresensi->keterangan)
                                 <div class="bg-slate-50 border border-slate-200/60 rounded-xl p-3 text-xs">
@@ -698,7 +791,7 @@
                             @if($ownPresensi->tanda_tangan)
                                 <div class="bg-[#fcfbff] border border-slate-200/60 rounded-xl p-3 text-xs flex flex-col items-center">
                                     <span class="w-full block font-bold text-[#2e2552] uppercase text-[9px] tracking-wider mb-1 text-left">Tanda Tangan Digital:</span>
-                                    <div class="border border-slate-100 rounded-lg p-2 bg-white mt-1 flex items-center justify-center h-16 w-36 overflow-hidden shadow-inner">
+                                    <div class="border border-slate-100 rounded-lg p-1.5 bg-white mt-1 flex items-center justify-center h-14 w-32 overflow-hidden shadow-inner">
                                         <img src="{{ asset('storage/' . $ownPresensi->tanda_tangan) }}" alt="Tanda Tangan" class="max-h-full max-w-full object-contain">
                                     </div>
                                 </div>
@@ -798,7 +891,7 @@
 
             <!-- 2. STATUS NOTULENSI AI (Hanya Rapat) ATAU REKAP KEHADIRAN BIDANG (Jika Non-Rapat / Tanpa Notulensi) -->
             @if($agenda->kategori === 'rapat' && $agenda->notulensi)
-                <div class="bg-white border border-[#d4d1f5]/60 rounded-xl md:rounded-[32px] p-2.5 sm:p-6 shadow-sm space-y-2.5 sm:space-y-4 flex-1 flex flex-col justify-between">
+                <div class="bg-white border border-[#d4d1f5]/60 rounded-xl md:rounded-[24px] p-3 sm:p-4 shadow-sm space-y-2.5 flex flex-col justify-start">
                     <h3 class="text-[11px] sm:text-xs font-bold uppercase tracking-wider text-[#2e2552]">Dokumentasi Notulensi</h3>
                     
                     @php
@@ -840,7 +933,7 @@
                         }
                     @endphp
                     
-                    <div class="flex flex-col gap-2.5 sm:gap-4">
+                    <div class="flex flex-col gap-2.5 sm:gap-4 flex-1 justify-between">
                         <div class="flex items-center justify-between border-b border-[#d4d1f5]/40 pb-2">
                             <span class="text-[11px] sm:text-xs text-[#5a508f]">Status Notulen:</span>
                             <span class="text-[9px] sm:text-[10px] px-2 py-0.5 rounded-full border font-bold uppercase {{ $notulenColor }}">
@@ -870,14 +963,31 @@
                                 </p>
                             @endif
                         @elseif($agenda->notulensi->status === 'draft')
+                            <div class="bg-[#f8f7ff] border border-[#d4d1f5]/50 rounded-2xl p-3 sm:p-3.5 space-y-1">
+                                <div class="flex items-start gap-2.5">
+                                    <div class="p-1.5 bg-[#1b3bbb]/10 text-[#1b3bbb] rounded-xl shrink-0 mt-0.5">
+                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                                        </svg>
+                                    </div>
+                                    <div class="space-y-0.5 text-left">
+                                        <h4 class="text-xs font-extrabold text-[#2e2552]">
+                                            {{ $hasDraftContent ? 'Draf Notulensi Tersedia' : 'Informasi Dokumentasi' }}
+                                        </h4>
+                                        <p class="text-[10.5px] text-[#5a508f] font-medium leading-normal">
+                                            {{ $hasDraftContent ? 'Draf notulensi rapat telah diisi/diunggah.' : 'Notulensi rapat belum diisi atau diunggah.' }}
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
                             @if($isSecretaryOfAgenda)
                                 <a href="{{ route('notulensi.edit', $agenda->id) }}" 
                                    class="w-full py-1.5 sm:py-2.5 bg-[#2e2552] hover:bg-[#3d326a] text-white font-bold text-[11px] sm:text-xs rounded-xl shadow-md transition-all flex items-center justify-center gap-1.5">
                                     <span>Kelola & Edit Notulen</span>
                                 </a>
-                            @else
-                                <p class="text-xs text-[#8e88dd] text-center py-2 italic">
-                                    {{ $hasDraftContent ? 'Draf notulensi rapat sedang dirapikan oleh sekretaris.' : 'Notulensi rapat belum diunggah/dibuat oleh sekretaris.' }}
+                            @elseif($hasDraftContent)
+                                <p class="text-xs text-[#8e88dd] text-center py-1.5 italic font-medium">
+                                    Draf notulensi rapat sedang dirapikan oleh sekretaris.
                                 </p>
                             @endif
                         @elseif($agenda->notulensi->status === 'menunggu_review')
@@ -942,16 +1052,16 @@
                         @endif
                     </div>
                 </div>
-            @elseif($agenda->butuh_presensi && (Auth::user()->role !== 'staff' || Auth::user()->isSekretariat()))
-                <div class="bg-white border border-[#d4d1f5]/60 rounded-xl md:rounded-[32px] p-2.5 sm:p-6 shadow-sm space-y-2.5 sm:space-y-4 flex-1 flex flex-col justify-between">
+            @elseif($agenda->butuh_presensi && Auth::user()->role !== 'staff')
+                <div x-data="{ showAllRecap: false }" class="bg-white border border-[#d4d1f5]/60 rounded-xl md:rounded-[32px] p-2.5 sm:p-6 shadow-sm space-y-2.5 sm:space-y-4 flex-1 flex flex-col justify-start">
                     <div class="flex items-center justify-between border-b border-[#d4d1f5]/40 pb-2">
                         <h3 class="text-[11px] sm:text-xs font-bold uppercase tracking-wider text-[#2e2552]">Rekap Kehadiran Bidang</h3>
-                        <span class="text-[9.5px] text-[#5a508f] font-bold">Klik untuk detail</span>
                     </div>
                     
                     <div class="space-y-2">
-                        @foreach($recap as $rc)
-                            <div @click="showBidangDetails({{ $rc->bidang_id }}, '{{ addslashes($rc->bidang_nama) }}')" 
+                        @foreach($recap as $index => $rc)
+                            <div x-show="showAllRecap || {{ $index }} < 2"
+                                 @click="showBidangDetails({{ $rc->bidang_id }}, '{{ addslashes($rc->bidang_nama) }}')" 
                                  class="p-2.5 bg-[#f8f7ff] border border-[#d4d1f5]/40 hover:border-[#8e88dd] hover:bg-[#f3f2fe] rounded-xl text-xs space-y-1.5 cursor-pointer transition-all duration-200 shadow-sm group">
                                 <div class="font-bold text-[#2e2552] flex items-center justify-between gap-2">
                                     <span class="truncate group-hover:text-[#1b3bbb] transition-colors font-extrabold text-[11px] sm:text-xs">{{ $rc->bidang_nama }}</span>
@@ -972,13 +1082,23 @@
                             </div>
                         @endforeach
                     </div>
+
+                    @if(count($recap) > 2)
+                        <button type="button" @click="showAllRecap = !showAllRecap" 
+                                class="w-full py-2 px-3 text-[11px] font-extrabold text-[#1b3bbb] hover:text-[#09103c] bg-[#f8f7ff] hover:bg-[#f3f2fe] border border-[#d4d1f5]/60 rounded-xl transition-all flex items-center justify-center gap-1.5 cursor-pointer shadow-2xs">
+                            <span x-text="showAllRecap ? 'Sembunyikan Bidang Lainnya' : 'Tampilkan Semua Bidang ({{ count($recap) }})'"></span>
+                            <svg class="w-3.5 h-3.5 transition-transform duration-200" :class="showAllRecap ? 'rotate-180' : ''" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                            </svg>
+                        </button>
+                    @endif
                 </div>
             @endif
         </div>
     </div>
 
-    <!-- BOTTOM SECTION: FULL-WIDTH KOREKSI PRESENSI PEGAWAI -->
-    @if($agenda->butuh_presensi && ($isSecretaryOfAgenda || Auth::user()->role !== 'staff' || Auth::user()->isSekretariat()))
+    <!-- BOTTOM SECTION: FULL-WIDTH KOREKSI PRESENSI PEGAWAI (Sekretaris & Admin Only) -->
+    @if($agenda->butuh_presensi && ($isSecretaryOfAgenda || Auth::user()->isSekretarisMaster() || Auth::user()->isSekretarisBidang()))
         <div class="bg-white border border-[#d4d1f5]/60 rounded-xl md:rounded-[32px] p-2.5 sm:p-6 shadow-sm space-y-2.5 sm:space-y-4">
             <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-[#d4d1f5]/40 pb-3">
                 <div>
@@ -1009,14 +1129,11 @@
                                     <input type="hidden" name="user_id" value="{{ $part->id }}">
                                     <select name="status" onchange="submitStatusKoreksi(this)" 
                                             class="text-[11px] bg-white border border-[#d4d1f5] rounded-xl text-[#2e2552] px-3 py-1.5 font-bold focus:outline-none focus:ring-1 focus:ring-[#8e88dd] cursor-pointer shadow-xs">
-                                        @if($agenda->isPresensiExpired())
-                                            <option value="alfa" {{ $part->status_presensi === 'alfa' ? 'selected' : '' }}>Alfa</option>
-                                        @else
-                                            <option value="Belum Absen" {{ $part->status_presensi === 'Belum Absen' ? 'selected' : '' }}>Belum Absen</option>
-                                        @endif
+                                        <option value="Belum Absen" {{ ($part->status_presensi === 'Belum Absen' || !$part->status_presensi) ? 'selected' : '' }}>Belum Absen</option>
                                         <option value="hadir" {{ $part->status_presensi === 'hadir' ? 'selected' : '' }}>Hadir</option>
                                         <option value="izin" {{ $part->status_presensi === 'izin' ? 'selected' : '' }}>Izin</option>
                                         <option value="sakit" {{ $part->status_presensi === 'sakit' ? 'selected' : '' }}>Sakit</option>
+                                        <option value="alfa" {{ $part->status_presensi === 'alfa' ? 'selected' : '' }}>Alfa</option>
                                     </select>
                                 </form>
                             @else
@@ -1077,13 +1194,13 @@
 
             <div class="p-6 max-h-[60vh] overflow-y-auto">
                 <table class="w-full text-left text-xs text-[#2e2552]">
-                    <thead class="text-[10px] font-bold uppercase tracking-wider text-[#5a508f] border-b border-[#d4d1f5]/40">
+                    <thead class="bg-[#ebf2ff] text-[#1b3bbb] border-y border-[#bfd5ff] select-none">
                         <tr>
-                            <th class="py-3 px-3">Nama Pegawai</th>
-                            <th class="py-3 px-3">Jabatan</th>
-                            <th class="py-3 px-3 text-center">Status</th>
-                            <th class="py-3 px-3">Keterangan</th>
-                            <th class="py-3 px-3 text-center">TTD</th>
+                            <th class="py-2.5 px-3 font-black uppercase tracking-wider">Nama Pegawai</th>
+                            <th class="py-2.5 px-3 font-black uppercase tracking-wider">Jabatan</th>
+                            <th class="py-2.5 px-3 font-black uppercase tracking-wider text-center">Status</th>
+                            <th class="py-2.5 px-3 font-black uppercase tracking-wider">Keterangan</th>
+                            <th class="py-2.5 px-3 font-black uppercase tracking-wider text-center">TTD</th>
                         </tr>
                     </thead>
                     <tbody class="divide-y divide-[#d4d1f5]/20">

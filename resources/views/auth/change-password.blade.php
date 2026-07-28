@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Ubah Kata Sandi Baru - Agendaris</title>
+    <title>Ubah Kata Sandi Baru - SiRENA</title>
     <!-- Favicon / Logo Resmi -->
     <link rel="icon" type="image/png" href="{{ asset('images/logo-banyumas-crest.png') }}">
     <link rel="shortcut icon" href="{{ asset('favicon.ico') }}">
@@ -98,11 +98,11 @@
 
             @if(Auth::check() && !Auth::user()->must_change_password)
                 <div class="text-center mt-5">
-                    <a href="{{ route('profile') }}" class="text-xs font-bold text-slate-500 hover:text-[#1b3bbb] transition-colors inline-flex items-center gap-1.5">
-                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
+                    <a href="{{ route('profile') }}" class="text-xs font-bold text-[#5a508f] hover:text-[#1b3bbb] transition-colors inline-flex items-center gap-2 group">
+                        <svg class="w-4 h-4 shrink-0 text-[#5a508f] group-hover:text-[#1b3bbb] group-hover:-translate-x-0.5 transition-all" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 12H5m7 7l-7-7 7-7"></path>
                         </svg>
-                        Batal & Kembali ke Profil
+                        <span>Batal & Kembali ke Profil</span>
                     </a>
                 </div>
             @endif

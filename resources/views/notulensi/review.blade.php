@@ -7,8 +7,8 @@
     <!-- Breadcrumbs / Back button & Title -->
     <div>
         <a href="{{ route('agenda.show', $agenda->id) }}" 
-           class="inline-flex items-center gap-2 text-xs font-bold text-[#5a508f] hover:text-[#2e2552] transition-colors mb-3">
-            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+           class="inline-flex items-center gap-2 text-xs font-bold text-[#5a508f] hover:text-[#1b3bbb] transition-colors mb-3 group">
+            <svg class="w-4 h-4 shrink-0 text-[#5a508f] group-hover:text-[#1b3bbb] group-hover:-translate-x-0.5 transition-all" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 12H5m7 7l-7-7 7-7"></path>
             </svg>
             <span>Kembali ke Detail Agenda</span>
@@ -152,13 +152,30 @@
                         </button>
 
                         <!-- 2. REVISE SWITCH BUTTON -->
-                        <button @click="openRevisiPanel = !openRevisiPanel" 
+                        <button type="button" @click="openRevisiPanel = !openRevisiPanel" 
                                 class="w-full py-3 bg-slate-100 hover:bg-slate-200 text-[#5a508f] font-bold text-xs rounded-xl border border-[#d4d1f5] transition-all flex items-center justify-center gap-2">
                             <svg class="w-4 h-4 text-rose-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path>
                             </svg>
                             <span>Tolak & Minta Perbaikan</span>
                         </button>
+
+                        <!-- Revision Form Panel -->
+                        <div x-show="openRevisiPanel" x-cloak class="mt-3 p-4 bg-rose-50/70 border border-rose-200 rounded-2xl space-y-3 animate-in fade-in zoom-in duration-200">
+                            <h4 class="text-xs font-extrabold text-rose-900 flex items-center gap-1.5">
+                                <svg class="w-4 h-4 text-rose-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
+                                <span>Catatan Perbaikan / Revisi</span>
+                            </h4>
+                            <form action="{{ route('notulensi.review.revision', $agenda->id) }}" method="POST" class="space-y-3">
+                                @csrf
+                                <textarea name="catatan_revisi" rows="3" required placeholder="Tuliskan bagian notulensi yang perlu diperbaiki oleh sekretaris..."
+                                          class="w-full p-3 bg-white border border-rose-200 rounded-xl text-xs text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-rose-500/20 font-medium"></textarea>
+                                <div class="flex items-center justify-end gap-2">
+                                    <button type="button" @click="openRevisiPanel = false" class="px-3 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-600 text-xs font-semibold rounded-lg">Batal</button>
+                                    <button type="submit" class="px-4 py-1.5 bg-rose-600 hover:bg-rose-700 text-white text-xs font-bold rounded-lg shadow-sm">Kirim Catatan Revisi</button>
+                                </div>
+                            </form>
+                        </div>
                     </div>
 
                     <!-- Hidden Form for Approval -->
@@ -217,6 +234,9 @@
                                     </svg>
                                     <span>Sahkan & Simpan Tanda Tangan</span>
                                 </button>
+                            </div>
+
+                        </div>
                     </div>
 
                 </div>
@@ -239,4 +259,102 @@
 
     </div>
 </div>
+
+<script>
+function approverSignatureApp() {
+    return {
+        showModal: false,
+        signatureData: '',
+        canvas: null,
+        ctx: null,
+        isDrawing: false,
+        hasDrawn: false,
+
+        openSignatureModal() {
+            this.showModal = true;
+            this.$nextTick(() => {
+                this.initCanvas();
+            });
+        },
+
+        closeSignatureModal() {
+            this.showModal = false;
+        },
+
+        initCanvas() {
+            this.canvas = document.getElementById('approver-sig-canvas');
+            if (!this.canvas) return;
+            
+            const rect = this.canvas.getBoundingClientRect();
+            this.canvas.width = rect.width;
+            this.canvas.height = rect.height;
+            
+            this.ctx = this.canvas.getContext('2d');
+            this.ctx.strokeStyle = '#09103c';
+            this.ctx.lineWidth = 2.5;
+            this.ctx.lineCap = 'round';
+            this.ctx.lineJoin = 'round';
+
+            const getPos = (e) => {
+                const r = this.canvas.getBoundingClientRect();
+                const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+                const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+                return {
+                    x: clientX - r.left,
+                    y: clientY - r.top
+                };
+            };
+
+            const startDraw = (e) => {
+                this.isDrawing = true;
+                const pos = getPos(e);
+                this.ctx.beginPath();
+                this.ctx.moveTo(pos.x, pos.y);
+                e.preventDefault();
+            };
+
+            const draw = (e) => {
+                if (!this.isDrawing) return;
+                const pos = getPos(e);
+                this.ctx.lineTo(pos.x, pos.y);
+                this.ctx.stroke();
+                this.hasDrawn = true;
+                e.preventDefault();
+            };
+
+            const stopDraw = () => {
+                this.isDrawing = false;
+            };
+
+            this.canvas.addEventListener('mousedown', startDraw);
+            this.canvas.addEventListener('mousemove', draw);
+            this.canvas.addEventListener('mouseup', stopDraw);
+            this.canvas.addEventListener('mouseleave', stopDraw);
+
+            this.canvas.addEventListener('touchstart', startDraw, { passive: false });
+            this.canvas.addEventListener('touchmove', draw, { passive: false });
+            this.canvas.addEventListener('touchend', stopDraw);
+        },
+
+        clearSignature() {
+            if (this.ctx && this.canvas) {
+                this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+                this.hasDrawn = false;
+                this.signatureData = '';
+            }
+        },
+
+        confirmAndSubmit() {
+            if (!this.hasDrawn) {
+                alert('Harap goreskan tanda tangan Anda terlebih dahulu sebelum mengesahkan.');
+                return;
+            }
+            this.signatureData = this.canvas.toDataURL('image/png');
+            this.$nextTick(() => {
+                document.getElementById('approval-form').submit();
+            });
+        }
+    };
+}
+</script>
 @endsection

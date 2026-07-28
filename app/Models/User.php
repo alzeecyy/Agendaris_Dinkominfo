@@ -37,6 +37,30 @@ class User extends Authenticatable
         ];
     }
 
+    /**
+     * Get effective bidang_id attribute, resolving Subbag & Kasubag users to their respective Subbag Bidang ID.
+     */
+    public function getBidangIdAttribute($value)
+    {
+        if ($value && !empty($this->attributes['jabatan'])) {
+            $jabatanLower = strtolower($this->attributes['jabatan']);
+            if (str_contains($jabatanLower, 'subbag') || str_contains($jabatanLower, 'kasubag')) {
+                $subbag = null;
+                if (str_contains($jabatanLower, 'umum')) {
+                    $subbag = Bidang::where('nama', 'like', '%Subbag Umum%')->orWhere('singkatan', 'like', '%Subbag Umum%')->first();
+                } elseif (str_contains($jabatanLower, 'keuangan')) {
+                    $subbag = Bidang::where('nama', 'like', '%Subbag Keuangan%')->orWhere('singkatan', 'like', '%Subbag Keuangan%')->first();
+                } elseif (str_contains($jabatanLower, 'perencanaan')) {
+                    $subbag = Bidang::where('nama', 'like', '%Subbag Perencanaan%')->orWhere('singkatan', 'like', '%Subbag Perencanaan%')->first();
+                }
+                if ($subbag) {
+                    return $subbag->id;
+                }
+            }
+        }
+        return $value;
+    }
+
     public function bidang(): BelongsTo
     {
         return $this->belongsTo(Bidang::class, 'bidang_id');
@@ -97,22 +121,70 @@ class User extends Authenticatable
         );
     }
 
+    public function isSekretariatScope(): bool
+    {
+        return $this->isSekretarisMaster() || $this->isKetuaMaster() || $this->isSekretariat();
+    }
+
+    /**
+     * Get user role display label nicely formatted for header, badges, and profile.
+     */
+    public function getRoleLabelAttribute(): string
+    {
+        if ($this->isAdmin()) {
+            return 'Administrator';
+        }
+        if ($this->isSekretarisMaster()) {
+            return 'Sekretaris Dinas';
+        }
+        if ($this->isKetuaMaster()) {
+            return 'Kepala Dinas';
+        }
+
+        $bid = $this->bidang;
+        $bidName = $bid ? ($bid->singkatan ?? $bid->nama) : '';
+        $isSubbag = $bid ? (str_contains(strtolower($bid->nama), 'subbag') || str_contains(strtolower($bid->singkatan), 'subbag')) : false;
+
+        if (!$isSubbag && str_contains(strtolower((string)$this->jabatan), 'subbag')) {
+            $isSubbag = true;
+        }
+
+        if ($this->isSekretarisBidang()) {
+            if ($isSubbag) {
+                if ($bidName && str_contains(strtolower($bidName), 'subbag')) {
+                    return 'Admin ' . $bidName;
+                }
+                return $this->jabatan ?: ($bidName ? 'Admin ' . $bidName : 'Admin Subbag');
+            }
+            return $bidName ? "Admin Bidang {$bidName}" : 'Admin Bidang';
+        }
+
+        if ($this->isKetuaBidang()) {
+            if ($isSubbag) {
+                return $this->jabatan ?: ($bidName ? "Kasubag {$bidName}" : 'Kasubag');
+            }
+            return $bidName ? "Ketua Bidang {$bidName}" : 'Ketua Bidang';
+        }
+
+        if ($this->isStaff()) {
+            if ($isSubbag) {
+                return "Staff " . ($bidName ?: 'Subbag');
+            }
+            return $bidName ? "Staff {$bidName}" : 'Staff Pegawai';
+        }
+
+        return ucfirst(str_replace('_', ' ', $this->role));
+    }
+
     /**
      * Checks if this user can view the Agenda Hari Ini (TV / Monitoring Board) page.
-     * Allowed: Pimpinan (Ketua Master/Bidang), Sekretaris (Master/Bidang), and Sekretariat Staff.
-     * Regular staff of Aptika, IKP, Statistika, etc. are excluded to avoid confusion.
+     * Allowed ONLY for Admins & Secretaries (Admin Master, Admin Bidang/Subbag, Sekretaris Dinas).
      */
     public function canViewAgendaToday(): bool
     {
-        if ($this->isAdmin()) {
-            return false;
-        }
-
-        return $this->isSekretarisMaster() 
-            || $this->isKetuaMaster() 
-            || $this->isSekretarisBidang() 
-            || $this->isKetuaBidang() 
-            || $this->isSekretariat();
+        return $this->isAdmin()
+            || $this->isSekretarisMaster() 
+            || $this->isSekretarisBidang();
     }
 
     /**
@@ -124,59 +196,61 @@ class User extends Authenticatable
             return false; // Admins don't participate in agendas or view their content
         }
 
-        if ($this->isSekretarisMaster() || $this->isKetuaMaster() || $this->isSekretariat()) {
-            return true; // Masters & Sekretariat staff can view all agendas across all bidangs
+        // Direct creator of agenda always has access
+        if ((string)$this->id === (string)$agenda->sekretaris_id) {
+            return true;
         }
 
-        // If specific meeting_participants are saved for this agenda, check if user is invited
-        if ($agenda->participants()->exists()) {
-            return $agenda->participants()->where('users.id', $this->id)->exists();
+        // Master leadership (Sekretaris Master / Sekdin & Kadin) has full access to all agendas
+        if ($this->isSekretarisMaster() || $this->isKetuaMaster()) {
+            return true;
         }
 
-        // For Bidang roles & Staff fallback:
         $hakAkses = $agenda->hak_akses ?? [];
-        
         if (in_array('semua_orang', $hakAkses)) {
             return true;
         }
 
-        return in_array((string)$this->bidang_id, array_map('strval', $hakAkses));
+        // If specific meeting_participants are saved for this agenda, check if user is invited
+        if ($agenda->participants()->exists()) {
+            if ($agenda->participants()->where('users.id', $this->id)->exists()) {
+                return true;
+            }
+        }
+
+        // Check if user's bidang_id is explicitly in target hak_akses
+        if ($this->bidang_id && in_array((string)$this->bidang_id, array_map('strval', $hakAkses))) {
+            return true;
+        }
+
+        // Check if agenda belongs to user's same bidang
+        if ($this->bidang_id && $agenda->sekretaris && (string)$agenda->sekretaris->bidang_id === (string)$this->bidang_id) {
+            return true;
+        }
+
+        return false;
     }
 
     /**
      * Checks if this user is the authorized secretary who can EDIT an agenda's notulensi.
      * Rule:
-     * - Only the secretary creator (or secretaries in the same Bidang) can EDIT.
-     * - Sekdin / Sekretariat staff can only edit agendas created by Sekretariat / themselves.
-     * - Sekdin viewing Notulensi created by a Bidang will be View Only.
+     * - Admin Master & Staff CANNOT edit notulensi.
+     * - Sekretaris Master (Sekdin) & Admin Bidang (Sekretaris Bidang) who have access to the agenda CAN EDIT/MANAGE.
      */
     public function isSecretaryOfAgenda(Agenda $agenda): bool
     {
-        if ($this->isAdmin()) {
+        if ($this->isAdmin() || $this->isStaff()) {
             return false;
         }
 
-        // Direct creator of the agenda can edit
+        // Direct creator of the agenda can always edit
         if ((string)$this->id === (string)$agenda->sekretaris_id) {
             return true;
         }
 
-        $creator = $agenda->sekretaris;
-
-        // If user is Sekdin / Sekretariat staff:
-        if ($this->isSekretariat() || $this->isSekretarisMaster()) {
-            if ($creator && ($creator->isSekretariat() || $creator->isSekretarisMaster())) {
-                return true;
-            }
-            // Sekdin viewing a Bidang's agenda -> CANNOT EDIT (View Only)
-            return false;
-        }
-
-        // If user is Admin/Sekretaris of a Subbagian / Bidang:
-        if ($this->isSekretarisBidang() || $this->isStaff()) {
-            if ($creator && (string)$creator->bidang_id === (string)$this->bidang_id) {
-                return true;
-            }
+        // Sekretaris Master and Sekretaris Bidang who have access to the agenda can edit/manage notulensi
+        if (($this->isSekretarisMaster() || $this->isSekretarisBidang()) && $this->hasAccessToAgenda($agenda)) {
+            return true;
         }
 
         return false;
@@ -212,8 +286,8 @@ class User extends Authenticatable
             $isSubbagOrSekretariat = true;
         }
 
-        // 2. Sekdin (sekretaris_master / Sekretariat Pimpinan):
-        if ($this->isSekretarisMaster() || $this->isSekretariat()) {
+        // 2. Sekdin (sekretaris_master):
+        if ($this->isSekretarisMaster()) {
             // Sekdin has authority to approve & sign any Notulensi under Sekretariat/Subbagian or Lintas Dinas
             if ($isSubbagOrSekretariat || in_array('semua_orang', $hakAkses) || count($hakAkses) > 1 || count($hakAkses) === 0) {
                 return true;

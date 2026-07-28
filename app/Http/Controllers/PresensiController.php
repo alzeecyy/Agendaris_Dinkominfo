@@ -106,51 +106,64 @@ class PresensiController extends Controller
     {
         $user = Auth::user();
 
-        if (!$user->isSecretaryOfAgenda($agenda)) {
+        if (!$user->isSecretaryOfAgenda($agenda) && !$user->isAdmin() && !$user->isSekretarisMaster() && !$user->isSekretarisBidang()) {
             return back()->with('error', 'Anda tidak memiliki wewenang untuk mengoreksi presensi.');
         }
 
         $validated = $request->validate([
             'user_id' => 'required|exists:users,id',
-            'status' => 'required|in:hadir,izin,sakit,alfa,Belum Absen',
+            'status' => 'required|string',
         ]);
 
         $employee = \App\Models\User::find($validated['user_id']);
-        
-        // Ensure the corrected employee is within the allowed bidang of the agenda
-        if (!$employee->hasAccessToAgenda($agenda)) {
+        if (!$employee) {
+            return back()->with('error', 'Pegawai tidak ditemukan.');
+        }
+
+        // Check if employee is valid for this agenda
+        $isParticipant = Presensi::where('agenda_id', $agenda->id)->where('user_id', $employee->id)->exists() 
+            || $employee->hasAccessToAgenda($agenda) 
+            || $agenda->getInternalParticipants()->contains('id', $employee->id);
+
+        if (!$isParticipant) {
             return back()->with('error', 'Pegawai bersangkutan tidak memiliki akses ke agenda ini.');
         }
 
-        if ($validated['status'] === 'Belum Absen') {
-            // Delete presence record
+        $statusRaw = strtolower(trim($validated['status']));
+
+        if (in_array($statusRaw, ['belum absen', 'belum_absen'])) {
+            // Delete presence record so status reverts to 'Belum Absen'
             Presensi::where('agenda_id', $agenda->id)
                 ->where('user_id', $employee->id)
                 ->delete();
-                
-            return back()->with('success', 'Status presensi ' . $employee->name . ' berhasil direset.');
-        } else {
-            // Save or update presence
-            $dataToUpdate = [
-                'status' => $validated['status'],
-            ];
-            if ($validated['status'] !== 'hadir') {
-                $dataToUpdate['tanda_tangan'] = null;
-            }
 
-            Presensi::updateOrCreate([
-                'agenda_id' => $agenda->id,
-                'user_id' => $employee->id,
-            ], $dataToUpdate);
-
-            $statusLabels = [
-                'hadir' => 'Hadir',
-                'izin' => 'Izin',
-                'sakit' => 'Sakit',
-                'alfa' => 'Alfa',
-            ];
-
-            return back()->with('success', 'Status presensi ' . $employee->name . ' diubah menjadi: ' . $statusLabels[$validated['status']] . '.');
+            return back()->with('success', 'Status presensi ' . $employee->name . ' berhasil direset menjadi Belum Absen.');
         }
+
+        if (!in_array($statusRaw, ['hadir', 'izin', 'sakit', 'alfa'])) {
+            return back()->with('error', 'Pilihan status presensi tidak valid.');
+        }
+
+        // Save or update presence
+        $dataToUpdate = [
+            'status' => $statusRaw,
+        ];
+        if ($statusRaw !== 'hadir') {
+            $dataToUpdate['tanda_tangan'] = null;
+        }
+
+        Presensi::updateOrCreate([
+            'agenda_id' => $agenda->id,
+            'user_id' => $employee->id,
+        ], $dataToUpdate);
+
+        $statusLabels = [
+            'hadir' => 'Hadir',
+            'izin' => 'Izin',
+            'sakit' => 'Sakit',
+            'alfa' => 'Alfa',
+        ];
+
+        return back()->with('success', 'Status presensi ' . $employee->name . ' diubah menjadi: ' . ($statusLabels[$statusRaw] ?? ucfirst($statusRaw)) . '.');
     }
 }

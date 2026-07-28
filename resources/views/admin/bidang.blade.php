@@ -26,12 +26,12 @@
     <div class="bg-white border border-[#d4d1f5]/60 rounded-[32px] p-6 shadow-sm overflow-hidden text-[#2e2552]">
         <div class="overflow-x-auto">
             <table class="w-full text-left text-sm text-[#2e2552]">
-                <thead class="text-xs font-bold uppercase tracking-wider text-[#5a508f] border-b border-[#d4d1f5]/40">
+                <thead class="bg-[#ebf2ff] text-[#1b3bbb] border-y border-[#bfd5ff] select-none">
                     <tr>
-                        <th class="py-4 px-4">Nama Bidang / Subbagian</th>
-                        <th class="py-4 px-4 text-left">Singkatan</th>
-                        <th class="py-4 px-4 text-center">Jumlah Pegawai</th>
-                        <th class="py-4 px-4 text-center">Aksi</th>
+                        <th class="py-3 sm:py-3.5 px-4 text-xs font-black uppercase tracking-wider">Nama Bidang / Subbagian</th>
+                        <th class="py-3 sm:py-3.5 px-4 text-xs font-black uppercase tracking-wider text-left">Singkatan</th>
+                        <th class="py-3 sm:py-3.5 px-4 text-xs font-black uppercase tracking-wider text-center">Jumlah Pegawai</th>
+                        <th class="py-3 sm:py-3.5 px-4 text-xs font-black uppercase tracking-wider text-center">Aksi</th>
                     </tr>
                 </thead>
                 <tbody class="divide-y divide-[#d4d1f5]/30">
@@ -41,8 +41,12 @@
                         @endphp
                         <tr class="hover:bg-[#f8f7ff] transition-colors {{ $isChildSubbag ? 'bg-slate-50/40' : '' }}">
                             <td class="py-4 px-4 font-bold text-[#2e2552] {{ $isChildSubbag ? 'pl-10' : '' }}">
+                                @if($isChildSubbag)
+                                    <span class="text-[#b0aad8] font-bold mr-1 text-sm">└</span>
+                                @endif
                                 <span>{{ $bid->nama }}</span>
                             </td>
+
                             <td class="py-4 px-4 text-left font-black text-[#8e88dd] {{ $isChildSubbag ? 'pl-7' : '' }}">
                                 {{ $bid->singkatan }}
                             </td>

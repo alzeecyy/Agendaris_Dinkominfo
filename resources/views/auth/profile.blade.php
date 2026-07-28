@@ -7,15 +7,16 @@
     <!-- Top Row: Back Arrow, Title, Subtitle -->
     <div class="space-y-2">
         <div>
-            <a href="{{ route('dashboard') }}" class="inline-flex p-1.5 rounded-xl bg-slate-100/80 hover:bg-slate-200 text-slate-600 transition-all shrink-0" title="Kembali ke Dashboard">
-                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
+            <a href="{{ route('dashboard') }}" class="inline-flex items-center gap-2 text-xs font-bold text-[#5a508f] hover:text-[#1b3bbb] transition-colors py-1 group" title="Kembali ke Dashboard">
+                <svg class="w-4 h-4 shrink-0 text-[#5a508f] group-hover:text-[#1b3bbb] group-hover:-translate-x-0.5 transition-all" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 12H5m7 7l-7-7 7-7"></path>
                 </svg>
+                <span>Kembali ke Dashboard</span>
             </a>
         </div>
         <div>
             <h1 class="text-base sm:text-lg font-black text-[#09103c] tracking-tight leading-none">PROFIL SAYA</h1>
-            <p class="text-slate-500 text-[10px] sm:text-xs font-semibold mt-0.5">Detail informasi kepegawaian Anda di sistem Agendaris</p>
+            <p class="text-slate-500 text-[10px] sm:text-xs font-semibold mt-0.5">Detail informasi kepegawaian Anda di sistem SiRENA</p>
         </div>
     </div>
 
@@ -65,23 +66,11 @@
                 </div>
             </div>
 
-            @php
-                $bidSuffix = Auth::user()->bidang ? ' ' . (Auth::user()->bidang->singkatan ?? Auth::user()->bidang->nama) : '';
-                $roleLabels = [
-                    'admin' => 'Administrator',
-                    'sekretaris_master' => 'Sekretaris Dinas',
-                    'ketua_master' => 'Kepala Dinas',
-                    'sekretaris_bidang' => 'Admin Bidang' . $bidSuffix,
-                    'ketua_bidang' => 'Ketua Bidang' . $bidSuffix,
-                    'staff' => 'Staff Pegawai',
-                ];
-            @endphp
-
             <!-- Row 3: Hak Akses & Status Akun -->
             <div class="space-y-0.5">
                 <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">HAK AKSES SISTEM</span>
                 <div class="text-xs sm:text-sm font-bold text-[#09103c] bg-slate-50/80 border border-slate-200/70 rounded-xl px-3 py-1.5 shadow-xs">
-                    {{ $roleLabels[Auth::user()->role] ?? Auth::user()->role }}
+                    {{ Auth::user()->role_label }}
                 </div>
             </div>
 

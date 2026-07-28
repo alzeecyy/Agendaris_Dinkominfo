@@ -33,258 +33,151 @@
         <!-- Role-Specific KPI Cards -->
         @if(Auth::user()->role === 'staff')
             <!-- Card 1: Week Agendas -->
-            @if(!empty($links['week_agendas']))
-            <a href="{{ $links['week_agendas'] }}" class="bg-white border border-[#d4d1f5]/60 rounded-xl md:rounded-[32px] p-2.5 sm:p-5 md:p-6 flex flex-col justify-between shadow-sm hover:border-[#8e88dd] hover:shadow-md hover:scale-[1.01] active:scale-[0.99] transition-all duration-200 group">
+            <a href="{{ $links['week_agendas'] ?? route('calendar') }}" class="kpi-card bg-white border border-[#d4d1f5]/60 hover:border-[#1b3bbb] rounded-xl md:rounded-[32px] p-2.5 sm:p-5 md:p-6 flex flex-col justify-between shadow-sm hover:shadow-md hover:scale-[1.01] active:scale-[0.99] transition-all duration-200 group cursor-pointer">
                 <div class="flex items-center justify-between">
-                    <span class="text-[9px] sm:text-xs font-bold text-[#5a508f] uppercase truncate">Agenda Minggu Ini</span>
-                    <div class="p-1 sm:p-2 bg-[#8ba0f2]/10 text-[#8ba0f2] rounded-lg sm:rounded-2xl group-hover:bg-[#8ba0f2]/20 transition-colors shrink-0">
-                        <svg class="w-3.5 h-3.5 sm:w-5 sm:h-5 md:w-6 md:h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <span class="text-[9px] sm:text-xs font-bold text-[#5a508f] group-hover:text-[#1b3bbb] transition-colors uppercase truncate">Agenda Minggu Ini</span>
+                    <div class="kpi-icon kpi-icon-navy p-1 sm:p-2 bg-[#1b3bbb]/10 text-[#1b3bbb] rounded-lg sm:rounded-2xl group-hover:!bg-[#1b3bbb] group-hover:!text-white transition-all duration-200 shrink-0">
+                        <svg class="w-3.5 h-3.5 sm:w-5 sm:h-5 md:w-6 md:h-6 text-[#1b3bbb] group-hover:!text-white transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
                         </svg>
                     </div>
                 </div>
                 <div class="mt-1.5 sm:mt-4">
-                    <h2 class="text-xl sm:text-3xl md:text-4xl font-black text-[#2e2552]">{{ $kpi['week_agendas'] ?? 0 }}</h2>
-                    <p class="text-[9px] sm:text-xs text-[#5a508f] mt-0.5 sm:mt-1 font-medium truncate">Terjadwal &rarr;</p>
+                    <h2 class="text-xl sm:text-3xl md:text-4xl font-black text-[#2e2552] group-hover:scale-105 origin-left transition-transform duration-200">{{ $kpi['week_agendas'] ?? 0 }}</h2>
+                    <p class="text-[9px] sm:text-xs text-[#5a508f] mt-0.5 sm:mt-1 font-medium truncate">Agenda kegiatan terjadwal &rarr;</p>
                 </div>
             </a>
-            @else
-            <div class="bg-white border border-[#d4d1f5]/60 rounded-2xl md:rounded-[32px] p-3.5 sm:p-5 md:p-6 flex flex-col justify-between shadow-sm">
+
+            <!-- Card 2: Unfilled Presence -->
+            <a href="{{ $links['pending_presence'] ?? route('agenda.today') }}" class="kpi-card bg-white border border-[#d4d1f5]/60 hover:border-rose-400 rounded-xl md:rounded-[32px] p-2.5 sm:p-5 md:p-6 flex flex-col justify-between shadow-sm hover:shadow-md hover:scale-[1.01] active:scale-[0.99] transition-all duration-200 group cursor-pointer">
                 <div class="flex items-center justify-between">
-                    <span class="text-[10px] sm:text-xs font-bold text-[#5a508f] uppercase">Agenda Minggu Ini</span>
-                    <div class="p-1.5 sm:p-2 bg-[#8ba0f2]/10 text-[#8ba0f2] rounded-xl sm:rounded-2xl">
-                        <svg class="w-4 h-4 sm:w-5 sm:h-5 md:w-6 md:h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <span class="text-[9px] sm:text-xs font-bold text-[#5a508f] group-hover:text-rose-600 transition-colors uppercase truncate">Belum Presensi</span>
+                    <div class="kpi-icon kpi-icon-rose p-1 sm:p-2 bg-rose-50 text-rose-500 rounded-lg sm:rounded-2xl group-hover:!bg-[#f43f5e] group-hover:!text-white transition-all duration-200 shrink-0">
+                        <svg class="w-3.5 h-3.5 sm:w-5 sm:h-5 md:w-6 md:h-6 text-rose-500 group-hover:!text-white transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                        </svg>
+                    </div>
+                </div>
+                <div class="mt-1.5 sm:mt-4">
+                    <h2 class="text-xl sm:text-3xl md:text-4xl font-black text-rose-600 group-hover:scale-105 origin-left transition-transform duration-200">{{ $kpi['pending_presence'] ?? 0 }}</h2>
+                    <p class="text-[9px] sm:text-xs text-[#5a508f] mt-0.5 sm:mt-1 font-medium truncate">{{ !empty($links['pending_presence']) ? 'Konfirmasi kehadiran →' : 'Tidak ada presensi aktif →' }}</p>
+                </div>
+            </a>
+
+        @elseif(Auth::user()->role === 'sekretaris_bidang')
+            <!-- Card 1: Bidang Agendas -->
+            <a href="{{ $links['bidang_month_agendas'] ?? route('calendar') }}" class="kpi-card bg-white border border-[#d4d1f5]/60 hover:border-[#1b3bbb] rounded-2xl md:rounded-[32px] p-3.5 sm:p-5 md:p-6 flex flex-col justify-between shadow-sm hover:shadow-md hover:scale-[1.01] active:scale-[0.99] transition-all duration-200 group cursor-pointer">
+                <div class="flex items-center justify-between">
+                    <span class="text-[10px] sm:text-xs font-bold text-[#5a508f] group-hover:text-[#1b3bbb] transition-colors uppercase">Agenda Bidang Bulan Ini</span>
+                    <div class="kpi-icon kpi-icon-navy p-1.5 sm:p-2 bg-[#1b3bbb]/10 text-[#1b3bbb] rounded-xl sm:rounded-2xl group-hover:!bg-[#1b3bbb] group-hover:!text-white transition-all duration-200 shrink-0">
+                        <svg class="w-4 h-4 sm:w-5 sm:h-5 md:w-6 md:h-6 text-[#1b3bbb] group-hover:!text-white transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path>
+                        </svg>
+                    </div>
+                </div>
+                <div class="mt-2.5 sm:mt-4">
+                    <h2 class="text-2xl sm:text-3xl md:text-4xl font-black text-[#2e2552] group-hover:scale-105 origin-left transition-transform duration-200">{{ $kpi['bidang_month_agendas'] ?? 0 }}</h2>
+                    <p class="text-[10px] sm:text-xs text-[#5a508f] mt-0.5 sm:mt-1 font-medium">Kelola jadwal rapat bidang &rarr;</p>
+                </div>
+            </a>
+
+            <!-- Card 2: Waiting Review -->
+            <a href="{{ $links['bidang_pending_reviews'] ?? route('riwayat') }}" class="kpi-card bg-white border border-[#d4d1f5]/60 hover:border-amber-400 rounded-2xl md:rounded-[32px] p-3.5 sm:p-5 md:p-6 flex flex-col justify-between shadow-sm hover:shadow-md hover:scale-[1.01] active:scale-[0.99] transition-all duration-200 group cursor-pointer">
+                <div class="flex items-center justify-between">
+                    <span class="text-[10px] sm:text-xs font-bold text-[#5a508f] group-hover:text-amber-600 transition-colors uppercase">Menunggu Review Ketua</span>
+                    <div class="kpi-icon kpi-icon-amber p-1.5 sm:p-2 bg-amber-50 text-amber-500 rounded-xl sm:rounded-2xl group-hover:!bg-[#f59e0b] group-hover:!text-white transition-all duration-200 shrink-0">
+                        <svg class="w-4 h-4 sm:w-5 sm:h-5 md:w-6 md:h-6 text-amber-500 group-hover:!text-white transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"></path>
+                        </svg>
+                    </div>
+                </div>
+                <div class="mt-2.5 sm:mt-4">
+                    <h2 class="text-2xl sm:text-3xl md:text-4xl font-black text-amber-600 group-hover:scale-105 origin-left transition-transform duration-200">{{ $kpi['bidang_pending_reviews'] ?? 0 }}</h2>
+                    <p class="text-[10px] sm:text-xs text-[#5a508f] mt-0.5 sm:mt-1 font-medium">Diajukan ke Kepala Bidang &rarr;</p>
+                </div>
+            </a>
+
+        @elseif(Auth::user()->role === 'sekretaris_master')
+            <!-- Card 1: Sekdin Pending Approvals -->
+            <a href="{{ $links['sekdin_pending_reviews'] ?? route('riwayat') }}" class="kpi-card bg-white border border-[#d4d1f5]/60 hover:border-amber-400 rounded-2xl md:rounded-[32px] p-3.5 sm:p-5 md:p-6 flex flex-col justify-between shadow-sm hover:shadow-md hover:scale-[1.01] active:scale-[0.99] transition-all duration-200 group cursor-pointer">
+                <div class="flex items-center justify-between">
+                    <span class="text-[10px] sm:text-xs font-bold text-[#5a508f] group-hover:text-amber-600 transition-colors uppercase">Notulensi Butuh Pengesahan</span>
+                    <div class="kpi-icon kpi-icon-amber p-1.5 sm:p-2 bg-amber-50 text-amber-500 rounded-xl sm:rounded-2xl group-hover:!bg-[#f59e0b] group-hover:!text-white transition-all duration-200 shrink-0">
+                        <svg class="w-4 h-4 sm:w-5 sm:h-5 md:w-6 md:h-6 text-amber-500 group-hover:!text-white transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"></path>
+                        </svg>
+                    </div>
+                </div>
+                <div class="mt-2.5 sm:mt-4">
+                    <h2 class="text-2xl sm:text-3xl md:text-4xl font-black text-amber-600 group-hover:scale-105 origin-left transition-transform duration-200">{{ $kpi['sekdin_pending_reviews'] ?? 0 }}</h2>
+                    <p class="text-[10px] sm:text-xs text-[#5a508f] mt-0.5 sm:mt-1 font-medium">Tinjau &amp; sahkan notulensi &rarr;</p>
+                </div>
+            </a>
+
+            <!-- Card 2: Master Total Month -->
+            <a href="{{ $links['master_month_agendas'] ?? route('calendar') }}" class="kpi-card bg-white border border-[#d4d1f5]/60 hover:border-[#1b3bbb] rounded-2xl md:rounded-[32px] p-3.5 sm:p-5 md:p-6 flex flex-col justify-between shadow-sm hover:shadow-md hover:scale-[1.01] active:scale-[0.99] transition-all duration-200 group cursor-pointer">
+                <div class="flex items-center justify-between">
+                    <span class="text-[10px] sm:text-xs font-bold text-[#5a508f] group-hover:text-[#1b3bbb] transition-colors uppercase">Agenda Dinas Bulan Ini</span>
+                    <div class="kpi-icon kpi-icon-navy p-1.5 sm:p-2 bg-[#1b3bbb]/10 text-[#1b3bbb] rounded-xl sm:rounded-2xl group-hover:!bg-[#1b3bbb] group-hover:!text-white transition-all duration-200 shrink-0">
+                        <svg class="w-4 h-4 sm:w-5 sm:h-5 md:w-6 md:h-6 text-[#1b3bbb] group-hover:!text-white transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path>
+                        </svg>
+                    </div>
+                </div>
+                <div class="mt-2.5 sm:mt-4">
+                    <h2 class="text-2xl sm:text-3xl md:text-4xl font-black text-[#2e2552] group-hover:scale-105 origin-left transition-transform duration-200">{{ $kpi['master_month_agendas'] ?? 0 }}</h2>
+                    <p class="text-[10px] sm:text-xs text-[#5a508f] mt-0.5 sm:mt-1 font-medium">Kalender agenda dinas &rarr;</p>
+                </div>
+            </a>
+
+        @elseif(Auth::user()->isKetua())
+            <!-- Card 1: Ketua Pending Approvals -->
+            <a href="{{ $links['ketua_pending_reviews'] ?? route('riwayat') }}" class="kpi-card bg-white border border-[#d4d1f5]/60 hover:border-amber-400 rounded-2xl md:rounded-[32px] p-3.5 sm:p-5 md:p-6 flex flex-col justify-between shadow-sm hover:shadow-md hover:scale-[1.01] active:scale-[0.99] transition-all duration-200 group cursor-pointer">
+                <div class="flex items-center justify-between">
+                    <span class="text-[10px] sm:text-xs font-bold text-[#5a508f] group-hover:text-amber-600 transition-colors uppercase">Notulensi Butuh Pengesahan</span>
+                    <div class="kpi-icon kpi-icon-amber p-1.5 sm:p-2 bg-amber-50 text-amber-500 rounded-xl sm:rounded-2xl group-hover:!bg-[#f59e0b] group-hover:!text-white transition-all duration-200 shrink-0">
+                        <svg class="w-4 h-4 sm:w-5 sm:h-5 md:w-6 md:h-6 text-amber-500 group-hover:!text-white transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"></path>
+                        </svg>
+                    </div>
+                </div>
+                <div class="mt-2.5 sm:mt-4">
+                    <h2 class="text-2xl sm:text-3xl md:text-4xl font-black text-amber-600 group-hover:scale-105 origin-left transition-transform duration-200">{{ $kpi['ketua_pending_reviews'] ?? 0 }}</h2>
+                    <p class="text-[10px] sm:text-xs text-[#5a508f] mt-0.5 sm:mt-1 font-medium">Tinjau &amp; sahkan notulensi &rarr;</p>
+                </div>
+            </a>
+
+            <!-- Card 2: Agenda Minggu Ini (Untuk Ketua / Kabid / Kadis) -->
+            <a href="{{ route('calendar') }}" class="kpi-card bg-white border border-[#d4d1f5]/60 hover:border-[#1b3bbb] rounded-2xl md:rounded-[32px] p-3.5 sm:p-5 md:p-6 flex flex-col justify-between shadow-sm hover:shadow-md hover:scale-[1.01] active:scale-[0.99] transition-all duration-200 group cursor-pointer">
+                <div class="flex items-center justify-between">
+                    <span class="text-[10px] sm:text-xs font-bold text-[#5a508f] group-hover:text-[#1b3bbb] transition-colors uppercase">Agenda Minggu Ini</span>
+                    <div class="kpi-icon kpi-icon-navy p-1.5 sm:p-2 bg-[#1b3bbb]/10 text-[#1b3bbb] rounded-xl sm:rounded-2xl group-hover:!bg-[#1b3bbb] group-hover:!text-white transition-all duration-200 shrink-0">
+                        <svg class="w-4 h-4 sm:w-5 sm:h-5 md:w-6 md:h-6 text-[#1b3bbb] group-hover:!text-white transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
                         </svg>
                     </div>
                 </div>
                 <div class="mt-2.5 sm:mt-4">
-                    <h2 class="text-2xl sm:text-3xl md:text-4xl font-black text-[#2e2552]">{{ $kpi['week_agendas'] ?? 0 }}</h2>
-                    <p class="text-[10px] sm:text-xs text-[#5a508f] mt-0.5 sm:mt-1 font-medium">Agenda kegiatan terjadwal</p>
-                </div>
-            </div>
-            @endif
-
-            <!-- Card 2: Unfilled Presence -->
-            @if(!empty($links['pending_presence']))
-            <a href="{{ $links['pending_presence'] }}" class="bg-white border border-[#d4d1f5]/60 rounded-2xl md:rounded-[32px] p-3.5 sm:p-5 md:p-6 flex flex-col justify-between shadow-sm hover:border-rose-400 hover:shadow-md hover:scale-[1.01] active:scale-[0.99] transition-all duration-200 group">
-                <div class="flex items-center justify-between">
-                    <span class="text-[10px] sm:text-xs font-bold text-[#5a508f] uppercase">Belum Presensi</span>
-                    <div class="p-1.5 sm:p-2 bg-rose-50 text-rose-500 rounded-xl sm:rounded-2xl group-hover:bg-rose-100 transition-colors">
-                        <svg class="w-4 h-4 sm:w-5 sm:h-5 md:w-6 md:h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                        </svg>
-                    </div>
-                </div>
-                <div class="mt-2.5 sm:mt-4">
-                    <h2 class="text-2xl sm:text-3xl md:text-4xl font-black text-rose-600">{{ $kpi['pending_presence'] ?? 0 }}</h2>
-                    <p class="text-[10px] sm:text-xs text-[#5a508f] mt-0.5 sm:mt-1 font-medium">Konfirmasi kehadiran &rarr;</p>
+                    <h2 class="text-2xl sm:text-3xl md:text-4xl font-black text-[#1b3bbb] group-hover:scale-105 origin-left transition-transform duration-200">{{ $kpi['ketua_week_agendas'] ?? 0 }}</h2>
+                    <p class="text-[10px] sm:text-xs text-[#5a508f] mt-0.5 sm:mt-1 font-medium">Lihat kalender &rarr;</p>
                 </div>
             </a>
-            @else
-            <div class="bg-white border border-[#d4d1f5]/60 rounded-2xl md:rounded-[32px] p-3.5 sm:p-5 md:p-6 flex flex-col justify-between shadow-sm">
-                <div class="flex items-center justify-between">
-                    <span class="text-[10px] sm:text-xs font-bold text-[#5a508f] uppercase">Belum Presensi</span>
-                    <div class="p-1.5 sm:p-2 bg-rose-50 text-rose-500 rounded-xl sm:rounded-2xl">
-                        <svg class="w-4 h-4 sm:w-5 sm:h-5 md:w-6 md:h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                        </svg>
-                    </div>
-                </div>
-                <div class="mt-2.5 sm:mt-4">
-                    <h2 class="text-2xl sm:text-3xl md:text-4xl font-black text-rose-600">{{ $kpi['pending_presence'] ?? 0 }}</h2>
-                    <p class="text-[10px] sm:text-xs text-[#5a508f] mt-0.5 sm:mt-1 font-medium">Kehadiran belum dikonfirmasi</p>
-                </div>
-            </div>
-            @endif
-
-        @elseif(Auth::user()->role === 'sekretaris_bidang')
-            <!-- Card 1: Bidang Agendas -->
-            @if(!empty($links['bidang_month_agendas']))
-            <a href="{{ $links['bidang_month_agendas'] }}" class="bg-white border border-[#d4d1f5]/60 rounded-2xl md:rounded-[32px] p-3.5 sm:p-5 md:p-6 flex flex-col justify-between shadow-sm hover:border-[#8e88dd] hover:shadow-md hover:scale-[1.01] active:scale-[0.99] transition-all duration-200 group">
-                <div class="flex items-center justify-between">
-                    <span class="text-[10px] sm:text-xs font-bold text-[#5a508f] uppercase">Agenda Bidang Bulan Ini</span>
-                    <div class="p-1.5 sm:p-2 bg-[#bc8bf2]/10 text-[#bc8bf2] rounded-xl sm:rounded-2xl group-hover:bg-[#bc8bf2]/20 transition-colors">
-                        <svg class="w-4 h-4 sm:w-5 sm:h-5 md:w-6 md:h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path>
-                        </svg>
-                    </div>
-                </div>
-                <div class="mt-2.5 sm:mt-4">
-                    <h2 class="text-2xl sm:text-3xl md:text-4xl font-black text-[#2e2552]">{{ $kpi['bidang_month_agendas'] ?? 0 }}</h2>
-                    <p class="text-[10px] sm:text-xs text-[#5a508f] mt-0.5 sm:mt-1 font-medium">Kelola jadwal rapat bidang &rarr;</p>
-                </div>
-            </a>
-            @else
-            <div class="bg-white border border-[#d4d1f5]/60 rounded-2xl md:rounded-[32px] p-3.5 sm:p-5 md:p-6 flex flex-col justify-between shadow-sm">
-                <div class="flex items-center justify-between">
-                    <span class="text-[10px] sm:text-xs font-bold text-[#5a508f] uppercase">Agenda Bidang Bulan Ini</span>
-                    <div class="p-1.5 sm:p-2 bg-[#bc8bf2]/10 text-[#bc8bf2] rounded-xl sm:rounded-2xl">
-                        <svg class="w-4 h-4 sm:w-5 sm:h-5 md:w-6 md:h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path>
-                        </svg>
-                    </div>
-                </div>
-                <div class="mt-2.5 sm:mt-4">
-                    <h2 class="text-2xl sm:text-3xl md:text-4xl font-black text-[#2e2552]">{{ $kpi['bidang_month_agendas'] ?? 0 }}</h2>
-                    <p class="text-[10px] sm:text-xs text-[#5a508f] mt-0.5 sm:mt-1 font-medium">Agenda dikelola Admin Bidang</p>
-                </div>
-            </div>
-            @endif
-
-            <!-- Card 2: Waiting Review -->
-            @if(!empty($links['bidang_pending_reviews']))
-            <a href="{{ $links['bidang_pending_reviews'] }}" class="bg-white border border-[#d4d1f5]/60 rounded-2xl md:rounded-[32px] p-3.5 sm:p-5 md:p-6 flex flex-col justify-between shadow-sm hover:border-amber-400 hover:shadow-md hover:scale-[1.01] active:scale-[0.99] transition-all duration-200 group">
-                <div class="flex items-center justify-between">
-                    <span class="text-[10px] sm:text-xs font-bold text-[#5a508f] uppercase">Menunggu Review Ketua</span>
-                    <div class="p-1.5 sm:p-2 bg-amber-50 text-amber-500 rounded-xl sm:rounded-2xl group-hover:bg-amber-100 transition-colors">
-                        <svg class="w-4 h-4 sm:w-5 sm:h-5 md:w-6 md:h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"></path>
-                        </svg>
-                    </div>
-                </div>
-                <div class="mt-2.5 sm:mt-4">
-                    <h2 class="text-2xl sm:text-3xl md:text-4xl font-black text-amber-600">{{ $kpi['bidang_pending_reviews'] ?? 0 }}</h2>
-                    <p class="text-[10px] sm:text-xs text-[#5a508f] mt-0.5 sm:mt-1 font-medium">Draf sedang diajukan &rarr;</p>
-                </div>
-            </a>
-            @else
-            <div class="bg-white border border-[#d4d1f5]/60 rounded-2xl md:rounded-[32px] p-3.5 sm:p-5 md:p-6 flex flex-col justify-between shadow-sm">
-                <div class="flex items-center justify-between">
-                    <span class="text-[10px] sm:text-xs font-bold text-[#5a508f] uppercase">Menunggu Review Ketua</span>
-                    <div class="p-1.5 sm:p-2 bg-amber-50 text-amber-500 rounded-xl sm:rounded-2xl">
-                        <svg class="w-4 h-4 sm:w-5 sm:h-5 md:w-6 md:h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"></path>
-                        </svg>
-                    </div>
-                </div>
-                <div class="mt-2.5 sm:mt-4">
-                    <h2 class="text-2xl sm:text-3xl md:text-4xl font-black text-amber-600">{{ $kpi['bidang_pending_reviews'] ?? 0 }}</h2>
-                    <p class="text-[10px] sm:text-xs text-[#5a508f] mt-0.5 sm:mt-1 font-medium">Diajukan ke Kepala Bidang</p>
-                </div>
-            </div>
-            @endif
-
-        @elseif(Auth::user()->role === 'sekretaris_master')
-            <!-- Card 1: Master Total Month -->
-            @if(!empty($links['master_month_agendas']))
-            <a href="{{ $links['master_month_agendas'] }}" class="bg-white border border-[#d4d1f5]/60 rounded-2xl md:rounded-[32px] p-3.5 sm:p-5 md:p-6 flex flex-col justify-between shadow-sm hover:border-[#8e88dd] hover:shadow-md hover:scale-[1.01] active:scale-[0.99] transition-all duration-200 group">
-                <div class="flex items-center justify-between">
-                    <span class="text-[10px] sm:text-xs font-bold text-[#5a508f] uppercase">Agenda Dinas Bulan Ini</span>
-                    <div class="p-1.5 sm:p-2 bg-[#8ba0f2]/10 text-[#8ba0f2] rounded-xl sm:rounded-2xl group-hover:bg-[#8ba0f2]/20 transition-colors">
-                        <svg class="w-4 h-4 sm:w-5 sm:h-5 md:w-6 md:h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path>
-                        </svg>
-                    </div>
-                </div>
-                <div class="mt-2.5 sm:mt-4">
-                    <h2 class="text-2xl sm:text-3xl md:text-4xl font-black text-[#2e2552]">{{ $kpi['master_month_agendas'] ?? 0 }}</h2>
-                    <p class="text-[10px] sm:text-xs text-[#5a508f] mt-0.5 sm:mt-1 font-medium">Kalender agenda dinas &rarr;</p>
-                </div>
-            </a>
-            @else
-            <div class="bg-white border border-[#d4d1f5]/60 rounded-2xl md:rounded-[32px] p-3.5 sm:p-5 md:p-6 flex flex-col justify-between shadow-sm">
-                <div class="flex items-center justify-between">
-                    <span class="text-[10px] sm:text-xs font-bold text-[#5a508f] uppercase">Agenda Dinas Bulan Ini</span>
-                    <div class="p-1.5 sm:p-2 bg-[#8ba0f2]/10 text-[#8ba0f2] rounded-xl sm:rounded-2xl">
-                        <svg class="w-4 h-4 sm:w-5 sm:h-5 md:w-6 md:h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path>
-                        </svg>
-                    </div>
-                </div>
-                <div class="mt-2.5 sm:mt-4">
-                    <h2 class="text-2xl sm:text-3xl md:text-4xl font-black text-[#2e2552]">{{ $kpi['master_month_agendas'] ?? 0 }}</h2>
-                    <p class="text-[10px] sm:text-xs text-[#5a508f] mt-0.5 sm:mt-1 font-medium">Total seluruh agenda Dinas Kominfo</p>
-                </div>
-            </div>
-            @endif
-
-            <!-- Card 2: Master Overdue Alerts -->
-            @if(!empty($links['master_overdue_reviews']))
-            <a href="{{ $links['master_overdue_reviews'] }}" class="bg-white border border-[#d4d1f5]/60 rounded-2xl md:rounded-[32px] p-3.5 sm:p-5 md:p-6 flex flex-col justify-between shadow-sm hover:border-rose-400 hover:shadow-md hover:scale-[1.01] active:scale-[0.99] transition-all duration-200 group">
-                <div class="flex items-center justify-between">
-                    <span class="text-[10px] sm:text-xs font-bold text-[#5a508f] uppercase">Notulensi Overdue (>3 Hari)</span>
-                    <div class="p-1.5 sm:p-2 bg-rose-50 text-rose-500 rounded-xl sm:rounded-2xl group-hover:bg-rose-100 transition-colors">
-                        <svg class="w-4 h-4 sm:w-5 sm:h-5 md:w-6 md:h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path>
-                        </svg>
-                    </div>
-                </div>
-                <div class="mt-2.5 sm:mt-4">
-                    <h2 class="text-2xl sm:text-3xl md:text-4xl font-black text-rose-600">{{ $kpi['master_overdue_reviews'] ?? 0 }}</h2>
-                    <p class="text-[10px] sm:text-xs text-[#5a508f] mt-0.5 sm:mt-1 font-medium">Buka draf tertunda &rarr;</p>
-                </div>
-            </a>
-            @else
-            <div class="bg-white border border-[#d4d1f5]/60 rounded-2xl md:rounded-[32px] p-3.5 sm:p-5 md:p-6 flex flex-col justify-between shadow-sm">
-                <div class="flex items-center justify-between">
-                    <span class="text-[10px] sm:text-xs font-bold text-[#5a508f] uppercase">Notulensi Overdue (>3 Hari)</span>
-                    <div class="p-1.5 sm:p-2 bg-rose-50 text-rose-500 rounded-xl sm:rounded-2xl">
-                        <svg class="w-4 h-4 sm:w-5 sm:h-5 md:w-6 md:h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path>
-                        </svg>
-                    </div>
-                </div>
-                <div class="mt-2.5 sm:mt-4">
-                    <h2 class="text-2xl sm:text-3xl md:text-4xl font-black text-rose-600">{{ $kpi['master_overdue_reviews'] ?? 0 }}</h2>
-                    <p class="text-[10px] sm:text-xs text-[#5a508f] mt-0.5 sm:mt-1 font-medium">Draf belum disahkan</p>
-                </div>
-            </div>
-            @endif
-
-        @elseif(Auth::user()->isKetua())
-            <!-- Card 1: Ketua Pending Approvals -->
-            @if(!empty($links['ketua_pending_reviews']))
-            <a href="{{ $links['ketua_pending_reviews'] }}" class="bg-white border border-[#d4d1f5]/60 rounded-2xl md:rounded-[32px] p-3.5 sm:p-5 md:p-6 flex flex-col justify-between shadow-sm hover:border-amber-400 hover:shadow-md hover:scale-[1.01] active:scale-[0.99] transition-all duration-200 group">
-                <div class="flex items-center justify-between">
-                    <span class="text-[10px] sm:text-xs font-bold text-[#5a508f] uppercase">Notulensi Butuh Pengesahan</span>
-                    <div class="p-1.5 sm:p-2 bg-amber-50 text-amber-500 rounded-xl sm:rounded-2xl group-hover:bg-amber-100 transition-colors">
-                        <svg class="w-4 h-4 sm:w-5 sm:h-5 md:w-6 md:h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"></path>
-                        </svg>
-                    </div>
-                </div>
-                <div class="mt-2.5 sm:mt-4">
-                    <h2 class="text-2xl sm:text-3xl md:text-4xl font-black text-amber-600">{{ $kpi['ketua_pending_reviews'] ?? 0 }}</h2>
-                    <p class="text-[10px] sm:text-xs text-[#5a508f] mt-0.5 sm:mt-1 font-medium">Tinjau &amp; sahkan &rarr;</p>
-                </div>
-            </a>
-            @else
-            <div class="bg-white border border-[#d4d1f5]/60 rounded-2xl md:rounded-[32px] p-3.5 sm:p-5 md:p-6 flex flex-col justify-between shadow-sm">
-                <div class="flex items-center justify-between">
-                    <span class="text-[10px] sm:text-xs font-bold text-[#5a508f] uppercase">Notulensi Butuh Pengesahan</span>
-                    <div class="p-1.5 sm:p-2 bg-amber-50 text-amber-500 rounded-xl sm:rounded-2xl">
-                        <svg class="w-4 h-4 sm:w-5 sm:h-5 md:w-6 md:h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"></path>
-                        </svg>
-                    </div>
-                </div>
-                <div class="mt-2.5 sm:mt-4">
-                    <h2 class="text-2xl sm:text-3xl md:text-4xl font-black text-amber-600">{{ $kpi['ketua_pending_reviews'] ?? 0 }}</h2>
-                    <p class="text-[10px] sm:text-xs text-[#5a508f] mt-0.5 sm:mt-1 font-medium">Menunggu persetujuan</p>
-                </div>
-            </div>
-            @endif
-
-            <!-- Card 2: Master Info / Status -->
-            <div class="bg-white border border-[#d4d1f5]/60 rounded-2xl md:rounded-[32px] p-3.5 sm:p-5 md:p-6 flex flex-col justify-between shadow-sm">
-                <div class="flex items-center justify-between">
-                    <span class="text-[10px] sm:text-xs font-bold text-[#5a508f] uppercase">Cakupan Pengawasan</span>
-                    <div class="p-1.5 sm:p-2 bg-[#8ba0f2]/10 text-[#8ba0f2] rounded-xl sm:rounded-2xl">
-                        <svg class="w-4 h-4 sm:w-5 sm:h-5 md:w-6 md:h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path>
-                        </svg>
-                    </div>
-                </div>
-                <div class="mt-2.5 sm:mt-4">
-                    <h4 class="text-xs sm:text-base font-black text-[#2e2552] truncate">
-                        {{ Auth::user()->role === 'ketua_master' ? 'Seluruh Kominfo' : (Auth::user()->bidang->singkatan ?? 'Bidang Dinas') }}
-                    </h4>
-                    <p class="text-[10px] sm:text-xs text-[#5a508f] mt-0.5 sm:mt-1 font-medium">Wewenang pengawasan</p>
-                </div>
-            </div>
         @endif
+
+        <style>
+            .kpi-card:hover .kpi-icon-navy {
+                background-color: #1b3bbb !important;
+                color: #ffffff !important;
+            }
+            .kpi-card:hover .kpi-icon-rose {
+                background-color: #f43f5e !important;
+                color: #ffffff !important;
+            }
+            .kpi-card:hover .kpi-icon-amber {
+                background-color: #f59e0b !important;
+                color: #ffffff !important;
+            }
+        </style>
 
     </div>
 
@@ -405,7 +298,7 @@
                             <div x-show="open" 
                                  x-cloak 
                                  x-transition
-                                 class="absolute bottom-full {{ $tooltipClass }} mb-2.5 w-64 bg-white text-[#2e2552] p-4 rounded-2xl shadow-2xl z-30 text-[10px] space-y-3 pointer-events-none border border-[#d4d1f5]/60">
+                                 class="absolute bottom-full {{ $tooltipClass }} mb-2.5 w-64 bg-white text-[#2e2552] p-4 rounded-2xl shadow-2xl z-30 text-[10px] space-y-3 pointer-events-none border border-[#d4d1f5]/60 overflow-hidden">
                                 <div class="font-bold border-b border-[#d4d1f5]/40 pb-1.5 flex justify-between text-xs">
                                     <span class="text-[#2e2552]">Agenda Kegiatan</span>
                                     <span class="text-[#8e88dd]">{{ $date->translatedFormat('d M Y') }}</span>

@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login - Agendaris Dinkominfo</title>
+    <title>Login - SiRENA Dinkominfo</title>
     <!-- Favicon / Logo Resmi -->
     <link rel="icon" type="image/png" href="{{ asset('images/logo-banyumas-crest.png') }}">
     <link rel="shortcut icon" href="{{ asset('favicon.ico') }}">
