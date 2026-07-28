@@ -43,8 +43,9 @@ Route::middleware(['auth'])->group(function () {
     // Presensi Mandiri
     Route::post('/agenda/{agenda}/absen', [PresensiController::class, 'absen'])->name('agenda.absen');
 
-    // History
+    // History & Notulensi Archive
     Route::get('/riwayat', [DashboardController::class, 'riwayat'])->name('riwayat');
+    Route::get('/arsip-notulensi', [NotulensiController::class, 'arsipDinas'])->name('notulensi.arsip');
 
     // Notulensi Viewing & Exporting
     Route::get('/agenda/{agenda}/notulensi/export/pdf', [NotulensiController::class, 'exportPdf'])->name('notulensi.export.pdf');

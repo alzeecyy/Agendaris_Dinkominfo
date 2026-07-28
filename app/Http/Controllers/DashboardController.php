@@ -306,13 +306,17 @@ class DashboardController extends Controller
             $links['master_month_agendas'] = route('calendar');
             $links['ketua_week_agendas'] = route('calendar');
 
-            // Highlights for Kadin: Today's agendas (View Only)
-            $todayAgendas = Agenda::where('tanggal', Carbon::today()->toDateString())->orderBy('jam_mulai', 'asc')->get();
+            // Highlights for Kadin: Only agendas where Kadin is explicitly invited today
+            $todayAgendas = Agenda::where('tanggal', Carbon::today()->toDateString())
+                ->orderBy('jam_mulai', 'asc')
+                ->get()
+                ->filter(fn($agenda) => $user->hasAccessToAgenda($agenda));
+
             foreach ($todayAgendas as $agenda) {
                 $highlights[] = [
                     'type' => 'agenda',
                     'agenda_id' => $agenda->id,
-                    'text' => "Kegiatan '{$agenda->judul}' dilaksanakan hari ini pukul " . substr($agenda->jam_mulai, 0, 5) . " WIB.",
+                    'text' => "Anda diundang dalam kegiatan '{$agenda->judul}' hari ini pukul " . substr($agenda->jam_mulai, 0, 5) . " WIB.",
                     'action_text' => 'Lihat Detail',
                     'url' => route('agenda.show', $agenda->id),
                 ];
