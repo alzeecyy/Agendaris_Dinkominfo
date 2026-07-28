@@ -36,13 +36,86 @@
                     'revisi' => 'PERLU REVISI',
                 ];
                 $st = $notulensi->status ?? 'draft';
+
+                // Extract Bidang Penanggung Jawab (Penyelenggara) & Target Sasaran Rapat
+                $notulis = $notulensi->lastEditedBy ?? $agenda->sekretaris;
+
+                // 1. Bidang Penanggung Jawab / Penyelenggara (creator/secretary's bidang)
+                $penanggungJawab = $notulis?->bidang?->nama 
+                    ?? $agenda->sekretaris?->bidang?->nama 
+                    ?? 'Dinas Komunikasi dan Informatika';
+                $penanggungJawabSingkatan = $notulis?->bidang?->singkatan 
+                    ?? $agenda->sekretaris?->bidang?->singkatan 
+                    ?? '';
+
+                $pjString = $penanggungJawab . ($penanggungJawabSingkatan ? ' (' . $penanggungJawabSingkatan . ')' : '');
+
+                // 2. Sasaran Undangan Rapat (hak_akses)
+                $sasaranList = [];
+                if (!empty($agenda->hak_akses)) {
+                    if (in_array('semua_orang', (array)$agenda->hak_akses)) {
+                        $sasaranList[] = 'Semua Bidang / Rapat Lintas Dinas';
+                    } else {
+                        $bRecords = \App\Models\Bidang::whereIn('id', (array)$agenda->hak_akses)->get();
+                        foreach ($bRecords as $b) {
+                            $sasaranList[] = $b->nama . ($b->singkatan ? ' (' . $b->singkatan . ')' : '');
+                        }
+                    }
+                }
+                $sasaranStr = !empty($sasaranList) ? implode(', ', $sasaranList) : $pjString;
             @endphp
-            <div>
-                <span class="px-2.5 py-1 rounded-xl border text-[10px] font-extrabold tracking-wider {{ $statusBadges[$st] ?? 'bg-slate-50 text-slate-700 border-slate-200' }}">
-                    {{ $statusLabels[$st] ?? strtoupper($st) }}
-                </span>
-                <h2 class="text-lg font-black text-[#2e2552] mt-2 leading-tight">{{ $agenda->judul }}</h2>
-                <p class="text-xs text-[#5a508f] mt-1">Nomor Surat: <strong class="text-[#2e2552]">{{ $agenda->nomor_surat_dasar ?? '-' }}</strong></p>
+            <div class="space-y-3">
+                <div class="flex flex-wrap items-center gap-2">
+                    <span class="px-2.5 py-1 rounded-xl border text-[10px] font-extrabold tracking-wider {{ $statusBadges[$st] ?? 'bg-slate-50 text-slate-700 border-slate-200' }}">
+                        {{ $statusLabels[$st] ?? strtoupper($st) }}
+                    </span>
+                    <span class="px-2.5 py-1 rounded-xl bg-[#1b3bbb]/10 text-[#1b3bbb] border border-[#1b3bbb]/20 text-[10px] font-extrabold flex items-center gap-1.5">
+                        <svg class="w-3.5 h-3.5 text-[#1b3bbb]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5m0 0h4m-4 0V5"></path>
+                        </svg>
+                        <span>Bidang: {{ $pjString }}</span>
+                    </span>
+                </div>
+
+                <div>
+                    <h2 class="text-lg font-black text-[#2e2552] leading-tight">{{ $agenda->judul }}</h2>
+                    <p class="text-xs text-[#5a508f] mt-1">Nomor Surat: <strong class="text-[#2e2552]">{{ $agenda->nomor_surat_dasar ?? '-' }}</strong></p>
+                </div>
+
+                <!-- Info Card: Bidang & Penyusun Notulensi -->
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 p-3.5 bg-[#f8f7ff] border border-[#d4d1f5]/60 rounded-2xl text-xs">
+                    <div class="space-y-1">
+                        <span class="text-[10px] font-bold text-[#8e88dd] uppercase tracking-wider block">Bidang Penanggung Jawab</span>
+                        <p class="font-extrabold text-[#2e2552] flex items-center gap-1.5">
+                            <svg class="w-4 h-4 text-[#1b3bbb] shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5m0 0h4m-4 0V5"></path>
+                            </svg>
+                            <span>{{ $pjString }}</span>
+                        </p>
+                        <p class="text-[10.5px] text-[#5a508f]">Sasaran: <span class="font-semibold text-slate-700">{{ $sasaranStr }}</span></p>
+                        <p class="text-[10.5px] text-[#5a508f]">Lokasi: <span class="font-semibold text-slate-700">{{ $agenda->lokasi }}</span></p>
+                    </div>
+                    
+                    <div class="space-y-1 sm:border-l sm:border-[#d4d1f5]/40 sm:pl-3">
+                        <span class="text-[10px] font-bold text-[#8e88dd] uppercase tracking-wider block">Penyusun / Sekretaris Notulensi</span>
+                        @if($notulis)
+                            <p class="font-extrabold text-[#2e2552] flex items-center gap-1.5">
+                                <svg class="w-4 h-4 text-[#1b3bbb] shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
+                                </svg>
+                                <span>{{ $notulis->name }}</span>
+                            </p>
+                            <p class="text-[10.5px] text-[#5a508f] truncate">
+                                {{ $notulis->jabatan ?? 'Sekretaris Rapat' }} 
+                                @if(isset($notulis->bidang))
+                                    ({{ $notulis->bidang->singkatan }})
+                                @endif
+                            </p>
+                        @else
+                            <p class="text-slate-400 italic text-[11px]">-</p>
+                        @endif
+                    </div>
+                </div>
             </div>
 
             <!-- Read only fields -->

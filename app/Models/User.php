@@ -201,21 +201,26 @@ class User extends Authenticatable
             return true;
         }
 
-        // Master leadership (Sekretaris Master / Sekdin & Kadin) has full access to all agendas
-        if ($this->isSekretarisMaster() || $this->isKetuaMaster()) {
-            return true;
-        }
-
         $hakAkses = $agenda->hak_akses ?? [];
+
+        // Rapat Lintas Dinas / Semua Orang is accessible to everyone including Kadis & Sekdin
         if (in_array('semua_orang', $hakAkses)) {
             return true;
         }
 
-        // If specific meeting_participants are saved for this agenda, check if user is invited
+        // If specific meeting_participants are saved for this agenda, check if user is explicitly invited
         if ($agenda->participants()->exists()) {
-            if ($agenda->participants()->where('users.id', $this->id)->exists()) {
-                return true;
-            }
+            return $agenda->participants()->where('users.id', $this->id)->exists();
+        }
+
+        // Sekretaris Dinas (Sekdin) has management access across agency agendas
+        if ($this->isSekretarisMaster()) {
+            return true;
+        }
+
+        // Kepala Dinas (ketua_master) is only invited if rapat is Lintas Dinas (semua_orang) or explicitly added in participants
+        if ($this->isKetuaMaster()) {
+            return false;
         }
 
         // Check if user's bidang_id is explicitly in target hak_akses
@@ -269,9 +274,9 @@ class User extends Authenticatable
             return false;
         }
 
-        // 1. Kepala Dinas (ketua_master) can approve any agenda across the agency
+        // 1. Kepala Dinas (ketua_master) is View Only (terima beres), so they do not approve/sign
         if ($this->isKetuaMaster()) {
-            return true;
+            return false;
         }
 
         $creator = $agenda->sekretaris;

@@ -294,27 +294,27 @@ class DashboardController extends Controller
             }
 
         } elseif ($user->role === 'ketua_master') {
-            // Ketua Master (Kepala Dinas) KPI: All pending reviews in the agency waiting for leadership signoff
-            $pendingReviews = Notulensi::where('status', 'menunggu_review')
-                ->with('agenda')
-                ->get();
-
-            $kpi['ketua_pending_reviews'] = $pendingReviews->count();
-            $firstPending = $pendingReviews->first();
-            $links['ketua_pending_reviews'] = $firstPending ? route('notulensi.review', $firstPending->agenda_id) : null;
+            // Kepala Dinas (ketua_master) is View Only: Sees total agency month agendas & week agendas without approval actions
+            $startOfMonth = Carbon::today()->startOfMonth();
+            $endOfMonth = Carbon::today()->endOfMonth();
+            $kpi['master_month_agendas'] = Agenda::whereBetween('tanggal', [$startOfMonth->toDateString(), $endOfMonth->toDateString()])->count();
 
             $startOfWeek = Carbon::today()->startOfWeek(Carbon::MONDAY);
             $endOfWeek = Carbon::today()->endOfWeek(Carbon::SUNDAY);
-            $kpi['ketua_week_agendas'] = Agenda::whereBetween('tanggal', [$startOfWeek->toDateString(), $endOfWeek->toDateString()])
-                ->count();
+            $kpi['ketua_week_agendas'] = Agenda::whereBetween('tanggal', [$startOfWeek->toDateString(), $endOfWeek->toDateString()])->count();
 
-            foreach ($pendingReviews as $notulensi) {
+            $links['master_month_agendas'] = route('calendar');
+            $links['ketua_week_agendas'] = route('calendar');
+
+            // Highlights for Kadin: Today's agendas (View Only)
+            $todayAgendas = Agenda::where('tanggal', Carbon::today()->toDateString())->orderBy('jam_mulai', 'asc')->get();
+            foreach ($todayAgendas as $agenda) {
                 $highlights[] = [
-                    'type' => 'review',
-                    'agenda_id' => $notulensi->agenda_id,
-                    'text' => "Notulensi dinas '{$notulensi->agenda->judul}' menunggu pengesahan Anda.",
-                    'action_text' => 'Tinjau & Sahkan',
-                    'url' => route('notulensi.review', $notulensi->agenda_id),
+                    'type' => 'agenda',
+                    'agenda_id' => $agenda->id,
+                    'text' => "Kegiatan '{$agenda->judul}' dilaksanakan hari ini pukul " . substr($agenda->jam_mulai, 0, 5) . " WIB.",
+                    'action_text' => 'Lihat Detail',
+                    'url' => route('agenda.show', $agenda->id),
                 ];
             }
         }
@@ -582,8 +582,26 @@ class DashboardController extends Controller
             return redirect()->route('admin.users.index');
         }
 
-        $agendas = Agenda::where('tanggal', '<=', Carbon::today()->toDateString())
-            ->with(['notulensi', 'sekretaris.bidang'])
+        $query = Agenda::where('tanggal', '<=', Carbon::today()->toDateString());
+
+        // Filter access directly at database level for optimal performance
+        if (!$user->isSekretarisMaster() && !$user->isSekretariat()) {
+            $query->where(function($q) use ($user) {
+                $q->whereHas('participants', function($pq) use ($user) {
+                    $pq->where('users.id', $user->id);
+                })->orWhere(function($sq) use ($user) {
+                    $sq->whereDoesntHave('participants')
+                       ->where(function($hq) use ($user) {
+                           $hq->whereJsonContains('hak_akses', 'semua_orang');
+                           if ($user->bidang_id) {
+                               $hq->orWhereJsonContains('hak_akses', (string)$user->bidang_id);
+                           }
+                       });
+                });
+            });
+        }
+
+        $agendas = $query->with(['notulensi', 'sekretaris.bidang'])
             ->orderBy('tanggal', 'desc')
             ->orderBy('jam_mulai', 'desc')
             ->get()
@@ -595,7 +613,7 @@ class DashboardController extends Controller
 
         $selectedNotulensiStatus = $request->query('notulensi_status', '');
 
-        $riwayatData = $agendas->map(function ($agenda) use ($presensis) {
+        $riwayatData = $agendas->map(function ($agenda) use ($user, $presensis) {
             $status = $presensis->has($agenda->id) ? $presensis[$agenda->id]->status : null;
             if ($agenda->butuh_presensi && !$status && $agenda->isPresensiExpired()) {
                 $status = 'alfa';
@@ -612,6 +630,7 @@ class DashboardController extends Controller
                 'notulensi' => $agenda->notulensi,
                 'kategori' => $agenda->kategori,
                 'lokasi' => $agenda->lokasi,
+                'is_approver' => $user->isApproverOfAgenda($agenda),
             ];
         });
 

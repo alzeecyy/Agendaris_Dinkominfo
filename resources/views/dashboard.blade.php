@@ -130,8 +130,41 @@
                 </div>
             </a>
 
-        @elseif(Auth::user()->isKetua())
-            <!-- Card 1: Ketua Pending Approvals -->
+        @elseif(Auth::user()->isKetuaMaster())
+            <!-- Card 1: Master Total Month (View Only for Kadis) -->
+            <a href="{{ $links['master_month_agendas'] ?? route('calendar') }}" class="kpi-card bg-white border border-[#d4d1f5]/60 hover:border-[#1b3bbb] rounded-2xl md:rounded-[32px] p-3.5 sm:p-5 md:p-6 flex flex-col justify-between shadow-sm hover:shadow-md hover:scale-[1.01] active:scale-[0.99] transition-all duration-200 group cursor-pointer">
+                <div class="flex items-center justify-between">
+                    <span class="text-[10px] sm:text-xs font-bold text-[#5a508f] group-hover:text-[#1b3bbb] transition-colors uppercase">Agenda Dinas Bulan Ini</span>
+                    <div class="kpi-icon kpi-icon-navy p-1.5 sm:p-2 bg-[#1b3bbb]/10 text-[#1b3bbb] rounded-xl sm:rounded-2xl group-hover:!bg-[#1b3bbb] group-hover:!text-white transition-all duration-200 shrink-0">
+                        <svg class="w-4 h-4 sm:w-5 sm:h-5 md:w-6 md:h-6 text-[#1b3bbb] group-hover:!text-white transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path>
+                        </svg>
+                    </div>
+                </div>
+                <div class="mt-2.5 sm:mt-4">
+                    <h2 class="text-2xl sm:text-3xl md:text-4xl font-black text-[#2e2552] group-hover:scale-105 origin-left transition-transform duration-200">{{ $kpi['master_month_agendas'] ?? 0 }}</h2>
+                    <p class="text-[10px] sm:text-xs text-[#5a508f] mt-0.5 sm:mt-1 font-medium">Kalender agenda dinas &rarr;</p>
+                </div>
+            </a>
+
+            <!-- Card 2: Agenda Minggu Ini (Untuk Kadis) -->
+            <a href="{{ route('calendar') }}" class="kpi-card bg-white border border-[#d4d1f5]/60 hover:border-[#1b3bbb] rounded-2xl md:rounded-[32px] p-3.5 sm:p-5 md:p-6 flex flex-col justify-between shadow-sm hover:shadow-md hover:scale-[1.01] active:scale-[0.99] transition-all duration-200 group cursor-pointer">
+                <div class="flex items-center justify-between">
+                    <span class="text-[10px] sm:text-xs font-bold text-[#5a508f] group-hover:text-[#1b3bbb] transition-colors uppercase">Agenda Minggu Ini</span>
+                    <div class="kpi-icon kpi-icon-navy p-1.5 sm:p-2 bg-[#1b3bbb]/10 text-[#1b3bbb] rounded-xl sm:rounded-2xl group-hover:!bg-[#1b3bbb] group-hover:!text-white transition-all duration-200 shrink-0">
+                        <svg class="w-4 h-4 sm:w-5 sm:h-5 md:w-6 md:h-6 text-[#1b3bbb] group-hover:!text-white transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+                        </svg>
+                    </div>
+                </div>
+                <div class="mt-2.5 sm:mt-4">
+                    <h2 class="text-2xl sm:text-3xl md:text-4xl font-black text-[#1b3bbb] group-hover:scale-105 origin-left transition-transform duration-200">{{ $kpi['ketua_week_agendas'] ?? 0 }}</h2>
+                    <p class="text-[10px] sm:text-xs text-[#5a508f] mt-0.5 sm:mt-1 font-medium">Lihat kalender &rarr;</p>
+                </div>
+            </a>
+
+        @elseif(Auth::user()->isKetuaBidang())
+            <!-- Card 1: Ketua Bidang Pending Approvals -->
             <a href="{{ $links['ketua_pending_reviews'] ?? route('riwayat') }}" class="kpi-card bg-white border border-[#d4d1f5]/60 hover:border-amber-400 rounded-2xl md:rounded-[32px] p-3.5 sm:p-5 md:p-6 flex flex-col justify-between shadow-sm hover:shadow-md hover:scale-[1.01] active:scale-[0.99] transition-all duration-200 group cursor-pointer">
                 <div class="flex items-center justify-between">
                     <span class="text-[10px] sm:text-xs font-bold text-[#5a508f] group-hover:text-amber-600 transition-colors uppercase">Notulensi Butuh Pengesahan</span>
@@ -147,7 +180,7 @@
                 </div>
             </a>
 
-            <!-- Card 2: Agenda Minggu Ini (Untuk Ketua / Kabid / Kadis) -->
+            <!-- Card 2: Agenda Minggu Ini (Untuk Kabid) -->
             <a href="{{ route('calendar') }}" class="kpi-card bg-white border border-[#d4d1f5]/60 hover:border-[#1b3bbb] rounded-2xl md:rounded-[32px] p-3.5 sm:p-5 md:p-6 flex flex-col justify-between shadow-sm hover:shadow-md hover:scale-[1.01] active:scale-[0.99] transition-all duration-200 group cursor-pointer">
                 <div class="flex items-center justify-between">
                     <span class="text-[10px] sm:text-xs font-bold text-[#5a508f] group-hover:text-[#1b3bbb] transition-colors uppercase">Agenda Minggu Ini</span>
