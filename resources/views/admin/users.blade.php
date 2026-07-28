@@ -107,7 +107,7 @@
         }
     },
     setPage(page) {
-        this.currentPage = page;
+        this.currentPage = Math.max(1, Math.min(page, this.totalPages));
         this.stripeRows();
     },
     resetPagination() {
@@ -377,7 +377,7 @@ class="space-y-6">
             <div class="flex items-center gap-1.5 flex-wrap">
                 <!-- First Page Button -->
                 <button @click="setPage(1)" :disabled="currentPage === 1"
-                        class="p-2 rounded-xl border border-[#d4d1f5] hover:bg-[#8e88dd]/10 disabled:opacity-40 disabled:hover:bg-transparent transition-colors"
+                        class="w-9 h-9 flex items-center justify-center rounded-xl border border-[#d4d1f5] hover:bg-[#8e88dd]/10 disabled:opacity-40 disabled:hover:bg-transparent transition-colors cursor-pointer"
                         title="Halaman Pertama">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 19l-7-7 7-7M20 19l-7-7 7-7"></path>
@@ -386,7 +386,7 @@ class="space-y-6">
 
                 <!-- Previous Button -->
                 <button @click="prevPage()" :disabled="currentPage === 1"
-                        class="p-2 rounded-xl border border-[#d4d1f5] hover:bg-[#8e88dd]/10 disabled:opacity-40 disabled:hover:bg-transparent transition-colors"
+                        class="w-9 h-9 flex items-center justify-center rounded-xl border border-[#d4d1f5] hover:bg-[#8e88dd]/10 disabled:opacity-40 disabled:hover:bg-transparent transition-colors cursor-pointer"
                         title="Halaman Sebelumnya">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
@@ -397,14 +397,14 @@ class="space-y-6">
                 <template x-for="p in displayedPages" :key="p">
                     <button @click="setPage(p)"
                             x-text="p"
-                            class="px-3.5 py-2 rounded-xl border transition-all duration-200"
-                            :class="currentPage === p ? 'bg-[#2e2552] text-white border-[#2e2552] shadow-sm' : 'border-[#d4d1f5] hover:bg-[#8e88dd]/10'">
+                            class="w-9 h-9 flex items-center justify-center rounded-xl border font-bold text-xs transition-all duration-200 cursor-pointer"
+                            :class="currentPage === p ? 'bg-[#2e2552] text-white border-[#2e2552] shadow-xs' : 'border-[#d4d1f5] hover:bg-[#8e88dd]/10 text-[#5a508f]'">
                     </button>
                 </template>
                 
                 <!-- Next Button -->
                 <button @click="nextPage()" :disabled="currentPage === totalPages"
-                        class="p-2 rounded-xl border border-[#d4d1f5] hover:bg-[#8e88dd]/10 disabled:opacity-40 disabled:hover:bg-transparent transition-colors"
+                        class="w-9 h-9 flex items-center justify-center rounded-xl border border-[#d4d1f5] hover:bg-[#8e88dd]/10 disabled:opacity-40 disabled:hover:bg-transparent transition-colors cursor-pointer"
                         title="Halaman Berikutnya">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
@@ -413,7 +413,7 @@ class="space-y-6">
 
                 <!-- Last Page Button -->
                 <button @click="setPage(totalPages)" :disabled="currentPage === totalPages"
-                        class="p-2 rounded-xl border border-[#d4d1f5] hover:bg-[#8e88dd]/10 disabled:opacity-40 disabled:hover:bg-transparent transition-colors"
+                        class="w-9 h-9 flex items-center justify-center rounded-xl border border-[#d4d1f5] hover:bg-[#8e88dd]/10 disabled:opacity-40 disabled:hover:bg-transparent transition-colors cursor-pointer"
                         title="Halaman Terakhir">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 5l7 7-7 7M4 5l7 7-7 7"></path>
