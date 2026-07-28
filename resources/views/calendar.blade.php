@@ -474,7 +474,7 @@
          class="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-slate-950/60 backdrop-blur-md transition-all duration-300">
         
         <div @click.away="openAddModal = false" 
-             class="bg-white border border-slate-200/90 rounded-3xl w-full max-w-xl shadow-2xl overflow-hidden relative text-slate-800 my-auto"
+             class="bg-white border border-[#d4d1f5]/80 rounded-3xl w-full max-w-xl shadow-2xl overflow-hidden relative text-[#2e2552] my-auto"
              x-transition:enter="transition ease-out duration-300 transform"
              x-transition:enter-start="opacity-0 scale-95 translate-y-2"
              x-transition:enter-end="opacity-100 scale-100 translate-y-0"
@@ -483,23 +483,23 @@
              x-transition:leave-end="opacity-0 scale-95 translate-y-2">
             
             <!-- Top Gradient Accent -->
-            <div class="h-1.5 w-full bg-gradient-to-r from-indigo-500 via-indigo-600 to-violet-600"></div>
+            <div class="h-1.5 w-full bg-gradient-to-r from-[#1b3bbb] via-[#8e88dd] to-[#1b3bbb]"></div>
 
             <!-- Modal Header -->
-            <div class="px-5 py-3.5 border-b border-slate-100 flex items-center justify-between bg-gradient-to-b from-slate-50/80 to-white">
+            <div class="px-5 py-4 bg-gradient-to-r from-[#09103c] via-[#1b3bbb] to-[#09103c] text-white flex items-center justify-between shrink-0">
                 <div class="flex items-center gap-3">
-                    <div class="w-9 h-9 rounded-xl bg-indigo-50 border border-indigo-100/80 text-indigo-600 flex items-center justify-center shrink-0 shadow-xs">
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <div class="p-2 bg-white/10 rounded-xl border border-white/15 shrink-0">
+                        <svg class="w-5 h-5 text-amber-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
                         </svg>
                     </div>
                     <div>
-                        <h3 class="text-base font-extrabold text-slate-800 tracking-tight leading-tight">Buat Agenda Kegiatan Baru</h3>
-                        <p class="text-xs text-slate-500 font-medium">Jadwalkan rapat atau kegiatan Dinkominfo</p>
+                        <h3 class="text-base font-extrabold text-white">Buat Agenda Kegiatan Baru</h3>
+                        <p class="text-[11px] text-indigo-100 font-medium">Jadwalkan rapat atau kegiatan Dinkominfo</p>
                     </div>
                 </div>
-                <button @click="openAddModal = false" type="button" class="w-7 h-7 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-400 hover:text-slate-600 transition-all flex items-center justify-center shrink-0 cursor-pointer">
-                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <button @click="openAddModal = false" type="button" class="p-1.5 bg-white/10 hover:bg-rose-500/80 rounded-xl text-white transition-all cursor-pointer shrink-0">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
                     </svg>
                 </button>
@@ -512,22 +512,22 @@
                 <!-- Title & Category Row -->
                 <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
                     <div class="sm:col-span-2 space-y-1">
-                        <label for="judul" class="block text-[11px] font-bold text-slate-700 uppercase tracking-wider">Judul Kegiatan / Rapat <span class="text-rose-500 font-bold">*</span></label>
+                        <label for="judul" class="block text-[11px] font-bold text-[#5a508f] uppercase tracking-wider">Judul Kegiatan / Rapat <span class="text-rose-500 font-bold">*</span></label>
                         <input type="text" name="judul" id="judul" required placeholder="Contoh: Rapat Koordinasi Layanan SPBE"
-                               class="w-full px-3.5 py-2 bg-slate-50 border border-slate-200/90 rounded-xl text-slate-800 text-xs placeholder-slate-400 focus:bg-white focus:border-indigo-600 focus:ring-2 focus:ring-indigo-500/20 transition-all font-medium">
+                               class="w-full px-3.5 py-2 bg-[#f8f7ff] hover:bg-[#f3f2fe] border border-[#d4d1f5] rounded-xl text-[#2e2552] text-xs placeholder-slate-400 focus:bg-white focus:border-[#1b3bbb] focus:ring-2 focus:ring-[#1b3bbb]/20 transition-all font-semibold">
                     </div>
                     <div class="space-y-1">
-                        <label for="kategori" class="block text-[11px] font-bold text-slate-700 uppercase tracking-wider">Kategori <span class="text-rose-500 font-bold">*</span></label>
+                        <label for="kategori" class="block text-[11px] font-bold text-[#5a508f] uppercase tracking-wider">Kategori <span class="text-rose-500 font-bold">*</span></label>
                         <div class="relative">
                             <select name="kategori" id="kategori" required x-model="kategori"
-                                    class="w-full pl-3.5 pr-8 py-2 bg-slate-50 border border-slate-200/90 rounded-xl text-slate-800 text-xs font-semibold appearance-none focus:bg-white focus:border-indigo-600 focus:ring-2 focus:ring-indigo-500/20 transition-all cursor-pointer">
+                                    class="w-full pl-3.5 pr-8 py-2 bg-[#f8f7ff] hover:bg-[#f3f2fe] border border-[#d4d1f5] rounded-xl text-[#2e2552] text-xs font-semibold appearance-none focus:bg-white focus:border-[#1b3bbb] focus:ring-2 focus:ring-[#1b3bbb]/20 transition-all cursor-pointer">
                                 <option value="" disabled selected>Pilih Kategori</option>
                                 <option value="rapat">Rapat</option>
                                 <option value="sosialisasi">Sosialisasi</option>
                                 <option value="pelatihan">Pelatihan</option>
                                 <option value="kegiatan_lainnya">Kegiatan Lainnya</option>
                             </select>
-                            <div class="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none">
+                            <div class="absolute right-3 top-1/2 -translate-y-1/2 text-[#5a508f] pointer-events-none">
                                 <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
                             </div>
                         </div>
@@ -537,45 +537,45 @@
                 <!-- Date & Hours Row -->
                 <div class="grid grid-cols-2 sm:grid-cols-3 gap-3">
                     <div class="col-span-2 sm:col-span-1 space-y-1">
-                        <label for="tanggal" class="block text-[11px] font-bold text-slate-700 uppercase tracking-wider">Tanggal <span class="text-rose-500 font-bold">*</span></label>
+                        <label for="tanggal" class="block text-[11px] font-bold text-[#5a508f] uppercase tracking-wider">Tanggal <span class="text-rose-500 font-bold">*</span></label>
                         <input type="date" name="tanggal" id="tanggal" required x-model="selectedDate"
                                min="{{ now()->subMonths(6)->toDateString() }}"
                                max="{{ now()->addMonths(6)->toDateString() }}"
-                               class="w-full px-3 py-2 bg-slate-50 border border-slate-200/90 rounded-xl text-slate-800 text-xs font-semibold focus:bg-white focus:border-indigo-600 focus:ring-2 focus:ring-indigo-500/20 transition-all">
+                               class="w-full px-3 py-2 bg-[#f8f7ff] hover:bg-[#f3f2fe] border border-[#d4d1f5] rounded-xl text-[#2e2552] text-xs font-semibold focus:bg-white focus:border-[#1b3bbb] focus:ring-2 focus:ring-[#1b3bbb]/20 transition-all">
                     </div>
                     <div class="space-y-1">
-                        <label for="jam_mulai" class="block text-[11px] font-bold text-slate-700 uppercase tracking-wider">Jam Mulai <span class="text-rose-500 font-bold">*</span></label>
+                        <label for="jam_mulai" class="block text-[11px] font-bold text-[#5a508f] uppercase tracking-wider">Jam Mulai <span class="text-rose-500 font-bold">*</span></label>
                         <input type="time" name="jam_mulai" id="jam_mulai" required x-model="selectedTime"
-                               class="w-full px-2.5 py-2 bg-slate-50 border border-slate-200/90 rounded-xl text-slate-800 text-xs font-semibold focus:bg-white focus:border-indigo-600 focus:ring-2 focus:ring-indigo-500/20 transition-all">
+                               class="w-full px-2.5 py-2 bg-[#f8f7ff] hover:bg-[#f3f2fe] border border-[#d4d1f5] rounded-xl text-[#2e2552] text-xs font-semibold focus:bg-white focus:border-[#1b3bbb] focus:ring-2 focus:ring-[#1b3bbb]/20 transition-all">
                     </div>
                     <div class="space-y-1">
-                        <label for="jam_selesai" class="block text-[11px] font-bold text-slate-700 uppercase tracking-wider">Jam Selesai <span class="text-rose-500 font-bold">*</span></label>
+                        <label for="jam_selesai" class="block text-[11px] font-bold text-[#5a508f] uppercase tracking-wider">Jam Selesai <span class="text-rose-500 font-bold">*</span></label>
                         <input type="time" name="jam_selesai" id="jam_selesai" required x-model="selectedEndTime"
-                               class="w-full px-2.5 py-2 bg-slate-50 border border-slate-200/90 rounded-xl text-slate-800 text-xs font-semibold focus:bg-white focus:border-indigo-600 focus:ring-2 focus:ring-indigo-500/20 transition-all">
+                               class="w-full px-2.5 py-2 bg-[#f8f7ff] hover:bg-[#f3f2fe] border border-[#d4d1f5] rounded-xl text-[#2e2552] text-xs font-semibold focus:bg-white focus:border-[#1b3bbb] focus:ring-2 focus:ring-[#1b3bbb]/20 transition-all">
                     </div>
                 </div>
 
                 <!-- Location & Description Row -->
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
                     <div class="space-y-1">
-                        <label for="tempat" class="block text-[11px] font-bold text-slate-700 uppercase tracking-wider">Tempat / Ruangan <span class="text-rose-500 font-bold">*</span></label>
+                        <label for="tempat" class="block text-[11px] font-bold text-[#5a508f] uppercase tracking-wider">Tempat / Ruangan <span class="text-rose-500 font-bold">*</span></label>
                         <div class="relative">
                             <select id="tempat" name="lokasi" required
-                                    class="w-full pl-3.5 pr-8 py-2 bg-slate-50 border border-slate-200/90 rounded-xl text-slate-800 text-xs font-semibold appearance-none focus:bg-white focus:border-indigo-600 focus:ring-2 focus:ring-indigo-500/20 transition-all cursor-pointer">
+                                    class="w-full pl-3.5 pr-8 py-2 bg-[#f8f7ff] hover:bg-[#f3f2fe] border border-[#d4d1f5] rounded-xl text-[#2e2552] text-xs font-semibold appearance-none focus:bg-white focus:border-[#1b3bbb] focus:ring-2 focus:ring-[#1b3bbb]/20 transition-all cursor-pointer">
                                 <option value="" disabled selected>Pilih Lokasi / Ruangan</option>
                                 <option value="Aula Rapat Dinkominfo">Aula Rapat Dinkominfo</option>
                                 <option value="Ruang Pelatihan">Ruang Pelatihan</option>
                                 <option value="Smart Room Graha Satria">Smart Room Graha Satria</option>
                             </select>
-                            <div class="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none">
+                            <div class="absolute right-3 top-1/2 -translate-y-1/2 text-[#5a508f] pointer-events-none">
                                 <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
                             </div>
                         </div>
                     </div>
                     <div class="space-y-1">
-                        <label for="deskripsi" class="block text-[11px] font-bold text-slate-700 uppercase tracking-wider">Deskripsi (Opsional)</label>
+                        <label for="deskripsi" class="block text-[11px] font-bold text-[#5a508f] uppercase tracking-wider">Deskripsi (Opsional)</label>
                         <input type="text" name="deskripsi" id="deskripsi" placeholder="Masukkan rincian singkat agenda..."
-                               class="w-full px-3.5 py-2 bg-slate-50 border border-slate-200/90 rounded-xl text-slate-800 text-xs placeholder-slate-400 focus:bg-white focus:border-indigo-600 focus:ring-2 focus:ring-indigo-500/20 transition-all font-medium">
+                               class="w-full px-3.5 py-2 bg-[#f8f7ff] hover:bg-[#f3f2fe] border border-[#d4d1f5] rounded-xl text-[#2e2552] text-xs placeholder-slate-400 focus:bg-white focus:border-[#1b3bbb] focus:ring-2 focus:ring-[#1b3bbb]/20 transition-all font-semibold">
                     </div>
                 </div>
 
@@ -748,7 +748,7 @@
                         let currentSelected = this.selectedParticipants.map(String);
                         return b.users.every(u => currentSelected.includes(String(u.id)));
                     }
-                }' class="space-y-3 border-t border-slate-100 pt-3">
+                }' class="space-y-3 border-t border-[#d4d1f5]/60 pt-3">
                     
                     <!-- Hidden Payload Inputs -->
                     <template x-for="bidangId in bidangs" :key="'bidang-' + bidangId">
@@ -764,32 +764,32 @@
                     <!-- Header & Manage Participants Button Row -->
                     <div class="flex items-center justify-between">
                         <div>
-                            <label class="block text-[11px] font-bold text-slate-700 uppercase tracking-wider">
+                            <label class="block text-[11px] font-bold text-[#5a508f] uppercase tracking-wider">
                                 Sasaran Bidang & Peserta <span class="text-rose-500 font-bold">*</span>
                             </label>
                             <p class="text-[10.5px] text-slate-500 font-medium">Pilih bidang dan kelola anggota yang wajib hadir</p>
                         </div>
                         <button type="button" 
                                 @click="participantModalOpen = true"
-                                :class="selectedParticipants.length === 0 ? 'bg-rose-50 text-rose-600 border-rose-200 hover:bg-rose-100' : 'bg-indigo-50 text-indigo-700 border-indigo-200 hover:bg-indigo-100'"
-                                class="inline-flex items-center gap-1.5 px-3 py-1.5 border rounded-xl text-xs font-bold transition-all shadow-xs cursor-pointer active:scale-95">
+                                :class="selectedParticipants.length === 0 ? 'bg-rose-50 text-rose-600 border-rose-200 hover:bg-rose-100' : 'bg-[#f8f7ff] text-[#1b3bbb] border-[#d4d1f5] hover:border-[#1b3bbb] hover:bg-[#f3f2fe]'"
+                                class="inline-flex items-center gap-1.5 px-3 py-1.5 border rounded-xl text-xs font-bold transition-all shadow-2xs cursor-pointer active:scale-95">
                             <svg class="w-3.5 h-3.5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"></path>
                             </svg>
                             <span>Kelola Peserta</span>
                             <span class="px-1.5 py-0.5 rounded-full text-[10px] font-extrabold" 
-                                  :class="selectedParticipants.length === 0 ? 'bg-rose-600 text-white animate-pulse' : 'bg-indigo-600 text-white'" 
+                                  :class="selectedParticipants.length === 0 ? 'bg-rose-600 text-white animate-pulse' : 'bg-[#1b3bbb] text-white'" 
                                   x-text="selectedParticipants.length"></span>
                         </button>
                     </div>
 
                     <!-- Bidang Selection List Card -->
-                    <div class="bg-slate-50/80 border border-slate-200/80 rounded-2xl p-3 space-y-2">
+                    <div class="bg-[#f8f7ff] border border-[#d4d1f5] rounded-2xl p-3 space-y-2">
                         @if(Auth::user()->isSekretarisMaster())
-                            <label class="flex items-center gap-2 px-2.5 py-1.5 bg-white rounded-xl border border-slate-200/80 hover:border-indigo-300 transition-all cursor-pointer select-none">
+                            <label class="flex items-center gap-2 px-2.5 py-1.5 bg-white rounded-xl border border-[#d4d1f5] hover:border-[#1b3bbb] transition-all cursor-pointer select-none">
                                 <input type="checkbox" x-model="semuaOrang" @change="toggleSemua()" 
-                                       class="w-4 h-4 rounded border-slate-300 text-indigo-600 focus:ring-indigo-500 transition-all">
-                                <span class="text-xs text-slate-800 font-extrabold">Semua Bidang / Rapat Lintas Dinas (Semua Orang)</span>
+                                       class="w-4 h-4 rounded border-[#d4d1f5] text-[#1b3bbb] focus:ring-[#1b3bbb] transition-all">
+                                <span class="text-xs text-[#2e2552] font-extrabold">Semua Bidang / Rapat Lintas Dinas (Semua Orang)</span>
                             </label>
                         @endif
 
@@ -799,16 +799,16 @@
                                     $isSubbag = (str_contains(strtolower($bid->nama), 'subbag') || str_contains(strtolower($bid->singkatan), 'subbag')) && strcasecmp($bid->singkatan, 'Sekretariat') !== 0;
                                     $isUserBidang = Auth::user()->isSekretarisBidang() && Auth::user()->bidang_id == $bid->id;
                                 @endphp
-                                <label class="flex items-center justify-between px-2.5 py-1.5 rounded-xl border border-transparent hover:border-slate-200 hover:bg-white transition-all cursor-pointer select-none {{ $isSubbag ? 'pl-6' : '' }}">
+                                <label class="flex items-center justify-between px-2.5 py-1.5 rounded-xl border border-transparent hover:border-[#d4d1f5] hover:bg-white transition-all cursor-pointer select-none {{ $isSubbag ? 'pl-6' : '' }}">
                                     <div class="flex items-center gap-2">
                                         @if($isSubbag)
-                                            <span class="text-slate-400 text-xs font-bold shrink-0 -mr-1">└</span>
+                                            <span class="text-[#8e88dd] text-xs font-bold shrink-0 -mr-1">└</span>
                                         @endif
                                         <input type="checkbox" value="{{ $bid->id }}" x-model="bidangs" @change="checkBidang('{{ $bid->id }}')"
                                                @if($isUserBidang) disabled @endif
-                                               class="w-4 h-4 rounded border-slate-300 text-indigo-600 focus:ring-indigo-500 focus:ring-offset-0 transition-all shrink-0">
-                                        <span class="text-xs text-slate-700 font-semibold {{ $isUserBidang ? 'font-extrabold text-indigo-900' : '' }}">
-                                            {{ $bid->nama }} <span class="text-slate-400 font-normal">({{ $bid->singkatan }})</span>
+                                               class="w-4 h-4 rounded border-[#d4d1f5] text-[#1b3bbb] focus:ring-[#1b3bbb] focus:ring-offset-0 transition-all shrink-0">
+                                        <span class="text-xs text-[#2e2552] font-semibold {{ $isUserBidang ? 'font-extrabold text-[#1b3bbb]' : '' }}">
+                                            {{ $bid->nama }} <span class="text-[#5a508f] font-normal">({{ $bid->singkatan }})</span>
                                         </span>
                                     </div>
                                     @if($isUserBidang)
@@ -825,22 +825,22 @@
                     <div x-show="participantModalOpen" x-cloak 
                          class="fixed inset-0 z-[99999] flex items-center justify-center p-4 sm:p-6 bg-slate-950/70 backdrop-blur-sm select-none">
                         <div @click.away="participantModalOpen = false" 
-                             class="bg-white rounded-3xl shadow-2xl border border-slate-200/80 w-full max-w-xl flex flex-col max-h-[85vh] overflow-hidden animate-in fade-in zoom-in duration-200">
+                             class="bg-white rounded-3xl shadow-2xl border border-[#d4d1f5] w-full max-w-xl flex flex-col max-h-[85vh] overflow-hidden animate-in fade-in zoom-in duration-200">
                             
                             <!-- Header Modal Kelola Peserta -->
-                            <div class="px-5 py-4 bg-gradient-to-r from-slate-900 via-indigo-950 to-slate-900 text-white flex items-center justify-between shrink-0">
+                            <div class="px-5 py-4 bg-gradient-to-r from-[#09103c] via-[#1b3bbb] to-[#09103c] text-white flex items-center justify-between shrink-0">
                                 <div class="flex items-center gap-3">
-                                    <div class="p-2 bg-white/10 rounded-xl border border-white/15">
+                                    <div class="p-2 bg-white/10 rounded-xl border border-white/15 shrink-0">
                                         <svg class="w-5 h-5 text-amber-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"></path>
                                         </svg>
                                     </div>
                                     <div>
                                         <h3 class="text-base font-extrabold text-white">Kelola Peserta Rapat</h3>
-                                        <p class="text-[11px] text-indigo-200 font-medium">Cari nama & centang anggota bidang yang diundang</p>
+                                        <p class="text-[11px] text-indigo-100 font-medium">Cari nama & centang anggota bidang yang diundang</p>
                                     </div>
                                 </div>
-                                <button @click="participantModalOpen = false" type="button" class="p-1.5 bg-white/10 hover:bg-rose-500/80 rounded-xl text-white transition-all cursor-pointer">
+                                <button @click="participantModalOpen = false" type="button" class="p-1.5 bg-white/10 hover:bg-rose-500/80 rounded-xl text-white transition-all cursor-pointer shrink-0">
                                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
                                     </svg>
@@ -852,8 +852,8 @@
                                 <!-- Search Bar -->
                                 <div class="relative">
                                     <input type="text" x-model="searchParticipant" placeholder="Cari nama, NIP, atau jabatan peserta..." 
-                                           class="w-full pl-9 pr-8 py-2 bg-white border border-slate-200 rounded-xl text-xs text-slate-800 placeholder-slate-400 focus:border-indigo-600 focus:ring-2 focus:ring-indigo-500/10 transition-all font-medium shadow-xs">
-                                    <svg class="w-4 h-4 text-indigo-600 absolute left-3 top-2.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                           class="w-full pl-9 pr-8 py-2 bg-white border border-[#d4d1f5] rounded-xl text-xs text-[#2e2552] placeholder-slate-400 focus:border-[#1b3bbb] focus:ring-2 focus:ring-[#1b3bbb]/20 transition-all font-semibold shadow-2xs">
+                                    <svg class="w-4 h-4 text-[#1b3bbb] absolute left-3 top-2.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
                                     </svg>
                                     <button type="button" x-show="searchParticipant.length > 0" @click="searchParticipant = ''" class="absolute right-2.5 top-2.5 text-slate-400 hover:text-slate-600">
@@ -862,30 +862,30 @@
                                 </div>
 
                                 <template x-if="bidangs.length === 0">
-                                    <div class="p-8 text-center bg-white rounded-2xl border border-dashed border-slate-200 shadow-xs">
+                                    <div class="p-8 text-center bg-white rounded-2xl border border-dashed border-[#d4d1f5] shadow-2xs">
                                         <p class="text-xs text-slate-500 font-bold">Pilih minimal satu bidang di atas terlebih dahulu untuk mengelola peserta.</p>
                                     </div>
                                 </template>
 
                                 <template x-for="bidang in visibleBidangs" :key="bidang.id">
-                                    <div class="bg-white border border-slate-200/80 rounded-2xl p-3.5 space-y-2.5 shadow-xs">
-                                        <div class="flex items-center justify-between pb-2 border-b border-slate-100">
+                                    <div class="bg-white border border-[#d4d1f5]/80 rounded-2xl p-3.5 space-y-2.5 shadow-2xs">
+                                        <div class="flex items-center justify-between pb-2 border-b border-[#d4d1f5]/40">
                                             <div class="flex items-center gap-2">
-                                                <span class="w-2.5 h-2.5 rounded-full bg-indigo-600"></span>
-                                                <span class="text-xs font-extrabold text-slate-800" x-text="bidang.nama + ' (' + bidang.singkatan + ')'"></span>
+                                                <span class="w-2.5 h-2.5 rounded-full bg-[#1b3bbb]"></span>
+                                                <span class="text-xs font-extrabold text-[#2e2552]" x-text="bidang.nama + ' (' + bidang.singkatan + ')'"></span>
                                             </div>
-                                            <button type="button" @click="toggleBidangUsers(bidang.id)" class="text-[11px] font-extrabold text-indigo-600 hover:text-indigo-800 hover:underline cursor-pointer">
+                                            <button type="button" @click="toggleBidangUsers(bidang.id)" class="text-[11px] font-extrabold text-[#1b3bbb] hover:underline cursor-pointer">
                                                 <span x-text="isBidangAllChecked(bidang.id) ? 'Hapus Centang Semua' : 'Centang Semua'"></span>
                                             </button>
                                         </div>
 
                                         <div class="grid grid-cols-1 sm:grid-cols-2 gap-1.5">
                                             <template x-for="user in filteredUsers(bidang.users)" :key="user.id">
-                                                <label class="flex items-start gap-2.5 p-2 bg-slate-50/70 hover:bg-indigo-50/50 rounded-xl border border-slate-200/60 hover:border-indigo-300 cursor-pointer select-none transition-all">
-                                                    <input type="checkbox" :value="user.id" x-model="selectedParticipants" @change="isDirty = true" class="w-4 h-4 rounded border-slate-300 text-indigo-600 focus:ring-indigo-500 mt-0.5 shrink-0">
+                                                <label class="flex items-start gap-2.5 p-2 bg-[#f8f7ff] hover:bg-indigo-50/50 rounded-xl border border-[#d4d1f5]/60 hover:border-[#1b3bbb] cursor-pointer select-none transition-all">
+                                                    <input type="checkbox" :value="user.id" x-model="selectedParticipants" @change="isDirty = true" class="w-4 h-4 rounded border-slate-300 text-[#1b3bbb] focus:ring-[#1b3bbb] mt-0.5 shrink-0">
                                                     <div class="min-w-0">
-                                                        <div class="text-xs font-bold text-slate-800 leading-tight truncate" x-text="user.name"></div>
-                                                        <div class="text-[10px] text-slate-500 font-medium truncate" x-text="user.jabatan"></div>
+                                                        <div class="text-xs font-bold text-[#2e2552] leading-tight truncate" x-text="user.name"></div>
+                                                        <div class="text-[10px] text-[#5a508f] font-medium truncate" x-text="user.jabatan"></div>
                                                     </div>
                                                 </label>
                                             </template>
@@ -895,22 +895,22 @@
                             </div>
 
                             <!-- Footer Modal Kelola Peserta -->
-                            <div class="px-5 py-3.5 bg-slate-50 border-t border-slate-200 flex flex-col sm:flex-row items-center justify-between gap-3 shrink-0">
-                                <div class="text-xs font-bold text-slate-600 flex items-center gap-1">
+                            <div class="px-5 py-3.5 bg-[#f8f7ff] border-t border-[#d4d1f5] flex flex-col sm:flex-row items-center justify-between gap-3 shrink-0">
+                                <div class="text-xs font-bold text-[#5a508f] flex items-center gap-1">
                                     <template x-if="selectedParticipants.length === 0">
                                         <span class="text-rose-600 font-black flex items-center gap-1">⚠️ Pilih minimal 1 peserta!</span>
                                     </template>
                                     <template x-if="selectedParticipants.length > 0">
-                                        <span>Total Terpilih: <span class="text-indigo-600 font-extrabold" x-text="selectedParticipants.length"></span> Peserta</span>
+                                        <span>Total Terpilih: <span class="text-[#1b3bbb] font-extrabold" x-text="selectedParticipants.length"></span> Peserta</span>
                                     </template>
                                 </div>
                                 <div class="flex items-center gap-2 w-full sm:w-auto justify-end">
-                                    <button type="button" @click="participantModalOpen = false" class="px-4 py-2 bg-slate-200 hover:bg-slate-300 text-slate-700 text-xs font-bold rounded-xl transition-all cursor-pointer">
+                                    <button type="button" @click="participantModalOpen = false" class="px-4 py-2 bg-slate-200 hover:bg-slate-300 text-[#2e2552] text-xs font-bold rounded-xl transition-all cursor-pointer">
                                         Tutup
                                     </button>
                                     <button type="button" 
                                             @click="if(selectedParticipants.length === 0) { alert('Pilih minimal 1 peserta rapat.'); } else { participantModalOpen = false; }" 
-                                            :class="selectedParticipants.length === 0 ? 'bg-slate-300 text-slate-500 cursor-not-allowed' : 'bg-indigo-600 hover:bg-indigo-700 text-white shadow-md cursor-pointer'"
+                                            :class="selectedParticipants.length === 0 ? 'bg-slate-300 text-slate-500 cursor-not-allowed' : 'bg-[#1b3bbb] hover:bg-[#09103c] text-white shadow-md shadow-[#1b3bbb]/20 cursor-pointer'"
                                             class="px-5 py-2 text-xs font-extrabold rounded-xl transition-all">
                                         Simpan Peserta
                                     </button>
@@ -921,27 +921,27 @@
                 </div>
 
                 <!-- Presensi Toggle & Action Footer combined in bottom area -->
-                <div class="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-2.5 border-t border-slate-100 pt-3">
-                    <div class="flex items-center justify-between p-2 px-3 bg-gradient-to-r from-indigo-50/70 via-slate-50/70 to-indigo-50/40 border border-indigo-100/80 rounded-xl grow">
+                <div class="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-2.5 border-t border-[#d4d1f5]/60 pt-3">
+                    <div class="flex items-center justify-between p-2.5 px-3.5 bg-gradient-to-r from-[#f8f7ff] to-[#f3f2fe] border border-[#d4d1f5] rounded-xl grow">
                         <div class="flex items-center gap-2">
-                            <svg class="w-4 h-4 text-indigo-600 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <svg class="w-4 h-4 text-[#1b3bbb] shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
                             </svg>
-                            <label for="butuh_presensi" class="text-xs font-bold text-slate-800 cursor-pointer">Memerlukan Presensi Digital?</label>
+                            <label for="butuh_presensi" class="text-xs font-bold text-[#2e2552] cursor-pointer">Memerlukan Presensi Digital?</label>
                         </div>
                         <label class="relative inline-flex items-center cursor-pointer select-none ml-2 shrink-0">
                             <input type="checkbox" name="butuh_presensi" id="butuh_presensi" checked value="1" class="sr-only peer">
-                            <div class="w-9 h-5 bg-slate-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-indigo-600"></div>
+                            <div class="w-9 h-5 bg-slate-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-[#1b3bbb]"></div>
                         </label>
                     </div>
 
                     <div class="flex items-center justify-end gap-2 shrink-0">
                         <button type="button" @click="openAddModal = false"
-                                class="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold rounded-xl transition-all active:scale-[0.98]">
+                                class="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-[#2e2552] text-xs font-bold rounded-xl transition-all active:scale-[0.98]">
                             Batalkan
                         </button>
                         <button type="submit"
-                                class="px-5 py-2 bg-gradient-to-r from-indigo-600 via-indigo-600 to-violet-600 hover:from-indigo-700 hover:to-violet-700 text-white text-xs font-extrabold rounded-xl shadow-md shadow-indigo-500/25 hover:shadow-indigo-500/40 transition-all active:scale-[0.98] flex items-center gap-1.5 cursor-pointer">
+                                class="px-5 py-2 bg-[#1b3bbb] hover:bg-[#09103c] text-white text-xs font-extrabold rounded-xl shadow-md shadow-[#1b3bbb]/20 transition-all active:scale-[0.98] flex items-center gap-1.5 cursor-pointer">
                             <span>Simpan Agenda</span>
                             <svg class="w-4 h-4 text-indigo-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
