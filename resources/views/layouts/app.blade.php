@@ -628,11 +628,11 @@
 
                     <!-- Dynamic Page Content -->
                     <div id="pjax-container" class="flex-1 min-w-0 w-full flex flex-col justify-between">
-                        <div class="flex-1 min-w-0 w-full flex flex-col pb-12 sm:pb-20">
+                        <div class="flex-1 min-w-0 w-full flex flex-col">
                             @yield('content')
                         </div>
 
-                        <footer class="border-t border-[#d4d1f5]/60 py-5 mt-16 sm:mt-24 text-center text-slate-400 text-[10px] sm:text-xs font-semibold tracking-wider w-full shrink-0 flex items-center justify-center bg-slate-50/60 -mx-3.5 sm:-mx-5 md:-mx-6 -mb-3.5 sm:-mb-5 md:-mb-6 rounded-b-xl sm:rounded-b-2xl md:rounded-b-[28px]">
+                        <footer class="border-t border-[#d4d1f5]/60 pt-5 pb-3 mt-10 sm:mt-14 text-center text-slate-400 text-[10.5px] sm:text-xs font-semibold tracking-wider w-full shrink-0 flex items-center justify-center">
                             &copy; 2026 Dinas Komunikasi dan Informatika Kabupaten Banyumas.
                         </footer>
                     </div>
