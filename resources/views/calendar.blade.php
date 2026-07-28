@@ -503,7 +503,7 @@
             </div>
 
             <!-- Form Content -->
-            <form action="{{ route('agenda.store') }}" method="POST" class="p-4 sm:p-5 space-y-3.5 flex-1 min-h-0 overflow-y-auto no-scrollbar">
+            <form action="{{ route('agenda.store') }}" method="POST" class="p-4 sm:p-5 space-y-2.5 flex-1 min-h-0 overflow-y-auto no-scrollbar">
                 @csrf
 
                 <!-- Title & Category Row -->
@@ -781,7 +781,7 @@
                         let currentSelected = this.selectedParticipants.map(String);
                         return b.users.every(u => currentSelected.includes(String(u.id)));
                     }
-                }' class="space-y-3 border-t border-[#d4d1f5]/60 pt-3">
+                }' class="space-y-2 border-t border-[#d4d1f5]/60 pt-2.5">
                     
                     <!-- Hidden Payload Inputs -->
                     <template x-for="bidangId in bidangs" :key="'bidang-' + bidangId">
@@ -826,7 +826,7 @@
                             </label>
                         @endif
 
-                        <div class="grid grid-cols-1 gap-1 max-h-[190px] overflow-y-auto pr-1">
+                        <div class="grid grid-cols-1 gap-1 max-h-[140px] overflow-y-auto pr-1">
                             <!-- Checkbox Kepala Dinas (Kadin) -->
                             <label class="flex items-center justify-between px-2.5 py-1.5 rounded-xl border border-transparent hover:border-[#d4d1f5] hover:bg-white transition-all cursor-pointer select-none">
                                 <div class="flex items-center gap-2">
