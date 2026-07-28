@@ -137,11 +137,10 @@
                     </form>
                 </div>
 
-                <!-- EDIT MODAL -->
                 <div x-show="openEditModal" x-cloak class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/50 backdrop-blur-sm">
-                    <div @click.away="openEditModal = false" class="bg-white border border-[#d4d1f5]/60 rounded-3xl w-full max-w-lg shadow-2xl overflow-hidden relative">
+                    <div @click.away="openEditModal = false" class="bg-white border border-[#d4d1f5]/60 rounded-3xl w-full max-w-lg shadow-2xl overflow-hidden relative flex flex-col max-h-[90vh]">
                         <div class="absolute top-0 left-0 w-full h-[2px] bg-gradient-to-r from-[#2e2552] to-[#8e88dd]"></div>
-                        <div class="p-6 border-b border-[#d4d1f5]/40 flex items-center justify-between">
+                        <div class="p-6 border-b border-[#d4d1f5]/40 flex items-center justify-between shrink-0">
                             <h3 class="text-base font-bold text-[#2e2552]">Edit Agenda Kegiatan</h3>
                             <button @click="openEditModal = false" class="text-[#5a508f] hover:text-[#2e2552]">
                                 <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -149,7 +148,7 @@
                                 </svg>
                             </button>
                         </div>
-                        <form action="{{ route('agenda.update', $agenda->id) }}" method="POST" class="p-6 space-y-4 max-h-[75vh] overflow-y-auto text-[#2e2552]">
+                        <form action="{{ route('agenda.update', $agenda->id) }}" method="POST" class="p-6 space-y-4 flex-1 min-h-0 overflow-y-auto text-[#2e2552]">
                             @csrf
                             @method('PUT')
                             
