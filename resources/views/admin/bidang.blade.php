@@ -26,12 +26,12 @@
     <div class="bg-white border border-[#d4d1f5]/60 rounded-[32px] p-6 shadow-sm overflow-hidden text-[#2e2552]">
         <div class="overflow-x-auto">
             <table class="w-full text-left text-sm text-[#2e2552]">
-                <thead class="bg-[#ebf2ff] text-[#1b3bbb] border-y border-[#bfd5ff] select-none">
-                    <tr>
-                        <th class="py-3 sm:py-3.5 px-4 text-xs font-black uppercase tracking-wider">Nama Bidang / Subbagian</th>
-                        <th class="py-3 sm:py-3.5 px-4 text-xs font-black uppercase tracking-wider text-left">Singkatan</th>
-                        <th class="py-3 sm:py-3.5 px-4 text-xs font-black uppercase tracking-wider text-center">Jumlah Pegawai</th>
-                        <th class="py-3 sm:py-3.5 px-4 text-xs font-black uppercase tracking-wider text-center">Aksi</th>
+                <thead style="background-color: #ebf2ff !important; color: #1b3bbb !important;" class="bg-[#ebf2ff] text-[#1b3bbb] border-y border-[#bfd5ff] select-none">
+                    <tr style="background-color: #ebf2ff !important;">
+                        <th style="background-color: #ebf2ff !important; color: #1b3bbb !important;" class="py-3 sm:py-3.5 px-4 text-xs font-black uppercase tracking-wider">Nama Bidang / Subbagian</th>
+                        <th style="background-color: #ebf2ff !important; color: #1b3bbb !important;" class="py-3 sm:py-3.5 px-4 text-xs font-black uppercase tracking-wider text-left">Singkatan</th>
+                        <th style="background-color: #ebf2ff !important; color: #1b3bbb !important;" class="py-3 sm:py-3.5 px-4 text-xs font-black uppercase tracking-wider text-center">Jumlah Pegawai</th>
+                        <th style="background-color: #ebf2ff !important; color: #1b3bbb !important;" class="py-3 sm:py-3.5 px-4 text-xs font-black uppercase tracking-wider text-center">Aksi</th>
                     </tr>
                 </thead>
                 <tbody class="divide-y divide-[#d4d1f5]/30">

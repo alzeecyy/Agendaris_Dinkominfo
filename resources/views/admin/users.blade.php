@@ -246,14 +246,14 @@ class="space-y-6">
 
         <div class="overflow-x-auto">
             <table class="w-full text-left text-sm text-[#2e2552]">
-                <thead class="bg-[#ebf2ff] text-[#1b3bbb] border-y border-[#bfd5ff] select-none">
-                    <tr>
-                        <th class="py-3 sm:py-3.5 px-4 text-xs font-black uppercase tracking-wider whitespace-nowrap" style="min-width: 200px;">Nama Pegawai</th>
-                        <th class="py-3 sm:py-3.5 px-4 text-xs font-black uppercase tracking-wider text-center whitespace-nowrap">NIP</th>
-                        <th class="py-3 sm:py-3.5 px-4 text-xs font-black uppercase tracking-wider whitespace-nowrap">Bidang</th>
-                        <th class="py-3 sm:py-3.5 px-4 text-xs font-black uppercase tracking-wider text-center whitespace-nowrap" style="min-width: 150px;">Role Sistem</th>
-                        <th class="py-3 sm:py-3.5 px-4 text-xs font-black uppercase tracking-wider text-center whitespace-nowrap">Status</th>
-                        <th class="py-3 sm:py-3.5 px-4 text-xs font-black uppercase tracking-wider text-center whitespace-nowrap">Aksi</th>
+                <thead style="background-color: #ebf2ff !important; color: #1b3bbb !important;" class="bg-[#ebf2ff] text-[#1b3bbb] border-y border-[#bfd5ff] select-none">
+                    <tr style="background-color: #ebf2ff !important;">
+                        <th style="background-color: #ebf2ff !important; color: #1b3bbb !important; min-width: 200px;" class="py-3 sm:py-3.5 px-4 text-xs font-black uppercase tracking-wider whitespace-nowrap">Nama Pegawai</th>
+                        <th style="background-color: #ebf2ff !important; color: #1b3bbb !important;" class="py-3 sm:py-3.5 px-4 text-xs font-black uppercase tracking-wider text-center whitespace-nowrap">NIP</th>
+                        <th style="background-color: #ebf2ff !important; color: #1b3bbb !important;" class="py-3 sm:py-3.5 px-4 text-xs font-black uppercase tracking-wider whitespace-nowrap">Bidang</th>
+                        <th style="background-color: #ebf2ff !important; color: #1b3bbb !important; min-width: 150px;" class="py-3 sm:py-3.5 px-4 text-xs font-black uppercase tracking-wider text-center whitespace-nowrap">Role Sistem</th>
+                        <th style="background-color: #ebf2ff !important; color: #1b3bbb !important;" class="py-3 sm:py-3.5 px-4 text-xs font-black uppercase tracking-wider text-center whitespace-nowrap">Status</th>
+                        <th style="background-color: #ebf2ff !important; color: #1b3bbb !important;" class="py-3 sm:py-3.5 px-4 text-xs font-black uppercase tracking-wider text-center whitespace-nowrap">Aksi</th>
                     </tr>
                 </thead>
                 <tbody class="divide-y divide-[#d4d1f5]/30">
