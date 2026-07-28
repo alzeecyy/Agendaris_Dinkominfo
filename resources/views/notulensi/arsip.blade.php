@@ -3,59 +3,62 @@
 @section('title', 'Arsip Notulensi Dinas')
 
 @section('content')
-<div class="space-y-6 max-w-7xl mx-auto pb-20 md:pb-10">
+<div class="w-full space-y-6 max-w-7xl mx-auto pb-20 md:pb-10">
     <!-- Page Header Title -->
     <div>
         <h1 class="text-xl sm:text-2xl font-bold text-[#09103c] tracking-wide">Arsip Notulensi Resmi Dinas</h1>
         <p class="text-xs sm:text-sm font-medium text-[#5a508f] mt-1">Kumpulan dokumen notulensi rapat seluruh bidang & unit kerja yang telah disahkan oleh Pimpinan Dinkominfo</p>
     </div>
 
-    <!-- Main Card Container (Unified System Card Layout) -->
-    <div class="bg-white border border-[#d4d1f5]/60 rounded-xl md:rounded-[32px] p-3.5 sm:p-6 shadow-sm space-y-6">
+    <!-- Main Card Container (Unified System Card Layout - Fixed Full Height & Width Container) -->
+    <div class="w-full bg-white border border-[#d4d1f5]/60 rounded-xl md:rounded-[32px] p-3.5 sm:p-6 shadow-sm flex flex-col space-y-4 sm:space-y-5" style="min-height: calc(100vh - 225px);">
         
-        <!-- Filter Toolbar Box -->
-        <div class="bg-[#f8f7ff] border border-[#d4d1f5]/60 rounded-2xl p-3.5 sm:p-4 space-y-3">
-            <div class="flex items-center justify-between">
-                <span class="text-[11px] font-bold text-[#5a508f] uppercase tracking-wider">Filter Bidang / Unit Kerja</span>
-                <span class="text-xs font-bold text-[#1b3bbb] bg-[#1b3bbb]/10 border border-[#1b3bbb]/20 px-2.5 py-0.5 rounded-full">
-                    Total: {{ $bidangCounts['semua'] ?? 0 }} Notulensi Disahkan
-                </span>
+        <!-- Filter Toolbar Box with Modern Dropdown -->
+        <div class="bg-[#f8f7ff] border border-[#d4d1f5]/60 rounded-2xl p-3.5 sm:p-4 flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3">
+            <div class="flex items-center gap-2.5 min-w-0">
+                <div class="p-2.5 bg-[#1b3bbb]/10 text-[#1b3bbb] rounded-xl shrink-0 border border-[#1b3bbb]/20">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z"/>
+                    </svg>
+                </div>
+                <div class="min-w-0">
+                    <label for="bidang-filter-select" class="block text-[11px] font-extrabold text-[#5a508f] uppercase tracking-wider">Filter Bidang / Unit Kerja</label>
+                    <p class="text-[10.5px] text-slate-500 font-medium truncate">Pilih unit kerja untuk memfilter arsip notulensi</p>
+                </div>
             </div>
 
-            <!-- Bidang Tabs Toolbar -->
-            <div class="flex items-center gap-2 overflow-x-auto pb-1 text-xs no-scrollbar">
-                <!-- All Bidangs -->
-                <a href="{{ route('notulensi.arsip', ['bidang_id' => 'semua']) }}"
-                   class="px-3.5 py-2 rounded-xl font-bold transition-all shrink-0 flex items-center gap-2 {{ $selectedBidangId === 'semua' ? 'bg-[#1b3bbb] text-white shadow-md' : 'bg-white text-[#2e2552] hover:bg-[#1b3bbb]/10 border border-[#d4d1f5]' }}">
-                    <span>Semua Bidang</span>
-                    <span class="px-2 py-0.5 rounded-full text-[10px] font-extrabold {{ $selectedBidangId === 'semua' ? 'bg-white/20 text-white' : 'bg-[#1b3bbb]/10 text-[#1b3bbb]' }}">
-                        {{ $bidangCounts['semua'] ?? 0 }}
-                    </span>
-                </a>
+            <div class="flex items-center gap-3 w-full sm:w-auto">
+                <!-- Modern Custom Dropdown -->
+                <div class="relative w-full sm:w-72">
+                    <select id="bidang-filter-select" 
+                            onchange="window.location.href = this.value"
+                            class="w-full pl-3.5 pr-10 py-2.5 bg-white border border-[#d4d1f5] hover:border-[#1b3bbb] rounded-xl text-xs font-bold text-[#09103c] shadow-sm appearance-none focus:outline-none focus:ring-2 focus:ring-[#1b3bbb]/20 transition-all cursor-pointer">
+                        <option value="{{ route('notulensi.arsip', ['bidang_id' => 'semua']) }}" {{ $selectedBidangId === 'semua' ? 'selected' : '' }}>
+                            🏛️ Semua Bidang ({{ $bidangCounts['semua'] ?? 0 }} Notulensi)
+                        </option>
+                        <option value="{{ route('notulensi.arsip', ['bidang_id' => 'lintas_dinas']) }}" {{ $selectedBidangId === 'lintas_dinas' ? 'selected' : '' }}>
+                            🌐 Rapat Lintas Dinas ({{ $bidangCounts['lintas_dinas'] ?? 0 }} Notulensi)
+                        </option>
+                        @foreach($bidangs as $b)
+                            @php
+                                $count = $bidangCounts[$b->id] ?? 0;
+                                $labelName = $b->singkatan ?: $b->nama;
+                            @endphp
+                            <option value="{{ route('notulensi.arsip', ['bidang_id' => $b->id]) }}" {{ (string)$selectedBidangId === (string)$b->id ? 'selected' : '' }}>
+                                🏢 {{ $labelName }} ({{ $count }} Notulensi)
+                            </option>
+                        @endforeach
+                    </select>
+                    <div class="absolute right-3 top-1/2 -translate-y-1/2 text-[#1b3bbb] pointer-events-none">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+                        </svg>
+                    </div>
+                </div>
 
-                <!-- Lintas Dinas -->
-                <a href="{{ route('notulensi.arsip', ['bidang_id' => 'lintas_dinas']) }}"
-                   class="px-3.5 py-2 rounded-xl font-bold transition-all shrink-0 flex items-center gap-2 {{ $selectedBidangId === 'lintas_dinas' ? 'bg-[#1b3bbb] text-white shadow-md' : 'bg-white text-[#2e2552] hover:bg-[#1b3bbb]/10 border border-[#d4d1f5]' }}">
-                    <span>🌐 Rapat Lintas Dinas</span>
-                    <span class="px-2 py-0.5 rounded-full text-[10px] font-extrabold {{ $selectedBidangId === 'lintas_dinas' ? 'bg-white/20 text-white' : 'bg-[#1b3bbb]/10 text-[#1b3bbb]' }}">
-                        {{ $bidangCounts['lintas_dinas'] ?? 0 }}
-                    </span>
-                </a>
-
-                <!-- Individual Bidangs -->
-                @foreach($bidangs as $b)
-                    @php
-                        $isTabActive = (string)$selectedBidangId === (string)$b->id;
-                        $count = $bidangCounts[$b->id] ?? 0;
-                    @endphp
-                    <a href="{{ route('notulensi.arsip', ['bidang_id' => $b->id]) }}"
-                       class="px-3.5 py-2 rounded-xl font-bold transition-all shrink-0 flex items-center gap-2 {{ $isTabActive ? 'bg-[#1b3bbb] text-white shadow-md' : 'bg-white text-[#2e2552] hover:bg-[#1b3bbb]/10 border border-[#d4d1f5]' }}">
-                        <span>{{ $b->singkatan ?: $b->nama }}</span>
-                        <span class="px-2 py-0.5 rounded-full text-[10px] font-extrabold {{ $isTabActive ? 'bg-white/20 text-white' : 'bg-[#1b3bbb]/10 text-[#1b3bbb]' }}">
-                            {{ $count }}
-                        </span>
-                    </a>
-                @endforeach
+                <span class="hidden md:inline-flex items-center text-xs font-extrabold text-[#1b3bbb] bg-[#1b3bbb]/10 border border-[#1b3bbb]/20 px-3 py-2.5 rounded-xl shrink-0">
+                    Total: {{ $bidangCounts['semua'] ?? 0 }}
+                </span>
             </div>
         </div>
 
@@ -170,8 +173,8 @@
                 @endforeach
             </div>
         @else
-            <!-- Empty State -->
-            <div class="py-10 px-4 text-center space-y-3">
+            <!-- Empty State (Centered in Full-Width & Height Stretched Container) -->
+            <div class="w-full flex-1 flex flex-col items-center justify-center py-12 px-4 text-center space-y-3 my-auto">
                 <div class="w-14 h-14 bg-[#1b3bbb]/10 text-[#1b3bbb] rounded-2xl border border-[#1b3bbb]/20 flex items-center justify-center mx-auto shadow-2xs">
                     <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>

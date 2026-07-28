@@ -283,8 +283,8 @@
         </main>
 
         <!-- Footer Area -->
-        <footer class="text-center text-slate-400 text-[10px] md:text-xs font-medium select-none shrink-0 py-2">
-            &copy; 2026 Dinas Komunikasi dan Informatika Kabupaten Banyumas
+        <footer class="text-center text-slate-400 text-[9px] sm:text-[10px] font-semibold tracking-wider shrink-0 py-2 h-8 flex items-center justify-center">
+            &copy; 2026 Dinas Komunikasi dan Informatika Kabupaten Banyumas.
         </footer>
     </div>
 </body>

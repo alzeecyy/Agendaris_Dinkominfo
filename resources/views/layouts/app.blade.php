@@ -228,7 +228,7 @@
 <body class="min-h-screen md:h-screen md:overflow-hidden text-[#2e2552] bg-[#eef2ff] antialiased">
 
     <!-- Outer Page App Window -->
-    <div x-data="{ mobileNavOpen: false, profileMenuOpen: false }" class="min-h-screen md:h-screen flex flex-col p-2.5 sm:p-4 md:p-5 pt-3 sm:pt-4 gap-2.5 md:gap-4 max-w-[1600px] w-full mx-auto md:overflow-hidden bg-[#eef2ff]">
+    <div x-data="{ mobileNavOpen: false, profileMenuOpen: false }" class="min-h-screen md:h-screen flex flex-col p-2.5 sm:p-3.5 md:p-4 pt-2 sm:pt-2.5 md:pt-3 gap-4.5 sm:gap-5.5 md:gap-6 max-w-[1600px] w-full mx-auto md:overflow-hidden bg-[#eef2ff]">
         
         <!-- TOP NAVBAR (Sticky Header on Mobile, Top Header on Desktop) -->
         <header class="w-full bg-white/95 backdrop-blur-md rounded-2xl sm:rounded-2xl md:rounded-3xl border border-slate-200/80 px-3 sm:px-4 md:px-6 py-2 sm:py-2.5 md:py-4 flex items-center justify-between shadow-sm md:shadow-md sticky top-2 sm:top-3 md:relative z-50 text-[#09103c]">
@@ -418,7 +418,7 @@
         </div>
 
         <!-- MAIN LAYOUT WRAPPER (Sidebar + Content Panel) -->
-        <div class="flex-1 min-h-0 min-w-0 flex flex-col md:flex-row gap-4 md:gap-6 items-stretch">
+        <div class="flex-1 min-h-0 min-w-0 flex flex-col md:flex-row gap-3.5 sm:gap-4 md:gap-4.5 items-stretch">
             
             <!-- LEFT NAVBAR (Desktop Sidebar Only) -->
             <aside class="hidden md:flex w-60 bg-white/80 backdrop-blur-md rounded-3xl border border-slate-200/60 flex-col py-6 shrink-0 z-20 shadow-md text-[#09103c]">
@@ -632,7 +632,7 @@
                             @yield('content')
                         </div>
 
-                        <footer class="border-t border-[#d4d1f5]/40 pt-3 pb-3 mt-3 text-center text-slate-400 text-[9px] sm:text-[10px] font-semibold tracking-wider w-full shrink-0">
+                        <footer class="border-t border-[#d4d1f5]/50 py-3 mt-3.5 text-center text-slate-400 text-[9.5px] sm:text-[10.5px] font-semibold tracking-wider w-full shrink-0 h-11 flex items-center justify-center">
                             &copy; 2026 Dinas Komunikasi dan Informatika Kabupaten Banyumas.
                         </footer>
                     </div>
