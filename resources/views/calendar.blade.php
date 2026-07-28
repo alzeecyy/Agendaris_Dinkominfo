@@ -471,10 +471,10 @@
 
     <!-- MODAL: ADD AGENDA FORM -->
     <div x-show="openAddModal" x-cloak 
-         class="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-slate-950/60 backdrop-blur-md transition-all duration-300">
+         class="fixed inset-0 z-[9999] flex items-center justify-center p-3 sm:p-5 bg-slate-950/70 backdrop-blur-md overflow-y-auto transition-all duration-300">
         
         <div @click.away="openAddModal = false" 
-             class="bg-white border border-[#d4d1f5]/80 rounded-3xl w-full max-w-xl shadow-2xl overflow-hidden relative text-[#2e2552] my-auto flex flex-col max-h-[90vh]"
+             class="bg-white border border-[#d4d1f5] rounded-3xl w-full max-w-xl shadow-2xl overflow-hidden relative text-[#2e2552] my-auto flex flex-col max-h-[85vh] sm:max-h-[88vh]"
              x-transition:enter="transition ease-out duration-300 transform"
              x-transition:enter-start="opacity-0 scale-95 translate-y-2"
              x-transition:enter-end="opacity-100 scale-100 translate-y-0"
@@ -483,7 +483,7 @@
              x-transition:leave-end="opacity-0 scale-95 translate-y-2">
             
             <!-- Modal Header -->
-            <div class="px-5 py-4 bg-gradient-to-r from-[#09103c] via-[#1b3bbb] to-[#09103c] text-white flex items-center justify-between shrink-0">
+            <div class="px-5 py-3.5 sm:py-4 bg-gradient-to-r from-[#09103c] via-[#1b3bbb] to-[#09103c] text-white flex items-center justify-between shrink-0">
                 <div class="flex items-center gap-3">
                     <div class="p-2 bg-white/10 rounded-xl border border-white/15 shrink-0">
                         <svg class="w-5 h-5 text-amber-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -503,7 +503,7 @@
             </div>
 
             <!-- Form Content -->
-            <form action="{{ route('agenda.store') }}" method="POST" class="p-4 sm:p-5 space-y-3.5 flex-1 min-h-0 overflow-y-auto no-scrollbar">
+            <form action="{{ route('agenda.store') }}" method="POST" class="p-4 sm:p-5 space-y-3 flex-1 min-h-0 overflow-y-auto">
                 @csrf
 
                 <!-- Title & Category Row -->
