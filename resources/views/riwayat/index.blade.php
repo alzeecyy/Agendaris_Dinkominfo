@@ -124,8 +124,8 @@
 }" 
 class="space-y-6">
     <div>
-        <h1 class="text-xl font-black text-[#2e2552] tracking-wide">Riwayat Kegiatan & Rapat</h1>
-        <p class="text-xs text-[#5a508f] mt-0.5">Arsip seluruh kegiatan dan status kehadiran Anda di Dinkominfo</p>
+        <h1 class="text-xl sm:text-2xl font-bold text-[#09103c] tracking-wide">Riwayat Kegiatan & Rapat</h1>
+        <p class="text-xs sm:text-sm font-medium text-[#5a508f] mt-1">Arsip seluruh kegiatan dan status kehadiran Anda di Dinkominfo</p>
     </div>
 
     <!-- History Table Card -->
@@ -373,7 +373,7 @@ class="space-y-6">
                                         </svg>
                                     </div>
                                     <div class="space-y-0.5">
-                                        <p class="text-xs font-bold text-[#2e2552]">Belum Ada Data Riwayat Kegiatan</p>
+                                        <p class="text-xs font-bold text-[#09103c]">Belum Ada Data Riwayat Kegiatan</p>
                                         <p class="text-[11px] text-[#5a508f] font-medium">Riwayat rapat dan presensi yang diikuti akan tercatat secara otomatis di sini.</p>
                                     </div>
                                 </div>

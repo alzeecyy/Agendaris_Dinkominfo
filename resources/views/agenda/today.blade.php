@@ -299,6 +299,7 @@ class="w-full flex flex-col gap-3.5 sm:gap-5 select-none">
                             </svg>
                         </a>
                     </div>
+                </div>
 
             @endforeach
 
