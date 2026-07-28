@@ -954,10 +954,15 @@ sekId: "{{ $sekretariatId }}",
 
     <!-- Right Column: Absensi Digital, Notulensi & Rekap Kehadiran Bidang (Hanya Tampil Jika Rapat ATAU Membutuhkan Presensi) -->
     @if($agenda->kategori === 'rapat' || $agenda->butuh_presensi)
-        <div class="flex flex-col gap-3 min-w-0 h-full justify-start">
+        @php
+            $hasAbsensiCard = (bool)$agenda->butuh_presensi;
+            $hasNotulensiCard = ($agenda->kategori === 'rapat' && (bool)$agenda->notulensi);
+            $hasMultipleRightCards = $hasAbsensiCard && $hasNotulensiCard;
+        @endphp
+        <div class="flex flex-col gap-3.5 sm:gap-4.5 min-w-0 {{ $hasMultipleRightCards ? 'h-full justify-between' : 'justify-start' }}">
             <!-- 1. ABSENSI DIGITAL (Pegawai Internal Mandiri) -->
             @if($agenda->butuh_presensi)
-                <div class="bg-white border border-[#d4d1f5]/60 rounded-xl md:rounded-[24px] p-3 sm:p-4 shadow-sm space-y-2.5">
+                <div class="bg-white border border-[#d4d1f5]/60 rounded-xl md:rounded-[24px] p-3.5 sm:p-5 shadow-sm space-y-2.5 {{ $hasMultipleRightCards ? 'flex-1 flex flex-col justify-between' : '' }}">
                     <div class="flex items-center justify-between border-b border-[#d4d1f5]/40 pb-3">
                         <h3 class="text-xs font-bold uppercase tracking-wider text-[#2e2552]">Absensi Digital</h3>
                         <span class="text-[10px] font-bold text-[#5a508f] bg-[#f3f2fe] px-2.5 py-0.5 rounded-full border border-[#d4d1f5]/40">
@@ -1141,7 +1146,7 @@ sekId: "{{ $sekretariatId }}",
 
             <!-- 3. STATUS NOTULENSI AI (Hanya Rapat yang Memiliki Notulensi) -->
             @if($agenda->kategori === 'rapat' && $agenda->notulensi)
-                <div class="bg-white border border-[#d4d1f5]/60 rounded-xl md:rounded-[24px] p-3 sm:p-4 shadow-sm space-y-2.5 flex flex-col justify-start">
+                <div class="bg-white border border-[#d4d1f5]/60 rounded-xl md:rounded-[24px] p-3.5 sm:p-5 shadow-sm space-y-2.5 {{ $hasMultipleRightCards ? 'flex-1 flex flex-col justify-between' : '' }}">
                     <h3 class="text-[11px] sm:text-xs font-bold uppercase tracking-wider text-[#2e2552]">Dokumentasi Notulensi</h3>
                     
                     @php
