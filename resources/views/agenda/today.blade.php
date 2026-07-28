@@ -97,35 +97,45 @@ class="w-full flex flex-col gap-3.5 sm:gap-5 select-none">
         </div>
     </div>
 
-    <!-- Filter Navigation Tabs -->
-    <div class="grid grid-cols-4 sm:flex items-center gap-1 sm:gap-2 w-full">
-        <button @click="activeTab = 'semua'"
-                :class="activeTab === 'semua' ? 'bg-[#1b3bbb] text-white shadow-md shadow-[#1b3bbb]/20' : 'bg-white text-slate-600 hover:bg-slate-100 border border-slate-200/80'"
-                class="w-full sm:w-auto px-1 py-1.5 sm:px-4 sm:py-2 rounded-xl text-[9.5px] sm:text-xs font-bold transition-all flex items-center justify-center gap-0.5 sm:gap-1">
-            <span>Semua</span>
-            <span class="px-1.5 py-0.2 rounded-full text-[8.5px] sm:text-[10px] bg-white/20 font-black shrink-0">{{ $agendas->count() }}</span>
-        </button>
+    <!-- Filter Navigation Tabs & Top Add Shortcut -->
+    <div class="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-2.5 sm:gap-3 w-full">
+        <div class="grid grid-cols-4 sm:flex items-center gap-1 sm:gap-2 flex-1">
+            <button @click="activeTab = 'semua'"
+                    :class="activeTab === 'semua' ? 'bg-[#1b3bbb] text-white shadow-md shadow-[#1b3bbb]/20' : 'bg-white text-slate-600 hover:bg-slate-100 border border-slate-200/80'"
+                    class="w-full sm:w-auto px-1 py-1.5 sm:px-4 sm:py-2 rounded-xl text-[9.5px] sm:text-xs font-bold transition-all flex items-center justify-center gap-0.5 sm:gap-1">
+                <span>Semua</span>
+                <span class="px-1.5 py-0.2 rounded-full text-[8.5px] sm:text-[10px] bg-white/20 font-black shrink-0">{{ $agendas->count() }}</span>
+            </button>
 
-        <button @click="activeTab = 'ongoing'"
-                :class="activeTab === 'ongoing' ? 'bg-emerald-600 text-white shadow-md shadow-emerald-600/20' : 'bg-white text-slate-600 hover:bg-emerald-50 border border-slate-200/80'"
-                class="w-full sm:w-auto px-1 py-1.5 sm:px-4 sm:py-2 rounded-xl text-[9.5px] sm:text-xs font-bold transition-all flex items-center justify-center gap-0.5 sm:gap-1">
-            <span>Berlangsung</span>
-            <span class="px-1.5 py-0.2 rounded-full text-[8.5px] sm:text-[10px] bg-emerald-100 text-emerald-800 font-black shrink-0">{{ $ongoingAgendas->count() }}</span>
-        </button>
+            <button @click="activeTab = 'ongoing'"
+                    :class="activeTab === 'ongoing' ? 'bg-emerald-600 text-white shadow-md shadow-emerald-600/20' : 'bg-white text-slate-600 hover:bg-emerald-50 border border-slate-200/80'"
+                    class="w-full sm:w-auto px-1 py-1.5 sm:px-4 sm:py-2 rounded-xl text-[9.5px] sm:text-xs font-bold transition-all flex items-center justify-center gap-0.5 sm:gap-1">
+                <span>Berlangsung</span>
+                <span class="px-1.5 py-0.2 rounded-full text-[8.5px] sm:text-[10px] bg-emerald-100 text-emerald-800 font-black shrink-0">{{ $ongoingAgendas->count() }}</span>
+            </button>
 
-        <button @click="activeTab = 'upcoming'"
-                :class="activeTab === 'upcoming' ? 'bg-[#1b3bbb] text-white shadow-md shadow-[#1b3bbb]/20' : 'bg-white text-slate-600 hover:bg-indigo-50 border border-slate-200/80'"
-                class="w-full sm:w-auto px-1 py-1.5 sm:px-4 sm:py-2 rounded-xl text-[9.5px] sm:text-xs font-bold transition-all flex items-center justify-center gap-0.5 sm:gap-1">
-            <span>Mendatang</span>
-            <span class="px-1.5 py-0.2 rounded-full text-[8.5px] sm:text-[10px] bg-indigo-100 text-indigo-800 font-black shrink-0">{{ $upcomingAgendas->count() }}</span>
-        </button>
+            <button @click="activeTab = 'upcoming'"
+                    :class="activeTab === 'upcoming' ? 'bg-[#1b3bbb] text-white shadow-md shadow-[#1b3bbb]/20' : 'bg-white text-slate-600 hover:bg-indigo-50 border border-slate-200/80'"
+                    class="w-full sm:w-auto px-1 py-1.5 sm:px-4 sm:py-2 rounded-xl text-[9.5px] sm:text-xs font-bold transition-all flex items-center justify-center gap-0.5 sm:gap-1">
+                <span>Mendatang</span>
+                <span class="px-1.5 py-0.2 rounded-full text-[8.5px] sm:text-[10px] bg-indigo-100 text-indigo-800 font-black shrink-0">{{ $upcomingAgendas->count() }}</span>
+            </button>
 
-        <button @click="activeTab = 'completed'"
-                :class="activeTab === 'completed' ? 'bg-slate-700 text-white shadow-md' : 'bg-white text-slate-600 hover:bg-slate-100 border border-slate-200/80'"
-                class="w-full sm:w-auto px-1 py-1.5 sm:px-4 sm:py-2 rounded-xl text-[9.5px] sm:text-xs font-bold transition-all flex items-center justify-center gap-0.5 sm:gap-1">
-            <span>Selesai</span>
-            <span class="px-1.5 py-0.2 rounded-full text-[8.5px] sm:text-[10px] bg-slate-100 text-slate-700 font-black shrink-0">{{ $completedAgendas->count() }}</span>
-        </button>
+            <button @click="activeTab = 'completed'"
+                    :class="activeTab === 'completed' ? 'bg-slate-700 text-white shadow-md' : 'bg-white text-slate-600 hover:bg-slate-100 border border-slate-200/80'"
+                    class="w-full sm:w-auto px-1 py-1.5 sm:px-4 sm:py-2 rounded-xl text-[9.5px] sm:text-xs font-bold transition-all flex items-center justify-center gap-0.5 sm:gap-1">
+                <span>Selesai</span>
+                <span class="px-1.5 py-0.2 rounded-full text-[8.5px] sm:text-[10px] bg-slate-100 text-slate-700 font-black shrink-0">{{ $completedAgendas->count() }}</span>
+            </button>
+        </div>
+
+        @if(Auth::check() && (Auth::user()->isSekretarisMaster() || Auth::user()->isSekretarisBidang()))
+            <a href="{{ route('calendar', ['open_add' => 1]) }}" 
+               class="px-4 py-2 bg-[#1b3bbb] hover:bg-[#09103c] text-white text-xs font-bold rounded-xl shadow-md shadow-[#1b3bbb]/20 transition-all inline-flex items-center justify-center gap-1.5 shrink-0">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4"></path></svg>
+                <span>Tambah Agenda Baru</span>
+            </a>
+        @endif
     </div>
 
     <!-- Agenda Cards List -->
@@ -152,7 +162,7 @@ class="w-full flex flex-col gap-3.5 sm:gap-5 select-none">
             @endif
         </div>
     @else
-        <div class="space-y-3 sm:space-y-4">
+        <div class="space-y-3 sm:space-y-4 pb-8 sm:pb-12">
             @foreach($agendas as $agenda)
                 @php
                     $nowTime = \Carbon\Carbon::now()->format('H:i:s');
@@ -176,7 +186,8 @@ class="w-full flex flex-col gap-3.5 sm:gap-5 select-none">
                 @endphp
 
                 <div x-show="activeTab === 'semua' || activeTab === '{{ $tabCategory }}'" x-transition
-                     class="bg-white rounded-xl sm:rounded-2xl md:rounded-[28px] p-3.5 sm:p-6 border-l-4 {{ $statusColor }} border-slate-200/80 shadow-xs hover:shadow-md transition-all space-y-3 sm:space-y-4">
+                     style="border: 1.5px solid #1b3bbb !important;"
+                     class="bg-white rounded-xl sm:rounded-2xl md:rounded-[28px] p-3.5 sm:p-6 transition-all space-y-3 sm:space-y-4">
                     
                     <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 sm:gap-3 border-b border-slate-100 pb-2.5 sm:pb-3">
                         <div class="flex flex-wrap items-center gap-1.5 sm:gap-2">
@@ -302,6 +313,7 @@ class="w-full flex flex-col gap-3.5 sm:gap-5 select-none">
                 </div>
 
             @endforeach
+<<<<<<< HEAD
 
             @if(Auth::check() && (Auth::user()->isSekretarisMaster() || Auth::user()->isSekretarisBidang()))
                 <div class="pt-3 flex justify-start">
@@ -312,6 +324,8 @@ class="w-full flex flex-col gap-3.5 sm:gap-5 select-none">
                     </a>
                 </div>
             @endif
+=======
+>>>>>>> 31e0664252e94101554512e5571322b8ba4fa436
         </div>
     @endif
 
