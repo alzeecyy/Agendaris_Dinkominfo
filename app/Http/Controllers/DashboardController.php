@@ -582,27 +582,12 @@ class DashboardController extends Controller
             return redirect()->route('admin.users.index');
         }
 
-        $query = Agenda::where('tanggal', '<=', Carbon::today()->toDateString());
-
-        // Filter access directly at database level for optimal performance
-        if (!$user->isSekretarisMaster() && !$user->isKetuaMaster() && !$user->isSekretariat()) {
-            $query->where(function($q) use ($user) {
-                $q->whereHas('participants', function($pq) use ($user) {
-                    $pq->where('users.id', $user->id);
-                })->orWhere(function($sq) use ($user) {
-                    $sq->whereDoesntHave('participants')
-                       ->where(function($hq) use ($user) {
-                           $hq->whereJsonContains('hak_akses', 'semua_orang')
-                              ->orWhereJsonContains('hak_akses', (string)$user->bidang_id);
-                       });
-                });
-            });
-        }
-
-        $agendas = $query->with(['notulensi', 'sekretaris.bidang'])
+        $agendas = Agenda::where('tanggal', '<=', Carbon::today()->toDateString())
+            ->with(['notulensi', 'sekretaris.bidang'])
             ->orderBy('tanggal', 'desc')
             ->orderBy('jam_mulai', 'desc')
-            ->get();
+            ->get()
+            ->filter(fn($agenda) => $user->hasAccessToAgenda($agenda));
 
         $presensis = Presensi::where('user_id', $user->id)
             ->get()
