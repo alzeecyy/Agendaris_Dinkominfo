@@ -548,7 +548,7 @@
 
             <!-- MAIN CONTENT AREA CONTAINER -->
             <main class="flex-1 min-w-0 bg-white rounded-xl sm:rounded-2xl md:rounded-[28px] shadow-md relative overflow-hidden flex flex-col text-[#090c24] border border-[#d4d1f5]/60">
-                <div id="main-content" class="flex-1 min-h-0 w-full overflow-y-auto p-3.5 sm:p-5 md:p-6 flex flex-col gap-3.5 sm:gap-5">
+                <div id="main-content" class="flex-1 min-h-0 w-full overflow-y-auto no-scrollbar p-3.5 sm:p-5 md:p-6 flex flex-col gap-3.5 sm:gap-5">
                     
                     <!-- Floating Toast Notifications -->
                     @if(session('success') || session('error') || session('warning'))

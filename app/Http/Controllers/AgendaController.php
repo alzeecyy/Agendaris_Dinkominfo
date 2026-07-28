@@ -180,8 +180,8 @@ class AgendaController extends Controller
 
         $agenda->participants()->sync($targetUserIds);
 
-        // If it needs presensi, automatically initialize an empty notulensi record
-        if ($butuhPresensi && $agenda->kategori === 'rapat') {
+        // Automatically initialize an empty notulensi record for all rapat agendas
+        if ($agenda->kategori === 'rapat') {
             Notulensi::create([
                 'agenda_id' => $agenda->id,
                 'status' => 'draft',
@@ -206,6 +206,15 @@ class AgendaController extends Controller
 
         // Eager load relations for high performance
         $agenda->load(['sekretaris.bidang', 'notulensi', 'externalParticipants', 'participants']);
+
+        // Ensure rapat category always has an initialized notulensi record
+        if ($agenda->kategori === 'rapat' && !$agenda->notulensi) {
+            $notulensi = Notulensi::create([
+                'agenda_id' => $agenda->id,
+                'status' => 'draft',
+            ]);
+            $agenda->setRelation('notulensi', $notulensi);
+        }
 
         // Auto-heal stale is_transcribing status based on queue job lifecycle and audio availability
         if ($agenda->notulensi && $agenda->notulensi->is_transcribing) {
@@ -491,10 +500,10 @@ class AgendaController extends Controller
                 Presensi::whereIn('id', $emptyPresensiIds)->delete();
             }
 
-            // Manage notulensi instantiation based on updated toggles
+            // Manage notulensi instantiation based on category
             // Only allow notulensi creation/deletion when workflow is not locked
             if (!$notulensiLocked) {
-                if ($butuhPresensi && $agenda->kategori === 'rapat') {
+                if ($agenda->kategori === 'rapat') {
                     if (!$agenda->notulensi) {
                         Notulensi::create([
                             'agenda_id' => $agenda->id,
