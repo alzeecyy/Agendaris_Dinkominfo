@@ -100,8 +100,9 @@ class DashboardController extends Controller
         // Calculate role-based stats KPI cards & highlights
         $kpi = [];
         $highlights = [];
-        $links = [];
-        $todayStr = Carbon::today()->toDateString();
+        $now = Carbon::now('Asia/Jakarta');
+        $todayStr = $now->toDateString();
+        $currentTimeStr = $now->format('H:i:s');
 
         if ($user->role === 'staff') {
             // Staff KPI 1: Accessible Agendas this week
@@ -347,11 +348,20 @@ class DashboardController extends Controller
             }
         }
         // Recent activity history (max 4 entries)
-        $pastAgendas = Agenda::where('tanggal', '<', $todayStr)
-            ->orderBy('tanggal', 'desc')
-            ->orderBy('jam_mulai', 'desc')
-            ->get()
-            ->filter(fn($agenda) => $user->hasAccessToAgenda($agenda));
+        $pastAgendas = Agenda::where(function($q) use ($todayStr, $currentTimeStr) {
+            $q->where('tanggal', '<', $todayStr)
+              ->orWhere(function($sub) use ($todayStr, $currentTimeStr) {
+                  $sub->where('tanggal', '=', $todayStr)
+                      ->where('jam_mulai', '<=', $currentTimeStr);
+              })
+              ->orWhereHas('notulensi', function($nq) {
+                  $nq->whereIn('status', ['menunggu_review', 'disahkan']);
+              });
+        })
+        ->orderBy('tanggal', 'desc')
+        ->orderBy('jam_mulai', 'desc')
+        ->get()
+        ->filter(fn($agenda) => $user->hasAccessToAgenda($agenda));
 
         $presensis = Presensi::where('user_id', $user->id)->get()->keyBy('agenda_id');
 
@@ -610,7 +620,24 @@ class DashboardController extends Controller
             return redirect()->route('admin.users.index');
         }
 
-        $query = Agenda::where('tanggal', '<=', Carbon::today()->toDateString());
+        $now = Carbon::now('Asia/Jakarta');
+        $todayStr = $now->toDateString();
+        $currentTimeStr = $now->format('H:i:s');
+
+        // Agenda masuk Riwayat HANYA JIKA:
+        // 1. Tanggal lampau (< hari ini)
+        // 2. Tanggal hari ini DAN jam_mulai <= jam sekarang (rapat sudah dimulai/berlangsung)
+        // 3. Atau notulensi sudah resmi diajukan (menunggu_review) atau disahkan
+        $query = Agenda::where(function($q) use ($todayStr, $currentTimeStr) {
+            $q->where('tanggal', '<', $todayStr)
+              ->orWhere(function($sub) use ($todayStr, $currentTimeStr) {
+                  $sub->where('tanggal', '=', $todayStr)
+                      ->where('jam_mulai', '<=', $currentTimeStr);
+              })
+              ->orWhereHas('notulensi', function($nq) {
+                  $nq->whereIn('status', ['menunggu_review', 'disahkan']);
+              });
+        });
 
         // Filter access directly at database level for optimal performance
         if (!$user->isSekretarisMaster() && !$user->isSekretariat()) {
