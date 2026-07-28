@@ -53,6 +53,29 @@
     get totalPages() {
         return Math.ceil(this.filteredAgendas.length / this.itemsPerPage) || 1;
     },
+    get displayedPages() {
+        const total = this.totalPages;
+        const current = this.currentPage;
+        const maxVisible = 3;
+        
+        if (total <= maxVisible) {
+            return Array.from({ length: total }, (_, i) => i + 1);
+        }
+        
+        let start = Math.max(1, current - 1);
+        let end = start + maxVisible - 1;
+        
+        if (end > total) {
+            end = total;
+            start = Math.max(1, end - maxVisible + 1);
+        }
+        
+        const pages = [];
+        for (let i = start; i <= end; i++) {
+            pages.push(i);
+        }
+        return pages;
+    },
     isAgendaVisible(agendaId) {
         const index = this.filteredAgendas.findIndex(a => a.id === agendaId);
         if (index === -1) return false;
@@ -389,7 +412,7 @@ class="space-y-6">
                 </button>
                 
                 <!-- Page numbers -->
-                <template x-for="p in totalPages" :key="p">
+                <template x-for="p in displayedPages" :key="p">
                     <button @click="setPage(p)"
                             x-text="p"
                             class="px-3.5 py-2 rounded-xl border transition-all duration-200"
