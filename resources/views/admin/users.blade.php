@@ -82,13 +82,8 @@
             return Array.from({ length: total }, (_, i) => i + 1);
         }
         
-        let start = Math.max(1, current - 1);
+        let start = Math.max(1, Math.min(current - (maxVisible - 1), total - maxVisible + 1));
         let end = start + maxVisible - 1;
-        
-        if (end > total) {
-            end = total;
-            start = Math.max(1, end - maxVisible + 1);
-        }
         
         const pages = [];
         for (let i = start; i <= end; i++) {
