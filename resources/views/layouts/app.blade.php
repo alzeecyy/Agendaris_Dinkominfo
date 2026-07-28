@@ -555,7 +555,7 @@
 
             <!-- MAIN CONTENT AREA CONTAINER -->
             <main class="flex-1 min-w-0 bg-white rounded-xl sm:rounded-2xl md:rounded-[28px] shadow-md relative overflow-hidden flex flex-col text-[#090c24] border border-[#d4d1f5]/60">
-                <div id="main-content" class="flex-1 min-h-0 w-full overflow-y-auto no-scrollbar p-3.5 sm:p-5 md:p-6 pb-12 sm:pb-16 flex flex-col gap-3.5 sm:gap-5">
+                <div id="main-content" class="flex-1 min-h-0 w-full overflow-y-auto no-scrollbar p-3.5 sm:p-5 md:p-6 flex flex-col gap-3.5 sm:gap-5 justify-between">
                     
                     <!-- Floating Toast Notifications -->
                     @if(session('success') || session('error') || session('warning'))
@@ -627,15 +627,17 @@
                     @endif
 
                     <!-- Dynamic Page Content -->
-                    <div id="pjax-container" class="flex-1 min-w-0 w-full flex flex-col">
-                        @yield('content')
+                    <div id="pjax-container" class="flex-1 min-w-0 w-full flex flex-col justify-between">
+                        <div class="flex-1 min-w-0 w-full flex flex-col pb-6 sm:pb-10">
+                            @yield('content')
+                        </div>
+
+                        <!-- Footer line contained within content padding (ngga pol kanan-kiri) -->
+                        <footer class="border-t border-[#d4d1f5]/60 pt-4 pb-2 mt-8 sm:mt-12 text-center text-slate-400 text-[10px] sm:text-xs font-semibold tracking-wider w-full shrink-0 flex items-center justify-center">
+                            &copy; 2026 Dinas Komunikasi dan Informatika Kabupaten Banyumas.
+                        </footer>
                     </div>
                 </div>
-
-                <!-- Footer pinned to bottom of main card frame -->
-                <footer class="border-t border-[#d4d1f5]/60 py-3.5 px-4 bg-slate-50/80 backdrop-blur-xs text-center text-slate-400 text-[10px] sm:text-xs font-semibold tracking-wider w-full shrink-0 flex items-center justify-center">
-                    &copy; 2026 Dinas Komunikasi dan Informatika Kabupaten Banyumas.
-                </footer>
             </main>
         </div>
     </div>
