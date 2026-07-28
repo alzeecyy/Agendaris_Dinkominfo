@@ -86,18 +86,16 @@
             document.querySelectorAll('.agenda-row').forEach(row => {
                 if (row.style.display !== 'none') {
                     if (visibleIndex % 2 === 0) {
-                        row.classList.remove('bg-[#f4f7ff]');
-                        row.classList.add('bg-white');
+                        row.style.backgroundColor = '#ffffff';
                     } else {
-                        row.classList.remove('bg-white');
-                        row.classList.add('bg-[#f4f7ff]');
+                        row.style.backgroundColor = '#f4f7ff';
                     }
                     visibleIndex++;
                 }
             });
         });
     }
-}" 
+} 
 x-init="
     $watch('searchQuery', () => resetPagination());
     $watch('filterKategori', () => resetPagination());
@@ -233,17 +231,17 @@ class="space-y-6">
 
         <div class="overflow-x-auto rounded-2xl border border-[#d4d1f5]/60 shadow-xs">
             <table class="w-full text-left text-xs text-[#2e2552]">
-                <thead class="bg-[#ebf2ff] text-[#1b3bbb] border-b border-[#d4d1f5]/80 select-none">
-                    <tr class="bg-[#ebf2ff]">
-                        <th class="py-3.5 px-4 sm:px-5 bg-[#ebf2ff] text-[10.5px] sm:text-xs font-extrabold uppercase tracking-wider text-[#1b3bbb]">Nama Agenda Kegiatan</th>
-                        <th class="py-3.5 px-4 sm:px-5 bg-[#ebf2ff] text-[10.5px] sm:text-xs font-extrabold uppercase tracking-wider text-[#1b3bbb] text-center">Kategori</th>
-                        <th class="py-3.5 px-4 sm:px-5 bg-[#ebf2ff] text-[10.5px] sm:text-xs font-extrabold uppercase tracking-wider text-[#1b3bbb] whitespace-nowrap">Tanggal & Jam</th>
-                        <th class="py-3.5 px-4 sm:px-5 bg-[#ebf2ff] text-[10.5px] sm:text-xs font-extrabold uppercase tracking-wider text-[#1b3bbb]">Lokasi</th>
-                        <th class="py-3.5 px-4 sm:px-5 bg-[#ebf2ff] text-[10.5px] sm:text-xs font-extrabold uppercase tracking-wider text-[#1b3bbb] text-center leading-tight whitespace-nowrap">
+                <thead style="background-color: #ebf2ff !important; color: #1b3bbb !important;" class="bg-[#ebf2ff] text-[#1b3bbb] border-b border-[#d4d1f5]/80 select-none">
+                    <tr style="background-color: #ebf2ff !important;" class="bg-[#ebf2ff]">
+                        <th style="background-color: #ebf2ff !important; color: #1b3bbb !important;" class="py-3.5 px-4 sm:px-5 text-[10.5px] sm:text-xs font-extrabold uppercase tracking-wider text-[#1b3bbb]">Nama Agenda Kegiatan</th>
+                        <th style="background-color: #ebf2ff !important; color: #1b3bbb !important;" class="py-3.5 px-4 sm:px-5 text-[10.5px] sm:text-xs font-extrabold uppercase tracking-wider text-[#1b3bbb] text-center">Kategori</th>
+                        <th style="background-color: #ebf2ff !important; color: #1b3bbb !important;" class="py-3.5 px-4 sm:px-5 text-[10.5px] sm:text-xs font-extrabold uppercase tracking-wider text-[#1b3bbb] whitespace-nowrap">Tanggal & Jam</th>
+                        <th style="background-color: #ebf2ff !important; color: #1b3bbb !important;" class="py-3.5 px-4 sm:px-5 text-[10.5px] sm:text-xs font-extrabold uppercase tracking-wider text-[#1b3bbb]">Lokasi</th>
+                        <th style="background-color: #ebf2ff !important; color: #1b3bbb !important;" class="py-3.5 px-4 sm:px-5 text-[10.5px] sm:text-xs font-extrabold uppercase tracking-wider text-[#1b3bbb] text-center leading-tight whitespace-nowrap">
                             <span class="block">STATUS</span>
                             <span class="block">KEHADIRAN</span>
                         </th>
-                        <th class="py-3.5 px-4 sm:px-5 bg-[#ebf2ff] text-[10.5px] sm:text-xs font-extrabold uppercase tracking-wider text-[#1b3bbb] text-center whitespace-nowrap">Notulensi</th>
+                        <th style="background-color: #ebf2ff !important; color: #1b3bbb !important;" class="py-3.5 px-4 sm:px-5 text-[10.5px] sm:text-xs font-extrabold uppercase tracking-wider text-[#1b3bbb] text-center whitespace-nowrap">Notulensi</th>
                     </tr>
                 </thead>
                 <tbody class="divide-y divide-[#d4d1f5]/40 bg-white">
