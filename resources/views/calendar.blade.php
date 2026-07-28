@@ -474,7 +474,7 @@
          class="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-slate-950/60 backdrop-blur-md transition-all duration-300">
         
         <div @click.away="openAddModal = false" 
-             class="bg-white border border-[#d4d1f5]/80 rounded-3xl w-full max-w-xl shadow-2xl overflow-hidden relative text-[#2e2552] my-auto"
+             class="bg-white border border-[#d4d1f5]/80 rounded-3xl w-full max-w-xl shadow-2xl overflow-hidden relative text-[#2e2552] my-auto flex flex-col max-h-[90vh]"
              x-transition:enter="transition ease-out duration-300 transform"
              x-transition:enter-start="opacity-0 scale-95 translate-y-2"
              x-transition:enter-end="opacity-100 scale-100 translate-y-0"
@@ -503,7 +503,7 @@
             </div>
 
             <!-- Form Content -->
-            <form action="{{ route('agenda.store') }}" method="POST" class="p-4 sm:p-5 space-y-3.5 max-h-[85vh] overflow-y-auto no-scrollbar">
+            <form action="{{ route('agenda.store') }}" method="POST" class="p-4 sm:p-5 space-y-3.5 flex-1 min-h-0 overflow-y-auto no-scrollbar">
                 @csrf
 
                 <!-- Title & Category Row -->
