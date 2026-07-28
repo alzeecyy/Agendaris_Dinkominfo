@@ -70,61 +70,111 @@
     </div>
 
     <!-- MODAL: ADD BIDANG -->
-    <div x-show="openAddModal" x-cloak class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/50 backdrop-blur-sm">
-        <div @click.away="openAddModal = false" class="bg-white border border-[#d4d1f5]/60 rounded-3xl w-full max-w-sm shadow-2xl overflow-hidden relative text-[#2e2552]">
-            <div class="absolute top-0 left-0 w-full h-[2px] bg-[#2e2552]"></div>
-            <div class="p-6 border-b border-[#d4d1f5]/40 flex items-center justify-between">
-                <h3 class="text-base font-bold text-[#2e2552]">Tambah Bidang Baru</h3>
-                <button @click="openAddModal = false" class="text-[#5a508f] hover:text-[#2e2552]">
-                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+    <div x-show="openAddModal" x-cloak class="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-5 bg-slate-950/70 backdrop-blur-md overflow-y-auto transition-all duration-300">
+        <div @click.away="openAddModal = false" 
+             class="bg-white border border-[#d4d1f5] rounded-3xl w-full max-w-md shadow-2xl overflow-hidden relative text-[#2e2552] my-auto flex flex-col"
+             x-transition:enter="transition ease-out duration-300 transform"
+             x-transition:enter-start="opacity-0 scale-95 translate-y-2"
+             x-transition:enter-end="opacity-100 scale-100 translate-y-0"
+             x-transition:leave="transition ease-in duration-200 transform"
+             x-transition:leave-start="opacity-100 scale-100 translate-y-0"
+             x-transition:leave-end="opacity-0 scale-95 translate-y-2">
+
+            <!-- Modal Header -->
+            <div class="px-5 py-3.5 sm:py-4 bg-gradient-to-r from-[#09103c] via-[#1b3bbb] to-[#09103c] text-white flex items-center justify-between shrink-0">
+                <div class="flex items-center gap-3">
+                    <div class="p-2 bg-white/10 rounded-xl border border-white/15 shrink-0">
+                        <svg class="w-5 h-5 text-amber-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path>
+                        </svg>
+                    </div>
+                    <div>
+                        <h3 class="text-base font-extrabold text-white">Tambah Bidang Baru</h3>
+                        <p class="text-[11px] text-indigo-100 font-medium">Buat master bidang atau subbagian baru</p>
+                    </div>
+                </div>
+                <button @click="openAddModal = false" type="button" class="p-1.5 bg-white/10 hover:bg-rose-500/80 rounded-xl text-white transition-all cursor-pointer shrink-0">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
                     </svg>
                 </button>
             </div>
-            <form action="{{ route('admin.bidang.store') }}" method="POST" class="p-6 space-y-4">
+
+            <!-- Form Content -->
+            <form action="{{ route('admin.bidang.store') }}" method="POST" class="p-5 space-y-4">
                 @csrf
                 <div class="space-y-1">
-                    <label for="nama" class="block text-xs font-bold text-[#5a508f] uppercase">Nama Bidang Lengkap <span class="text-rose-500">*</span></label>
-                    <input type="text" name="nama" id="nama" required placeholder="Contoh: Bidang Aplikasi Informatika" class="w-full px-4 py-2.5 bg-[#f3f2fe] border border-[#d4d1f5] rounded-2xl text-[#2e2552] text-sm focus:outline-none focus:ring-2 focus:ring-[#8e88dd]">
+                    <label for="nama" class="block text-[11px] font-bold text-[#5a508f] uppercase tracking-wider">Nama Bidang Lengkap <span class="text-rose-500 font-bold">*</span></label>
+                    <input type="text" name="nama" id="nama" required placeholder="Contoh: Bidang Aplikasi Informatika" class="w-full px-3.5 py-2.5 bg-[#f4f6fc] border border-[#d4d1f5] rounded-xl text-[#2e2552] text-sm placeholder-[#5a508f]/50 font-medium focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#1b3bbb] transition-all">
                 </div>
                 <div class="space-y-1">
-                    <label for="singkatan" class="block text-xs font-bold text-[#5a508f] uppercase">Singkatan / Label <span class="text-rose-500">*</span></label>
-                    <input type="text" name="singkatan" id="singkatan" required placeholder="Contoh: Aptika" class="w-full px-4 py-2.5 bg-[#f3f2fe] border border-[#d4d1f5] rounded-2xl text-[#2e2552] text-sm focus:outline-none focus:ring-2 focus:ring-[#8e88dd]">
+                    <label for="singkatan" class="block text-[11px] font-bold text-[#5a508f] uppercase tracking-wider">Singkatan / Label <span class="text-rose-500 font-bold">*</span></label>
+                    <input type="text" name="singkatan" id="singkatan" required placeholder="Contoh: Aptika" class="w-full px-3.5 py-2.5 bg-[#f4f6fc] border border-[#d4d1f5] rounded-xl text-[#2e2552] text-sm placeholder-[#5a508f]/50 font-medium focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#1b3bbb] transition-all">
                 </div>
                 <div class="flex items-center justify-end gap-2 border-t border-[#d4d1f5]/40 pt-4">
-                    <button type="button" @click="openAddModal = false" class="px-4 py-2.5 bg-slate-100 hover:bg-slate-200 text-[#5a508f] text-xs font-bold rounded-2xl">Batalkan</button>
-                    <button type="submit" class="px-5 py-2.5 bg-[#2e2552] hover:bg-[#3d326a] text-white text-xs font-bold rounded-2xl">Simpan Bidang</button>
+                    <button type="button" @click="openAddModal = false" class="px-4 py-2.5 bg-slate-100 hover:bg-slate-200 text-[#5a508f] text-xs font-bold rounded-xl transition-all cursor-pointer">Batalkan</button>
+                    <button type="submit" class="px-5 py-2.5 bg-[#1b3bbb] hover:bg-[#152e96] text-white text-xs font-bold rounded-xl shadow-md shadow-[#1b3bbb]/20 transition-all inline-flex items-center gap-1.5 cursor-pointer">
+                        <span>Simpan Bidang</span>
+                        <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                        </svg>
+                    </button>
                 </div>
             </form>
         </div>
     </div>
 
     <!-- MODAL: EDIT BIDANG -->
-    <div x-show="openEditModal" x-cloak class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/50 backdrop-blur-sm">
-        <div @click.away="openEditModal = false" class="bg-white border border-[#d4d1f5]/60 rounded-3xl w-full max-w-sm shadow-2xl overflow-hidden relative text-[#2e2552]">
-            <div class="absolute top-0 left-0 w-full h-[2px] bg-[#2e2552]"></div>
-            <div class="p-6 border-b border-[#d4d1f5]/40 flex items-center justify-between">
-                <h3 class="text-base font-bold text-[#2e2552]">Edit Master Bidang</h3>
-                <button @click="openEditModal = false" class="text-[#5a508f] hover:text-[#2e2552]">
-                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+    <div x-show="openEditModal" x-cloak class="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-5 bg-slate-950/70 backdrop-blur-md overflow-y-auto transition-all duration-300">
+        <div @click.away="openEditModal = false" 
+             class="bg-white border border-[#d4d1f5] rounded-3xl w-full max-w-md shadow-2xl overflow-hidden relative text-[#2e2552] my-auto flex flex-col"
+             x-transition:enter="transition ease-out duration-300 transform"
+             x-transition:enter-start="opacity-0 scale-95 translate-y-2"
+             x-transition:enter-end="opacity-100 scale-100 translate-y-0"
+             x-transition:leave="transition ease-in duration-200 transform"
+             x-transition:leave-start="opacity-100 scale-100 translate-y-0"
+             x-transition:leave-end="opacity-0 scale-95 translate-y-2">
+
+            <!-- Modal Header -->
+            <div class="px-5 py-3.5 sm:py-4 bg-gradient-to-r from-[#09103c] via-[#1b3bbb] to-[#09103c] text-white flex items-center justify-between shrink-0">
+                <div class="flex items-center gap-3">
+                    <div class="p-2 bg-white/10 rounded-xl border border-white/15 shrink-0">
+                        <svg class="w-5 h-5 text-amber-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
+                        </svg>
+                    </div>
+                    <div>
+                        <h3 class="text-base font-extrabold text-white">Edit Master Bidang</h3>
+                        <p class="text-[11px] text-indigo-100 font-medium">Perbarui data nama atau singkatan bidang</p>
+                    </div>
+                </div>
+                <button @click="openEditModal = false" type="button" class="p-1.5 bg-white/10 hover:bg-rose-500/80 rounded-xl text-white transition-all cursor-pointer shrink-0">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
                     </svg>
                 </button>
             </div>
-            <form :action="'/admin/bidang/' + editBidang.id" method="POST" class="p-6 space-y-4">
+
+            <!-- Form Content -->
+            <form :action="'/admin/bidang/' + editBidang.id" method="POST" class="p-5 space-y-4">
                 @csrf
                 @method('PUT')
                 <div class="space-y-1">
-                    <label class="block text-xs font-bold text-[#5a508f] uppercase">Nama Bidang Lengkap <span class="text-rose-500">*</span></label>
-                    <input type="text" name="nama" required x-model="editBidang.nama" class="w-full px-4 py-2.5 bg-[#f3f2fe] border border-[#d4d1f5] rounded-2xl text-[#2e2552] text-sm">
+                    <label class="block text-[11px] font-bold text-[#5a508f] uppercase tracking-wider">Nama Bidang Lengkap <span class="text-rose-500 font-bold">*</span></label>
+                    <input type="text" name="nama" required x-model="editBidang.nama" class="w-full px-3.5 py-2.5 bg-[#f4f6fc] border border-[#d4d1f5] rounded-xl text-[#2e2552] text-sm placeholder-[#5a508f]/50 font-medium focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#1b3bbb] transition-all">
                 </div>
                 <div class="space-y-1">
-                    <label class="block text-xs font-bold text-[#5a508f] uppercase">Singkatan / Label <span class="text-rose-500">*</span></label>
-                    <input type="text" name="singkatan" required x-model="editBidang.singkatan" class="w-full px-4 py-2.5 bg-[#f3f2fe] border border-[#d4d1f5] rounded-2xl text-[#2e2552] text-sm">
+                    <label class="block text-[11px] font-bold text-[#5a508f] uppercase tracking-wider">Singkatan / Label <span class="text-rose-500 font-bold">*</span></label>
+                    <input type="text" name="singkatan" required x-model="editBidang.singkatan" class="w-full px-3.5 py-2.5 bg-[#f4f6fc] border border-[#d4d1f5] rounded-xl text-[#2e2552] text-sm placeholder-[#5a508f]/50 font-medium focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#1b3bbb] transition-all">
                 </div>
                 <div class="flex items-center justify-end gap-2 border-t border-[#d4d1f5]/40 pt-4">
-                    <button type="button" @click="openEditModal = false" class="px-4 py-2.5 bg-slate-100 hover:bg-slate-200 text-[#5a508f] text-xs font-bold rounded-2xl">Batalkan</button>
-                    <button type="submit" class="px-5 py-2.5 bg-[#2e2552] hover:bg-[#3d326a] text-white text-xs font-bold rounded-2xl">Simpan Perubahan</button>
+                    <button type="button" @click="openEditModal = false" class="px-4 py-2.5 bg-slate-100 hover:bg-slate-200 text-[#5a508f] text-xs font-bold rounded-xl transition-all cursor-pointer">Batalkan</button>
+                    <button type="submit" class="px-5 py-2.5 bg-[#1b3bbb] hover:bg-[#152e96] text-white text-xs font-bold rounded-xl shadow-md shadow-[#1b3bbb]/20 transition-all inline-flex items-center gap-1.5 cursor-pointer">
+                        <span>Simpan Perubahan</span>
+                        <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                        </svg>
+                    </button>
                 </div>
             </form>
         </div>
