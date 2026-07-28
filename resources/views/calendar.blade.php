@@ -131,7 +131,7 @@
         </div>
 
         <!-- Today's Highlights Panel -->
-        <div class="bg-slate-50/70 border border-[#d4d1f5]/60 rounded-3xl p-4 sm:p-5 shadow-xs flex-1 flex flex-col min-h-0 justify-between">
+        <div class="bg-slate-50/70 border border-[#d4d1f5]/60 rounded-3xl p-4 sm:p-5 shadow-xs flex flex-col shrink-0">
             <div class="flex items-center justify-between shrink-0 mb-3 sm:mb-4">
                 <h3 class="text-xs font-bold uppercase tracking-wider text-[#2e2552]">Kegiatan Hari Ini</h3>
                 <span class="text-[10px] bg-[#2e2552]/10 text-[#2e2552] px-2.5 py-0.5 rounded-full border border-[#2e2552]/20 font-bold">
@@ -139,7 +139,7 @@
                 </span>
             </div>
             
-            <div class="space-y-3 flex-1 min-h-0 overflow-y-auto pr-1">
+            <div class="space-y-3 max-h-[340px] overflow-y-auto pr-1">
                 @forelse($todayAgendas as $ta)
                     <div class="p-3 bg-white border border-[#d4d1f5]/40 rounded-2xl hover:border-[#8e88dd]/40 transition-all duration-200 shadow-2xs">
                         <div class="flex items-center justify-between gap-2">
@@ -174,13 +174,13 @@
 
             <!-- Quick Add Agenda Button (Secretaries & Admin Subbag/Bidang Only) -->
             @if(Auth::user()->isSekretarisMaster() || Auth::user()->isSekretarisBidang())
-                <div class="shrink-0 pt-3 sm:pt-4">
+                <div class="shrink-0 pt-3">
                     <button @click="openAddModal = true; selectedDate = '{{ $selectedDate->toDateString() }}'; selectedTime = '07:15'" 
-                            class="w-full py-2.5 bg-[#2e2552] hover:bg-[#3d326a] active:scale-[0.98] text-white font-bold rounded-2xl text-xs transition-all duration-200 shadow-md shadow-[#2e2552]/20 flex items-center justify-center gap-2">
+                            class="w-full py-2.5 bg-[#2e2552] hover:bg-[#3d326a] active:scale-[0.98] text-white font-bold rounded-2xl text-xs transition-all duration-200 shadow-md shadow-[#2e2552]/20 flex items-center justify-center gap-2 cursor-pointer">
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
                         </svg>
-                        <span>Tambah Agenda Baru</span>
+                        <span>+ Tambah Agenda Baru</span>
                     </button>
                 </div>
             @endif
