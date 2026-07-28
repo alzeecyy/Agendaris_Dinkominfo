@@ -347,7 +347,7 @@ class DashboardController extends Controller
                 ];
             }
         }
-        // Recent activity history (max 4 entries)
+        // Recent activity history (max 5 entries)
         $pastAgendas = Agenda::where(function($q) use ($todayStr, $currentTimeStr) {
             $q->where('tanggal', '<', $todayStr)
               ->orWhere(function($sub) use ($todayStr, $currentTimeStr) {
@@ -365,7 +365,7 @@ class DashboardController extends Controller
 
         $presensis = Presensi::where('user_id', $user->id)->get()->keyBy('agenda_id');
 
-        $riwayatRingkas = $pastAgendas->take(4)->map(function ($agenda) use ($presensis) {
+        $riwayatRingkas = $pastAgendas->take(5)->map(function ($agenda) use ($presensis) {
             $status = $presensis->has($agenda->id) ? $presensis[$agenda->id]->status : null;
             if ($agenda->butuh_presensi && !$status && $agenda->isPresensiExpired()) {
                 $status = 'alfa';

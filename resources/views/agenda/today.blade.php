@@ -98,32 +98,32 @@ class="w-full flex flex-col gap-3.5 sm:gap-5 select-none">
     </div>
 
     <!-- Filter Navigation Tabs & Top Add Shortcut -->
-    <div class="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-2.5 sm:gap-3 w-full">
-        <div class="grid grid-cols-4 sm:flex items-center gap-1 sm:gap-2 flex-1">
+    <div class="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-2.5 sm:gap-3 w-full mt-5 mb-8 sm:mt-6 sm:mb-12">
+        <div class="grid grid-cols-4 sm:flex items-center gap-2 sm:gap-2.5 flex-1">
             <button @click="activeTab = 'semua'"
-                    :class="activeTab === 'semua' ? 'bg-[#1b3bbb] text-white shadow-md shadow-[#1b3bbb]/20' : 'bg-white text-slate-600 hover:bg-slate-100 border border-slate-200/80'"
-                    class="w-full sm:w-auto px-1 py-1.5 sm:px-4 sm:py-2 rounded-xl text-[9.5px] sm:text-xs font-bold transition-all flex items-center justify-center gap-0.5 sm:gap-1">
+                    :class="activeTab === 'semua' ? 'bg-[#1b3bbb] text-white shadow-md shadow-[#1b3bbb]/20 border border-[#1b3bbb]' : 'bg-white text-slate-600 hover:bg-slate-50 border border-[#d4d1f5]/80'"
+                    class="w-full sm:w-auto px-3 py-1.5 sm:px-4 sm:py-2 rounded-xl text-[9.5px] sm:text-xs font-bold transition-all flex items-center justify-center gap-1 sm:gap-1.5 cursor-pointer">
                 <span>Semua</span>
                 <span class="px-1.5 py-0.2 rounded-full text-[8.5px] sm:text-[10px] bg-white/20 font-black shrink-0">{{ $agendas->count() }}</span>
             </button>
 
             <button @click="activeTab = 'ongoing'"
-                    :class="activeTab === 'ongoing' ? 'bg-emerald-600 text-white shadow-md shadow-emerald-600/20' : 'bg-white text-slate-600 hover:bg-emerald-50 border border-slate-200/80'"
-                    class="w-full sm:w-auto px-1 py-1.5 sm:px-4 sm:py-2 rounded-xl text-[9.5px] sm:text-xs font-bold transition-all flex items-center justify-center gap-0.5 sm:gap-1">
+                    :class="activeTab === 'ongoing' ? 'bg-emerald-600 text-white shadow-md shadow-emerald-600/20 border border-emerald-600' : 'bg-white text-slate-600 hover:bg-emerald-50/50 border border-[#d4d1f5]/80'"
+                    class="w-full sm:w-auto px-3 py-1.5 sm:px-4 sm:py-2 rounded-xl text-[9.5px] sm:text-xs font-bold transition-all flex items-center justify-center gap-1 sm:gap-1.5 cursor-pointer">
                 <span>Berlangsung</span>
                 <span class="px-1.5 py-0.2 rounded-full text-[8.5px] sm:text-[10px] bg-emerald-100 text-emerald-800 font-black shrink-0">{{ $ongoingAgendas->count() }}</span>
             </button>
 
             <button @click="activeTab = 'upcoming'"
-                    :class="activeTab === 'upcoming' ? 'bg-[#1b3bbb] text-white shadow-md shadow-[#1b3bbb]/20' : 'bg-white text-slate-600 hover:bg-indigo-50 border border-slate-200/80'"
-                    class="w-full sm:w-auto px-1 py-1.5 sm:px-4 sm:py-2 rounded-xl text-[9.5px] sm:text-xs font-bold transition-all flex items-center justify-center gap-0.5 sm:gap-1">
+                    :class="activeTab === 'upcoming' ? 'bg-[#1b3bbb] text-white shadow-md shadow-[#1b3bbb]/20 border border-[#1b3bbb]' : 'bg-white text-slate-600 hover:bg-indigo-50/50 border border-[#d4d1f5]/80'"
+                    class="w-full sm:w-auto px-3 py-1.5 sm:px-4 sm:py-2 rounded-xl text-[9.5px] sm:text-xs font-bold transition-all flex items-center justify-center gap-1 sm:gap-1.5 cursor-pointer">
                 <span>Mendatang</span>
                 <span class="px-1.5 py-0.2 rounded-full text-[8.5px] sm:text-[10px] bg-indigo-100 text-indigo-800 font-black shrink-0">{{ $upcomingAgendas->count() }}</span>
             </button>
 
             <button @click="activeTab = 'completed'"
-                    :class="activeTab === 'completed' ? 'bg-slate-700 text-white shadow-md' : 'bg-white text-slate-600 hover:bg-slate-100 border border-slate-200/80'"
-                    class="w-full sm:w-auto px-1 py-1.5 sm:px-4 sm:py-2 rounded-xl text-[9.5px] sm:text-xs font-bold transition-all flex items-center justify-center gap-0.5 sm:gap-1">
+                    :class="activeTab === 'completed' ? 'bg-slate-700 text-white shadow-md border border-slate-700' : 'bg-white text-slate-600 hover:bg-slate-50 border border-[#d4d1f5]/80'"
+                    class="w-full sm:w-auto px-3 py-1.5 sm:px-4 sm:py-2 rounded-xl text-[9.5px] sm:text-xs font-bold transition-all flex items-center justify-center gap-1 sm:gap-1.5 cursor-pointer">
                 <span>Selesai</span>
                 <span class="px-1.5 py-0.2 rounded-full text-[8.5px] sm:text-[10px] bg-slate-100 text-slate-700 font-black shrink-0">{{ $completedAgendas->count() }}</span>
             </button>
@@ -131,7 +131,7 @@ class="w-full flex flex-col gap-3.5 sm:gap-5 select-none">
 
         @if(Auth::check() && (Auth::user()->isSekretarisMaster() || Auth::user()->isSekretarisBidang()))
             <a href="{{ route('calendar', ['open_add' => 1]) }}" 
-               class="px-4 py-2 bg-[#1b3bbb] hover:bg-[#09103c] text-white text-xs font-bold rounded-xl shadow-md shadow-[#1b3bbb]/20 transition-all inline-flex items-center justify-center gap-1.5 shrink-0">
+               class="px-4 py-2.5 bg-[#1b3bbb] hover:bg-[#09103c] text-white text-xs font-bold rounded-xl shadow-md shadow-[#1b3bbb]/20 transition-all inline-flex items-center justify-center gap-1.5 shrink-0 active:scale-95">
                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4"></path></svg>
                 <span>Tambah Agenda Baru</span>
             </a>
@@ -140,7 +140,7 @@ class="w-full flex flex-col gap-3.5 sm:gap-5 select-none">
 
     <!-- Agenda Cards List -->
     @if($agendas->isEmpty())
-        <div class="bg-white rounded-2xl md:rounded-[32px] p-6 sm:p-12 text-center border border-slate-200/80 space-y-4">
+        <div class="bg-white rounded-2xl md:rounded-[32px] p-6 sm:p-12 text-center border border-slate-200/80 space-y-4 mt-4">
             <div class="w-14 h-14 sm:w-16 sm:h-16 bg-slate-100 text-slate-400 rounded-full flex items-center justify-center mx-auto">
                 <svg class="w-7 h-7 sm:w-8 sm:h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
@@ -162,7 +162,7 @@ class="w-full flex flex-col gap-3.5 sm:gap-5 select-none">
             @endif
         </div>
     @else
-        <div class="space-y-3 sm:space-y-4 pb-8 sm:pb-12">
+        <div class="space-y-4 sm:space-y-6 pt-2 sm:pt-4 pb-12 sm:pb-16">
             @foreach($agendas as $agenda)
                 @php
                     $nowTime = \Carbon\Carbon::now()->format('H:i:s');
@@ -186,7 +186,7 @@ class="w-full flex flex-col gap-3.5 sm:gap-5 select-none">
                 @endphp
 
                 <div x-show="activeTab === 'semua' || activeTab === '{{ $tabCategory }}'" x-transition
-                     class="bg-white rounded-xl sm:rounded-2xl md:rounded-[22px] p-3 sm:p-4 transition-all space-y-2 sm:space-y-2.5 shadow-sm border border-[#d4d1f5]/80 hover:border-[#1b3bbb]">
+                     class="bg-white rounded-xl sm:rounded-2xl md:rounded-[22px] p-3.5 sm:p-5 transition-all space-y-2 sm:space-y-3 border border-[#1b3bbb] hover:border-[#09103c]">
                     
                     <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 sm:gap-3 border-b border-slate-100 pb-2.5 sm:pb-3">
                         <div class="flex flex-wrap items-center gap-1.5 sm:gap-2">
