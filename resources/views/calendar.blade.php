@@ -131,7 +131,7 @@
         </div>
 
         <!-- Today's Highlights Panel -->
-        <div class="bg-slate-50/70 border border-[#d4d1f5]/60 rounded-3xl p-4 sm:p-5 shadow-xs flex-1 flex flex-col min-h-0">
+        <div class="bg-slate-50/70 border border-[#d4d1f5]/60 rounded-3xl p-4 sm:p-5 shadow-xs flex flex-col min-h-0 max-h-full">
             <div class="flex items-center justify-between shrink-0 mb-3 sm:mb-4">
                 <h3 class="text-xs font-bold uppercase tracking-wider text-[#2e2552]">Kegiatan Hari Ini</h3>
                 <span class="text-[10px] bg-[#2e2552]/10 text-[#2e2552] px-2.5 py-0.5 rounded-full border border-[#2e2552]/20 font-bold">
@@ -139,7 +139,7 @@
                 </span>
             </div>
             
-            <div class="space-y-3 flex-1 min-h-0 overflow-y-auto pr-1">
+            <div class="space-y-3 min-h-0 overflow-y-auto pr-1">
                 @forelse($todayAgendas as $ta)
                     <div class="p-3 bg-white border border-[#d4d1f5]/40 rounded-2xl hover:border-[#8e88dd]/40 transition-all duration-200 shadow-2xs">
                         <div class="flex items-center justify-between gap-2">
@@ -147,7 +147,7 @@
                             @if($ta->singkatan_bidang === 'Semua')
                                 <span class="text-[9px] px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-700 border border-emerald-200 font-bold">Semua</span>
                             @else
-                                <span class="text-[9px] px-2 py-0.5 rounded bg-[#2e2552]/10 text-[#2e2552] font-semibold max-w-[130px] truncate inline-block align-middle" title="{{ $ta->singkatan_bidang }}">{{ \Illuminate\Support\Str::limit($ta->singkatan_bidang, 16, '...') }}</span>
+                                <span class="text-[9px] px-2 py-0.5 rounded bg-[#2e2552]/10 text-[#2e2552] font-semibold max-w-[180px] truncate inline-block align-middle" title="{{ $ta->singkatan_bidang }}">{{ $ta->singkatan_bidang }}</span>
                             @endif
                         </div>
                         <h4 class="text-xs font-bold text-[#2e2552] mt-1.5 line-clamp-1">{{ $ta->judul }}</h4>
@@ -168,22 +168,22 @@
                         @endif
                     </div>
                 @empty
-                    <p class="text-xs text-slate-400 text-center py-4 italic">Tidak ada agenda untuk hari ini.</p>
+                    <p class="text-xs text-slate-400 text-center py-2 italic">Tidak ada agenda untuk hari ini.</p>
                 @endforelse
-            </div>
 
-            <!-- Quick Add Agenda Button (Secretaries & Admin Subbag/Bidang Only) -->
-            @if(Auth::user()->isSekretarisMaster() || Auth::user()->isSekretarisBidang())
-                <div class="shrink-0 pt-3">
-                    <button @click="openAddModal = true; selectedDate = '{{ $selectedDate->toDateString() }}'; selectedTime = '07:15'" 
-                            class="w-full py-2.5 bg-[#2e2552] hover:bg-[#3d326a] active:scale-[0.98] text-white font-bold rounded-2xl text-xs transition-all duration-200 shadow-md shadow-[#2e2552]/20 flex items-center justify-center gap-2 cursor-pointer">
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
-                        </svg>
-                        <span>Tambah Agenda Baru</span>
-                    </button>
-                </div>
-            @endif
+                <!-- Quick Add Agenda Button (Secretaries & Admin Subbag/Bidang Only) -->
+                @if(Auth::user()->isSekretarisMaster() || Auth::user()->isSekretarisBidang())
+                    <div class="pt-1">
+                        <button @click="openAddModal = true; selectedDate = '{{ $selectedDate->toDateString() }}'; selectedTime = '07:15'" 
+                                class="w-full py-2.5 bg-[#1b3bbb] hover:bg-[#09103c] active:scale-[0.98] text-white font-bold rounded-2xl text-xs transition-all duration-200 shadow-md shadow-[#1b3bbb]/20 flex items-center justify-center gap-2 cursor-pointer">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
+                            </svg>
+                            <span>Tambah Agenda Baru</span>
+                        </button>
+                    </div>
+                @endif
+            </div>
         </div>
     </div>
 
@@ -633,10 +633,27 @@
                     kadinUser: {{ json_encode($kadinUserData) }},
                     kadinTarget: false,
                     bidangsUserData: {{ json_encode($bidangsUserData) }},
+                    currentUserId: "{{ Auth::id() }}",
                     selectedParticipants: [],
                     participantModalOpen: false,
                     searchParticipant: "",
                     isDirty: false,
+
+                    isPimpinan(user) {
+                        if (!user) return false;
+                        let r = user.role;
+                        let j = (user.jabatan || "").toLowerCase();
+                        return r === "ketua_bidang" || r === "ketua_master" || r === "sekretaris_master" || j.includes("kepala") || j.includes("kabid") || j.includes("kasubbag") || j.includes("kadin") || j.includes("sekdin");
+                    },
+
+                    isNotulis(user) {
+                        if (!user) return false;
+                        return String(user.id) === String(this.currentUserId);
+                    },
+
+                    isMandatoryUser(user) {
+                        return this.isPimpinan(user) || this.isNotulis(user);
+                    },
 
                     init() {
                         this.syncParticipants();
@@ -700,13 +717,27 @@
 
                     filteredUsers(users) {
                         if (!users || !Array.isArray(users)) return [];
-                        if (!this.searchParticipant || !this.searchParticipant.trim()) return users;
-                        let q = this.searchParticipant.toLowerCase().trim();
-                        return users.filter(u => 
-                            (u.name && String(u.name).toLowerCase().includes(q)) || 
-                            (u.jabatan && String(u.jabatan).toLowerCase().includes(q)) ||
-                            (u.nip && String(u.nip).toLowerCase().includes(q))
-                        );
+                        let list = users;
+                        if (this.searchParticipant && this.searchParticipant.trim()) {
+                            let q = this.searchParticipant.toLowerCase().trim();
+                            list = users.filter(u => 
+                                (u.name && String(u.name).toLowerCase().includes(q)) || 
+                                (u.jabatan && String(u.jabatan).toLowerCase().includes(q)) ||
+                                (u.nip && String(u.nip).toLowerCase().includes(q))
+                            );
+                        }
+                        return [...list].sort((a, b) => {
+                            let aPimpinan = this.isPimpinan(a) ? 2 : 0;
+                            let bPimpinan = this.isPimpinan(b) ? 2 : 0;
+                            let aNotulis = this.isNotulis(a) ? 1 : 0;
+                            let bNotulis = this.isNotulis(b) ? 1 : 0;
+                            let aScore = aPimpinan + aNotulis;
+                            let bScore = bPimpinan + bNotulis;
+                            if (aScore !== bScore) {
+                                return bScore - aScore;
+                            }
+                            return (a.name || "").localeCompare(b.name || "");
+                        });
                     },
 
                     get visibleBidangs() {
@@ -732,15 +763,24 @@
                     syncParticipants() {
                         let selectedBidangIds = (this.bidangs || []).map(String);
                         let activeUserIds = [];
+                        let mandatoryUserIds = [];
                         (this.bidangsUserData || []).forEach(b => {
                             if (selectedBidangIds.includes(String(b.id))) {
                                 (b.users || []).forEach(u => {
-                                    activeUserIds.push(String(u.id));
+                                    let uId = String(u.id);
+                                    activeUserIds.push(uId);
+                                    if (this.isMandatoryUser(u)) {
+                                        mandatoryUserIds.push(uId);
+                                    }
                                 });
                             }
                         });
                         if (this.kadinTarget && this.kadinUserId) {
-                            activeUserIds.push(String(this.kadinUserId));
+                            let kId = String(this.kadinUserId);
+                            activeUserIds.push(kId);
+                            if (this.kadinUser && this.isMandatoryUser(this.kadinUser)) {
+                                mandatoryUserIds.push(kId);
+                            }
                         }
                         let currentSelected = (this.selectedParticipants || []).map(String);
                         let newSelection = currentSelected.filter(id => activeUserIds.includes(id));
@@ -749,6 +789,14 @@
                                 newSelection.push(id);
                             }
                         });
+                        mandatoryUserIds.forEach(id => {
+                            if (!newSelection.includes(id)) {
+                                newSelection.push(id);
+                            }
+                        });
+                        if (this.currentUserId && activeUserIds.includes(String(this.currentUserId)) && !newSelection.includes(String(this.currentUserId))) {
+                            newSelection.push(String(this.currentUserId));
+                        }
                         this.selectedParticipants = newSelection;
                         if (this.kadinUserId) {
                             this.kadinTarget = this.selectedParticipants.map(String).includes(String(this.kadinUserId));
@@ -760,17 +808,19 @@
                         let b = this.bidangsUserData.find(item => String(item.id) === String(bidangId));
                         if (!b) return;
                         let bUserIds = b.users.map(u => String(u.id));
+                        let mandatoryIds = b.users.filter(u => this.isMandatoryUser(u)).map(u => String(u.id));
                         let currentSelected = this.selectedParticipants.map(String);
-                        let allChecked = bUserIds.every(id => currentSelected.includes(id));
+                        let nonMandatoryIds = bUserIds.filter(id => !mandatoryIds.includes(id));
+                        let allNonMandatoryChecked = nonMandatoryIds.every(id => currentSelected.includes(id));
 
-                        if (!allChecked) {
+                        if (!allNonMandatoryChecked) {
                             bUserIds.forEach(id => {
                                 if (!currentSelected.includes(id)) {
                                     currentSelected.push(id);
                                 }
                             });
                         } else {
-                            currentSelected = currentSelected.filter(id => !bUserIds.includes(id));
+                            currentSelected = currentSelected.filter(id => !bUserIds.includes(id) || mandatoryIds.includes(id));
                         }
                         this.selectedParticipants = currentSelected;
                     },
@@ -943,17 +993,30 @@
                                                 <span class="text-xs font-extrabold text-[#2e2552]" x-text="bidang.nama + ' (' + bidang.singkatan + ')'"></span>
                                             </div>
                                             <button type="button" @click="toggleBidangUsers(bidang.id)" class="text-[11px] font-extrabold text-[#1b3bbb] hover:underline cursor-pointer">
-                                                <span x-text="isBidangAllChecked(bidang.id) ? 'Hapus Centang Semua' : 'Centang Semua'"></span>
+                                                <span x-text="isBidangAllChecked(bidang.id) ? 'Hapus Centang Staf' : 'Centang Semua Staf'"></span>
                                             </button>
                                         </div>
 
                                         <div class="grid grid-cols-1 sm:grid-cols-2 gap-1.5">
                                             <template x-for="user in filteredUsers(bidang.users)" :key="user.id">
-                                                <label class="flex items-start gap-2.5 p-2 bg-[#f8f7ff] hover:bg-indigo-50/50 rounded-xl border border-[#d4d1f5]/60 hover:border-[#1b3bbb] cursor-pointer select-none transition-all">
-                                                    <input type="checkbox" :value="user.id" x-model="selectedParticipants" @change="isDirty = true" class="w-4 h-4 rounded border-slate-300 text-[#1b3bbb] focus:ring-[#1b3bbb] mt-0.5 shrink-0">
+                                                <label class="flex items-start gap-2.5 p-2.5 rounded-xl border select-none transition-all cursor-pointer"
+                                                       :class="isPimpinan(user) 
+                                                                ? 'bg-amber-50/80 border-amber-200/90 hover:border-amber-300' 
+                                                                : (isNotulis(user) 
+                                                                    ? 'bg-indigo-50/80 border-indigo-200/90 hover:border-indigo-300' 
+                                                                    : 'bg-[#f8f7ff] hover:bg-indigo-50/50 border-[#d4d1f5]/60 hover:border-[#1b3bbb]')">
+                                                    
+                                                    <input type="checkbox" 
+                                                           :value="user.id" 
+                                                           x-model="selectedParticipants" 
+                                                           :disabled="isMandatoryUser(user)"
+                                                           @change="isDirty = true" 
+                                                           class="w-4 h-4 rounded border-slate-300 text-[#1b3bbb] focus:ring-[#1b3bbb] mt-0.5 shrink-0"
+                                                           :class="isMandatoryUser(user) ? 'opacity-70 cursor-not-allowed' : ''">
+                                                    
                                                     <div class="min-w-0 flex-1">
                                                         <div class="text-xs font-bold text-[#2e2552] leading-tight truncate" x-text="user.name"></div>
-                                                        <div class="text-[10px] text-[#5a508f] font-medium truncate" x-text="user.jabatan"></div>
+                                                        <div class="text-[10px] text-[#5a508f] font-medium truncate mt-0.5" x-text="user.jabatan"></div>
                                                     </div>
                                                 </label>
                                             </template>
