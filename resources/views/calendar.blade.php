@@ -503,7 +503,7 @@
             </div>
 
             <!-- Form Content -->
-            <form action="{{ route('agenda.store') }}" method="POST" class="p-4 sm:p-5 space-y-3.5 max-h-[82vh] overflow-y-auto">
+            <form action="{{ route('agenda.store') }}" method="POST" class="p-4 sm:p-5 space-y-3.5 max-h-[85vh] overflow-y-auto no-scrollbar">
                 @csrf
 
                 <!-- Title & Category Row -->
@@ -826,7 +826,7 @@
                             </label>
                         @endif
 
-                        <div class="grid grid-cols-1 gap-1 max-h-[180px] overflow-y-auto pr-1">
+                        <div class="grid grid-cols-1 gap-1 max-h-[190px] overflow-y-auto pr-1">
                             <!-- Checkbox Kepala Dinas (Kadin) -->
                             <label class="flex items-center justify-between px-2.5 py-1.5 rounded-xl border border-transparent hover:border-[#d4d1f5] hover:bg-white transition-all cursor-pointer select-none">
                                 <div class="flex items-center gap-2">
@@ -891,7 +891,7 @@
                             </div>
 
                             <!-- Body Modal Kelola Peserta -->
-                            <div class="p-4 sm:p-5 overflow-y-auto space-y-4 flex-1 bg-slate-50/50">
+                            <div class="p-4 sm:p-5 overflow-y-auto no-scrollbar space-y-4 flex-1 bg-slate-50/50">
                                 <!-- Search Bar -->
                                 <div class="relative">
                                     <input type="text" x-model="searchParticipant" placeholder="Cari nama, NIP, atau jabatan peserta..." 
