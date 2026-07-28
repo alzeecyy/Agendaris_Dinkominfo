@@ -651,6 +651,17 @@ class NotulensiController extends Controller
             ];
         }
 
+        $user = Auth::user();
+        if ($user && $user->isKetuaMaster() && $user->isApproverOfAgenda($agenda)) {
+            return (object) [
+                'jabatan' => $user->jabatan ?? 'Kepala Dinas Komunikasi dan Informatika',
+                'sub_jabatan' => 'Kabupaten Banyumas',
+                'name' => $user->name,
+                'nip' => $user->nip,
+                'is_lintas_dinas' => true,
+            ];
+        }
+
         // Preview before approval: Resolve expected Kasubag / Kabid / Sekdin
         $creator = $agenda->sekretaris;
         $creatorBidangId = $creator?->bidang_id;

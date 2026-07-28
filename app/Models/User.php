@@ -208,22 +208,29 @@ class User extends Authenticatable
             return true;
         }
 
-        // If specific meeting_participants are saved for this agenda, check if user is explicitly invited
-        if ($agenda->participants()->exists()) {
-            return $agenda->participants()->where('users.id', $this->id)->exists();
-        }
-
         // Sekretaris Dinas (Sekdin) has management access across agency agendas
         if ($this->isSekretarisMaster()) {
             return true;
         }
 
-        // Kepala Dinas (ketua_master) has access if rapat is Lintas Dinas (semua_orang), created by Sekdin, or explicitly added in participants
+        // Kepala Dinas (ketua_master) has access IF:
+        // 1. Agenda is Lintas Dinas (semua_orang)
+        // 2. Or if meeting_participants exist, Kepala Dinas is explicitly included
+        // 3. Or if no specific meeting_participants exist, agenda was created by Sekretariat Dinas
         if ($this->isKetuaMaster()) {
-            if ($agenda->sekretaris?->isSekretarisMaster()) {
+            if (in_array('semua_orang', $hakAkses)) {
                 return true;
             }
-            return false;
+            if ($agenda->participants()->exists()) {
+                return $agenda->participants()->where('users.id', $this->id)->exists();
+            }
+            $creator = $agenda->sekretaris;
+            return $creator && ($creator->isSekretarisMaster() || ($creator->bidang && (strcasecmp($creator->bidang->singkatan, 'sekretariat') === 0 || strcasecmp($creator->bidang->nama, 'sekretariat') === 0)));
+        }
+
+        // If specific meeting_participants are saved for this agenda, check if user is explicitly invited
+        if ($agenda->participants()->exists()) {
+            return $agenda->participants()->where('users.id', $this->id)->exists();
         }
 
         // Check if user's bidang_id is explicitly in target hak_akses
@@ -267,9 +274,10 @@ class User extends Authenticatable
     /**
      * Checks if this user has authority to APPROVE and SIGN (TTD) an agenda's notulensi.
      * Rules:
+     * - Kepala Dinas: Can ONLY approve & sign agendas created by Sekretariat Dinas (read-only for all others).
      * - Subbagian (Umum, Keuangan, Perencanaan): Can be approved by Kasubag OR Sekdin.
-     * - Bidang (IKP, Aptika, etc.): Can be approved by Kabid, Sekdin, or Kadis.
-     * - Lintas Dinas: Can be approved by Kadis or Sekdin.
+     * - Bidang (IKP, Aptika, etc.): Can be approved by Kabid or Sekdin.
+     * - Lintas Dinas: Can be approved by Sekdin or Kadis (if created by Sekdin).
      */
     public function isApproverOfAgenda(Agenda $agenda): bool
     {
@@ -277,14 +285,32 @@ class User extends Authenticatable
             return false;
         }
 
-        // 1. Kepala Dinas (ketua_master) is View Only (terima beres), so they do not approve/sign
-        if ($this->isKetuaMaster()) {
-            return false;
-        }
-
         $creator = $agenda->sekretaris;
         $creatorBidangId = $creator?->bidang_id;
         $hakAkses = $agenda->hak_akses ?? [];
+
+        // Check if agenda was created by Sekretariat Dinas (Sekretaris Master / Sekretariat bidang)
+        $isCreatedBySekretariat = false;
+        if ($creator) {
+            if ($creator->isSekretarisMaster()) {
+                $isCreatedBySekretariat = true;
+            } elseif ($creator->bidang) {
+                $singkatan = strtolower($creator->bidang->singkatan ?? '');
+                $nama = strtolower($creator->bidang->nama ?? '');
+                if ($singkatan === 'sekretariat' || $nama === 'sekretariat') {
+                    $isCreatedBySekretariat = true;
+                }
+            }
+        }
+
+        // 1. Kepala Dinas (ketua_master):
+        // Only allowed to review & approve if user has access to the agenda AND the agenda was created by Sekretariat Dinas
+        if ($this->isKetuaMaster()) {
+            if (!$this->hasAccessToAgenda($agenda)) {
+                return false;
+            }
+            return $isCreatedBySekretariat;
+        }
 
         // Check if agenda belongs to Sekretariat or a Subbagian under Sekretariat
         $isSubbagOrSekretariat = false;

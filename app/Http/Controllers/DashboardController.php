@@ -640,7 +640,7 @@ class DashboardController extends Controller
         });
 
         // Filter access directly at database level for optimal performance
-        if (!$user->isSekretarisMaster() && !$user->isSekretariat()) {
+        if (!$user->isSekretarisMaster() && !$user->isKetuaMaster() && !$user->isSekretariat()) {
             $query->where(function($q) use ($user) {
                 $q->whereHas('participants', function($pq) use ($user) {
                     $pq->where('users.id', $user->id);
