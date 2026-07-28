@@ -989,34 +989,34 @@
                 </div>
 
                 <!-- Presensi Toggle & Action Footer combined in bottom area -->
-                <div class="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-2.5 border-t border-[#d4d1f5]/60 pt-3">
-                    <div class="flex items-center justify-between p-2.5 px-3.5 bg-gradient-to-r from-[#f8f7ff] to-[#f3f2fe] border border-[#d4d1f5] rounded-xl grow">
-                        <div class="flex items-center gap-2">
-                            <svg class="w-4 h-4 text-[#1b3bbb] shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <div class="flex items-center justify-between gap-2 border-t border-[#d4d1f5]/60 pt-3 shrink-0">
+                    <div class="flex items-center justify-between p-2 px-3 bg-gradient-to-r from-[#f8f7ff] to-[#f3f2fe] border border-[#d4d1f5] rounded-xl flex-1 min-w-0">
+                        <div class="flex items-center gap-1.5 min-w-0">
+                            <svg class="w-3.5 h-3.5 text-[#1b3bbb] shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
                             </svg>
-                            <label for="butuh_presensi" class="text-xs font-bold text-[#2e2552] cursor-pointer">Memerlukan Presensi Digital?</label>
+                            <label for="butuh_presensi" class="text-[11px] sm:text-xs font-bold text-[#2e2552] cursor-pointer whitespace-nowrap truncate">Memerlukan Presensi Digital?</label>
                         </div>
-                        <label class="relative inline-flex items-center cursor-pointer select-none ml-2 shrink-0" x-data="{ checked: true }">
+                        <label class="relative inline-flex items-center cursor-pointer select-none ml-1.5 shrink-0" x-data="{ checked: true }">
                             <input type="checkbox" name="butuh_presensi" id="butuh_presensi" :checked="checked" value="1" class="sr-only">
                             <div @click="checked = !checked" 
                                  :style="checked ? 'background-color: #1b3bbb !important;' : 'background-color: #cbd5e1 !important;'"
-                                 class="w-10 h-5.5 rounded-full p-0.5 transition-all duration-200 relative flex items-center cursor-pointer shadow-inner">
-                                <div :style="checked ? 'transform: translateX(18px) !important; background-color: #ffffff !important;' : 'transform: translateX(0px) !important; background-color: #ffffff !important;'"
-                                     class="w-4.5 h-4.5 rounded-full shadow-md transition-transform duration-200 border border-slate-200"></div>
+                                 class="w-9 h-5 rounded-full p-0.5 transition-all duration-200 relative flex items-center cursor-pointer shadow-inner shrink-0">
+                                <div :style="checked ? 'transform: translateX(16px) !important; background-color: #ffffff !important;' : 'transform: translateX(0px) !important; background-color: #ffffff !important;'"
+                                     class="w-4 h-4 rounded-full shadow-md transition-transform duration-200 border border-slate-200"></div>
                             </div>
                         </label>
                     </div>
 
-                    <div class="flex items-center justify-end gap-2 shrink-0">
+                    <div class="flex items-center justify-end gap-1.5 shrink-0">
                         <button type="button" @click="openAddModal = false"
-                                class="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-[#2e2552] text-xs font-bold rounded-xl transition-all active:scale-[0.98]">
+                                class="px-3.5 py-2 bg-slate-100 hover:bg-slate-200 text-[#2e2552] text-xs font-bold rounded-xl transition-all active:scale-[0.98] whitespace-nowrap">
                             Batalkan
                         </button>
                         <button type="submit"
-                                class="px-5 py-2 bg-[#1b3bbb] hover:bg-[#09103c] text-white text-xs font-extrabold rounded-xl shadow-md shadow-[#1b3bbb]/20 transition-all active:scale-[0.98] flex items-center gap-1.5 cursor-pointer">
+                                class="px-4 py-2 bg-[#1b3bbb] hover:bg-[#09103c] text-white text-xs font-extrabold rounded-xl shadow-md shadow-[#1b3bbb]/20 transition-all active:scale-[0.98] flex items-center gap-1.5 cursor-pointer whitespace-nowrap">
                             <span>Simpan Agenda</span>
-                            <svg class="w-4 h-4 text-indigo-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <svg class="w-3.5 h-3.5 text-indigo-200 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
                             </svg>
                         </button>
