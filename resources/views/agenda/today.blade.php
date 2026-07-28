@@ -267,8 +267,11 @@ class="w-full flex flex-col gap-3.5 sm:gap-5 select-none">
                             @endif
                         </div>
 
-                        <a href="{{ route('agenda.show', $agenda->id) }}" class="text-[11px] sm:text-xs font-bold text-[#1b3bbb] hover:underline flex items-center gap-1">
-                            <span>Detail Lengkap &rarr;</span>
+                        <a href="{{ route('agenda.show', $agenda->id) }}" class="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-white border border-[#d4d1f5] text-[11px] sm:text-xs font-bold text-[#1b3bbb] hover:bg-indigo-50/50 hover:border-[#1b3bbb]/40 transition-all shadow-2xs shrink-0">
+                            <span>Detail Lengkap</span>
+                            <svg class="w-3.5 h-3.5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path>
+                            </svg>
                         </a>
                     </div>
 
