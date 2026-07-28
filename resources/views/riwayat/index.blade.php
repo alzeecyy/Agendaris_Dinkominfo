@@ -229,26 +229,29 @@ class="space-y-6">
             </div>
         </div>
 
-        <div class="overflow-x-auto">
-            <table class="w-full text-left text-[10.5px] sm:text-sm text-[#2e2552]">
-                <thead class="bg-[#ebf2ff] text-[#1b3bbb] border-y border-[#bfd5ff] select-none">
+        <div class="overflow-x-auto rounded-2xl border border-[#d4d1f5]/60">
+            <table class="w-full text-left text-xs text-[#2e2552]">
+                <thead class="bg-[#ebf2ff] text-[#1b3bbb] border-b border-[#d4d1f5]/80 select-none">
                     <tr>
-                        <th class="py-3 px-3 sm:px-4 text-[10px] sm:text-xs font-black uppercase tracking-wider">Nama Agenda Kegiatan</th>
-                        <th class="py-3 px-3 sm:px-4 text-[10px] sm:text-xs font-black uppercase tracking-wider text-center">Kategori</th>
-                        <th class="py-3 px-3 sm:px-4 text-[10px] sm:text-xs font-black uppercase tracking-wider whitespace-nowrap">Tanggal & Jam</th>
-                        <th class="py-3 px-3 sm:px-4 text-[10px] sm:text-xs font-black uppercase tracking-wider">Lokasi</th>
-                        <th class="py-3 px-3 sm:px-4 text-[10px] sm:text-xs font-black uppercase tracking-wider text-center leading-tight">Status<br class="hidden sm:inline"> Kehadiran</th>
-                        <th class="py-3 px-3 sm:px-4 text-[10px] sm:text-xs font-black uppercase tracking-wider text-center whitespace-nowrap">Notulensi</th>
+                        <th class="py-3.5 px-4 sm:px-5 text-[10.5px] sm:text-xs font-extrabold uppercase tracking-wider text-[#1b3bbb]">Nama Agenda Kegiatan</th>
+                        <th class="py-3.5 px-4 sm:px-5 text-[10.5px] sm:text-xs font-extrabold uppercase tracking-wider text-[#1b3bbb] text-center">Kategori</th>
+                        <th class="py-3.5 px-4 sm:px-5 text-[10.5px] sm:text-xs font-extrabold uppercase tracking-wider text-[#1b3bbb] whitespace-nowrap">Tanggal & Jam</th>
+                        <th class="py-3.5 px-4 sm:px-5 text-[10.5px] sm:text-xs font-extrabold uppercase tracking-wider text-[#1b3bbb]">Lokasi</th>
+                        <th class="py-3.5 px-4 sm:px-5 text-[10.5px] sm:text-xs font-extrabold uppercase tracking-wider text-[#1b3bbb] text-center leading-tight whitespace-nowrap">
+                            <span class="block">STATUS</span>
+                            <span class="block">KEHADIRAN</span>
+                        </th>
+                        <th class="py-3.5 px-4 sm:px-5 text-[10.5px] sm:text-xs font-extrabold uppercase tracking-wider text-[#1b3bbb] text-center whitespace-nowrap">Notulensi</th>
                     </tr>
                 </thead>
-                <tbody class="divide-y divide-[#d4d1f5]/30">
+                <tbody class="divide-y divide-[#d4d1f5]/40 bg-white">
                     <!-- Client-side Empty State for filters -->
                     <tr x-show="filteredAgendas.length === 0" class="hover:bg-transparent">
                         <td colspan="6" class="py-8 px-4 text-center">
                             <div class="space-y-2">
                                 <p class="text-xs text-slate-500 font-medium">Tidak ada riwayat kegiatan yang cocok dengan kriteria filter.</p>
                                 <button type="button" @click="searchQuery = ''; filterKategori = ''; filterTanggal = ''; filterStatus = ''; filterNotulensiStatus = '';" 
-                                        class="px-3.5 py-1.5 bg-indigo-50 hover:bg-indigo-100 text-[#1b3bbb] text-xs font-bold rounded-xl border border-indigo-200 transition-all inline-flex items-center gap-1.5">
+                                        class="px-3.5 py-1.5 bg-indigo-50 hover:bg-indigo-100 text-[#1b3bbb] text-xs font-bold rounded-xl border border-indigo-200 transition-all inline-flex items-center gap-1.5 cursor-pointer">
                                     <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path></svg>
                                     <span>Reset Filter (Tampilkan Semua)</span>
                                 </button>
@@ -259,52 +262,52 @@ class="space-y-6">
                         <tr class="agenda-row hover:bg-[#f8f7ff] cursor-pointer transition-colors"
                             onclick="if (!event.target.closest('a')) { window.loadPage('{{ route('agenda.show', $item->id) }}', this) }"
                             x-show="matchesFilter('{{ addslashes($item->judul) }}', '{{ $item->kategori }}', '{{ $item->tanggal->toDateString() }}', '{{ $item->status_kehadiran }}', '{{ $item->notulensi_status }}') && isAgendaVisible({{ $item->id }})">
-                            <td class="py-2 sm:py-4 px-2 sm:px-4 font-bold text-[#2e2552]">
-                                <a href="{{ route('agenda.show', $item->id) }}" class="hover:text-[#8e88dd] transition-colors leading-snug">
+                            <td class="py-3.5 px-4 sm:px-5 font-bold text-[#09103c]">
+                                <a href="{{ route('agenda.show', $item->id) }}" class="hover:text-[#1b3bbb] transition-colors leading-snug">
                                     {{ $item->judul }}
                                 </a>
                             </td>
-                            <td class="py-2 sm:py-4 px-2 sm:px-4 text-center whitespace-nowrap">
+                            <td class="py-3.5 px-4 sm:px-5 text-center whitespace-nowrap">
                                 @php
                                     $badgeStyles = [
-                                        'rapat' => 'bg-rose-50 text-rose-700 border-rose-200',
-                                        'sosialisasi' => 'bg-blue-50 text-blue-700 border-blue-200',
-                                        'pelatihan' => 'bg-emerald-50 text-emerald-700 border-emerald-200',
-                                        'kegiatan_lainnya' => 'bg-slate-100 text-slate-700 border-slate-200',
+                                        'rapat' => 'bg-rose-50 text-rose-600 border-rose-200/80',
+                                        'sosialisasi' => 'bg-blue-50 text-blue-600 border-blue-200/80',
+                                        'pelatihan' => 'bg-emerald-50 text-emerald-600 border-emerald-200/80',
+                                        'kegiatan_lainnya' => 'bg-slate-100 text-slate-600 border-slate-200/80',
                                     ];
                                     $kategoriLabels = [
-                                        'rapat' => 'Rapat',
-                                        'sosialisasi' => 'Sosialisasi',
-                                        'pelatihan' => 'Pelatihan',
-                                        'kegiatan_lainnya' => 'Kegiatan Lainnya',
+                                        'rapat' => 'RAPAT',
+                                        'sosialisasi' => 'SOSIALISASI',
+                                        'pelatihan' => 'PELATIHAN',
+                                        'kegiatan_lainnya' => 'KEGIATAN LAINNYA',
                                     ];
                                 @endphp
-                                <span class="inline-block text-[8.5px] sm:text-[10px] px-2 py-0.5 font-bold uppercase rounded-md sm:rounded-lg border 
-                                    {{ $badgeStyles[$item->kategori] ?? 'bg-slate-100 text-slate-700 border-slate-200' }}">
-                                    {{ $kategoriLabels[$item->kategori] ?? $item->kategori }}
+                                <span class="inline-block text-[9.5px] sm:text-[10px] px-2.5 py-0.5 font-extrabold uppercase rounded-full border 
+                                    {{ $badgeStyles[$item->kategori] ?? 'bg-slate-100 text-slate-600 border-slate-200' }}">
+                                    {{ $kategoriLabels[$item->kategori] ?? strtoupper($item->kategori) }}
                                 </span>
                             </td>
-                            <td class="py-2 sm:py-4 px-2 sm:px-4 text-[10px] sm:text-xs font-semibold">
-                                <div>{{ $item->tanggal->translatedFormat('d M Y') }}</div>
-                                <div class="text-[#8e88dd] mt-0.5 font-bold whitespace-nowrap">{{ substr($item->jam_mulai, 0, 5) }} - {{ substr($item->jam_selesai, 0, 5) }}</div>
+                            <td class="py-3.5 px-4 sm:px-5 text-xs font-semibold">
+                                <div class="text-[#2e2552] font-bold">{{ $item->tanggal->translatedFormat('d M Y') }}</div>
+                                <div class="text-[#1b3bbb] font-extrabold mt-0.5 whitespace-nowrap">{{ substr($item->jam_mulai, 0, 5) }} - {{ substr($item->jam_selesai, 0, 5) }}</div>
                             </td>
-                            <td class="py-2 sm:py-4 px-2 sm:px-4 text-[10px] sm:text-xs text-[#5a508f] font-medium truncate max-w-[120px] sm:max-w-[150px]" title="{{ $item->lokasi }}">
+                            <td class="py-3.5 px-4 sm:px-5 text-xs text-slate-600 font-medium truncate max-w-[140px] sm:max-w-[180px]" title="{{ $item->lokasi }}">
                                 {{ $item->lokasi }}
                             </td>
-                            <td class="py-2 sm:py-4 px-2 sm:px-4 text-center text-[10px] sm:text-xs">
+                            <td class="py-3.5 px-4 sm:px-5 text-center text-xs">
                                 @if($item->status_kehadiran === 'hadir')
-                                    <span class="inline-block px-2 py-0.5 sm:px-2.5 sm:py-1 rounded-md sm:rounded-lg bg-emerald-50 text-emerald-600 border border-emerald-200 font-bold">Hadir ✓</span>
+                                    <span class="inline-block px-2.5 py-1 rounded-xl bg-emerald-50 text-emerald-600 border border-emerald-200 font-bold">Hadir ✓</span>
                                 @elseif($item->status_kehadiran === 'izin')
-                                    <span class="inline-block px-2 py-0.5 sm:px-2.5 sm:py-1 rounded-md sm:rounded-lg bg-amber-50 text-amber-600 border border-amber-200 font-bold">Izin</span>
+                                    <span class="inline-block px-2.5 py-1 rounded-xl bg-amber-50 text-amber-600 border border-amber-200 font-bold">Izin</span>
                                 @elseif($item->status_kehadiran === 'sakit')
-                                    <span class="inline-block px-2 py-0.5 sm:px-2.5 sm:py-1 rounded-md sm:rounded-lg bg-rose-50 text-rose-600 border border-rose-200 font-bold">Sakit</span>
+                                    <span class="inline-block px-2.5 py-1 rounded-lg bg-rose-50 text-rose-600 border border-rose-200 font-bold">Sakit</span>
                                 @elseif($item->status_kehadiran === 'alfa')
-                                    <span class="inline-block px-2 py-0.5 sm:px-2.5 sm:py-1 rounded-md sm:rounded-lg bg-red-50 text-red-600 border border-red-200 font-extrabold">Alfa</span>
+                                    <span class="inline-block px-2.5 py-1 rounded-xl bg-red-50 text-red-600 border border-red-200 font-extrabold">Alfa</span>
                                 @else
-                                    <span class="inline-block px-2 py-0.5 sm:px-2.5 sm:py-1 rounded-md sm:rounded-lg bg-slate-100 text-slate-400 border border-slate-200 font-semibold">-</span>
+                                    <span class="inline-block px-3 py-0.5 rounded-xl bg-slate-100/80 text-slate-400 border border-slate-200/60 font-bold text-xs">-</span>
                                 @endif
                             </td>
-                            <td class="py-3 px-3 text-center text-xs whitespace-nowrap">
+                            <td class="py-3.5 px-4 sm:px-5 text-center text-xs whitespace-nowrap">
                                 @if($item->kategori !== 'rapat')
                                     <span class="text-slate-400 font-medium">-</span>
                                 @elseif($item->notulensi_status === 'disahkan')
@@ -331,7 +334,7 @@ class="space-y-6">
                                         <span>Tinjau Notulensi &rarr;</span>
                                     </a>
                                 @else
-                                    <span class="inline-block px-2 py-0.5 rounded-md bg-slate-100/70 text-slate-400 border border-slate-200/50 text-[9.5px] font-semibold italic">Belum Disahkan</span>
+                                    <span class="inline-block px-2.5 py-1 rounded-xl bg-slate-100/70 text-slate-400 border border-slate-200/50 text-[11px] font-medium italic">Belum Disahkan</span>
                                 @endif
                             </td>
                         </tr>
