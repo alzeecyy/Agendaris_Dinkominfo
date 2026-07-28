@@ -746,7 +746,7 @@ class NotulensiController extends Controller
                               "   - [Tuliskan istilah ambigu/meragukan atau ketik 'Tidak ada' jika semua data sudah jelas].\n\n" .
                               "Berikut teks sumber (transkrip / catatan mentah rapat):\n\n" . $transcript;
 
-                $response = \Illuminate\Support\Facades\Http::timeout(45)->post("https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash:generateContent?key=" . $apiKey, [
+                $response = \Illuminate\Support\Facades\Http::withoutVerifying()->timeout(45)->post("https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=" . $apiKey, [
                     'contents' => [
                         [
                             'parts' => [
