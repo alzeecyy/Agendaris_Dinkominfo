@@ -172,7 +172,7 @@ class="space-y-6">
                 <!-- Bidang Filter -->
                 <div class="relative w-full">
                     <select x-model="filterBidang" 
-                            class="w-full pl-8 pr-8 py-2 bg-white border border-[#d4d1f5]/80 rounded-xl text-xs text-[#2e2552] font-semibold appearance-none cursor-pointer focus:outline-none focus:ring-2 focus:ring-[#1b3bbb] transition-all shadow-2xs truncate">
+                            class="w-full pl-8 pr-8 py-2 bg-white border border-[#d4d1f5]/80 rounded-xl text-xs text-[#2e2552] font-semibold !appearance-none !bg-none [background-image:none] cursor-pointer focus:outline-none focus:ring-2 focus:ring-[#1b3bbb] transition-all shadow-2xs truncate">
                         <option value="">Semua Bidang</option>
                         @foreach($bidangs as $bid)
                             <option value="{{ $bid->id }}">{{ $bid->singkatan }}</option>
@@ -195,7 +195,7 @@ class="space-y-6">
                 <!-- Role Filter -->
                 <div class="relative w-full">
                     <select x-model="filterRole" 
-                            class="w-full pl-8 pr-8 py-2 bg-white border border-[#d4d1f5]/80 rounded-xl text-xs text-[#2e2552] font-semibold appearance-none cursor-pointer focus:outline-none focus:ring-2 focus:ring-[#1b3bbb] transition-all shadow-2xs truncate">
+                            class="w-full pl-8 pr-8 py-2 bg-white border border-[#d4d1f5]/80 rounded-xl text-xs text-[#2e2552] font-semibold !appearance-none !bg-none [background-image:none] cursor-pointer focus:outline-none focus:ring-2 focus:ring-[#1b3bbb] transition-all shadow-2xs truncate">
                         <option value="">Semua Peran/Role</option>
                         <option value="ketua_master">Kepala Dinas (Kadin)</option>
                         <option value="sekretaris_master">Sekretaris Dinas (Sekdin)</option>
@@ -220,7 +220,7 @@ class="space-y-6">
                 <!-- Status Filter -->
                 <div class="relative w-full">
                     <select x-model="filterStatus" 
-                            class="w-full pl-8 pr-8 py-2 bg-white border border-[#d4d1f5]/80 rounded-xl text-xs text-[#2e2552] font-semibold appearance-none cursor-pointer focus:outline-none focus:ring-2 focus:ring-[#1b3bbb] transition-all shadow-2xs truncate">
+                            class="w-full pl-8 pr-8 py-2 bg-white border border-[#d4d1f5]/80 rounded-xl text-xs text-[#2e2552] font-semibold !appearance-none !bg-none [background-image:none] cursor-pointer focus:outline-none focus:ring-2 focus:ring-[#1b3bbb] transition-all shadow-2xs truncate">
                         <option value="">Semua Status</option>
                         <option value="aktif">Aktif</option>
                         <option value="nonaktif">Nonaktif</option>
