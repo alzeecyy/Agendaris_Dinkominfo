@@ -114,6 +114,13 @@
         this.currentPage = 1;
         this.stripeRows();
     },
+    init() {
+        this.$watch('searchQuery', () => this.resetPagination());
+        this.$watch('filterBidang', () => this.resetPagination());
+        this.$watch('filterRole', () => this.resetPagination());
+        this.$watch('filterStatus', () => this.resetPagination());
+        this.stripeRows();
+    },
     stripeRows() {
         this.$nextTick(() => {
             let visibleIndex = 0;
@@ -130,13 +137,6 @@
         });
     }
 }" 
-x-init="
-    $watch('searchQuery', () => resetPagination());
-    $watch('filterBidang', () => resetPagination());
-    $watch('filterRole', () => resetPagination());
-    $watch('filterStatus', () => resetPagination());
-    stripeRows();
-"
 class="space-y-6">
     
     <!-- Title & Add Trigger -->

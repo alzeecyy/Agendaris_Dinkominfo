@@ -98,6 +98,14 @@
         this.currentPage = 1;
         this.stripeRows();
     },
+    init() {
+        this.$watch('searchQuery', () => this.resetPagination());
+        this.$watch('filterKategori', () => this.resetPagination());
+        this.$watch('filterTanggal', () => this.resetPagination());
+        this.$watch('filterStatus', () => this.resetPagination());
+        this.$watch('filterNotulensiStatus', () => this.resetPagination());
+        this.stripeRows();
+    },
     stripeRows() {
         this.$nextTick(() => {
             let visibleIndex = 0;
@@ -113,14 +121,7 @@
             });
         });
     }
-} 
-x-init="
-    $watch('searchQuery', () => resetPagination());
-    $watch('filterKategori', () => resetPagination());
-    $watch('filterTanggal', () => resetPagination());
-    $watch('filterStatus', () => resetPagination());
-    stripeRows();
-"
+}" 
 class="space-y-6">
     <div>
         <h1 class="text-xl font-black text-[#2e2552] tracking-wide">Riwayat Kegiatan & Rapat</h1>
