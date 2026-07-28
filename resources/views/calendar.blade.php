@@ -997,9 +997,14 @@
                             </svg>
                             <label for="butuh_presensi" class="text-xs font-bold text-[#2e2552] cursor-pointer">Memerlukan Presensi Digital?</label>
                         </div>
-                        <label class="relative inline-flex items-center cursor-pointer select-none ml-2 shrink-0">
-                            <input type="checkbox" name="butuh_presensi" id="butuh_presensi" checked value="1" class="sr-only peer">
-                            <div class="w-9 h-5 bg-slate-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:block after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-[#1b3bbb]"></div>
+                        <label class="relative inline-flex items-center cursor-pointer select-none ml-2 shrink-0" x-data="{ checked: true }">
+                            <input type="checkbox" name="butuh_presensi" id="butuh_presensi" :checked="checked" value="1" class="sr-only">
+                            <div @click="checked = !checked" 
+                                 :style="checked ? 'background-color: #1b3bbb !important;' : 'background-color: #cbd5e1 !important;'"
+                                 class="w-10 h-5.5 rounded-full p-0.5 transition-all duration-200 relative flex items-center cursor-pointer shadow-inner">
+                                <div :style="checked ? 'transform: translateX(18px) !important; background-color: #ffffff !important;' : 'transform: translateX(0px) !important; background-color: #ffffff !important;'"
+                                     class="w-4.5 h-4.5 rounded-full shadow-md transition-transform duration-200 border border-slate-200"></div>
+                            </div>
                         </label>
                     </div>
 
