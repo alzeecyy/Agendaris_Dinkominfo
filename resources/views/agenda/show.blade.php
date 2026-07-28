@@ -644,7 +644,15 @@
 
                             <div class="flex items-center justify-between p-3 bg-[#f8f7ff] border border-[#d4d1f5]/40 rounded-2xl">
                                 <span class="text-xs font-bold text-[#2e2552]">Butuh Presensi Digital?</span>
-                                <input type="checkbox" name="butuh_presensi" value="1" {{ $agenda->butuh_presensi ? 'checked' : '' }} class="rounded border-[#d4d1f5] text-[#8e88dd]">
+                                <label class="relative inline-flex items-center cursor-pointer select-none ml-2 shrink-0" x-data="{ checked: {{ $agenda->butuh_presensi ? 'true' : 'false' }} }">
+                                    <input type="checkbox" name="butuh_presensi" :checked="checked" value="1" class="hidden">
+                                    <div @click="checked = !checked" 
+                                         :class="checked ? 'bg-[#1b3bbb]' : 'bg-slate-300'"
+                                         class="w-11 h-6 rounded-full p-0.5 transition-colors duration-200 ease-in-out relative flex items-center cursor-pointer">
+                                        <div :class="checked ? 'translate-x-5' : 'translate-x-0'"
+                                             class="w-5 h-5 rounded-full bg-white shadow-md transform transition-transform duration-200 ease-in-out border border-slate-200"></div>
+                                    </div>
+                                </label>
                             </div>
 
                             <div class="flex items-center justify-end gap-2 border-t border-[#d4d1f5]/40 pt-4">
