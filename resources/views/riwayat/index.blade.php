@@ -86,9 +86,11 @@
             document.querySelectorAll('.agenda-row').forEach(row => {
                 if (row.style.display !== 'none') {
                     if (visibleIndex % 2 === 0) {
-                        row.classList.remove('bg-[#fcfbff]');
+                        row.classList.remove('bg-[#f4f7ff]');
+                        row.classList.add('bg-white');
                     } else {
-                        row.classList.add('bg-[#fcfbff]');
+                        row.classList.remove('bg-white');
+                        row.classList.add('bg-[#f4f7ff]');
                     }
                     visibleIndex++;
                 }
@@ -229,19 +231,19 @@ class="space-y-6">
             </div>
         </div>
 
-        <div class="overflow-x-auto rounded-2xl border border-[#d4d1f5]/60">
+        <div class="overflow-x-auto rounded-2xl border border-[#d4d1f5]/60 shadow-xs">
             <table class="w-full text-left text-xs text-[#2e2552]">
                 <thead class="bg-[#ebf2ff] text-[#1b3bbb] border-b border-[#d4d1f5]/80 select-none">
-                    <tr>
-                        <th class="py-3.5 px-4 sm:px-5 text-[10.5px] sm:text-xs font-extrabold uppercase tracking-wider text-[#1b3bbb]">Nama Agenda Kegiatan</th>
-                        <th class="py-3.5 px-4 sm:px-5 text-[10.5px] sm:text-xs font-extrabold uppercase tracking-wider text-[#1b3bbb] text-center">Kategori</th>
-                        <th class="py-3.5 px-4 sm:px-5 text-[10.5px] sm:text-xs font-extrabold uppercase tracking-wider text-[#1b3bbb] whitespace-nowrap">Tanggal & Jam</th>
-                        <th class="py-3.5 px-4 sm:px-5 text-[10.5px] sm:text-xs font-extrabold uppercase tracking-wider text-[#1b3bbb]">Lokasi</th>
-                        <th class="py-3.5 px-4 sm:px-5 text-[10.5px] sm:text-xs font-extrabold uppercase tracking-wider text-[#1b3bbb] text-center leading-tight whitespace-nowrap">
+                    <tr class="bg-[#ebf2ff]">
+                        <th class="py-3.5 px-4 sm:px-5 bg-[#ebf2ff] text-[10.5px] sm:text-xs font-extrabold uppercase tracking-wider text-[#1b3bbb]">Nama Agenda Kegiatan</th>
+                        <th class="py-3.5 px-4 sm:px-5 bg-[#ebf2ff] text-[10.5px] sm:text-xs font-extrabold uppercase tracking-wider text-[#1b3bbb] text-center">Kategori</th>
+                        <th class="py-3.5 px-4 sm:px-5 bg-[#ebf2ff] text-[10.5px] sm:text-xs font-extrabold uppercase tracking-wider text-[#1b3bbb] whitespace-nowrap">Tanggal & Jam</th>
+                        <th class="py-3.5 px-4 sm:px-5 bg-[#ebf2ff] text-[10.5px] sm:text-xs font-extrabold uppercase tracking-wider text-[#1b3bbb]">Lokasi</th>
+                        <th class="py-3.5 px-4 sm:px-5 bg-[#ebf2ff] text-[10.5px] sm:text-xs font-extrabold uppercase tracking-wider text-[#1b3bbb] text-center leading-tight whitespace-nowrap">
                             <span class="block">STATUS</span>
                             <span class="block">KEHADIRAN</span>
                         </th>
-                        <th class="py-3.5 px-4 sm:px-5 text-[10.5px] sm:text-xs font-extrabold uppercase tracking-wider text-[#1b3bbb] text-center whitespace-nowrap">Notulensi</th>
+                        <th class="py-3.5 px-4 sm:px-5 bg-[#ebf2ff] text-[10.5px] sm:text-xs font-extrabold uppercase tracking-wider text-[#1b3bbb] text-center whitespace-nowrap">Notulensi</th>
                     </tr>
                 </thead>
                 <tbody class="divide-y divide-[#d4d1f5]/40 bg-white">
@@ -259,7 +261,7 @@ class="space-y-6">
                         </td>
                     </tr>
                     @forelse($riwayatData as $item)
-                        <tr class="agenda-row hover:bg-[#f8f7ff] cursor-pointer transition-colors"
+                        <tr class="agenda-row hover:bg-[#f0f4ff] cursor-pointer transition-colors"
                             onclick="if (!event.target.closest('a')) { window.loadPage('{{ route('agenda.show', $item->id) }}', this) }"
                             x-show="matchesFilter('{{ addslashes($item->judul) }}', '{{ $item->kategori }}', '{{ $item->tanggal->toDateString() }}', '{{ $item->status_kehadiran }}', '{{ $item->notulensi_status }}') && isAgendaVisible({{ $item->id }})">
                             <td class="py-3.5 px-4 sm:px-5 font-bold text-[#09103c]">
@@ -302,7 +304,7 @@ class="space-y-6">
                                 @elseif($item->status_kehadiran === 'sakit')
                                     <span class="inline-block px-2.5 py-1 rounded-lg bg-rose-50 text-rose-600 border border-rose-200 font-bold">Sakit</span>
                                 @elseif($item->status_kehadiran === 'alfa')
-                                    <span class="inline-block px-2.5 py-1 rounded-xl bg-red-50 text-red-600 border border-red-200 font-extrabold">Alfa</span>
+                                    <span class="inline-block px-2.5 py-1 rounded-xl bg-rose-50 text-rose-600 border border-rose-200/80 font-bold">Alfa</span>
                                 @else
                                     <span class="inline-block px-3 py-0.5 rounded-xl bg-slate-100/80 text-slate-400 border border-slate-200/60 font-bold text-xs">-</span>
                                 @endif
