@@ -305,7 +305,7 @@ class="w-full flex flex-col gap-3.5 sm:gap-5 select-none">
             @endforeach
 
             @if(Auth::check() && (Auth::user()->isSekretarisMaster() || Auth::user()->isSekretarisBidang()))
-                <div class="pt-3 pb-16 mb-6 flex justify-start">
+                <div class="pt-3 mb-20 sm:mb-24 flex justify-start">
                     <a href="{{ route('calendar', ['open_add' => 1]) }}" 
                        class="px-5 py-2.5 bg-[#1b3bbb] hover:bg-[#09103c] text-white text-xs font-bold rounded-xl shadow-md shadow-[#1b3bbb]/20 transition-all inline-flex items-center gap-2">
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4"></path></svg>
