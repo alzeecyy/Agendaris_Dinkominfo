@@ -424,67 +424,66 @@ class="space-y-6">
     </div>
 
     <!-- MODAL: ADD PEGAWAI -->
-    <div x-show="openAddModal" x-cloak class="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6 bg-slate-950/60 backdrop-blur-md transition-all duration-300">
+    <div x-show="openAddModal" x-cloak class="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-5 bg-slate-950/70 backdrop-blur-md overflow-y-auto transition-all duration-300">
         <div @click.away="openAddModal = false" 
-             class="bg-white border border-slate-200/80 rounded-[28px] w-full max-w-md shadow-2xl overflow-hidden relative text-slate-800"
+             class="bg-white border border-[#d4d1f5] rounded-3xl w-full max-w-md shadow-2xl overflow-hidden relative text-[#2e2552] my-auto flex flex-col"
              x-transition:enter="transition ease-out duration-300 transform"
              x-transition:enter-start="opacity-0 scale-95 translate-y-2"
              x-transition:enter-end="opacity-100 scale-100 translate-y-0"
              x-transition:leave="transition ease-in duration-200 transform"
              x-transition:leave-start="opacity-100 scale-100 translate-y-0"
              x-transition:leave-end="opacity-0 scale-95 translate-y-2">
-            
-            <div class="h-1.5 w-full bg-gradient-to-r from-indigo-500 via-indigo-600 to-violet-600"></div>
 
-            <div class="px-6 pt-5 pb-4 border-b border-slate-100 flex items-center justify-between bg-gradient-to-b from-slate-50/50 to-white">
+            <!-- Modal Header -->
+            <div class="px-5 py-3.5 sm:py-4 bg-gradient-to-r from-[#09103c] via-[#1b3bbb] to-[#09103c] text-white flex items-center justify-between shrink-0">
                 <div class="flex items-center gap-3">
-                    <div class="w-10 h-10 rounded-2xl bg-indigo-50 border border-indigo-100/80 text-indigo-600 flex items-center justify-center shrink-0 shadow-xs">
-                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <div class="p-2 bg-white/10 rounded-xl border border-white/15 shrink-0">
+                        <svg class="w-5 h-5 text-amber-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z"></path>
                         </svg>
                     </div>
                     <div>
-                        <h3 class="text-base font-extrabold text-slate-800 tracking-tight leading-tight">Tambah Pegawai Baru</h3>
-                        <p class="text-xs text-slate-500 font-medium mt-0.5">Daftarkan akun pengguna baru ke sistem</p>
+                        <h3 class="text-base font-extrabold text-white">Tambah Pegawai Baru</h3>
+                        <p class="text-[11px] text-indigo-100 font-medium">Daftarkan akun pengguna baru ke sistem</p>
                     </div>
                 </div>
-                <button @click="openAddModal = false" class="w-8 h-8 rounded-full bg-slate-100/80 hover:bg-slate-200/80 text-slate-400 hover:text-slate-600 transition-all flex items-center justify-center shrink-0">
+                <button @click="openAddModal = false" type="button" class="p-1.5 bg-white/10 hover:bg-rose-500/80 rounded-xl text-white transition-all cursor-pointer shrink-0">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
                     </svg>
                 </button>
             </div>
 
-            <form action="{{ route('admin.users.store') }}" method="POST" class="p-6 space-y-4">
+            <form action="{{ route('admin.users.store') }}" method="POST" class="p-5 space-y-3.5">
                 @csrf
-                <div class="space-y-1.5">
-                    <label for="name" class="block text-[11px] font-bold text-slate-600 uppercase tracking-wider">Nama Lengkap <span class="text-rose-500 font-bold">*</span></label>
+                <div class="space-y-1">
+                    <label for="name" class="block text-[11px] font-bold text-[#5a508f] uppercase tracking-wider">Nama Lengkap <span class="text-rose-500 font-bold">*</span></label>
                     <input type="text" name="name" id="name" required placeholder="Contoh: Dr. Budi Setiawan" 
-                           class="w-full px-3.5 py-2.5 bg-slate-50/80 hover:bg-slate-50 border border-slate-200 rounded-xl text-slate-800 text-sm placeholder-slate-400 focus:bg-white focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10 transition-all duration-200 font-medium">
+                           class="w-full px-3.5 py-2.5 bg-[#f4f6fc] border border-[#d4d1f5] rounded-xl text-[#2e2552] text-sm placeholder-[#5a508f]/50 font-medium focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#1b3bbb] transition-all">
                 </div>
-                <div class="space-y-1.5">
-                    <label for="nip" class="block text-[11px] font-bold text-slate-600 uppercase tracking-wider">Nomor Induk Pegawai (NIP) <span class="text-rose-500 font-bold">*</span></label>
+                <div class="space-y-1">
+                    <label for="nip" class="block text-[11px] font-bold text-[#5a508f] uppercase tracking-wider">Nomor Induk Pegawai (NIP) <span class="text-rose-500 font-bold">*</span></label>
                     <input type="text" name="nip" id="nip" required placeholder="Contoh: 199001012015011013" 
-                           class="w-full px-3.5 py-2.5 bg-slate-50/80 hover:bg-slate-50 border border-slate-200 rounded-xl text-slate-800 text-sm placeholder-slate-400 focus:bg-white focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10 transition-all duration-200 font-medium">
+                           class="w-full px-3.5 py-2.5 bg-[#f4f6fc] border border-[#d4d1f5] rounded-xl text-[#2e2552] text-sm placeholder-[#5a508f]/50 font-medium focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#1b3bbb] transition-all">
                 </div>
-                <div class="space-y-1.5">
-                    <label for="jabatan" class="block text-[11px] font-bold text-slate-600 uppercase tracking-wider">Jabatan Pegawai <span class="text-rose-500 font-bold">*</span></label>
+                <div class="space-y-1">
+                    <label for="jabatan" class="block text-[11px] font-bold text-[#5a508f] uppercase tracking-wider">Jabatan Pegawai <span class="text-rose-500 font-bold">*</span></label>
                     <input type="text" name="jabatan" id="jabatan" required placeholder="Contoh: Pengelola Integrasi Aplikasi" 
-                           class="w-full px-3.5 py-2.5 bg-slate-50/80 hover:bg-slate-50 border border-slate-200 rounded-xl text-slate-800 text-sm placeholder-slate-400 focus:bg-white focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10 transition-all duration-200 font-medium">
+                           class="w-full px-3.5 py-2.5 bg-[#f4f6fc] border border-[#d4d1f5] rounded-xl text-[#2e2552] text-sm placeholder-[#5a508f]/50 font-medium focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#1b3bbb] transition-all">
                 </div>
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                    <div class="space-y-1.5">
-                        <label for="bidang_id" class="block text-[11px] font-bold text-slate-600 uppercase tracking-wider">Bidang / Subbagian</label>
-                        <select name="bidang_id" id="bidang_id" class="w-full px-3.5 py-2.5 bg-slate-50/80 hover:bg-slate-50 border border-slate-200 rounded-xl text-slate-800 text-sm focus:bg-white focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10 transition-all duration-200 font-medium">
+                    <div class="space-y-1">
+                        <label for="bidang_id" class="block text-[11px] font-bold text-[#5a508f] uppercase tracking-wider">Bidang / Subbagian</label>
+                        <select name="bidang_id" id="bidang_id" class="w-full px-3.5 py-2.5 bg-[#f4f6fc] border border-[#d4d1f5] rounded-xl text-[#2e2552] text-sm font-medium focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#1b3bbb] transition-all cursor-pointer">
                             <option value="" disabled selected>Pilih Bidang / Subbag</option>
                             @foreach($bidangs as $bid)
                                 <option value="{{ $bid->id }}">{{ $bid->singkatan }}</option>
                             @endforeach
                         </select>
                     </div>
-                    <div class="space-y-1.5">
-                        <label for="role" class="block text-[11px] font-bold text-slate-600 uppercase tracking-wider">Role Sistem <span class="text-rose-500 font-bold">*</span></label>
-                        <select name="role" id="role" required class="w-full px-3.5 py-2.5 bg-slate-50/80 hover:bg-slate-50 border border-slate-200 rounded-xl text-slate-800 text-sm focus:bg-white focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10 transition-all duration-200 font-medium">
+                    <div class="space-y-1">
+                        <label for="role" class="block text-[11px] font-bold text-[#5a508f] uppercase tracking-wider">Role Sistem <span class="text-rose-500 font-bold">*</span></label>
+                        <select name="role" id="role" required class="w-full px-3.5 py-2.5 bg-[#f4f6fc] border border-[#d4d1f5] rounded-xl text-[#2e2552] text-sm font-medium focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#1b3bbb] transition-all cursor-pointer">
                             <option value="" disabled selected>Pilih Role</option>
                             <option value="staff">Staff</option>
                             <option value="sekretaris_bidang">Admin Bidang / Subbag</option>
@@ -494,11 +493,11 @@ class="space-y-6">
                         </select>
                     </div>
                 </div>
-                <div class="flex items-center justify-end gap-2.5 border-t border-slate-100 pt-4">
-                    <button type="button" @click="openAddModal = false" class="px-4 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-600 text-xs font-semibold rounded-xl transition-all active:scale-[0.98]">Batalkan</button>
-                    <button type="submit" class="px-5 py-2.5 bg-gradient-to-r from-indigo-600 to-indigo-700 hover:from-indigo-700 hover:to-indigo-800 text-white text-xs font-bold rounded-xl shadow-md shadow-indigo-500/20 hover:shadow-indigo-500/35 transition-all active:scale-[0.98] flex items-center gap-1.5">
+                <div class="flex items-center justify-end gap-2 border-t border-[#d4d1f5]/40 pt-4">
+                    <button type="button" @click="openAddModal = false" class="px-4 py-2.5 bg-slate-100 hover:bg-slate-200 text-[#5a508f] text-xs font-bold rounded-xl transition-all cursor-pointer">Batalkan</button>
+                    <button type="submit" class="px-5 py-2.5 bg-[#1b3bbb] hover:bg-[#152e96] text-white text-xs font-bold rounded-xl shadow-md shadow-[#1b3bbb]/20 transition-all inline-flex items-center gap-1.5 cursor-pointer">
                         <span>Simpan Akun</span>
-                        <svg class="w-4 h-4 text-indigo-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
                         </svg>
                     </button>
@@ -508,65 +507,64 @@ class="space-y-6">
     </div>
 
     <!-- MODAL: EDIT PEGAWAI -->
-    <div x-show="openEditModal" x-cloak class="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6 bg-slate-950/60 backdrop-blur-md transition-all duration-300">
+    <div x-show="openEditModal" x-cloak class="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-5 bg-slate-950/70 backdrop-blur-md overflow-y-auto transition-all duration-300">
         <div @click.away="openEditModal = false" 
-             class="bg-white border border-slate-200/80 rounded-[28px] w-full max-w-md shadow-2xl overflow-hidden relative text-slate-800"
+             class="bg-white border border-[#d4d1f5] rounded-3xl w-full max-w-md shadow-2xl overflow-hidden relative text-[#2e2552] my-auto flex flex-col"
              x-transition:enter="transition ease-out duration-300 transform"
              x-transition:enter-start="opacity-0 scale-95 translate-y-2"
              x-transition:enter-end="opacity-100 scale-100 translate-y-0"
              x-transition:leave="transition ease-in duration-200 transform"
              x-transition:leave-start="opacity-100 scale-100 translate-y-0"
              x-transition:leave-end="opacity-0 scale-95 translate-y-2">
-            
-            <div class="h-1.5 w-full bg-gradient-to-r from-indigo-500 via-indigo-600 to-violet-600"></div>
 
-            <div class="px-6 pt-5 pb-4 border-b border-slate-100 flex items-center justify-between bg-gradient-to-b from-slate-50/50 to-white">
+            <!-- Modal Header -->
+            <div class="px-5 py-3.5 sm:py-4 bg-gradient-to-r from-[#09103c] via-[#1b3bbb] to-[#09103c] text-white flex items-center justify-between shrink-0">
                 <div class="flex items-center gap-3">
-                    <div class="w-10 h-10 rounded-2xl bg-indigo-50 border border-indigo-100/80 text-indigo-600 flex items-center justify-center shrink-0 shadow-xs">
-                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <div class="p-2 bg-white/10 rounded-xl border border-white/15 shrink-0">
+                        <svg class="w-5 h-5 text-amber-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
                         </svg>
                     </div>
                     <div>
-                        <h3 class="text-base font-extrabold text-slate-800 tracking-tight leading-tight">Edit Data Pegawai</h3>
-                        <p class="text-xs text-slate-500 font-medium mt-0.5">Perbarui informasi profil atau wewenang akun</p>
+                        <h3 class="text-base font-extrabold text-white">Edit Data Pegawai</h3>
+                        <p class="text-[11px] text-indigo-100 font-medium">Perbarui informasi profil atau wewenang akun</p>
                     </div>
                 </div>
-                <button @click="openEditModal = false" class="w-8 h-8 rounded-full bg-slate-100/80 hover:bg-slate-200/80 text-slate-400 hover:text-slate-600 transition-all flex items-center justify-center shrink-0">
+                <button @click="openEditModal = false" type="button" class="p-1.5 bg-white/10 hover:bg-rose-500/80 rounded-xl text-white transition-all cursor-pointer shrink-0">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
                     </svg>
                 </button>
             </div>
 
-            <form :action="'/admin/users/' + editUser.id" method="POST" class="p-6 space-y-4">
+            <form :action="'/admin/users/' + editUser.id" method="POST" class="p-5 space-y-3.5">
                 @csrf
                 @method('PUT')
-                <div class="space-y-1.5">
-                    <label class="block text-[11px] font-bold text-slate-600 uppercase tracking-wider">Nama Lengkap <span class="text-rose-500 font-bold">*</span></label>
-                    <input type="text" name="name" required x-model="editUser.name" class="w-full px-3.5 py-2.5 bg-slate-50/80 hover:bg-slate-50 border border-slate-200 rounded-xl text-slate-800 text-sm focus:bg-white focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10 transition-all duration-200 font-medium">
+                <div class="space-y-1">
+                    <label class="block text-[11px] font-bold text-[#5a508f] uppercase tracking-wider">Nama Lengkap <span class="text-rose-500 font-bold">*</span></label>
+                    <input type="text" name="name" required x-model="editUser.name" class="w-full px-3.5 py-2.5 bg-[#f4f6fc] border border-[#d4d1f5] rounded-xl text-[#2e2552] text-sm font-medium focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#1b3bbb] transition-all">
                 </div>
-                <div class="space-y-1.5">
-                    <label class="block text-[11px] font-bold text-slate-600 uppercase tracking-wider">Nomor Induk Pegawai (NIP) <span class="text-rose-500 font-bold">*</span></label>
-                    <input type="text" name="nip" required x-model="editUser.nip" class="w-full px-3.5 py-2.5 bg-slate-50/80 hover:bg-slate-50 border border-slate-200 rounded-xl text-slate-800 text-sm focus:bg-white focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10 transition-all duration-200 font-medium">
+                <div class="space-y-1">
+                    <label class="block text-[11px] font-bold text-[#5a508f] uppercase tracking-wider">Nomor Induk Pegawai (NIP) <span class="text-rose-500 font-bold">*</span></label>
+                    <input type="text" name="nip" required x-model="editUser.nip" class="w-full px-3.5 py-2.5 bg-[#f4f6fc] border border-[#d4d1f5] rounded-xl text-[#2e2552] text-sm font-medium focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#1b3bbb] transition-all">
                 </div>
-                <div class="space-y-1.5">
-                    <label class="block text-[11px] font-bold text-slate-600 uppercase tracking-wider">Jabatan Pegawai <span class="text-rose-500 font-bold">*</span></label>
-                    <input type="text" name="jabatan" required x-model="editUser.jabatan" class="w-full px-3.5 py-2.5 bg-slate-50/80 hover:bg-slate-50 border border-slate-200 rounded-xl text-slate-800 text-sm focus:bg-white focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10 transition-all duration-200 font-medium">
+                <div class="space-y-1">
+                    <label class="block text-[11px] font-bold text-[#5a508f] uppercase tracking-wider">Jabatan Pegawai <span class="text-rose-500 font-bold">*</span></label>
+                    <input type="text" name="jabatan" required x-model="editUser.jabatan" class="w-full px-3.5 py-2.5 bg-[#f4f6fc] border border-[#d4d1f5] rounded-xl text-[#2e2552] text-sm font-medium focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#1b3bbb] transition-all">
                 </div>
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                    <div class="space-y-1.5">
-                        <label class="block text-[11px] font-bold text-slate-600 uppercase tracking-wider">Bidang / Subbagian</label>
-                        <select name="bidang_id" x-model="editUser.bidang_id" class="w-full px-3.5 py-2.5 bg-slate-50/80 hover:bg-slate-50 border border-slate-200 rounded-xl text-slate-800 text-sm focus:bg-white focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10 transition-all duration-200 font-medium">
+                    <div class="space-y-1">
+                        <label class="block text-[11px] font-bold text-[#5a508f] uppercase tracking-wider">Bidang / Subbagian</label>
+                        <select name="bidang_id" x-model="editUser.bidang_id" class="w-full px-3.5 py-2.5 bg-[#f4f6fc] border border-[#d4d1f5] rounded-xl text-[#2e2552] text-sm font-medium focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#1b3bbb] transition-all cursor-pointer">
                             <option value="" disabled>Pilih Bidang / Subbag</option>
                             @foreach($bidangs as $bid)
                                 <option value="{{ $bid->id }}">{{ $bid->singkatan }}</option>
                             @endforeach
                         </select>
                     </div>
-                    <div class="space-y-1.5">
-                        <label class="block text-[11px] font-bold text-slate-600 uppercase tracking-wider">Role Sistem <span class="text-rose-500 font-bold">*</span></label>
-                        <select name="role" x-model="editUser.role" required class="w-full px-3.5 py-2.5 bg-slate-50/80 hover:bg-slate-50 border border-slate-200 rounded-xl text-slate-800 text-sm focus:bg-white focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10 transition-all duration-200 font-medium">
+                    <div class="space-y-1">
+                        <label class="block text-[11px] font-bold text-[#5a508f] uppercase tracking-wider">Role Sistem <span class="text-rose-500 font-bold">*</span></label>
+                        <select name="role" x-model="editUser.role" required class="w-full px-3.5 py-2.5 bg-[#f4f6fc] border border-[#d4d1f5] rounded-xl text-[#2e2552] text-sm font-medium focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#1b3bbb] transition-all cursor-pointer">
                             <option value="" disabled>Pilih Role</option>
                             <option value="staff">Staff</option>
                             <option value="sekretaris_bidang">Admin Bidang / Subbag</option>
@@ -576,11 +574,11 @@ class="space-y-6">
                         </select>
                     </div>
                 </div>
-                <div class="flex items-center justify-end gap-2.5 border-t border-slate-100 pt-4">
-                    <button type="button" @click="openEditModal = false" class="px-4 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-600 text-xs font-semibold rounded-xl transition-all active:scale-[0.98]">Batalkan</button>
-                    <button type="submit" class="px-5 py-2.5 bg-gradient-to-r from-indigo-600 to-indigo-700 hover:from-indigo-700 hover:to-indigo-800 text-white text-xs font-bold rounded-xl shadow-md shadow-indigo-500/20 hover:shadow-indigo-500/35 transition-all active:scale-[0.98] flex items-center gap-1.5">
+                <div class="flex items-center justify-end gap-2 border-t border-[#d4d1f5]/40 pt-4">
+                    <button type="button" @click="openEditModal = false" class="px-4 py-2.5 bg-slate-100 hover:bg-slate-200 text-[#5a508f] text-xs font-bold rounded-xl transition-all cursor-pointer">Batalkan</button>
+                    <button type="submit" class="px-5 py-2.5 bg-[#1b3bbb] hover:bg-[#152e96] text-white text-xs font-bold rounded-xl shadow-md shadow-[#1b3bbb]/20 transition-all inline-flex items-center gap-1.5 cursor-pointer">
                         <span>Simpan Perubahan</span>
-                        <svg class="w-4 h-4 text-indigo-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
                         </svg>
                     </button>
