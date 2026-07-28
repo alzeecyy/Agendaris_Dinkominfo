@@ -135,7 +135,7 @@
                                         <div class="hidden sm:block text-[10px] text-[#5a508f] font-mono mt-0.5">{{ $user->nip }}</div>
                                     </td>
                                     <td class="py-3 px-3 sm:px-2 sm:hidden text-center text-xs text-[#5a508f] font-mono font-bold whitespace-nowrap">{{ $user->nip }}</td>
-                                    <td class="py-3 px-3 sm:px-2 text-center font-semibold text-[#5a508f] whitespace-nowrap">{{ $user->bidang->singkatan ?? 'Master' }}</td>
+                                    <td class="py-3 px-3 sm:px-2 text-center font-semibold text-[#5a508f] whitespace-nowrap">{{ $user->bidang->singkatan ?? 'Dinkominfo' }}</td>
                                     <td class="py-3 px-3 sm:px-2 text-center font-bold text-slate-700 capitalize whitespace-nowrap">{{ str_replace('_', ' ', $user->role) }}</td>
                                     <td class="py-3 px-3 sm:px-2 text-center whitespace-nowrap">
                                         @if($user->active)
@@ -185,7 +185,7 @@
                                         <div class="text-[10px] text-[#5a508f] mt-0.5">{{ substr($agenda->jam_mulai, 0, 5) }} - {{ substr($agenda->jam_selesai, 0, 5) }} WIB</div>
                                     </td>
                                     <td class="py-3 px-3 sm:px-2 text-center sm:text-left font-bold text-[#8e88dd] whitespace-nowrap">
-                                        {{ $agenda->sekretaris->bidang->singkatan ?? 'Dinkominfo (Master)' }}
+                                        {{ $agenda->sekretaris->bidang->singkatan ?? 'Dinkominfo' }}
                                     </td>
                                     <td class="py-3 px-3 sm:px-2 text-center whitespace-nowrap">
                                         @php

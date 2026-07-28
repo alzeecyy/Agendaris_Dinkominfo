@@ -279,7 +279,7 @@ class="space-y-6">
                             <td class="py-4 px-4 font-bold whitespace-nowrap">{{ $user->name }}</td>
                             <td class="py-4 px-4 text-center font-mono text-xs text-[#5a508f]">{{ $user->nip }}</td>
                             <td class="py-4 px-4 text-xs font-semibold text-[#5a508f]">
-                                {{ $user->bidang ? $user->bidang->singkatan : 'Dinkominfo (Master)' }}
+                                {{ $user->bidang ? $user->bidang->singkatan : 'Dinkominfo' }}
                             </td>
                             <td class="py-4 px-4 text-center text-xs" style="white-space: nowrap;">
                                 @php

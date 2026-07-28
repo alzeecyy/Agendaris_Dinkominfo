@@ -17,9 +17,7 @@ class AdminUserController extends Controller
     public function index()
     {
         $users = User::with('bidang')->where('role', '!=', 'admin')->orderBy('name')->get();
-        $bidangs = Bidang::orderBy('nama')->get()->filter(function ($b) {
-            return !str_contains(strtolower($b->nama), 'subbag');
-        });
+        $bidangs = Bidang::orderBy('nama')->get();
         return view('admin.users', compact('users', 'bidangs'));
     }
 
