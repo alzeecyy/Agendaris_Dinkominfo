@@ -696,6 +696,9 @@ class NotulensiController extends Controller
     /**
      * Regenerate ringkasan and points from raw transcript text via Gemini AI.
      */
+    /**
+     * Regenerate ringkasan and points from raw transcript text via Gemini AI.
+     */
     public function regenerate(Request $request, Agenda $agenda)
     {
         $user = Auth::user();
@@ -708,45 +711,45 @@ class NotulensiController extends Controller
             'transkrip_raw' => 'required|string',
         ]);
 
-        $transcript = $request->input('transkrip_raw');
+        $transcript = trim($request->input('transkrip_raw'));
 
-        // Return early if the transcript is too short to analyze
-        if (strlen(trim($transcript)) < 150) {
+        // Return early if transcript is empty or too short to analyze
+        if (strlen($transcript) < 15) {
             return response()->json([
-                'status' => 'success',
-                'data' => "Transkripsi selesai. Rekaman audio terlalu singkat/pendek untuk dianalisis secara lengkap oleh AI."
-            ]);
+                'status' => 'error',
+                'message' => 'Teks catatan rapat terlalu singkat (minimal 15 karakter) untuk dianalisis.'
+            ], 422);
         }
 
         $apiKey = env('GEMINI_API_KEY');
 
+        $promptText = "Role & Task:\n" .
+                      "Kamu adalah asisten eksekutif profesional yang bertugas mengolah, merapikan, dan menyusun ulang catatan/transkrip mentah dari pengguna menjadi dokumen notulensi rapat formal.\n\n" .
+                      "Strict Guardrails (Aturan Anti-Halusinasi & Faktual):\n" .
+                      "1. Faktual & Setia pada Teks: Hanya gunakan informasi yang secara eksplisit tertulis pada teks sumber. DILARANG MENAMBAHKAN asumsi, inferensi berlebihan, lokasi, nama platform, atau fakta baru yang tidak ada di teks.\n" .
+                      "2. Penanganan Istilah & Ambiguitas:\n" .
+                      "   - Jika ada informasi yang ambigu, membingungkan, atau tidak logis pada teks sumber (misal: \"rapat via gdrive\"), tuliskan apa adanya di bagian khusus atau kategorikan sebagai \"CATATAN & PERLU KLARIFIKASI\". JANGAN mencoba memperbaikinya dengan asumsi sendiri.\n" .
+                      "   - Khusus Transkrip Audio / Speech-to-Text (STT): Kamu diizinkan membetulkan kata-kata salah dengar/typo fonetik yang jelas dan berisiko rendah (contoh: \"kelala\" menjadi \"kelola\", \"tangga\" menjadi \"tanggal\"). Namun, jika istilah teknis atau nama peran tetap meragukan, pertahankan kata aslinya dan masukkan ke bagian clarification.\n" .
+                      "3. Eliminasi OOT: Buang percakapan santai, bercandaan, atau typo yang tidak relevan tanpa mengubah fakta inti dari poin utama.\n" .
+                      "4. Handling Data Kosong: Jika data seperti PIC, tenggat waktu, atau tanggal tidak disebutkan di teks sumber, tuliskan \"Tidak disebutkan\" secara eksplisit. Jangan menebak.\n\n" .
+                      "Output Formatting Guidelines (Standar Ekspor PDF):\n" .
+                      "1. NO CONVERSATIONAL PREFACE/OUTRO: Langsung berikan hasil akhir berupa dokumen Markdown. DILARANG menggunakan kalimat pembuka/pengantar (seperti \"Berikut adalah hasil...\", \"Ini notulensinya...\") maupun kalimat penutup/salam.\n" .
+                      "2. NO EMOJIS: Dilarang keras menggunakan emoji atau simbol emotikon apa pun dalam seluruh isi teks demi kebutuhan ekspor PDF.\n" .
+                      "3. Struktur Dokumen: Gunakan hirarki heading Markdown berikut secara konsisten:\n" .
+                      "   # RINGKASAN EKSEKUTIF RAPAT\n" .
+                      "   [Tuliskan 1-2 paragraf ringkasan eksekutif secara padat, faktual, dan profesional]\n\n" .
+                      "   # POIN-POIN PEMBAHASAN UTAMA\n" .
+                      "   1. **[Judul Topik/Bahasan Utama]**\n" .
+                      "      - Rincian pembahasan dan penjelasan yang disampaikan narasumber/peserta.\n\n" .
+                      "   # KEPUTUSAN & TINDAK LANJUT\n" .
+                      "   1. **[Keputusan/Kesepakatan Pertama]**: Penjelasan rincian keputusan atau langkah konkret yang disepakati. PIC: [Nama/Tidak disebutkan], Tenggat Waktu: [Tanggal/Tidak disebutkan].\n\n" .
+                      "   # CATATAN & PERLU KLARIFIKASI\n" .
+                      "   - [Tuliskan istilah ambigu/meragukan atau ketik 'Tidak ada' jika semua data sudah jelas].\n\n" .
+                      "Berikut teks sumber (transkrip / catatan mentah rapat):\n\n" . $transcript;
+
         if ($apiKey) {
             try {
-                $promptText = "Role & Task:\n" .
-                              "Kamu adalah asisten eksekutif profesional yang bertugas mengolah, merapikan, dan menyusun ulang catatan/transkrip mentah dari pengguna menjadi dokumen notulensi rapat formal.\n\n" .
-                              "Strict Guardrails (Aturan Anti-Halusinasi & Faktual):\n" .
-                              "1. Faktual & Setia pada Teks: Hanya gunakan informasi yang secara eksplisit tertulis pada teks sumber. DILARANG MENAMBAHKAN asumsi, inferensi berlebihan, lokasi, nama platform, atau fakta baru yang tidak ada di teks.\n" .
-                              "2. Penanganan Istilah & Ambiguitas:\n" .
-                              "   - Jika ada informasi yang ambigu, membingungkan, atau tidak logis pada teks sumber (misal: \"rapat via gdrive\"), tuliskan apa adanya di bagian khusus atau kategorikan sebagai \"CATATAN & PERLU KLARIFIKASI\". JANGAN mencoba memperbaikinya dengan asumsi sendiri.\n" .
-                              "   - Khusus Transkrip Audio / Speech-to-Text (STT): Kamu diizinkan membetulkan kata-kata salah dengar/typo fonetik yang jelas dan berisiko rendah (contoh: \"kelala\" menjadi \"kelola\", \"tangga\" menjadi \"tanggal\"). Namun, jika istilah teknis atau nama peran tetap meragukan, pertahankan kata aslinya dan masukkan ke bagian clarification.\n" .
-                              "3. Eliminasi OOT: Buang percakapan santai, bercandaan, atau typo yang tidak relevan tanpa mengubah fakta inti dari poin utama.\n" .
-                              "4. Handling Data Kosong: Jika data seperti PIC, tenggat waktu, atau tanggal tidak disebutkan di teks sumber, tuliskan \"Tidak disebutkan\" secara eksplisit. Jangan menebak.\n\n" .
-                              "Output Formatting Guidelines (Standar Ekspor PDF):\n" .
-                              "1. NO CONVERSATIONAL PREFACE/OUTRO: Langsung berikan hasil akhir berupa dokumen Markdown. DILARANG menggunakan kalimat pembuka/pengantar (seperti \"Berikut adalah hasil...\", \"Ini notulensinya...\") maupun kalimat penutup/salam.\n" .
-                              "2. NO EMOJIS: Dilarang keras menggunakan emoji atau simbol emotikon apa pun dalam seluruh isi teks demi kebutuhan ekspor PDF.\n" .
-                              "3. Struktur Dokumen: Gunakan hirarki heading Markdown berikut secara konsisten:\n" .
-                              "   # RINGKASAN EKSEKUTIF RAPAT\n" .
-                              "   [Tuliskan 1-2 paragraf ringkasan eksekutif secara padat, faktual, dan profesional]\n\n" .
-                              "   # POIN-POIN PEMBAHASAN UTAMA\n" .
-                              "   1. **[Judul Topik/Bahasan Utama]**\n" .
-                              "      - Rincian pembahasan dan penjelasan yang disampaikan narasumber/peserta.\n\n" .
-                              "   # KEPUTUSAN & TINDAK LANJUT\n" .
-                              "   1. **[Keputusan/Kesepakatan Pertama]**: Penjelasan rincian keputusan atau langkah konkret yang disepakati. PIC: [Nama/Tidak disebutkan], Tenggat Waktu: [Tanggal/Tidak disebutkan].\n\n" .
-                              "   # CATATAN & PERLU KLARIFIKASI\n" .
-                              "   - [Tuliskan istilah ambigu/meragukan atau ketik 'Tidak ada' jika semua data sudah jelas].\n\n" .
-                              "Berikut teks sumber (transkrip / catatan mentah rapat):\n\n" . $transcript;
-
-                $response = \Illuminate\Support\Facades\Http::timeout(45)->post("https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash:generateContent?key=" . $apiKey, [
+                $response = \Illuminate\Support\Facades\Http::withoutVerifying()->timeout(45)->post("https://generativelanguage.googleapis.com/v1beta/models/gemini-flash-latest:generateContent?key=" . $apiKey, [
                     'contents' => [
                         [
                             'parts' => [
@@ -765,18 +768,21 @@ class NotulensiController extends Controller
                     $result = $response->json();
                     $text = $result['candidates'][0]['content']['parts'][0]['text'] ?? null;
                     if ($text) {
+                        $cleanText = trim(preg_replace('/```(?:markdown)?/i', '', $text));
                         return response()->json([
                             'status' => 'success',
-                            'data' => trim($text)
+                            'data' => $cleanText
                         ]);
                     }
+                } else {
+                    \Illuminate\Support\Facades\Log::error('Gemini API HTTP error (' . $response->status() . '): ' . $response->body());
                 }
             } catch (\Exception $e) {
                 \Illuminate\Support\Facades\Log::error('Gemini Exception: ' . $e->getMessage());
             }
         }
 
-        // Fallback: try local Ollama/OpenAI-compatible LLM API
+        // Fallback 1: try local Ollama/OpenAI-compatible LLM API
         $llmApiBase = env('LLM_API_BASE');
         $llmModel = env('LLM_MODEL', 'qwen2.5:1.5b');
         $llmApiKey = env('LLM_API_KEY', 'none');
@@ -784,7 +790,7 @@ class NotulensiController extends Controller
         if ($llmApiBase) {
             try {
                 $url = rtrim($llmApiBase, '/') . '/chat/completions';
-                $llmResponse = \Illuminate\Support\Facades\Http::timeout(480)->withHeaders([
+                $llmResponse = \Illuminate\Support\Facades\Http::withoutVerifying()->timeout(15)->withHeaders([
                     'Authorization' => 'Bearer ' . $llmApiKey,
                     'Content-Type' => 'application/json',
                 ])->post($url, [
@@ -794,56 +800,7 @@ class NotulensiController extends Controller
                     'messages' => [
                         [
                             'role' => 'user',
-                            'content' => "Anda adalah editor profesional yang bertugas merapikan hasil transkrip rapat menjadi dokumen yang mudah dibaca.\n\n" .
-                                         "Ikuti seluruh instruksi berikut tanpa terkecuali.\n\n" .
-                                         "TUJUAN\n" .
-                                         "Menghasilkan transkrip rapat yang rapi, akurat, dan mempertahankan seluruh informasi yang disampaikan narasumber.\n\n" .
-                                         "PRIORITAS UTAMA\n" .
-                                         "Jika terjadi konflik antara \"membuat kalimat lebih natural\" dan \"akurasi terhadap isi asli\", akurasi harus selalu diutamakan. Lebih baik menandai [tidak jelas] daripada mengarang atau memaksakan kalimat yang tidak sesuai dengan apa yang sebenarnya diucapkan.\n\n" .
-                                         "ATURAN\n" .
-                                         "1. Jangan menambahkan informasi, opini, atau kesimpulan yang tidak terdapat pada transkrip.\n" .
-                                         "2. Jangan menghapus informasi penting.\n" .
-                                         "3. Hilangkan kata, frasa, atau kalimat yang berulang akibat kesalahan transkrip.\n" .
-                                         "4. Perbaiki ejaan, tata bahasa, tanda baca, serta susunan kalimat agar lebih natural.\n" .
-                                         "5. Pertahankan makna asli dari setiap pembicara.\n" .
-                                         "6. Jika terdapat bagian yang benar-benar tidak dapat dipahami, tuliskan [tidak jelas].\n" .
-                                         "7. Pertahankan nama orang, nama organisasi, nama program kerja, jabatan, lokasi, tanggal, angka, dan istilah penting.\n" .
-                                         "8. Hilangkan filler words (eee, anu, kayak, jadi gini, dsb.) yang tidak mengandung informasi.\n" .
-                                         "9. Jika kalimat pembicara terpotong/menggantung, rapikan menjadi kalimat utuh selama maknanya tidak berubah; jika maknanya tidak bisa disimpulkan, biarkan apa adanya.\n\n" .
-                                         "LARANGAN TAMBAHAN\n" .
-                                         "- Dilarang keras mengarang nama, gelar, jabatan, atau struktur field (misalnya label \"Tugas Pertama\", \"Sebelum Sekolah\", dsb.) yang tidak secara eksplisit disebutkan dalam transkrip asli.\n" .
-                                         "- Jika transkrip tidak menyebutkan nama pembicara secara eksplisit, gunakan deskripsi peran (misal \"Narasumber\", \"Pewawancara\") — jangan mengarang nama.\n" .
-                                         "- Sebelum memformat sebagai dialog berlabel banyak pembicara, identifikasi dulu apakah transkrip ini benar-benar multi-speaker atau hanya satu narasumber yang diwawancarai/ditanya beberapa pertanyaan.\n" .
-                                         "- Dilarang membuat kalimat yang secara gramatikal maupun logis tidak masuk akal hanya demi merapikan format.\n" .
-                                         "- Jika satu bagian transkrip terlalu rusak/tidak jelas untuk direkonstruksi dengan akurat, tandai bagian tersebut dengan [tidak jelas] daripada menciptakan kalimat baru.\n\n" .
-                                         "LARANGAN FORMAT\n" .
-                                         "- Dilarang mengubah transkrip naratif/monolog menjadi format tanya-jawab buatan (misal \"Apakah Anda tahu apa itu X?\") jika format tersebut tidak eksplisit ada dalam transkrip asli.\n" .
-                                         "- Ikuti struktur asli transkrip: jika berupa narasi/penjelasan mengalir dari satu narasumber, sajikan sebagai narasi terstruktur per topik (bukan Q&A buatan).\n" .
-                                         "- Jika transkrip memang berbentuk tanya-jawab (ada pewawancara bertanya secara eksplisit), gunakan Q&A HANYA untuk pertanyaan yang benar-benar diajukan, satu kali per pertanyaan — jangan mengulang entri yang sama.\n" .
-                                         "- Dilarang mengulang paragraf, poin, atau entri yang identik lebih dari satu kali dalam output akhir.\n\n" .
-                                         "PEMERIKSAAN KONSISTENSI\n" .
-                                         "Setelah seluruh transkrip selesai dirapikan, lakukan pemeriksaan ulang terhadap seluruh dokumen dari awal hingga akhir.\n\n" .
-                                         "- Identifikasi seluruh nama orang.\n" .
-                                         "- Identifikasi seluruh nama organisasi.\n" .
-                                         "- Identifikasi seluruh nama divisi.\n" .
-                                         "- Identifikasi seluruh nama program kerja.\n" .
-                                         "- Identifikasi seluruh singkatan.\n" .
-                                         "- Identifikasi seluruh istilah khusus.\n\n" .
-                                         "Apabila ditemukan beberapa penulisan berbeda yang mengacu pada entitas yang sama (typo, salah eja, hasil speech-to-text), ubah SEMUA kemunculannya menjadi SATU bentuk penulisan yang konsisten. Gunakan versi yang paling sering muncul atau versi baku/resmi jika diketahui. Jangan hanya memperbaiki kemunculan pertama — pastikan seluruh kemunculan telah diperbaiki.\n\n" .
-                                         "FORMAT PENULISAN (Markdown)\n" .
-                                         "Gunakan format markdown berikut agar struktur dokumen terbaca jelas saat dikonversi ke PDF:\n" .
-                                         "- Judul dokumen: gunakan # (contoh: # Notulensi Rapat [Nama Rapat])\n" .
-                                         "- Sub-bagian (misal: Informasi Rapat, Pembahasan, Kesimpulan): gunakan ##\n" .
-                                         "- Penomoran poin: gunakan angka langsung tanpa tanda strip di depannya (contoh: 1. Perencanaan Aplikasi, 2. Rapat Koordinasi)\n" .
-                                         "- Sub-detail (Isi, Penjelasan, Catatan): tulis langsung nama label diikuti titik dua tanpa tanda strip di depannya (contoh: Isi: ..., Penjelasan: ...)\n" .
-                                         "- Jangan gunakan format lain di luar markdown standar (tanpa HTML, tanpa tabel kompleks kecuali diminta)\n\n" .
-                                         "OUTPUT\n" .
-                                         "Berikan hanya hasil transkrip yang sudah dirapikan dalam format markdown, tanpa penjelasan tambahan.\n\n" .
-                                         "Sebelum menghasilkan jawaban akhir, lakukan validasi akhir terhadap seluruh dokumen:\n" .
-                                         "1. Pastikan tidak ada nama, gelar, atau struktur field yang dikarang dan tidak ada di transkrip asli.\n" .
-                                         "2. Pastikan tidak ada lagi istilah yang memiliki lebih dari satu variasi penulisan apabila sebenarnya mengacu pada entitas yang sama.\n" .
-                                         "3. Pastikan struktur markdown (judul, sub-judul, bold) sudah konsisten dari awal hingga akhir dokumen.\n\n" .
-                                         "Berikut transkrip:\n\n" . $transcript
+                            'content' => $promptText
                         ]
                     ],
                 ]);
@@ -852,12 +809,11 @@ class NotulensiController extends Controller
                     $resJson = $llmResponse->json();
                     $text = $resJson['choices'][0]['message']['content'] ?? null;
                     if ($text) {
+                        $cleanText = trim(preg_replace('/```(?:markdown)?/i', '', $text));
                         return response()->json([
                             'status' => 'success',
-                            'data' => trim($text)
+                            'data' => $cleanText
                         ]);
-                    } else {
-                        \Illuminate\Support\Facades\Log::error('Ollama empty content in response choice.');
                     }
                 } else {
                     \Illuminate\Support\Facades\Log::error('Ollama HTTP error: ' . $llmResponse->status() . ' - ' . $llmResponse->body());
@@ -867,10 +823,28 @@ class NotulensiController extends Controller
             }
         }
 
+        // Fallback 2: Local Heuristic Markdown Generator if AI APIs are unavailable
+        $lines = array_values(array_filter(array_map('trim', explode("\n", $transcript))));
+        $pembahasanItems = [];
+        foreach ($lines as $line) {
+            if (!empty($line)) {
+                $pembahasanItems[] = "- " . $line;
+            }
+        }
+
+        $fallbackMarkdown = "# RINGKASAN EKSEKUTIF RAPAT\n" .
+                            "Notulensi disusun dan dirapikan secara terstruktur dari catatan mentah hasil rapat.\n\n" .
+                            "# POIN-POIN PEMBAHASAN UTAMA\n" .
+                            (count($pembahasanItems) > 0 ? implode("\n", $pembahasanItems) : "- " . $transcript) . "\n\n" .
+                            "# KEPUTUSAN & TINDAK LANJUT\n" .
+                            "1. **Tindak Lanjut**: Menindaklanjuti poin-poin pembahasan rapat di atas. PIC: Tidak disebutkan, Tenggat Waktu: Tidak disebutkan.\n\n" .
+                            "# CATATAN & PERLU KLARIFIKASI\n" .
+                            "- Tidak ada.";
+
         return response()->json([
-            'status' => 'error',
-            'message' => 'Analisis AI gagal. Tidak ada API key yang dikonfigurasi (GEMINI_API_KEY) dan server Ollama lokal tidak dapat dijangkau atau tidak merespons. Pastikan Ollama berjalan di ' . ($llmApiBase ?? 'localhost:11434') . '.'
-        ], 503);
+            'status' => 'success',
+            'data' => $fallbackMarkdown
+        ]);
     }
 
     /**

@@ -61,13 +61,21 @@ class ProcessMeetingAudio implements ShouldQueue
                 ];
             }
 
-            if (empty($audioFiles)) {
-                Log::warning("ProcessMeetingAudio: No audio files to process.");
-                $this->notulensi->update(['is_transcribing' => false]);
-                return;
-            }
-
             $transcriptBlocks = [];
+
+            if (empty($audioFiles)) {
+                if (!empty(trim($this->notulensi->transkrip_raw ?? ''))) {
+                    Log::info("ProcessMeetingAudio: No audio files found, analyzing typed text transcript directly.");
+                    $transcriptBlocks[] = trim($this->notulensi->transkrip_raw);
+                } else {
+                    Log::warning("ProcessMeetingAudio: Neither audio files nor transcript text found to process.");
+                    $this->notulensi->update([
+                        'is_transcribing' => false,
+                        'transkrip_error' => 'Silakan unggah berkas audio rapat ATAU ketik/tempel catatan pada bidang transkrip terlebih dahulu.'
+                    ]);
+                    return;
+                }
+            } else {
 
             foreach ($audioFiles as $index => $audioItem) {
                 $audioPath = $audioItem['path'] ?? null;
@@ -184,6 +192,7 @@ class ProcessMeetingAudio implements ShouldQueue
                     Log::error("ProcessMeetingAudio exception for " . $audioName . ": " . $e->getMessage());
                 }
             }
+            }
 
             if (empty($transcriptBlocks)) {
                 Log::error("ProcessMeetingAudio: All audio transcriptions failed or returned empty.");
@@ -201,7 +210,7 @@ class ProcessMeetingAudio implements ShouldQueue
 
             // Check if combined transcript is too short to summarize
             $textLen = strlen(trim($combinedTranscript));
-            if ($textLen < 150) {
+            if ($textLen < 15) {
                 $this->notulensi->update([
                     'transkrip_raw' => $combinedTranscript,
                     'ringkasan' => "Transkripsi selesai. Rekaman audio terlalu singkat/pendek untuk dianalisis secara lengkap oleh AI.",
