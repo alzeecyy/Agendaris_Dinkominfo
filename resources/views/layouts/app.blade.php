@@ -15,6 +15,13 @@
             font-family: 'Plus Jakarta Sans', sans-serif;
             background: linear-gradient(135deg, #eef2ff 0%, #f8fafc 100%);
         }
+        @media (min-width: 768px) {
+            html, body {
+                height: 100vh !important;
+                max-height: 100vh !important;
+                overflow: hidden !important;
+            }
+        }
         /* Custom scrollbar - Floating inset overlay */
         * {
             scrollbar-width: thin;
@@ -218,10 +225,10 @@
     <!-- AlpineJS for interactive elements -->
     <script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
 </head>
-<body class="min-h-screen md:h-screen text-[#2e2552] bg-[#eef2ff] antialiased">
+<body class="min-h-screen md:h-screen md:overflow-hidden text-[#2e2552] bg-[#eef2ff] antialiased">
 
     <!-- Outer Page App Window -->
-    <div x-data="{ mobileNavOpen: false, profileMenuOpen: false }" class="min-h-screen md:h-screen flex flex-col p-2.5 sm:p-4 md:p-6 pt-3 sm:pt-4 gap-2.5 md:gap-6 max-w-[1600px] w-full mx-auto md:overflow-hidden bg-[#eef2ff]">
+    <div x-data="{ mobileNavOpen: false, profileMenuOpen: false }" class="min-h-screen md:h-screen flex flex-col p-2.5 sm:p-4 md:p-5 pt-3 sm:pt-4 gap-2.5 md:gap-4 max-w-[1600px] w-full mx-auto md:overflow-hidden bg-[#eef2ff]">
         
         <!-- TOP NAVBAR (Sticky Header on Mobile, Top Header on Desktop) -->
         <header class="w-full bg-white/95 backdrop-blur-md rounded-2xl sm:rounded-2xl md:rounded-3xl border border-slate-200/80 px-3 sm:px-4 md:px-6 py-2 sm:py-2.5 md:py-4 flex items-center justify-between shadow-sm md:shadow-md sticky top-2 sm:top-3 md:relative z-50 text-[#09103c]">
