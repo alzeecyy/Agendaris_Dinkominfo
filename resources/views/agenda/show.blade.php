@@ -105,10 +105,10 @@
             this.signatureData = '';
         }
     }
-}" data-participants='@json($participants)' class="space-y-3.5 sm:space-y-4">
+}" data-participants='@json($participants)' style="display: flex; flex-direction: column; width: 100%; gap: 1rem;" class="w-full min-w-0">
     
     <!-- Breadcrumbs / Back button -->
-    <div class="flex items-center justify-between gap-2">
+    <div style="display: flex; align-items: center; justify-content: space-between; width: 100%; min-width: 0; padding-bottom: 0.25rem;" class="w-full">
         <a href="{{ route('calendar', ['date' => $agenda->tanggal->toDateString()]) }}" 
            class="inline-flex items-center gap-2 text-xs font-bold text-[#5a508f] hover:text-[#1b3bbb] transition-colors py-1 group">
             <svg class="w-4 h-4 shrink-0 text-[#5a508f] group-hover:text-[#1b3bbb] group-hover:-translate-x-0.5 transition-all" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -984,7 +984,7 @@
         @endif
 
     <!-- TOP GRID: Card Agenda (Full width jika Sosialisasi/Pelatihan tanpa presensi, 2-kolom jika Rapat / Membutuhkan Presensi) -->
-    <div class="grid grid-cols-1 {{ ($agenda->kategori !== 'rapat' && !$agenda->butuh_presensi) ? 'grid-cols-1' : 'lg:grid-cols-2' }} gap-3 sm:gap-4.5 items-stretch">
+    <div style="width: 100%; min-width: 0;" class="grid grid-cols-1 {{ ($agenda->kategori !== 'rapat' && !$agenda->butuh_presensi) ? 'grid-cols-1' : 'lg:grid-cols-2' }} gap-3 sm:gap-4.5 items-stretch">
         
         <!-- Left Column: Info Detail Agenda -->
         <div class="min-w-0 flex flex-col h-full">
@@ -1029,41 +1029,41 @@
                         <p class="text-[10px] sm:text-xs text-[#5a508f] leading-relaxed">{{ $agenda->deskripsi ?? 'Tidak ada deskripsi tambahan.' }}</p>
                     </div>
 
-                    <div class="grid grid-cols-1 md:grid-cols-3 gap-2 sm:gap-4 py-2 sm:py-4 border-t border-b border-[#d4d1f5]/40 text-xs">
+                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-2 py-3 border-t border-b border-[#d4d1f5]/40 text-xs">
                         <!-- Tanggal -->
-                        <div class="flex items-center gap-2 sm:gap-3">
-                            <div class="p-1.5 sm:p-2.5 bg-[#f3f2fe] border border-[#d4d1f5] rounded-lg sm:rounded-2xl text-[#2e2552] shrink-0">
-                                <svg class="w-3.5 h-3.5 sm:w-5 sm:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <div class="flex items-center gap-2 min-w-0">
+                            <div class="p-2 bg-[#f3f2fe] border border-[#d4d1f5] rounded-xl text-[#2e2552] shrink-0">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
                                 </svg>
                             </div>
-                            <div>
-                                <p class="text-[8.5px] sm:text-[10px] text-[#8e88dd] uppercase font-bold">Tanggal</p>
-                                <p class="text-[10.5px] sm:text-xs font-bold text-[#2e2552] mt-0.5">{{ $agenda->tanggal->translatedFormat('d F Y') }}</p>
+                            <div class="min-w-0 flex-1">
+                                <p class="text-[9px] text-[#8e88dd] uppercase font-bold tracking-wider">Tanggal</p>
+                                <p class="text-[11px] sm:text-xs font-bold text-[#2e2552] truncate mt-0.5" title="{{ $agenda->tanggal->translatedFormat('d F Y') }}">{{ $agenda->tanggal->translatedFormat('d F Y') }}</p>
                             </div>
                         </div>
                         <!-- Jam -->
-                        <div class="flex items-center gap-2 sm:gap-3">
-                            <div class="p-1.5 sm:p-2.5 bg-[#f3f2fe] border border-[#d4d1f5] rounded-lg sm:rounded-2xl text-[#2e2552] shrink-0">
-                                <svg class="w-3.5 h-3.5 sm:w-5 sm:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <div class="flex items-center gap-2 min-w-0">
+                            <div class="p-2 bg-[#f3f2fe] border border-[#d4d1f5] rounded-xl text-[#2e2552] shrink-0">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
                                 </svg>
                             </div>
-                            <div>
-                                <p class="text-[8.5px] sm:text-[10px] text-[#8e88dd] uppercase font-bold">Waktu</p>
-                                <p class="text-[10.5px] sm:text-xs font-bold text-[#2e2552] mt-0.5">{{ substr($agenda->jam_mulai, 0, 5) }} - {{ substr($agenda->jam_selesai, 0, 5) }} WIB</p>
+                            <div class="min-w-0 flex-1">
+                                <p class="text-[9px] text-[#8e88dd] uppercase font-bold tracking-wider">Waktu</p>
+                                <p class="text-[11px] sm:text-xs font-bold text-[#2e2552] whitespace-nowrap mt-0.5">{{ substr($agenda->jam_mulai, 0, 5) }} - {{ substr($agenda->jam_selesai, 0, 5) }} WIB</p>
                             </div>
                         </div>
                         <!-- Lokasi -->
-                        <div class="flex items-center gap-2 sm:gap-3">
-                            <div class="p-1.5 sm:p-2.5 bg-[#f3f2fe] border border-[#d4d1f5] rounded-lg sm:rounded-2xl text-[#2e2552] shrink-0">
-                                <svg class="w-3.5 h-3.5 sm:w-5 sm:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <div class="flex items-center gap-2 min-w-0">
+                            <div class="p-2 bg-[#f3f2fe] border border-[#d4d1f5] rounded-xl text-[#2e2552] shrink-0">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path>
                                 </svg>
                             </div>
-                            <div>
-                                <p class="text-[8.5px] sm:text-[10px] text-[#8e88dd] uppercase font-bold">Lokasi</p>
-                                <p class="text-[10.5px] sm:text-xs font-bold text-[#2e2552] mt-0.5">{{ $agenda->lokasi }}</p>
+                            <div class="min-w-0 flex-1">
+                                <p class="text-[9px] text-[#8e88dd] uppercase font-bold tracking-wider">Lokasi</p>
+                                <p class="text-[11px] sm:text-xs font-bold text-[#2e2552] truncate mt-0.5" title="{{ $agenda->lokasi }}">{{ $agenda->lokasi }}</p>
                             </div>
                         </div>
                     </div>
