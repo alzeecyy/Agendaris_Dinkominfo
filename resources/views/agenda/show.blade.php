@@ -269,6 +269,7 @@
                             <div class="space-y-2">
                                 <label class="block text-xs font-bold text-[#5a508f] uppercase">Bidang & Peserta Rapat <span class="text-rose-500">*</span></label>
                                  @php
+@php
                                      $hakAksesArray = $agenda->hak_akses;
                                      $isSemua = in_array('semua_orang', $hakAksesArray);
                                      $allBidangs = $bidangsWithUsers;
@@ -276,6 +277,12 @@
                                      $totalBidangCount = count($allBidangIds);
                                      $sekretariatBid = $allBidangs->first(fn($b) => strcasecmp($b->singkatan, 'Sekretariat') === 0 || strcasecmp($b->nama, 'Sekretariat') === 0);
                                      $sekretariatId = $sekretariatBid ? (string)$sekretariatBid->id : null;
+                                     $sekretariatSubbagIds = $allBidangs->filter(function($b) {
+                                         return strcasecmp($b->singkatan, 'Sekretariat') === 0 || 
+                                                strcasecmp($b->nama, 'Sekretariat') === 0 || 
+                                                str_contains(strtolower($b->nama), 'subbag') || 
+                                                str_contains(strtolower($b->singkatan), 'subbag');
+                                     })->pluck('id')->map(fn($id) => (string)$id)->values()->toArray();
 
                                      if (Auth::user()->isSekretarisBidang() || Auth::user()->isSekretariatScope()) {
                                          $mandatoryIds = [(string)Auth::user()->bidang_id];
@@ -325,20 +332,24 @@
                                          'jabatan' => $kadinUser->jabatan ?? 'Kepala Dinas / Kadin',
                                          'role' => $kadinUser->role,
                                      ] : null;
+
                                      $isKadinTargetInitial = in_array('kadin', (array)($agenda->hak_akses ?? [])) || ($kadinUserId && in_array($kadinUserId, array_map('strval', $initialParticipants)));
                                  @endphp
                                  <div x-data='{
                                      semua: {{ $isSemua ? "true" : "false" }},
+                                     semuaSekretariat: false,
+                                     sekretariatSubbagIds: {{ json_encode(array_values($sekretariatSubbagIds)) }},
                                      allBidangIds: {{ json_encode(array_values($allBidangIds)) }},
                                      totalCount: {{ $totalBidangCount }},
                                      bidangs: {{ json_encode(array_values($initialBidangs)) }},
                                      isSekBid: {{ Auth::user()->isSekretarisBidang() ? "true" : "false" }},
                                      isSekretariatScope: {{ Auth::user()->isSekretariatScope() ? "true" : "false" }},
                                      ownBidangId: "{{ Auth::user()->bidang_id }}",
-sekId: "{{ $sekretariatId }}",
+                                     sekId: "{{ $sekretariatId }}",
                                      kadinUserId: "{{ $kadinUserId }}",
                                      kadinUser: {{ json_encode($kadinUserData) }},
                                      kadinTarget: {{ $isKadinTargetInitial ? "true" : "false" }},
+                                     showBidangLimitWarning: false,
                                      bidangsUserData: {{ json_encode($bidangsUserData) }},
                                      currentUserId: "{{ Auth::id() }}",
                                      selectedParticipants: {{ json_encode(array_values($initialParticipants)) }},
@@ -357,9 +368,13 @@ sekId: "{{ $sekretariatId }}",
                                          return String(user.id) === String(this.currentUserId);
                                      },
 
-                                     isMandatoryUser(user) {
-                                         return this.isPimpinan(user) || this.isNotulis(user);
-                                     },
+                                      isMandatoryUser(user) {
+                                          if (!user) return false;
+                                          let uId = String(user.id);
+                                          let isCreator = (uId === String(this.currentUserId));
+                                          let isUnitAdmin = (user.role === "sekretaris_bidang" || user.role === "sekretaris_master");
+                                          return isCreator || isUnitAdmin;
+                                      },
 
                                      toggleKadinTarget() {
                                          let kId = String(this.kadinUserId);
@@ -377,50 +392,50 @@ sekId: "{{ $sekretariatId }}",
                                          this.selectedParticipants = curParts;
                                      },
 
-                                     filteredUsers(users) {
-                                          if (!users || !Array.isArray(users)) return [];
-                                          let list = users;
-                                          if (this.searchParticipant && this.searchParticipant.trim()) {
-                                              let q = this.searchParticipant.toLowerCase().trim();
-                                              list = users.filter(u => 
-                                                  (u.name && String(u.name).toLowerCase().includes(q)) || 
-                                                  (u.jabatan && String(u.jabatan).toLowerCase().includes(q)) ||
-                                                  (u.nip && String(u.nip).toLowerCase().includes(q))
-                                              );
-                                          }
-                                          return [...list].sort((a, b) => {
-                                              let aPimpinan = this.isPimpinan(a) ? 2 : 0;
-                                              let bPimpinan = this.isPimpinan(b) ? 2 : 0;
-                                              let aNotulis = this.isNotulis(a) ? 1 : 0;
-                                              let bNotulis = this.isNotulis(b) ? 1 : 0;
-                                              let aScore = aPimpinan + aNotulis;
-                                              let bScore = bPimpinan + bNotulis;
-                                              if (aScore !== bScore) {
-                                                  return bScore - aScore;
+                                      filteredUsers(users) {
+                                           if (!users || !Array.isArray(users)) return [];
+                                           let list = users;
+                                           if (this.searchParticipant && this.searchParticipant.trim()) {
+                                               let q = this.searchParticipant.toLowerCase().trim();
+                                               list = users.filter(u => 
+                                                   (u.name && String(u.name).toLowerCase().includes(q)) || 
+                                                   (u.jabatan && String(u.jabatan).toLowerCase().includes(q)) ||
+                                                   (u.nip && String(u.nip).toLowerCase().includes(q))
+                                               );
+                                           }
+                                           return [...list].sort((a, b) => {
+                                               let aPimpinan = this.isPimpinan(a) ? 2 : 0;
+                                               let bPimpinan = this.isPimpinan(b) ? 2 : 0;
+                                               let aNotulis = this.isNotulis(a) ? 1 : 0;
+                                               let bNotulis = this.isNotulis(b) ? 1 : 0;
+                                               let aScore = aPimpinan + aNotulis;
+                                               let bScore = bPimpinan + bNotulis;
+                                               if (aScore !== bScore) {
+                                                   return bScore - aScore;
+                                               }
+                                               return (a.name || "").localeCompare(b.name || "");
+                                           });
+                                       },
+
+                                      get visibleBidangs() {
+                                          let selectedBidangIds = (this.bidangs || []).map(String);
+                                          return (this.bidangsUserData || []).filter(b => {
+                                              let isSelected = selectedBidangIds.includes(String(b.id));
+                                              if (!isSelected) return false;
+                                              if (this.searchParticipant && this.searchParticipant.trim()) {
+                                                  return this.filteredUsers(b.users).length > 0;
                                               }
-                                              return (a.name || "").localeCompare(b.name || "");
+                                              return true;
                                           });
                                       },
 
-                                     get visibleBidangs() {
-                                         let selectedBidangIds = (this.bidangs || []).map(String);
-                                         return (this.bidangsUserData || []).filter(b => {
-                                             let isSelected = selectedBidangIds.includes(String(b.id));
-                                             if (!isSelected) return false;
-                                             if (this.searchParticipant && this.searchParticipant.trim()) {
-                                                 return this.filteredUsers(b.users).length > 0;
-                                             }
-                                             return true;
-                                         });
-                                     },
-
-                                     get totalFilteredUsersCount() {
-                                         let count = 0;
-                                         this.visibleBidangs.forEach(b => {
-                                             count += this.filteredUsers(b.users).length;
-                                         });
-                                         return count;
-                                     },
+                                      get totalFilteredUsersCount() {
+                                          let count = 0;
+                                          this.visibleBidangs.forEach(b => {
+                                              count += this.filteredUsers(b.users).length;
+                                          });
+                                          return count;
+                                      },
 
                                      toggleSemua() {
                                          if (this.semua) {
@@ -431,21 +446,63 @@ sekId: "{{ $sekretariatId }}",
                                          this.syncParticipants();
                                      },
 
-                                     check(id) {
-                                         if (this.isSekBid || this.isSekretariatScope) {
-                                             if (this.ownBidangId && !this.bidangs.includes(String(this.ownBidangId))) {
-                                                 this.bidangs.push(String(this.ownBidangId));
+                                     toggleSemuaSekretariat() {
+                                         let sekSubIds = (this.sekretariatSubbagIds || []).map(String);
+                                         let curBids = (this.bidangs || []).map(String);
+
+                                         if (this.semuaSekretariat) {
+                                             sekSubIds.forEach(id => {
+                                                 if (!curBids.includes(id)) {
+                                                     curBids.push(id);
+                                                 }
+                                             });
+                                             if (!this.isSekretariatScope && curBids.length > 3) {
+                                                 curBids = curBids.slice(0, 3);
+                                                 this.showBidangLimitWarning = true;
+                                             } else {
+                                                 this.showBidangLimitWarning = false;
                                              }
-                                             if (this.isSekretariatScope && this.sekId && !this.bidangs.includes(String(this.sekId))) {
-                                                 this.bidangs.push(String(this.sekId));
+                                         } else {
+                                             curBids = curBids.filter(id => !sekSubIds.includes(id));
+                                             if (this.ownBidangId && !curBids.includes(String(this.ownBidangId))) {
+                                                 curBids.push(String(this.ownBidangId));
                                              }
-                                             if (!this.isSekretariatScope && this.bidangs.length > 3) {
-                                                 alert("Admin Bidang hanya dapat memilih maksimal 2 bidang tambahan.");
-                                                 this.bidangs = this.bidangs.filter(bId => String(bId) !== String(id));
+                                             if (this.sekId && !curBids.includes(String(this.sekId))) {
+                                                 curBids.push(String(this.sekId));
                                              }
+                                             this.showBidangLimitWarning = false;
                                          }
-                                         this.semua = (this.bidangs.length === this.totalCount);
+                                         this.bidangs = curBids;
+                                         this.semuaSekretariat = sekSubIds.length > 0 && sekSubIds.every(id => curBids.includes(id));
                                          this.syncParticipants();
+                                     },
+
+                                     check(id) {
+                                         this.$nextTick(() => {
+                                             let strId = String(id);
+                                             let curBids = (this.bidangs || []).map(String);
+
+                                             if (this.isSekBid || this.isSekretariatScope) {
+                                                 if (this.ownBidangId && !curBids.includes(String(this.ownBidangId))) {
+                                                     curBids.push(String(this.ownBidangId));
+                                                 }
+                                                 if (this.isSekretariatScope && this.sekId && !curBids.includes(String(this.sekId))) {
+                                                     curBids.push(String(this.sekId));
+                                                 }
+                                                 let numericBids = curBids.filter(b => b !== "kadin" && b !== String(this.sekId));
+                                                 if (!this.isSekretariatScope && numericBids.length > 3) {
+                                                     this.showBidangLimitWarning = true;
+                                                     curBids = curBids.filter(bId => bId !== strId);
+                                                 } else {
+                                                     this.showBidangLimitWarning = false;
+                                                 }
+                                             }
+                                             this.bidangs = curBids;
+                                             let sekSubIds = (this.sekretariatSubbagIds || []).map(String);
+                                             this.semuaSekretariat = sekSubIds.length > 0 && sekSubIds.every(id => curBids.includes(id));
+                                             this.semua = (this.bidangs.length === this.totalCount);
+                                             this.syncParticipants();
+                                         });
                                      },
 
                                      syncParticipants() {
@@ -525,14 +582,20 @@ sekId: "{{ $sekretariatId }}",
                                          <input type="hidden" name="participants[]" :value="userId">
                                      </template>
 
-                                     @if(Auth::user()->isSekretarisBidang() && !Auth::user()->isSekretariatScope())
-                                         <input type="hidden" name="bidangs[]" value="{{ Auth::user()->bidang_id }}">
-                                     @else
+                                     @if(Auth::user()->isSekretarisMaster())
                                          <label class="flex items-center text-xs text-[#2e2552] font-bold mb-1 cursor-pointer select-none">
                                              <input type="checkbox" name="semua_orang" value="1" x-model="semua" @change="toggleSemua()" class="mr-2 rounded border-[#d4d1f5] text-[#8e88dd]">
                                              Semua Orang (Lintas Dinas)
                                          </label>
                                      @endif
+
+                                     <!-- Inline Alert for 3-Bidang Limit -->
+                                     <div x-show="showBidangLimitWarning" x-cloak class="p-2.5 mb-2 bg-amber-50 border border-amber-200 text-amber-900 rounded-xl text-[11px] font-semibold flex items-center gap-2 animate-in fade-in duration-200 shadow-2xs">
+                                         <svg class="w-4 h-4 text-amber-600 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path>
+                                         </svg>
+                                         <span>Admin Bidang hanya dapat memilih maksimal 3 bidang (bidang Anda + maksimal 2 bidang tambahan).</span>
+                                     </div>
 
                                      <div class="grid grid-cols-1 gap-1 mt-1">
                                           <!-- Checkbox Kepala Dinas (Kadin) -->
@@ -545,12 +608,21 @@ sekId: "{{ $sekretariatId }}",
                                                   </span>
                                               </div>
                                           </label>
+
                                          @foreach($allBidangs as $b)
                                              @php
-                                                 $isSub = (str_contains(strtolower($b->nama), 'subbag') || str_contains(strtolower($b->singkatan), 'subbag')) && strcasecmp($b->singkatan, 'Sekretariat') !== 0;
+                                                 $isSekretariatItem = (strcasecmp($b->singkatan, 'Sekretariat') === 0 || strcasecmp($b->nama, 'Sekretariat') === 0);
+                                                 $isSub = (str_contains(strtolower($b->nama), 'subbag') || str_contains(strtolower($b->singkatan), 'subbag')) && !$isSekretariatItem;
                                                  $isMandatory = (Auth::user()->isSekretarisBidang() && Auth::user()->bidang_id == $b->id)
                                                              || (Auth::user()->isSekretariatScope() && $sekretariatId && (string)$b->id === (string)$sekretariatId);
                                              @endphp
+                                             @if($isSekretariatItem)
+                                                 <!-- Checkbox Lingkup Sekretariat (Right above Sekretariat) -->
+                                                 <label class="flex items-center gap-2 px-2.5 py-1.5 bg-indigo-50/80 rounded-xl border border-indigo-200/80 hover:border-[#1b3bbb] transition-all cursor-pointer select-none my-0.5">
+                                                     <input type="checkbox" x-model="semuaSekretariat" @change="toggleSemuaSekretariat()" class="w-3.5 h-3.5 rounded border-[#d4d1f5] text-[#8e88dd] shrink-0">
+                                                     <span class="text-xs text-[#1b3bbb] font-extrabold">Lingkup Sekretariat</span>
+                                                 </label>
+                                             @endif
                                              <label class="flex items-center justify-between px-2 py-1 rounded-lg hover:bg-slate-50 transition-all cursor-pointer select-none {{ $isSub ? 'pl-6' : '' }}">
                                                  <div class="flex items-center gap-2">
                                                      @if($isSub)
@@ -583,7 +655,7 @@ sekId: "{{ $sekretariatId }}",
                                             <span>Kelola Peserta</span>
                                             <span class="px-1.5 py-0.5 rounded-full text-[10px] font-extrabold" :class="selectedParticipants.length === 0 ? 'bg-rose-600 text-white animate-pulse' : 'bg-[#2e2552] text-white'" x-text="selectedParticipants.length"></span>
                                         </button>
-                                        <span :class="selectedParticipants.length === 0 ? 'text-rose-600 font-extrabold animate-pulse' : 'text-[#5a508f] font-medium'" class="text-[11px]" x-text="selectedParticipants.length === 0 ? '⚠️ Minimal 1 peserta!' : selectedParticipants.length + ' peserta diundang'"></span>
+                                        <span :class="selectedParticipants.length === 0 ? 'text-rose-600 font-extrabold animate-pulse' : 'text-[#5a508f] font-medium'" class="text-[11px]" x-text="selectedParticipants.length === 0 ? 'Minimal 1 peserta!' : selectedParticipants.length + ' peserta diundang'"></span>
                                     </div>
 
                                     <!-- KELOLA PESERTA MODAL -->
@@ -663,6 +735,31 @@ sekId: "{{ $sekretariatId }}",
                                                       </div>
                                                   </template>
 
+                                                  <!-- Group Card Khusus Sekretaris Dinas (Sekdin) -->
+                                                   <template x-if="sekdinUser && sekdinTarget && (!searchParticipant || sekdinUser.name.toLowerCase().includes(searchParticipant.toLowerCase()) || sekdinUser.jabatan.toLowerCase().includes(searchParticipant.toLowerCase()))">
+                                                       <div class="bg-slate-50 border border-slate-200/80 rounded-2xl p-3.5 space-y-2.5">
+                                                           <div class="flex items-center justify-between pb-2 border-b border-slate-200/60">
+                                                               <div class="flex items-center gap-2">
+                                                                   <span class="w-2.5 h-2.5 rounded-full bg-[#1b3bbb]"></span>
+                                                                   <span class="text-xs font-black text-[#09103c]">Sekretaris Dinas (Sekdin)</span>
+                                                               </div>
+                                                               <button type="button" @click="toggleSekdinTarget()" class="text-[10.5px] font-extrabold text-[#1b3bbb] hover:underline cursor-pointer">
+                                                                   <span x-text="selectedParticipants.map(String).includes(String(sekdinUser.id)) ? 'Hapus Centang' : 'Centang'"></span>
+                                                               </button>
+                                                           </div>
+
+                                                           <div class="grid grid-cols-1 sm:grid-cols-2 gap-1.5">
+                                                               <label class="flex items-start gap-2.5 p-2 bg-white rounded-xl border border-slate-200/60 hover:border-indigo-200 cursor-pointer select-none transition-all">
+                                                                   <input type="checkbox" :value="sekdinUser.id" x-model="selectedParticipants" @change="if(sekdinUserId) sekdinTarget = selectedParticipants.map(String).includes(String(sekdinUserId));" class="w-4 h-4 rounded border-slate-300 text-indigo-600 focus:ring-indigo-500 mt-0.5 shrink-0">
+                                                                   <div class="min-w-0 flex-1">
+                                                                       <div class="text-xs font-bold text-slate-800 leading-tight truncate" x-text="sekdinUser.name"></div>
+                                                                       <div class="text-[10px] text-slate-500 font-medium truncate" x-text="sekdinUser.jabatan || 'Sekretaris Dinas / Sekdin'"></div>
+                                                                   </div>
+                                                               </label>
+                                                           </div>
+                                                       </div>
+                                                   </template>
+
                                                  <template x-for="bidang in visibleBidangs" :key="bidang.id">
                                                       <div class="bg-slate-50 border border-slate-200/80 rounded-2xl p-3.5 space-y-2.5">
                                                           <div class="flex items-center justify-between pb-2 border-b border-slate-200/60">
@@ -680,9 +777,9 @@ sekId: "{{ $sekretariatId }}",
                                                               <template x-for="user in filteredUsers(bidang.users)" :key="user.id">
                                                                   <label class="flex items-start gap-2.5 p-2.5 rounded-xl border select-none transition-all cursor-pointer"
                                                                          :class="isPimpinan(user) 
-                                                                                  ? 'bg-amber-50/80 border-amber-200/90 hover:border-amber-300' 
+                                                                                  ? 'bg-gradient-to-r from-amber-50/90 to-amber-100/60 border-amber-300 hover:border-amber-400' 
                                                                                   : (isNotulis(user) 
-                                                                                      ? 'bg-indigo-50/80 border-indigo-200/90 hover:border-indigo-300' 
+                                                                                      ? 'bg-gradient-to-r from-indigo-50/90 to-indigo-100/60 border-indigo-300 hover:border-indigo-400' 
                                                                                       : 'bg-white hover:bg-indigo-50/50 border-slate-200/60 hover:border-indigo-200')">
                                                                       
                                                                       <input type="checkbox" 
@@ -690,11 +787,11 @@ sekId: "{{ $sekretariatId }}",
                                                                              x-model="selectedParticipants" 
                                                                              :disabled="isMandatoryUser(user)"
                                                                              class="w-4 h-4 rounded border-slate-300 text-indigo-600 focus:ring-indigo-500 mt-0.5 shrink-0"
-                                                                             :class="isMandatoryUser(user) ? 'opacity-70 cursor-not-allowed' : ''">
+                                                                             :class="isMandatoryUser(user) ? 'opacity-80 cursor-not-allowed' : ''">
                                                                       
                                                                       <div class="min-w-0 flex-1">
-                                                                           <div class="text-xs font-bold text-slate-800 leading-tight truncate" x-text="user.name"></div>
-                                                                           <div class="text-[10px] text-slate-500 font-medium truncate mt-0.5" x-text="user.jabatan || 'Pegawai'"></div>
+                                                                          <div class="text-xs font-bold text-slate-800 leading-tight truncate" x-text="user.name"></div>
+                                                                          <div class="text-[10px] text-slate-500 font-medium truncate mt-0.5" x-text="user.jabatan || 'Pegawai'"></div>
                                                                       </div>
                                                                   </label>
                                                               </template>
@@ -707,7 +804,7 @@ sekId: "{{ $sekretariatId }}",
                                             <div class="px-5 py-3.5 bg-slate-50 border-t border-slate-200 flex flex-col sm:flex-row items-center justify-between gap-3 shrink-0">
                                                 <div class="text-xs font-bold text-slate-600 flex items-center gap-1">
                                                     <template x-if="selectedParticipants.length === 0">
-                                                        <span class="text-rose-600 font-black flex items-center gap-1">⚠️ Pilih minimal 1 peserta!</span>
+                                                        <span class="text-rose-600 font-black flex items-center gap-1">Pilih minimal 1 peserta!</span>
                                                     </template>
                                                     <template x-if="selectedParticipants.length > 0">
                                                         <span>Total Terpilih: <span class="text-[#1b3bbb] font-black" x-text="selectedParticipants.length"></span> Peserta</span>
@@ -890,11 +987,23 @@ sekId: "{{ $sekretariatId }}",
                                 <span>Peserta / Bidang Diundang:</span>
                             </span>
                             <div class="flex items-center gap-1 flex-wrap">
-                                @foreach($invitedBidangLabels as $lbl)
-                                    <span class="px-2 py-0.5 rounded-full border text-[8.5px] sm:text-[9px] font-black uppercase tracking-wider shadow-2xs {{ $lbl['bg'] }}">
+                                @php
+                                    $maxShow = 3;
+                                    $totalLabels = count($invitedBidangLabels);
+                                    $visibleLabels = array_slice($invitedBidangLabels, 0, $maxShow);
+                                    $remainingCount = $totalLabels - $maxShow;
+                                    $remainingNames = $remainingCount > 0 ? implode(', ', array_column(array_slice($invitedBidangLabels, $maxShow), 'name')) : '';
+                                @endphp
+                                @foreach($visibleLabels as $lbl)
+                                    <span class="px-2 py-0.5 rounded-full border text-[8.5px] sm:text-[9px] font-bold shadow-2xs {{ $lbl['bg'] }}">
                                         {{ $lbl['name'] }}
                                     </span>
                                 @endforeach
+                                @if($remainingCount > 0)
+                                    <span class="px-2 py-0.5 rounded-full border border-indigo-200 bg-indigo-50 text-[#1b3bbb] text-[8.5px] sm:text-[9px] font-extrabold cursor-help shadow-2xs" title="{{ $remainingNames }}">
+                                        +{{ $remainingCount }} lainnya
+                                    </span>
+                                @endif
                             </div>
                         </div>
                     @endif
@@ -918,10 +1027,10 @@ sekId: "{{ $sekretariatId }}",
                                 @else
                                     @if($isSecretaryOfAgenda || Auth::user()->isAdmin())
                                         <button type="button" @click="openNomorSuratModal = true" class="text-[#8e88dd] hover:text-[#1b3bbb] italic cursor-pointer hover:underline text-left">
-                                            Belum diisi oleh Sekretaris. Klik untuk mengisi...
+                                            Belum diisi oleh Admin. Klik untuk mengisi...
                                         </button>
                                     @else
-                                        <span class="text-[#8e88dd] italic">Belum diisi oleh Sekretaris.</span>
+                                        <span class="text-[#8e88dd] italic">Belum diisi oleh Admin.</span>
                                     @endif
                                 @endif
                             </p>
@@ -1177,7 +1286,7 @@ sekId: "{{ $sekretariatId }}",
 
             <!-- 3. STATUS NOTULENSI AI (Hanya Rapat yang Memiliki Notulensi) -->
             @if($agenda->kategori === 'rapat' && $agenda->notulensi)
-                <div class="bg-white border border-[#d4d1f5]/60 rounded-xl md:rounded-[24px] p-3.5 sm:p-5 shadow-sm space-y-2.5 {{ $hasMultipleRightCards ? 'flex-1 flex flex-col justify-between' : '' }}">
+                <div class="bg-white border border-[#d4d1f5]/60 rounded-xl md:rounded-[24px] p-3.5 sm:p-5 shadow-sm space-y-3">
                     <h3 class="text-[11px] sm:text-xs font-bold uppercase tracking-wider text-[#2e2552]">Dokumentasi Notulensi</h3>
                     
                     @php
@@ -1197,7 +1306,7 @@ sekId: "{{ $sekretariatId }}",
                             $notulenLabel = 'Gagal Transkripsi';
                             $notulenColor = 'bg-rose-50 text-rose-600 border-rose-200';
                         } elseif ($notulensi->status === 'revisi') {
-                            $notulenLabel = 'Perlu Revisi Sekretaris';
+                            $notulenLabel = 'Perlu Revisi Admin';
                             $notulenColor = 'bg-rose-50 text-rose-700 border-rose-200';
                         } elseif ($notulensi->status === 'draft') {
                             if ($hasDraftContent) {
@@ -1219,7 +1328,7 @@ sekId: "{{ $sekretariatId }}",
                         }
                     @endphp
                     
-                    <div class="flex flex-col gap-2.5 sm:gap-4 flex-1 justify-between">
+                    <div class="space-y-3">
                         <div class="flex items-center justify-between border-b border-[#d4d1f5]/40 pb-2">
                             <span class="text-[11px] sm:text-xs text-[#5a508f]">Status Notulen:</span>
                             <span class="text-[9px] sm:text-[10px] px-2 py-0.5 rounded-full border font-bold uppercase {{ $notulenColor }}">
@@ -1234,7 +1343,7 @@ sekId: "{{ $sekretariatId }}",
                                         <svg class="w-4 h-4 text-rose-600 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
                                         <span>Catatan Revisi Pimpinan:</span>
                                     </p>
-                                    <p class="italic text-slate-700 font-medium pl-5.5">"{{ $agenda->notulensi->catatan_revisi }}"</p>
+                                    <p class="italic text-[#2e2552] font-medium pl-5.5">"{{ $agenda->notulensi->catatan_revisi }}"</p>
                                 </div>
                             @endif
 
@@ -1245,7 +1354,7 @@ sekId: "{{ $sekretariatId }}",
                                 </a>
                             @else
                                 <p class="text-xs text-rose-700 text-center py-2 italic font-medium">
-                                    Draf notulensi perlu perbaikan dan sedang dikembalikan ke sekretaris.
+                                    Draf notulensi perlu perbaikan dan sedang dikembalikan ke admin.
                                 </p>
                             @endif
                         @elseif($agenda->notulensi->status === 'draft')
@@ -1273,16 +1382,27 @@ sekId: "{{ $sekretariatId }}",
                                 </a>
                             @elseif($hasDraftContent)
                                 <p class="text-xs text-[#8e88dd] text-center py-1.5 italic font-medium">
-                                    Draf notulensi rapat sedang dirapikan oleh sekretaris.
+                                    Draf notulensi rapat sedang dirapikan oleh admin.
                                 </p>
                             @endif
                         @elseif($agenda->notulensi->status === 'menunggu_review')
                             @if($isApproverOfAgenda)
-                                <a href="{{ route('notulensi.review', $agenda->id) }}" 
-                                   class="w-full py-2 sm:py-2.5 bg-gradient-to-r from-amber-600 to-orange-600 hover:from-amber-500 hover:to-orange-500 text-white font-bold text-[11px] sm:text-xs rounded-xl shadow-md transition-all flex items-center justify-center gap-1.5">
-                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
-                                    <span>Tinjau & Sahkan Notulensi</span>
-                                </a>
+                                <div class="space-y-2.5">
+                                    <div class="bg-amber-50/80 border border-amber-200/80 rounded-xl p-3 space-y-1">
+                                        <p class="text-xs font-bold text-amber-900 flex items-center gap-1.5">
+                                            <svg class="w-3.5 h-3.5 text-amber-600 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                                            <span>Memerlukan Persetujuan Anda</span>
+                                        </p>
+                                        <p class="text-[10.5px] text-amber-800 font-medium leading-relaxed">
+                                            Draf notulensi telah diajukan dan siap untuk Anda tinjau dan sahkan.
+                                        </p>
+                                    </div>
+                                    <a href="{{ route('notulensi.review', $agenda->id) }}" 
+                                       class="w-full py-2 sm:py-2.5 bg-gradient-to-r from-amber-600 to-orange-600 hover:from-amber-500 hover:to-orange-500 text-white font-bold text-[11px] sm:text-xs rounded-xl shadow-md transition-all flex items-center justify-center gap-1.5">
+                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                                        <span>Tinjau & Sahkan Notulensi</span>
+                                    </a>
+                                </div>
                             @elseif($isSecretaryOfAgenda)
                                 <div class="space-y-2">
                                     <a href="{{ route('notulensi.edit', $agenda->id) }}" 

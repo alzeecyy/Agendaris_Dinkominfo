@@ -213,6 +213,9 @@
         .swal2-icon.swal2-success .swal2-success-ring {
             border: 4px solid rgba(16, 185, 129, 0.2) !important;
         }
+        .swal2-container {
+            z-index: 999999 !important;
+        }
         [x-cloak] {
             display: none !important;
         }

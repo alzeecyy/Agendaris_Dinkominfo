@@ -35,8 +35,14 @@ class AgendaController extends Controller
             ->get();
 
         // Sort priority: 1. Ongoing (Berlangsung), 2. Upcoming (Mendatang), 3. Completed (Selesai at the bottom)
-        $agendas = $rawAgendas->filter(fn($a) => $user->hasAccessToAgenda($a))
-            ->sortBy(function($a) use ($nowTime) {
+        // Rule: On Card Agenda Hari Ini, KADIN & SEKDIN ONLY see agendas where they are explicitly invited or creator.
+        $agendas = $rawAgendas->filter(function($a) use ($user) {
+            if ($user->isKetuaMaster() || $user->isSekretarisMaster()) {
+                return ((string)$a->sekretaris_id === (string)$user->id) || $a->participants()->where('users.id', $user->id)->exists();
+            }
+            return $user->hasAccessToAgenda($a);
+        })
+        ->sortBy(function($a) use ($nowTime) {
                 $start = Carbon::parse($a->jam_mulai)->format('H:i:s');
                 $end = Carbon::parse($a->jam_selesai)->format('H:i:s');
 
@@ -129,9 +135,15 @@ class AgendaController extends Controller
             if (!in_array((string)$user->bidang_id, $bidangs)) {
                 $bidangs[] = (string)$user->bidang_id;
             }
-            // Max 3 bidangs allowed for standard Bidangs
-            if (count($bidangs) > 3) {
-                return back()->withErrors(['bidangs' => 'Admin Bidang hanya diperbolehkan memilih bidangnya sendiri dan maksimal 2 bidang tambahan (maksimal 3 bidang).'])->withInput();
+            // Max 3 bidangs allowed for standard Bidangs (excluding Kadin & Bidang Sekretariat)
+            $sekretariatId = \App\Models\Bidang::where('singkatan', 'Sekretariat')->orWhere('nama', 'Sekretariat')->value('id');
+
+            $actualBidangCount = count(array_filter($bidangs, function($b) use ($sekretariatId) {
+                return is_numeric($b) && (string)$b !== (string)$sekretariatId;
+            }));
+
+            if ($actualBidangCount > 3) {
+                return back()->withErrors(['bidangs' => 'Admin Bidang hanya diperbolehkan memilih maksimal 3 bidang/subbag (di luar Sekretariat & Kadin).'])->withInput();
             }
             $hakAkses = array_values(array_unique($bidangs));
         } else {
@@ -192,27 +204,25 @@ class AgendaController extends Controller
             }
         }
 
-        // Enforce mandatory participants: Creator (Notulis) and Leaders/Approvers of selected bidangs
+        // Enforce mandatory participants: Creator (Notulis) and Admins of invited Bidangs/Subbags
         $creatorId = Auth::id();
-        if ($creatorId && !in_array($creatorId, $targetUserIds) && in_array($creatorId, $allowedUserIds)) {
+        if ($creatorId && !in_array($creatorId, $targetUserIds)) {
             $targetUserIds[] = $creatorId;
         }
 
-        $leaderUserIds = \App\Models\User::where('active', true)
-            ->whereIn('role', ['ketua_master', 'sekretaris_master', 'ketua_bidang'])
+        $adminUserIds = \App\Models\User::where('active', true)
+            ->whereIn('role', ['sekretaris_bidang', 'sekretaris_master'])
             ->where(function($q) use ($hakAkses) {
                 if (!in_array('semua_orang', $hakAkses)) {
-                    $q->whereIn('bidang_id', $hakAkses)
-                      ->orWhere('role', 'ketua_master')
-                      ->orWhere('role', 'sekretaris_master');
+                    $q->whereIn('bidang_id', $hakAkses);
                 }
             })
             ->pluck('id')
             ->toArray();
 
-        foreach ($leaderUserIds as $lId) {
-            if (!in_array($lId, $targetUserIds) && in_array($lId, $allowedUserIds)) {
-                $targetUserIds[] = $lId;
+        foreach ($adminUserIds as $aId) {
+            if (!in_array($aId, $targetUserIds) && in_array($aId, $allowedUserIds)) {
+                $targetUserIds[] = $aId;
             }
         }
 
@@ -454,9 +464,15 @@ class AgendaController extends Controller
             if (!in_array((string)$user->bidang_id, $bidangs)) {
                 $bidangs[] = (string)$user->bidang_id;
             }
-            // Max 3 bidangs allowed for standard Bidangs
-            if (count($bidangs) > 3) {
-                return back()->withErrors(['bidangs' => 'Admin Bidang hanya diperbolehkan memilih bidangnya sendiri dan maksimal 2 bidang tambahan (maksimal 3 bidang).'])->withInput();
+            // Max 3 bidangs allowed for standard Bidangs (excluding Kadin & Bidang Sekretariat)
+            $sekretariatId = \App\Models\Bidang::where('singkatan', 'Sekretariat')->orWhere('nama', 'Sekretariat')->value('id');
+
+            $actualBidangCount = count(array_filter($bidangs, function($b) use ($sekretariatId) {
+                return is_numeric($b) && (string)$b !== (string)$sekretariatId;
+            }));
+
+            if ($actualBidangCount > 3) {
+                return back()->withErrors(['bidangs' => 'Admin Bidang hanya diperbolehkan memilih maksimal 3 bidang/subbag (di luar Sekretariat & Kadin).'])->withInput();
             }
             $newHakAkses = array_values(array_unique($bidangs));
         } else {
@@ -502,27 +518,25 @@ class AgendaController extends Controller
             }
         }
 
-        // Enforce mandatory participants: Creator (Notulis) and Leaders/Approvers of selected bidangs
+        // Enforce mandatory participants: Creator (Notulis) and Admins of invited Bidangs/Subbags
         $creatorId = $agenda->sekretaris_id ?: Auth::id();
-        if ($creatorId && !in_array($creatorId, $targetUserIds) && in_array($creatorId, $allowedUserIds)) {
+        if ($creatorId && !in_array($creatorId, $targetUserIds)) {
             $targetUserIds[] = $creatorId;
         }
 
-        $leaderUserIds = \App\Models\User::where('active', true)
-            ->whereIn('role', ['ketua_master', 'sekretaris_master', 'ketua_bidang'])
+        $adminUserIds = \App\Models\User::where('active', true)
+            ->whereIn('role', ['sekretaris_bidang', 'sekretaris_master'])
             ->where(function($q) use ($newHakAkses) {
                 if (!in_array('semua_orang', $newHakAkses)) {
-                    $q->whereIn('bidang_id', $newHakAkses)
-                      ->orWhere('role', 'ketua_master')
-                      ->orWhere('role', 'sekretaris_master');
+                    $q->whereIn('bidang_id', $newHakAkses);
                 }
             })
             ->pluck('id')
             ->toArray();
 
-        foreach ($leaderUserIds as $lId) {
-            if (!in_array($lId, $targetUserIds) && in_array($lId, $allowedUserIds)) {
-                $targetUserIds[] = $lId;
+        foreach ($adminUserIds as $aId) {
+            if (!in_array($aId, $targetUserIds) && in_array($aId, $allowedUserIds)) {
+                $targetUserIds[] = $aId;
             }
         }
 

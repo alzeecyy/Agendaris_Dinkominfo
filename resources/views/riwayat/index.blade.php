@@ -345,6 +345,38 @@ class="space-y-6">
                                 <a href="{{ route('agenda.show', $item->id) }}" class="hover:text-[#8e88dd] transition-colors leading-snug">
                                     {{ $item->judul }}
                                 </a>
+                                @php
+                                    $itemHak = (array)($item->hak_akses ?? []);
+                                @endphp
+                                @if(!empty($itemHak))
+                                    <div class="flex items-center gap-1 flex-wrap mt-1">
+                                        @if(in_array('semua_orang', $itemHak))
+                                            <span class="inline-block text-[8.5px] px-1.5 py-0.5 font-bold rounded-md bg-emerald-50 text-emerald-700 border border-emerald-200">
+                                                Semua Bidang & Subbag
+                                            </span>
+                                        @else
+                                            @php
+                                                $bRecords = \App\Models\Bidang::whereIn('id', $itemHak)->get();
+                                                $bNames = $bRecords->map(fn($b) => $b->singkatan ?? $b->nama)->toArray();
+                                                $maxRShow = 2;
+                                                $totalRCount = count($bNames);
+                                                $visibleRNames = array_slice($bNames, 0, $maxRShow);
+                                                $remRCount = $totalRCount - $maxRShow;
+                                                $remRNames = $remRCount > 0 ? implode(', ', array_slice($bNames, $maxRShow)) : '';
+                                            @endphp
+                                            @foreach($visibleRNames as $bNm)
+                                                <span class="inline-block text-[8.5px] px-1.5 py-0.5 font-bold rounded-md bg-indigo-50 text-[#1b3bbb] border border-indigo-200">
+                                                    {{ $bNm }}
+                                                </span>
+                                            @endforeach
+                                            @if($remRCount > 0)
+                                                <span class="inline-block text-[8.5px] px-1.5 py-0.5 font-extrabold rounded-md bg-indigo-50 text-[#1b3bbb] border border-indigo-200 cursor-help" title="{{ $remRNames }}">
+                                                    +{{ $remRCount }} lainnya
+                                                </span>
+                                            @endif
+                                        @endif
+                                    </div>
+                                @endif
                             </td>
                             <td class="py-2 sm:py-4 px-2 sm:px-4 text-center whitespace-nowrap">
                                 @php

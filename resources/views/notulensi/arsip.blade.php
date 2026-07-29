@@ -123,7 +123,7 @@
                         $creatorBidang = $agenda->sekretaris?->bidang?->singkatan ?? $agenda->sekretaris?->bidang?->nama;
                         $bidangBadgeStr = $creatorBidang ?: 'Dinkominfo';
                         
-                        $notulisName = $notulensi->lastEditedBy?->name ?? $agenda->sekretaris?->name ?? 'Sekretaris Rapat';
+                        $notulisName = $notulensi->lastEditedBy?->name ?? $agenda->sekretaris?->name ?? 'Admin Rapat';
                         $approverName = $notulensi->approver?->name ?? 'Pimpinan';
                         $approverJabatan = $notulensi->approver?->jabatan ?? 'Pengesah';
                     @endphp

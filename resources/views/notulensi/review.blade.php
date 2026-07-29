@@ -38,15 +38,13 @@
                 $st = $notulensi->status ?? 'draft';
 
                 // Extract Bidang Penanggung Jawab (Penyelenggara) & Target Sasaran Rapat
-                $notulis = $notulensi->lastEditedBy ?? $agenda->sekretaris;
+                $creatorUser = $agenda->sekretaris;
+                $notulis = $creatorUser ?? $notulensi->lastEditedBy;
 
-                // 1. Bidang Penanggung Jawab / Penyelenggara (creator/secretary's bidang)
-                $penanggungJawab = $notulis?->bidang?->nama 
-                    ?? $agenda->sekretaris?->bidang?->nama 
-                    ?? 'Dinas Komunikasi dan Informatika';
-                $penanggungJawabSingkatan = $notulis?->bidang?->singkatan 
-                    ?? $agenda->sekretaris?->bidang?->singkatan 
-                    ?? '';
+                // 1. Bidang Penanggung Jawab / Penyelenggara (creator's bidang)
+                $penanggungJawab = $creatorUser?->bidang?->nama 
+                    ?? ($creatorUser?->isSekretarisMaster() ? 'Sekretariat Dinas' : 'Dinas Komunikasi dan Informatika');
+                $penanggungJawabSingkatan = $creatorUser?->bidang?->singkatan ?? '';
 
                 $pjString = $penanggungJawab . ($penanggungJawabSingkatan ? ' (' . $penanggungJawabSingkatan . ')' : '');
 
