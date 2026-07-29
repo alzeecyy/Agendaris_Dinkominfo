@@ -365,7 +365,7 @@ class DashboardController extends Controller
 
         $presensis = Presensi::where('user_id', $user->id)->get()->keyBy('agenda_id');
 
-        $riwayatRingkas = $pastAgendas->take(5)->map(function ($agenda) use ($presensis) {
+        $riwayatRingkas = $pastAgendas->take(10)->map(function ($agenda) use ($presensis) {
             $status = $presensis->has($agenda->id) ? $presensis[$agenda->id]->status : null;
             if ($agenda->butuh_presensi && !$status && $agenda->isPresensiExpired()) {
                 $status = 'alfa';

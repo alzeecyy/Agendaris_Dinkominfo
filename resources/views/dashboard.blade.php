@@ -527,7 +527,7 @@
             <div class="bg-white border border-[#d4d1f5]/60 rounded-2xl md:rounded-[32px] p-3.5 sm:p-6 shadow-sm space-y-3 sm:space-y-4 shrink-0">
                 <h3 class="text-[11px] sm:text-xs font-bold uppercase tracking-wider text-[#2e2552]">Perhatian Khusus</h3>
                 
-                <div class="space-y-2.5 sm:space-y-3">
+                <div class="space-y-2.5 sm:space-y-3 max-h-[250px] overflow-y-auto pr-1">
                     @forelse($highlights as $hl)
                         <div class="p-2.5 sm:p-3 bg-[#f8f7ff] border border-amber-300/30 rounded-xl sm:rounded-2xl flex flex-col gap-1.5 sm:gap-2">
                             <div class="flex items-start gap-2">
@@ -556,7 +556,7 @@
                     <a href="{{ route('riwayat') }}" class="text-[10px] text-[#8e88dd] hover:text-[#2e2552] font-bold transition-colors">Lihat Semua</a>
                 </div>
 
-                <div class="space-y-3 flex-1 flex flex-col justify-start">
+                <div class="space-y-2.5 max-h-[200px] overflow-y-auto pr-1">
                     @forelse($riwayatRingkas as $rw)
                         <div class="p-3 bg-[#fcfbff] border border-[#d4d1f5]/20 rounded-2xl flex items-center justify-between gap-3 text-xs">
                             <div class="min-w-0 flex-1">
