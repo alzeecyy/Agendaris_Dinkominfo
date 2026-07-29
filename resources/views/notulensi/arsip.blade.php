@@ -72,7 +72,7 @@
                          x-transition:leave="transition ease-in duration-100 transform" 
                          x-transition:leave-start="opacity-100 scale-100 translate-y-0" 
                          x-transition:leave-end="opacity-0 scale-95 -translate-y-1" 
-                         class="absolute left-0 top-full mt-1.5 w-full bg-white border border-[#cbd5e1] rounded-2xl shadow-xl shadow-[#1b3bbb]/10 p-1.5 z-50 overflow-hidden">
+                         class="absolute left-0 top-full mt-1.5 w-full bg-white border border-[#cbd5e1] rounded-2xl shadow-xl shadow-[#1b3bbb]/10 p-1.5 z-50 max-h-52 overflow-y-auto">
                         <div class="space-y-0.5">
                             <a href="{{ route('notulensi.arsip', ['bidang_id' => 'semua']) }}" 
                                class="flex items-center justify-between px-3.5 py-2.5 rounded-xl text-xs font-semibold transition-colors {{ $selectedBidangId === 'semua' ? 'bg-[#1b3bbb] text-white font-bold' : 'text-[#09103c] hover:bg-[#1b3bbb]/10 hover:text-[#1b3bbb]' }}">

@@ -231,7 +231,7 @@ class="space-y-6">
                          x-transition:leave="transition ease-in duration-100 transform" 
                          x-transition:leave-start="opacity-100 scale-100 translate-y-0" 
                          x-transition:leave-end="opacity-0 scale-95 -translate-y-1" 
-                         class="absolute left-0 top-full mt-1.5 w-full bg-white border border-[#cbd5e1] rounded-2xl shadow-xl shadow-[#1b3bbb]/10 p-1.5 z-50 overflow-hidden">
+                         class="absolute left-0 top-full mt-1.5 w-full bg-white border border-[#cbd5e1] rounded-2xl shadow-xl shadow-[#1b3bbb]/10 p-1.5 z-50 max-h-52 overflow-y-auto">
                         <div class="space-y-0.5">
                             <button type="button" @click="filterBidang = ''; open = false" 
                                     class="w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs font-semibold transition-colors"
@@ -277,7 +277,7 @@ class="space-y-6">
                          x-transition:leave="transition ease-in duration-100 transform" 
                          x-transition:leave-start="opacity-100 scale-100 translate-y-0" 
                          x-transition:leave-end="opacity-0 scale-95 -translate-y-1" 
-                         class="absolute left-0 top-full mt-1.5 w-full bg-white border border-[#cbd5e1] rounded-2xl shadow-xl shadow-[#1b3bbb]/10 p-1.5 z-50 overflow-hidden">
+                         class="absolute left-0 top-full mt-1.5 w-full bg-white border border-[#cbd5e1] rounded-2xl shadow-xl shadow-[#1b3bbb]/10 p-1.5 z-50 max-h-52 overflow-y-auto">
                         <div class="space-y-0.5">
                             <template x-for="opt in [
                                 { value: '', label: 'Semua Peran/Role' },
@@ -324,7 +324,7 @@ class="space-y-6">
                          x-transition:leave="transition ease-in duration-100 transform" 
                          x-transition:leave-start="opacity-100 scale-100 translate-y-0" 
                          x-transition:leave-end="opacity-0 scale-95 -translate-y-1" 
-                         class="absolute left-0 top-full mt-1.5 w-full bg-white border border-[#cbd5e1] rounded-2xl shadow-xl shadow-[#1b3bbb]/10 p-1.5 z-50 overflow-hidden">
+                         class="absolute left-0 top-full mt-1.5 w-full bg-white border border-[#cbd5e1] rounded-2xl shadow-xl shadow-[#1b3bbb]/10 p-1.5 z-50 max-h-52 overflow-y-auto">
                         <div class="space-y-0.5">
                             <template x-for="opt in [
                                 { value: '', label: 'Semua Status' },
@@ -571,7 +571,7 @@ class="space-y-6">
                              x-transition:leave="transition ease-in duration-100 transform" 
                              x-transition:leave-start="opacity-100 scale-100 translate-y-0" 
                              x-transition:leave-end="opacity-0 scale-95 -translate-y-1" 
-                             class="absolute left-0 top-full mt-1 w-full bg-white border border-[#cbd5e1] rounded-2xl shadow-xl shadow-[#1b3bbb]/10 p-1.5 z-50 overflow-hidden">
+                             class="absolute left-0 top-full mt-1 w-full bg-white border border-[#cbd5e1] rounded-2xl shadow-xl shadow-[#1b3bbb]/10 p-1.5 z-50 max-h-52 overflow-y-auto">
                             <div class="space-y-0.5">
                                 <button type="button" @click="addBidangId = ''; openBidang = false" 
                                         class="w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs font-semibold transition-colors"
@@ -606,7 +606,7 @@ class="space-y-6">
                              x-transition:leave="transition ease-in duration-100 transform" 
                              x-transition:leave-start="opacity-100 scale-100 translate-y-0" 
                              x-transition:leave-end="opacity-0 scale-95 -translate-y-1" 
-                             class="absolute left-0 top-full mt-1 w-full bg-white border border-[#cbd5e1] rounded-2xl shadow-xl shadow-[#1b3bbb]/10 p-1.5 z-50 overflow-hidden">
+                             class="absolute left-0 top-full mt-1 w-full bg-white border border-[#cbd5e1] rounded-2xl shadow-xl shadow-[#1b3bbb]/10 p-1.5 z-50 max-h-52 overflow-y-auto">
                             <div class="space-y-0.5">
                                 <template x-for="opt in [
                                     { value: 'staff', label: 'Staff' },
@@ -703,7 +703,7 @@ class="space-y-6">
                              x-transition:leave="transition ease-in duration-100 transform" 
                              x-transition:leave-start="opacity-100 scale-100 translate-y-0" 
                              x-transition:leave-end="opacity-0 scale-95 -translate-y-1" 
-                             class="absolute left-0 top-full mt-1 w-full bg-white border border-[#cbd5e1] rounded-2xl shadow-xl shadow-[#1b3bbb]/10 p-1.5 z-50 overflow-hidden">
+                             class="absolute left-0 top-full mt-1 w-full bg-white border border-[#cbd5e1] rounded-2xl shadow-xl shadow-[#1b3bbb]/10 p-1.5 z-50 max-h-52 overflow-y-auto">
                             <div class="space-y-0.5">
                                 <button type="button" @click="editUser.bidang_id = ''; openEditBidang = false" 
                                         class="w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs font-semibold transition-colors"
@@ -738,7 +738,7 @@ class="space-y-6">
                              x-transition:leave="transition ease-in duration-100 transform" 
                              x-transition:leave-start="opacity-100 scale-100 translate-y-0" 
                              x-transition:leave-end="opacity-0 scale-95 -translate-y-1" 
-                             class="absolute left-0 top-full mt-1 w-full bg-white border border-[#cbd5e1] rounded-2xl shadow-xl shadow-[#1b3bbb]/10 p-1.5 z-50 overflow-hidden">
+                             class="absolute left-0 top-full mt-1 w-full bg-white border border-[#cbd5e1] rounded-2xl shadow-xl shadow-[#1b3bbb]/10 p-1.5 z-50 max-h-52 overflow-y-auto">
                             <div class="space-y-0.5">
                                 <template x-for="opt in [
                                     { value: 'staff', label: 'Staff' },

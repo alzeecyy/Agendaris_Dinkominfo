@@ -210,7 +210,7 @@
                                          x-transition:leave="transition ease-in duration-100 transform" 
                                          x-transition:leave-start="opacity-100 scale-100 translate-y-0" 
                                          x-transition:leave-end="opacity-0 scale-95 -translate-y-1" 
-                                         class="absolute left-0 top-full mt-1 w-full bg-white border border-[#cbd5e1] rounded-2xl shadow-xl shadow-[#1b3bbb]/10 p-1.5 z-50 overflow-hidden">
+                                         class="absolute left-0 top-full mt-1 w-full bg-white border border-[#cbd5e1] rounded-2xl shadow-xl shadow-[#1b3bbb]/10 p-1.5 z-50 max-h-52 overflow-y-auto">
                                         <div class="space-y-0.5">
                                             <template x-for="loc in ['Aula Rapat Dinkominfo', 'Ruang Pelatihan', 'Smart Room Graha Satria']" :key="loc">
                                                 <button type="button" @click="lokasiVal = loc; openEditLokasi = false" 
@@ -239,7 +239,7 @@
                                          x-transition:leave="transition ease-in duration-100 transform" 
                                          x-transition:leave-start="opacity-100 scale-100 translate-y-0" 
                                          x-transition:leave-end="opacity-0 scale-95 -translate-y-1" 
-                                         class="absolute left-0 top-full mt-1 w-full bg-white border border-[#cbd5e1] rounded-2xl shadow-xl shadow-[#1b3bbb]/10 p-1.5 z-50 overflow-hidden">
+                                         class="absolute left-0 top-full mt-1 w-full bg-white border border-[#cbd5e1] rounded-2xl shadow-xl shadow-[#1b3bbb]/10 p-1.5 z-50 max-h-52 overflow-y-auto">
                                         <div class="space-y-0.5">
                                             <template x-for="opt in [
                                                 { value: 'rapat', label: 'Rapat' },
