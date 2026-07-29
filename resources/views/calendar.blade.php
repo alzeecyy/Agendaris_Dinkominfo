@@ -357,10 +357,7 @@
                                           $arrowAlignClass = 'after:left-1/2 after:-translate-x-1/2';
                                       }
 
-                                      if ($topPct + $heightPct > 55) {
-                                          $tooltipPosition = 'top-2 mt-0 ' . $alignClass;
-                                          $arrowClass = 'after:hidden';
-                                      } elseif ($topPct < 15) {
+                                      if ($topPct < 25) {
                                           $tooltipPosition = 'top-full mt-2 ' . $alignClass;
                                           $arrowClass = 'after:bottom-full ' . $arrowAlignClass . ' after:border-b-' . ($event->kategori === 'rapat' ? '[#ffe4e6]' : ($event->kategori === 'sosialisasi' ? '[#dbeafe]' : ($event->kategori === 'pelatihan' ? '[#d1fae5]' : '[#f1f5f9]')));
                                       } else {
@@ -401,7 +398,7 @@
                                       $tStyle = $tooltipStyles[$event->kategori] ?? $tooltipStyles['kegiatan_lainnya'];
                                   @endphp
                                   <a href="{{ route('agenda.show', $event->id) }}" 
-                                     class="absolute p-1.5 sm:p-2 border rounded-xl sm:rounded-2xl text-left shadow-sm z-10 transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md hover:z-30 flex flex-col justify-between group {{ $cardColorClass }}"
+                                     class="absolute p-1.5 sm:p-2 border rounded-xl sm:rounded-2xl text-left shadow-sm z-10 transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md hover:z-50 flex flex-col justify-between group {{ $cardColorClass }}"
                                      style="top: calc({{ number_format($topPct, 2, '.', '') }}% + 2px); height: calc({{ number_format($heightPct, 2, '.', '') }}% - 4px); left: calc({{ number_format($leftPos, 2, '.', '') }}% + 2px); width: calc({{ number_format($colWidth, 2, '.', '') }}% - 4px);">
                                       <div class="min-w-0 w-full overflow-hidden shrink-0">
                                           <div class="flex items-center justify-between text-[8px] font-bold opacity-90 gap-1 uppercase min-w-0">
