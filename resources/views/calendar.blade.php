@@ -677,17 +677,29 @@
                     selectedParticipants: [],
                     participantModalOpen: false,
                     searchParticipant: "",
+                    adminValidationErrorMessage: "",
                     isDirty: false,
 
                     init() {
                         this.syncParticipants();
                     },
 
-                    isPimpinan(user) {
+                    isAdminUser(user) {
+                        if (!user) return false;
+                        let r = user.role;
+                        return r === "sekretaris_bidang" || r === "sekretaris_master";
+                    },
+
+                    isKetuaUser(user) {
                         if (!user) return false;
                         let r = user.role;
                         let j = (user.jabatan || "").toLowerCase();
-                        return r === "ketua_bidang" || r === "ketua_master" || r === "sekretaris_master" || j.includes("kepala") || j.includes("kabid") || j.includes("kasubbag") || j.includes("kadin") || j.includes("sekdin");
+                        if (this.isAdminUser(user)) return false;
+                        return r === "ketua_bidang" || r === "ketua_master" || j.includes("kepala") || j.includes("kabid") || j.includes("kasubbag") || j.includes("kadin") || j.includes("sekdin");
+                    },
+
+                    isPimpinan(user) {
+                        return this.isKetuaUser(user);
                     },
 
                     isNotulis(user) {
@@ -699,8 +711,53 @@
                         if (!user) return false;
                         let uId = String(user.id);
                         let isCreator = (uId === String(this.currentUserId));
-                        let isUnitAdmin = (user.role === "sekretaris_bidang" || user.role === "sekretaris_master");
-                        return isCreator || isUnitAdmin;
+                        let isKetua = this.isKetuaUser(user);
+                        return isCreator || isKetua;
+                    },
+
+                    toggleUserParticipant(user) {
+                        this.isDirty = true;
+                        let uId = String(user.id);
+                        let curParts = (this.selectedParticipants || []).map(String);
+
+                        if (this.isAdminUser(user)) {
+                            let unitId = String(user.bidang_id);
+                            let b = (this.bidangsUserData || []).find(item => String(item.id) === unitId);
+                            if (b) {
+                                let unitAdminIds = b.users.filter(u => this.isAdminUser(u)).map(u => String(u.id));
+                                if (!curParts.includes(uId)) {
+                                    // Switch to this admin (max 1 admin selected per unit)
+                                    curParts = curParts.filter(id => !unitAdminIds.includes(id));
+                                    curParts.push(uId);
+                                }
+                            }
+                            this.selectedParticipants = curParts;
+                        }
+                    },
+
+                    validateAdminSelection() {
+                        let selectedBidangIds = (this.bidangs || []).map(String);
+                        let curSelected = (this.selectedParticipants || []).map(String);
+                        let missingAdminBidangNames = [];
+
+                        (this.bidangsUserData || []).forEach(b => {
+                            if (selectedBidangIds.includes(String(b.id))) {
+                                let unitAdmins = (b.users || []).filter(u => this.isAdminUser(u));
+                                if (unitAdmins.length > 0) {
+                                    let selectedCount = unitAdmins.filter(u => curSelected.includes(String(u.id))).length;
+                                    if (selectedCount !== 1) {
+                                        missingAdminBidangNames.push(b.nama || b.singkatan);
+                                    }
+                                }
+                            }
+                        });
+
+                        if (missingAdminBidangNames.length > 0) {
+                            this.adminValidationErrorMessage = "Pilih 1 Admin dari unit yang diundang (" + missingAdminBidangNames.join(", ") + ").";
+                            return false;
+                        }
+                        this.adminValidationErrorMessage = "";
+                        return true;
                     },
 
                     toggleKadinTarget() {
@@ -767,6 +824,28 @@
                         this.$nextTick(() => {
                             let strId = String(id);
                             let curBids = (this.bidangs || []).map(String);
+                            let curParts = (this.selectedParticipants || []).map(String);
+
+                            if (curBids.includes(strId)) {
+                                // Bidang checked: Auto-check ALL users in this bidang
+                                let b = (this.bidangsUserData || []).find(item => String(item.id) === strId);
+                                if (b && Array.isArray(b.users)) {
+                                    b.users.forEach(u => {
+                                        let uId = String(u.id);
+                                        if (!curParts.includes(uId)) {
+                                            curParts.push(uId);
+                                        }
+                                    });
+                                }
+                            } else {
+                                // Bidang unchecked: Remove users belonging to this bidang
+                                let b = (this.bidangsUserData || []).find(item => String(item.id) === strId);
+                                if (b && Array.isArray(b.users)) {
+                                    let unitUserIds = b.users.map(u => String(u.id));
+                                    curParts = curParts.filter(uId => !unitUserIds.includes(uId) || uId === String(this.currentUserId));
+                                }
+                            }
+                            this.selectedParticipants = curParts;
 
                             if (this.isSekBid || this.isSekretariatScope) {
                                 if (this.ownBidangId && !curBids.includes(String(this.ownBidangId))) {
@@ -832,8 +911,13 @@
                             mandatoryUserIds.push(String(this.currentUserId));
                         }
 
+                        let currentSelected = (this.selectedParticipants || []).map(String);
+
                         (this.bidangsUserData || []).forEach(b => {
                             if (selectedBidangIds.includes(String(b.id))) {
+                                let unitAdmins = (b.users || []).filter(u => this.isAdminUser(u));
+                                let hasAdminSelected = unitAdmins.some(u => currentSelected.includes(String(u.id)));
+
                                 (b.users || []).forEach(u => {
                                     let uId = String(u.id);
                                     activeUserIds.push(uId);
@@ -841,6 +925,11 @@
                                         mandatoryUserIds.push(uId);
                                     }
                                 });
+
+                                // Auto-pick 1st admin if no admin is currently selected for this invited unit
+                                if (!hasAdminSelected && unitAdmins.length > 0) {
+                                    mandatoryUserIds.push(String(unitAdmins[0].id));
+                                }
                             }
                         });
 
@@ -856,16 +945,25 @@
                             mandatoryUserIds.push(sId);
                         }
 
-                        let currentSelected = (this.selectedParticipants || []).map(String);
                         let newSelection = currentSelected.filter(id => activeUserIds.includes(id));
-                        
-                        activeUserIds.forEach(id => {
-                            if (!newSelection.includes(id)) {
-                                newSelection.push(id);
+
+                        // Auto-check all users of newly invited bidangs if none were selected yet for that unit
+                        selectedBidangIds.forEach(bidId => {
+                            let b = (this.bidangsUserData || []).find(item => String(item.id) === bidId);
+                            if (b && Array.isArray(b.users)) {
+                                let hasAnySelected = b.users.some(u => currentSelected.includes(String(u.id)));
+                                if (!hasAnySelected) {
+                                    b.users.forEach(u => {
+                                        let uId = String(u.id);
+                                        if (!newSelection.includes(uId)) {
+                                            newSelection.push(uId);
+                                        }
+                                    });
+                                }
                             }
                         });
 
-                        // Mandatory leaders & creator MUST always be checked
+                        // Mandatory users (Creator + Ketua + 1 Admin) MUST always be checked
                         mandatoryUserIds.forEach(id => {
                             if (!newSelection.includes(id)) {
                                 newSelection.push(id);
@@ -1028,7 +1126,7 @@
                                     </div>
                                     <div>
                                         <h3 class="text-base font-extrabold text-white">Kelola Peserta Rapat & Kewenangan</h3>
-                                        <p class="text-[11px] text-indigo-100 font-medium">Pimpinan ACC dan Admin/Notulis pembuat rapat wajib diikutsertakan</p>
+                                        <p class="text-[11px] text-indigo-100 font-medium">Pilih tepat 1 Admin dari setiap unit yang diundang</p>
                                     </div>
                                 </div>
                                 <button @click="participantModalOpen = false" type="button" class="p-1.5 bg-white/10 hover:bg-rose-500/80 rounded-xl text-white transition-all cursor-pointer shrink-0">
@@ -1040,7 +1138,7 @@
 
                             <!-- Body Modal Kelola Peserta -->
                             <div class="p-4 sm:p-5 overflow-y-auto no-scrollbar space-y-4 flex-1 bg-slate-50/50">
-                                <!-- Search Bar -->
+                                 <!-- Search Bar -->
                                 <div class="relative">
                                     <input type="text" x-model="searchParticipant" placeholder="Cari nama, NIP, atau jabatan peserta..." 
                                            class="w-full pl-9 pr-8 py-2 bg-white border border-[#d4d1f5] rounded-xl text-xs text-[#2e2552] placeholder-slate-400 focus:border-[#1b3bbb] focus:ring-2 focus:ring-[#1b3bbb]/20 transition-all font-semibold shadow-2xs">
@@ -1052,6 +1150,23 @@
                                     </button>
                                 </div>
 
+                                <!-- Inline Validation Alert Banner inside Kelola Peserta Modal -->
+                                <template x-if="adminValidationErrorMessage">
+                                    <div class="p-3 bg-amber-50 border-2 border-amber-400 text-amber-900 rounded-2xl text-xs font-bold flex items-center justify-between shadow-sm animate-in fade-in duration-200">
+                                        <div class="flex items-center gap-2.5 min-w-0">
+                                            <div class="p-1 bg-amber-200/80 rounded-lg shrink-0">
+                                                <svg class="w-4 h-4 text-amber-800 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path>
+                                                </svg>
+                                            </div>
+                                            <span x-text="adminValidationErrorMessage" class="leading-tight"></span>
+                                        </div>
+                                        <button type="button" @click="adminValidationErrorMessage = ''" class="p-1 text-amber-700 hover:text-amber-950 hover:bg-amber-200/60 rounded-lg transition-all cursor-pointer shrink-0 ml-2">
+                                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                                        </button>
+                                    </div>
+                                </template>
+
                                 <template x-if="bidangs.length === 0">
                                     <div class="p-8 text-center bg-white rounded-2xl border border-dashed border-[#d4d1f5] shadow-2xs">
                                         <p class="text-xs text-slate-500 font-bold">Pilih minimal satu bidang di atas terlebih dahulu untuk mengelola peserta.</p>
@@ -1060,20 +1175,22 @@
 
                                 <!-- Group Card Khusus Kepala Dinas (Kadin) -->
                                 <template x-if="kadinUser && kadinTarget && (!searchParticipant || kadinUser.name.toLowerCase().includes(searchParticipant.toLowerCase()) || kadinUser.jabatan.toLowerCase().includes(searchParticipant.toLowerCase()))">
-                                    <div class="bg-gradient-to-r from-amber-50/90 to-amber-100/60 border border-amber-300 rounded-2xl p-3.5 space-y-2.5 shadow-2xs">
-                                        <div class="flex items-center justify-between pb-2 border-b border-amber-200">
+                                    <div class="bg-gradient-to-r from-purple-100 via-purple-100/90 to-purple-200/70 border border-purple-400 rounded-2xl p-3.5 space-y-2.5 shadow-2xs">
+                                        <div class="flex items-center justify-between pb-2 border-b border-purple-200">
                                             <div class="flex items-center gap-2">
-                                                <span class="w-2.5 h-2.5 rounded-full bg-amber-500"></span>
-                                                <span class="text-xs font-extrabold text-[#2e2552]">Kepala Dinas (Kadin)</span>
+                                                <span class="w-2.5 h-2.5 rounded-full bg-purple-600"></span>
+                                                <span class="text-xs font-extrabold text-purple-950">Kepala Dinas (Kadin)</span>
                                             </div>
                                         </div>
 
                                         <div class="grid grid-cols-1 sm:grid-cols-2 gap-1.5">
-                                            <label class="flex items-start gap-2.5 p-2 bg-white/90 rounded-xl border border-amber-200 cursor-pointer select-none transition-all">
-                                                <input type="checkbox" :value="kadinUser.id" x-model="selectedParticipants" :disabled="true" class="w-4 h-4 rounded border-slate-300 text-amber-600 focus:ring-amber-500 mt-0.5 shrink-0 opacity-80 cursor-not-allowed">
+                                            <label class="flex items-start gap-2.5 p-2 bg-white/90 rounded-xl border border-purple-300 cursor-pointer select-none transition-all">
+                                                <input type="checkbox" :value="kadinUser.id" x-model="selectedParticipants" :disabled="true" class="w-4 h-4 rounded border-slate-300 text-purple-600 focus:ring-purple-500 mt-0.5 shrink-0 opacity-80 cursor-not-allowed">
                                                 <div class="min-w-0 flex-1">
-                                                    <div class="text-xs font-bold text-[#2e2552] leading-tight truncate" x-text="kadinUser.name"></div>
-                                                    <div class="text-[10px] text-[#5a508f] font-medium truncate" x-text="kadinUser.jabatan || 'Kepala Dinas / Kadin'"></div>
+                                                    <div class="text-xs font-bold text-purple-950 leading-tight truncate">
+                                                        <span x-text="kadinUser.name"></span>
+                                                    </div>
+                                                    <div class="text-[10px] text-purple-700 font-medium truncate" x-text="kadinUser.jabatan || 'Kepala Dinas / Kadin'"></div>
                                                 </div>
                                             </label>
                                         </div>
@@ -1095,23 +1212,26 @@
                                         <div class="grid grid-cols-1 sm:grid-cols-2 gap-1.5">
                                             <template x-for="user in filteredUsers(bidang.users)" :key="user.id">
                                                 <label class="flex items-start gap-2.5 p-2.5 rounded-xl border select-none transition-all cursor-pointer"
-                                                       :class="isPimpinan(user) 
-                                                               ? 'bg-gradient-to-r from-amber-50/90 to-amber-100/60 border-amber-300 hover:border-amber-400' 
-                                                               : (isNotulis(user) 
-                                                                   ? 'bg-gradient-to-r from-indigo-50/90 to-indigo-100/60 border-indigo-300 hover:border-indigo-400' 
+                                                       :class="isAdminUser(user) 
+                                                               ? 'bg-gradient-to-r from-amber-50/90 to-amber-100/60 border-amber-300 hover:border-amber-400 text-amber-950' 
+                                                               : (isKetuaUser(user) || isNotulis(user)
+                                                                   ? 'bg-gradient-to-r from-purple-100 via-purple-100/90 to-purple-200/70 border-purple-400 hover:border-purple-500 text-purple-950' 
                                                                    : 'bg-[#f8f7ff] hover:bg-indigo-50/50 border-[#d4d1f5]/60 hover:border-[#1b3bbb]')">
                                                     
                                                     <input type="checkbox" 
                                                            :value="user.id" 
                                                            x-model="selectedParticipants" 
                                                            :disabled="isMandatoryUser(user)"
-                                                           @change="isDirty = true" 
-                                                           class="w-4 h-4 rounded border-slate-300 text-[#1b3bbb] focus:ring-[#1b3bbb] mt-0.5 shrink-0"
+                                                           @change="toggleUserParticipant(user)" 
+                                                           class="w-4 h-4 rounded border-slate-300 mt-0.5 shrink-0"
+                                                           :class="isAdminUser(user) ? 'text-amber-600 focus:ring-amber-500' : 'text-purple-600 focus:ring-purple-500'"
                                                            :class="isMandatoryUser(user) ? 'opacity-80 cursor-not-allowed' : ''">
                                                     
                                                     <div class="min-w-0 flex-1">
-                                                        <div class="text-xs font-bold text-[#2e2552] leading-tight truncate" x-text="user.name"></div>
-                                                        <div class="text-[10px] text-[#5a508f] font-medium truncate mt-0.5" x-text="user.jabatan"></div>
+                                                        <div class="text-xs font-bold leading-tight truncate" :class="isKetuaUser(user) || isNotulis(user) ? 'text-purple-950' : (isAdminUser(user) ? 'text-amber-950' : 'text-[#2e2552]')">
+                                                            <span x-text="user.name" class="truncate"></span>
+                                                        </div>
+                                                        <div class="text-[10px] font-medium truncate mt-0.5" :class="isKetuaUser(user) || isNotulis(user) ? 'text-purple-800' : (isAdminUser(user) ? 'text-amber-800' : 'text-[#5a508f]')" x-text="user.jabatan"></div>
                                                     </div>
                                                 </label>
                                             </template>
@@ -1135,7 +1255,7 @@
                                         Tutup
                                     </button>
                                     <button type="button" 
-                                            @click="if(selectedParticipants.length === 0) { alert('Pilih minimal 1 peserta rapat.'); } else { participantModalOpen = false; }" 
+                                            @click="if(validateAdminSelection()) { participantModalOpen = false; }" 
                                             :class="selectedParticipants.length === 0 ? 'bg-slate-300 text-slate-500 cursor-not-allowed' : 'bg-[#1b3bbb] hover:bg-[#09103c] text-white shadow-md shadow-[#1b3bbb]/20 cursor-pointer'"
                                             class="px-5 py-2 text-xs font-extrabold rounded-xl transition-all">
                                         Simpan Peserta

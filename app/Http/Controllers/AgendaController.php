@@ -212,28 +212,29 @@ class AgendaController extends Controller
             }
         }
 
-        // Enforce mandatory participants: Creator (Notulis) and Admins of invited Bidangs/Subbags
+        // Enforce mandatory creator (Notulis)
         $creatorId = Auth::id();
         if ($creatorId && !in_array($creatorId, $targetUserIds)) {
             $targetUserIds[] = $creatorId;
         }
 
-        $adminUserIds = \App\Models\User::where('active', true)
-            ->whereIn('role', ['sekretaris_bidang', 'sekretaris_master'])
-            ->where(function($q) use ($hakAkses) {
-                if (!in_array('semua_orang', $hakAkses)) {
-                    $numericHakAkses = array_values(array_filter($hakAkses, 'is_numeric'));
-                    if (!empty($numericHakAkses)) {
-                        $q->whereIn('bidang_id', $numericHakAkses);
+        // Validate exactly 1 Admin per invited bidang/subbag
+        if (!in_array('semua_orang', $hakAkses)) {
+            $invitedNumericBidangs = array_values(array_filter($hakAkses, 'is_numeric'));
+            foreach ($invitedNumericBidangs as $bidId) {
+                $unitAdminUsers = \App\Models\User::where('active', true)
+                    ->where('bidang_id', $bidId)
+                    ->whereIn('role', ['sekretaris_bidang', 'sekretaris_master'])
+                    ->pluck('id')
+                    ->toArray();
+
+                if (!empty($unitAdminUsers)) {
+                    $selectedAdminsInUnit = array_intersect($unitAdminUsers, $targetUserIds);
+                    $adminCount = count($selectedAdminsInUnit);
+                    if ($adminCount === 0 || $adminCount > 1) {
+                        return back()->withErrors(['bidangs' => 'Pilih 1 Admin dari unit yang diundang.'])->withInput();
                     }
                 }
-            })
-            ->pluck('id')
-            ->toArray();
-
-        foreach ($adminUserIds as $aId) {
-            if (!in_array($aId, $targetUserIds) && in_array($aId, $allowedUserIds)) {
-                $targetUserIds[] = $aId;
             }
         }
 
@@ -561,28 +562,29 @@ class AgendaController extends Controller
             }
         }
 
-        // Enforce mandatory participants: Creator (Notulis) and Admins of invited Bidangs/Subbags
+        // Enforce mandatory creator (Notulis)
         $creatorId = $agenda->sekretaris_id ?: Auth::id();
         if ($creatorId && !in_array($creatorId, $targetUserIds)) {
             $targetUserIds[] = $creatorId;
         }
 
-        $adminUserIds = \App\Models\User::where('active', true)
-            ->whereIn('role', ['sekretaris_bidang', 'sekretaris_master'])
-            ->where(function($q) use ($newHakAkses) {
-                if (!in_array('semua_orang', $newHakAkses)) {
-                    $numericNewHakAkses = array_values(array_filter($newHakAkses, 'is_numeric'));
-                    if (!empty($numericNewHakAkses)) {
-                        $q->whereIn('bidang_id', $numericNewHakAkses);
+        // Validate exactly 1 Admin per invited bidang/subbag
+        if (!in_array('semua_orang', $newHakAkses)) {
+            $invitedNumericBidangs = array_values(array_filter($newHakAkses, 'is_numeric'));
+            foreach ($invitedNumericBidangs as $bidId) {
+                $unitAdminUsers = \App\Models\User::where('active', true)
+                    ->where('bidang_id', $bidId)
+                    ->whereIn('role', ['sekretaris_bidang', 'sekretaris_master'])
+                    ->pluck('id')
+                    ->toArray();
+
+                if (!empty($unitAdminUsers)) {
+                    $selectedAdminsInUnit = array_intersect($unitAdminUsers, $targetUserIds);
+                    $adminCount = count($selectedAdminsInUnit);
+                    if ($adminCount === 0 || $adminCount > 1) {
+                        return back()->withErrors(['bidangs' => 'Pilih 1 Admin dari unit yang diundang.'])->withInput();
                     }
                 }
-            })
-            ->pluck('id')
-            ->toArray();
-
-        foreach ($adminUserIds as $aId) {
-            if (!in_array($aId, $targetUserIds) && in_array($aId, $allowedUserIds)) {
-                $targetUserIds[] = $aId;
             }
         }
 
