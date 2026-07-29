@@ -27,29 +27,30 @@
                 </div>
             </div>
 
+@php
+                $selectedLabel = 'Semua Bidang (' . ($bidangCounts['semua'] ?? 0) . ' Notulensi)';
+                if ($selectedBidangId === 'lintas_dinas') {
+                    $selectedLabel = 'Rapat Lintas Dinas (' . ($bidangCounts['lintas_dinas'] ?? 0) . ' Notulensi)';
+                } else {
+                    foreach($bidangs as $b) {
+                        if ((string)$selectedBidangId === (string)$b->id) {
+                            $count = $bidangCounts[$b->id] ?? 0;
+                            $labelName = $b->singkatan ?: $b->nama;
+                            $selectedLabel = $labelName . ' (' . $count . ' Notulensi)';
+                            break;
+                        }
+                    }
+                }
+            @endphp
+
             <div class="flex items-center gap-3 w-full sm:w-auto">
                 <!-- Modern Custom Dropdown -->
-                <div class="relative w-full sm:w-72">
-                    <select id="bidang-filter-select" 
-                            onchange="window.location.href = this.value"
-                            style="background-image: none !important; -webkit-appearance: none !important; -moz-appearance: none !important; appearance: none !important;"
-                            class="w-full pl-8 pr-8 py-2.5 bg-white border border-[#d4d1f5] hover:border-[#1b3bbb] rounded-xl text-xs font-bold text-[#09103c] shadow-sm appearance-none focus:outline-none focus:ring-2 focus:ring-[#1b3bbb]/20 transition-all cursor-pointer truncate">
-                        <option value="{{ route('notulensi.arsip', ['bidang_id' => 'semua']) }}" {{ $selectedBidangId === 'semua' ? 'selected' : '' }}>
-                            Semua Bidang ({{ $bidangCounts['semua'] ?? 0 }} Notulensi)
-                        </option>
-                        <option value="{{ route('notulensi.arsip', ['bidang_id' => 'lintas_dinas']) }}" {{ $selectedBidangId === 'lintas_dinas' ? 'selected' : '' }}>
-                            Rapat Lintas Dinas ({{ $bidangCounts['lintas_dinas'] ?? 0 }} Notulensi)
-                        </option>
-                        @foreach($bidangs as $b)
-                            @php
-                                $count = $bidangCounts[$b->id] ?? 0;
-                                $labelName = $b->singkatan ?: $b->nama;
-                            @endphp
-                            <option value="{{ route('notulensi.arsip', ['bidang_id' => $b->id]) }}" {{ (string)$selectedBidangId === (string)$b->id ? 'selected' : '' }}>
-                                {{ $labelName }} ({{ $count }} Notulensi)
-                            </option>
-                        @endforeach
-                    </select>
+                <div x-data="{ open: false }" @click.outside="open = false" class="relative w-full sm:w-72">
+                    <button type="button" 
+                            @click="open = !open" 
+                            class="w-full pl-8 pr-8 py-2.5 bg-white border border-[#d4d1f5] hover:border-[#1b3bbb] rounded-xl text-xs font-bold text-[#09103c] shadow-xs flex items-center justify-between transition-all cursor-pointer truncate focus:outline-none focus:ring-2 focus:ring-[#1b3bbb]/20">
+                        <span class="truncate">{{ $selectedLabel }}</span>
+                    </button>
                     <!-- Icon Left -->
                     <div class="absolute left-2.5 top-1/2 -translate-y-1/2 text-[#1b3bbb] pointer-events-none">
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -57,10 +58,51 @@
                         </svg>
                     </div>
                     <!-- Custom Arrow Right -->
-                    <div class="absolute right-2.5 top-1/2 -translate-y-1/2 text-[#1b3bbb] pointer-events-none">
+                    <div class="absolute right-2.5 top-1/2 -translate-y-1/2 text-[#1b3bbb] pointer-events-none transition-transform duration-200" :class="open ? 'rotate-180' : ''">
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
                         </svg>
+                    </div>
+
+                    <!-- Dropdown Menu -->
+                    <div x-show="open" x-cloak
+                         x-transition:enter="transition ease-out duration-150 transform" 
+                         x-transition:enter-start="opacity-0 scale-95 -translate-y-1" 
+                         x-transition:enter-end="opacity-100 scale-100 translate-y-0" 
+                         x-transition:leave="transition ease-in duration-100 transform" 
+                         x-transition:leave-start="opacity-100 scale-100 translate-y-0" 
+                         x-transition:leave-end="opacity-0 scale-95 -translate-y-1" 
+                         class="absolute left-0 top-full mt-1.5 w-full bg-white/98 backdrop-blur-md border border-[#cbd5e1] rounded-2xl shadow-xl shadow-[#1b3bbb]/10 p-1.5 z-50 overflow-hidden">
+                        <div class="space-y-0.5">
+                            <a href="{{ route('notulensi.arsip', ['bidang_id' => 'semua']) }}" 
+                               class="flex items-center justify-between px-3.5 py-2.5 rounded-xl text-xs font-semibold transition-colors {{ $selectedBidangId === 'semua' ? 'bg-[#1b3bbb] text-white font-bold' : 'text-[#09103c] hover:bg-[#1b3bbb]/10 hover:text-[#1b3bbb]' }}">
+                                <span>Semua Bidang ({{ $bidangCounts['semua'] ?? 0 }} Notulensi)</span>
+                                @if($selectedBidangId === 'semua')
+                                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/></svg>
+                                @endif
+                            </a>
+                            <a href="{{ route('notulensi.arsip', ['bidang_id' => 'lintas_dinas']) }}" 
+                               class="flex items-center justify-between px-3.5 py-2.5 rounded-xl text-xs font-semibold transition-colors {{ $selectedBidangId === 'lintas_dinas' ? 'bg-[#1b3bbb] text-white font-bold' : 'text-[#09103c] hover:bg-[#1b3bbb]/10 hover:text-[#1b3bbb]' }}">
+                                <span>Rapat Lintas Dinas ({{ $bidangCounts['lintas_dinas'] ?? 0 }} Notulensi)</span>
+                                @if($selectedBidangId === 'lintas_dinas')
+                                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/></svg>
+                                @endif
+                            </a>
+                            @foreach($bidangs as $b)
+                                @php
+                                    $count = $bidangCounts[$b->id] ?? 0;
+                                    $labelName = $b->singkatan ?: $b->nama;
+                                    $isSelected = (string)$selectedBidangId === (string)$b->id;
+                                @endphp
+                                <a href="{{ route('notulensi.arsip', ['bidang_id' => $b->id]) }}" 
+                                   class="flex items-center justify-between px-3.5 py-2.5 rounded-xl text-xs font-semibold transition-colors {{ $isSelected ? 'bg-[#1b3bbb] text-white font-bold' : 'text-[#09103c] hover:bg-[#1b3bbb]/10 hover:text-[#1b3bbb]' }}">
+                                    <span>{{ $labelName }} ({{ $count }} Notulensi)</span>
+                                    @if($isSelected)
+                                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/></svg>
+                                    @endif
+                                </a>
+                            @endforeach
+                        </div>
                     </div>
                 </div>
 

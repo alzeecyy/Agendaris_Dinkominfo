@@ -513,19 +513,36 @@
                         <input type="text" name="judul" id="judul" required placeholder="Contoh: Rapat Koordinasi Layanan SPBE"
                                class="w-full px-3.5 py-2 bg-[#f8f7ff] hover:bg-[#f3f2fe] border border-[#d4d1f5] rounded-xl text-[#2e2552] text-xs placeholder-slate-400 focus:bg-white focus:border-[#1b3bbb] focus:ring-2 focus:ring-[#1b3bbb]/20 transition-all font-semibold">
                     </div>
-                    <div class="space-y-1">
+                    <div class="space-y-1 relative" x-data="{ openKategori: false }" @click.outside="openKategori = false">
                         <label for="kategori" class="block text-[11px] font-bold text-[#5a508f] uppercase tracking-wider">Kategori <span class="text-rose-500 font-bold">*</span></label>
-                        <div class="relative">
-                            <select name="kategori" id="kategori" required x-model="kategori"
-                                    class="w-full pl-3.5 pr-8 py-2 bg-[#f8f7ff] hover:bg-[#f3f2fe] border border-[#d4d1f5] rounded-xl text-[#2e2552] text-xs font-semibold appearance-none focus:bg-white focus:border-[#1b3bbb] focus:ring-2 focus:ring-[#1b3bbb]/20 transition-all cursor-pointer">
-                                <option value="" disabled selected>Pilih Kategori</option>
-                                <option value="rapat">Rapat</option>
-                                <option value="sosialisasi">Sosialisasi</option>
-                                <option value="pelatihan">Pelatihan</option>
-                                <option value="kegiatan_lainnya">Kegiatan Lainnya</option>
-                            </select>
-                            <div class="absolute right-3 top-1/2 -translate-y-1/2 text-[#5a508f] pointer-events-none">
-                                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                        <input type="hidden" name="kategori" id="kategori" x-model="kategori" required>
+                        <button type="button" @click="openKategori = !openKategori" 
+                                class="w-full px-3.5 py-2 bg-[#f8f7ff] hover:bg-[#f3f2fe] border border-[#d4d1f5] rounded-xl text-[#09103c] text-xs font-semibold flex items-center justify-between transition-all cursor-pointer focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#1b3bbb]">
+                            <span class="truncate" x-text="kategori ? (kategori === 'rapat' ? 'Rapat' : (kategori === 'sosialisasi' ? 'Sosialisasi' : (kategori === 'pelatihan' ? 'Pelatihan' : 'Kegiatan Lainnya'))) : 'Pilih Kategori'"></span>
+                            <svg class="w-3.5 h-3.5 text-[#1b3bbb] transition-transform duration-200" :class="openKategori ? 'rotate-180' : ''" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                        </button>
+                        <div x-show="openKategori" x-cloak 
+                             x-transition:enter="transition ease-out duration-150 transform" 
+                             x-transition:enter-start="opacity-0 scale-95 -translate-y-1" 
+                             x-transition:enter-end="opacity-100 scale-100 translate-y-0" 
+                             x-transition:leave="transition ease-in duration-100 transform" 
+                             x-transition:leave-start="opacity-100 scale-100 translate-y-0" 
+                             x-transition:leave-end="opacity-0 scale-95 -translate-y-1" 
+                             class="absolute left-0 top-full mt-1 w-full bg-white/98 backdrop-blur-md border border-[#cbd5e1] rounded-2xl shadow-xl shadow-[#1b3bbb]/10 p-1.5 z-50 overflow-hidden">
+                            <div class="space-y-0.5">
+                                <template x-for="opt in [
+                                    { value: 'rapat', label: 'Rapat' },
+                                    { value: 'sosialisasi', label: 'Sosialisasi' },
+                                    { value: 'pelatihan', label: 'Pelatihan' },
+                                    { value: 'kegiatan_lainnya', label: 'Kegiatan Lainnya' }
+                                ]" :key="opt.value">
+                                    <button type="button" @click="kategori = opt.value; openKategori = false" 
+                                            class="w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs font-semibold transition-colors"
+                                            :class="kategori === opt.value ? 'bg-[#1b3bbb] text-white font-bold' : 'text-[#09103c] hover:bg-[#1b3bbb]/10 hover:text-[#1b3bbb]'">
+                                        <span x-text="opt.label"></span>
+                                        <svg x-show="kategori === opt.value" class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/></svg>
+                                    </button>
+                                </template>
                             </div>
                         </div>
                     </div>
@@ -554,18 +571,31 @@
 
                 <!-- Location & Description Row -->
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                    <div class="space-y-1">
+                    <div class="space-y-1 relative" x-data="{ lokasiVal: '', openLokasi: false }" @click.outside="openLokasi = false">
                         <label for="tempat" class="block text-[11px] font-bold text-[#5a508f] uppercase tracking-wider">Tempat / Ruangan <span class="text-rose-500 font-bold">*</span></label>
-                        <div class="relative">
-                            <select id="tempat" name="lokasi" required
-                                    class="w-full pl-3.5 pr-8 py-2 bg-[#f8f7ff] hover:bg-[#f3f2fe] border border-[#d4d1f5] rounded-xl text-[#2e2552] text-xs font-semibold appearance-none focus:bg-white focus:border-[#1b3bbb] focus:ring-2 focus:ring-[#1b3bbb]/20 transition-all cursor-pointer">
-                                <option value="" disabled selected>Pilih Lokasi / Ruangan</option>
-                                <option value="Aula Rapat Dinkominfo">Aula Rapat Dinkominfo</option>
-                                <option value="Ruang Pelatihan">Ruang Pelatihan</option>
-                                <option value="Smart Room Graha Satria">Smart Room Graha Satria</option>
-                            </select>
-                            <div class="absolute right-3 top-1/2 -translate-y-1/2 text-[#5a508f] pointer-events-none">
-                                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                        <input type="hidden" id="tempat" name="lokasi" :value="lokasiVal" required>
+                        <button type="button" @click="openLokasi = !openLokasi" 
+                                class="w-full px-3.5 py-2 bg-[#f8f7ff] hover:bg-[#f3f2fe] border border-[#d4d1f5] rounded-xl text-[#09103c] text-xs font-semibold flex items-center justify-between transition-all cursor-pointer focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#1b3bbb]">
+                            <span class="truncate" x-text="lokasiVal || 'Pilih Lokasi / Ruangan'"></span>
+                            <svg class="w-3.5 h-3.5 text-[#1b3bbb] transition-transform duration-200" :class="openLokasi ? 'rotate-180' : ''" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                        </button>
+                        <div x-show="openLokasi" x-cloak 
+                             x-transition:enter="transition ease-out duration-150 transform" 
+                             x-transition:enter-start="opacity-0 scale-95 -translate-y-1" 
+                             x-transition:enter-end="opacity-100 scale-100 translate-y-0" 
+                             x-transition:leave="transition ease-in duration-100 transform" 
+                             x-transition:leave-start="opacity-100 scale-100 translate-y-0" 
+                             x-transition:leave-end="opacity-0 scale-95 -translate-y-1" 
+                             class="absolute left-0 top-full mt-1 w-full bg-white/98 backdrop-blur-md border border-[#cbd5e1] rounded-2xl shadow-xl shadow-[#1b3bbb]/10 p-1.5 z-50 overflow-hidden">
+                            <div class="space-y-0.5">
+                                <template x-for="loc in ['Aula Rapat Dinkominfo', 'Ruang Pelatihan', 'Smart Room Graha Satria']" :key="loc">
+                                    <button type="button" @click="lokasiVal = loc; openLokasi = false" 
+                                            class="w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs font-semibold transition-colors"
+                                            :class="lokasiVal === loc ? 'bg-[#1b3bbb] text-white font-bold' : 'text-[#09103c] hover:bg-[#1b3bbb]/10 hover:text-[#1b3bbb]'">
+                                        <span x-text="loc"></span>
+                                        <svg x-show="lokasiVal === loc" class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/></svg>
+                                    </button>
+                                </template>
                             </div>
                         </div>
                     </div>

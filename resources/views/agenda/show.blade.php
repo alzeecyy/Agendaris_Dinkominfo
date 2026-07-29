@@ -191,34 +191,65 @@
                             </div>
                             <!-- Tempat / Ruangan Dropdown & Kategori Row -->
                             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                <div class="space-y-1">
+                                <div class="space-y-1 relative" x-data="{ lokasiVal: '{{ addslashes($agenda->lokasi ?? '') }}', openEditLokasi: false }" @click.outside="openEditLokasi = false">
                                     <label for="tempat_edit" class="block text-xs font-bold text-[#5a508f] uppercase">Tempat / Ruangan <span class="text-rose-500">*</span></label>
-                                    <div class="relative">
-                                        <select id="tempat_edit" name="lokasi" required
-                                                class="w-full pl-3.5 pr-8 py-2.5 bg-[#f8f7ff] hover:bg-[#f3f2fe] border border-[#d4d1f5] rounded-xl text-[#2e2552] text-xs font-semibold appearance-none focus:bg-white focus:border-[#1b3bbb] focus:ring-2 focus:ring-[#1b3bbb]/20 transition-all cursor-pointer">
-                                            <option value="" disabled {{ empty($agenda->lokasi) ? 'selected' : '' }}>Pilih Lokasi / Ruangan</option>
-                                            <option value="Aula Rapat Dinkominfo" {{ $agenda->lokasi === 'Aula Rapat Dinkominfo' ? 'selected' : '' }}>Aula Rapat Dinkominfo</option>
-                                            <option value="Ruang Pelatihan" {{ $agenda->lokasi === 'Ruang Pelatihan' ? 'selected' : '' }}>Ruang Pelatihan</option>
-                                            <option value="Smart Room Graha Satria" {{ $agenda->lokasi === 'Smart Room Graha Satria' ? 'selected' : '' }}>Smart Room Graha Satria</option>
-                                        </select>
-                                        <div class="absolute right-2.5 top-1/2 -translate-y-1/2 text-[#5a508f] pointer-events-none">
-                                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                                    <input type="hidden" id="tempat_edit" name="lokasi" :value="lokasiVal" required>
+                                    <button type="button" @click="openEditLokasi = !openEditLokasi" 
+                                            class="w-full pl-3.5 pr-8 py-2.5 bg-[#f8f7ff] hover:bg-[#f3f2fe] border border-[#d4d1f5] hover:border-[#1b3bbb] rounded-xl text-[#09103c] text-xs font-semibold flex items-center justify-between transition-all cursor-pointer focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#1b3bbb]/20">
+                                        <span class="truncate" x-text="lokasiVal || 'Pilih Lokasi / Ruangan'"></span>
+                                        <svg class="w-3.5 h-3.5 text-[#1b3bbb] transition-transform duration-200" :class="openEditLokasi ? 'rotate-180' : ''" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                                    </button>
+                                    <div x-show="openEditLokasi" x-cloak 
+                                         x-transition:enter="transition ease-out duration-150 transform" 
+                                         x-transition:enter-start="opacity-0 scale-95 -translate-y-1" 
+                                         x-transition:enter-end="opacity-100 scale-100 translate-y-0" 
+                                         x-transition:leave="transition ease-in duration-100 transform" 
+                                         x-transition:leave-start="opacity-100 scale-100 translate-y-0" 
+                                         x-transition:leave-end="opacity-0 scale-95 -translate-y-1" 
+                                         class="absolute left-0 top-full mt-1 w-full bg-white/98 backdrop-blur-md border border-[#cbd5e1] rounded-2xl shadow-xl shadow-[#1b3bbb]/10 p-1.5 z-50 overflow-hidden">
+                                        <div class="space-y-0.5">
+                                            <template x-for="loc in ['Aula Rapat Dinkominfo', 'Ruang Pelatihan', 'Smart Room Graha Satria']" :key="loc">
+                                                <button type="button" @click="lokasiVal = loc; openEditLokasi = false" 
+                                                        class="w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs font-semibold transition-colors"
+                                                        :class="lokasiVal === loc ? 'bg-[#1b3bbb] text-white font-bold' : 'text-[#09103c] hover:bg-[#1b3bbb]/10 hover:text-[#1b3bbb]'">
+                                                    <span x-text="loc"></span>
+                                                    <svg x-show="lokasiVal === loc" class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/></svg>
+                                                </button>
+                                            </template>
                                         </div>
                                     </div>
                                 </div>
 
-                                <div class="space-y-1">
+                                <div class="space-y-1 relative" x-data="{ kategoriVal: '{{ addslashes($agenda->kategori ?? '') }}', openEditKat: false }" @click.outside="openEditKat = false">
                                     <label class="block text-xs font-bold text-[#5a508f] uppercase">Kategori <span class="text-rose-500">*</span></label>
-                                    <div class="relative">
-                                        <select name="kategori" required class="w-full pl-3.5 pr-8 py-2.5 bg-[#f8f7ff] hover:bg-[#f3f2fe] border border-[#d4d1f5] rounded-xl text-[#2e2552] text-xs font-semibold appearance-none focus:bg-white focus:border-[#1b3bbb] focus:ring-2 focus:ring-[#1b3bbb]/20 transition-all cursor-pointer">
-                                            <option value="" disabled {{ empty($agenda->kategori) ? 'selected' : '' }}>Pilih Kategori</option>
-                                            <option value="rapat" {{ $agenda->kategori === 'rapat' ? 'selected' : '' }}>Rapat</option>
-                                            <option value="sosialisasi" {{ $agenda->kategori === 'sosialisasi' ? 'selected' : '' }}>Sosialisasi</option>
-                                            <option value="pelatihan" {{ $agenda->kategori === 'pelatihan' ? 'selected' : '' }}>Pelatihan</option>
-                                            <option value="kegiatan_lainnya" {{ $agenda->kategori === 'kegiatan_lainnya' ? 'selected' : '' }}>Kegiatan Lainnya</option>
-                                        </select>
-                                        <div class="absolute right-2.5 top-1/2 -translate-y-1/2 text-[#5a508f] pointer-events-none">
-                                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                                    <input type="hidden" name="kategori" :value="kategoriVal" required>
+                                    <button type="button" @click="openEditKat = !openEditKat" 
+                                            class="w-full pl-3.5 pr-8 py-2.5 bg-[#f8f7ff] hover:bg-[#f3f2fe] border border-[#d4d1f5] hover:border-[#1b3bbb] rounded-xl text-[#09103c] text-xs font-semibold flex items-center justify-between transition-all cursor-pointer focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#1b3bbb]/20">
+                                        <span class="truncate" x-text="kategoriVal ? (kategoriVal === 'rapat' ? 'Rapat' : (kategoriVal === 'sosialisasi' ? 'Sosialisasi' : (kategoriVal === 'pelatihan' ? 'Pelatihan' : 'Kegiatan Lainnya'))) : 'Pilih Kategori'"></span>
+                                        <svg class="w-3.5 h-3.5 text-[#1b3bbb] transition-transform duration-200" :class="openEditKat ? 'rotate-180' : ''" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                                    </button>
+                                    <div x-show="openEditKat" x-cloak 
+                                         x-transition:enter="transition ease-out duration-150 transform" 
+                                         x-transition:enter-start="opacity-0 scale-95 -translate-y-1" 
+                                         x-transition:enter-end="opacity-100 scale-100 translate-y-0" 
+                                         x-transition:leave="transition ease-in duration-100 transform" 
+                                         x-transition:leave-start="opacity-100 scale-100 translate-y-0" 
+                                         x-transition:leave-end="opacity-0 scale-95 -translate-y-1" 
+                                         class="absolute left-0 top-full mt-1 w-full bg-white/98 backdrop-blur-md border border-[#cbd5e1] rounded-2xl shadow-xl shadow-[#1b3bbb]/10 p-1.5 z-50 overflow-hidden">
+                                        <div class="space-y-0.5">
+                                            <template x-for="opt in [
+                                                { value: 'rapat', label: 'Rapat' },
+                                                { value: 'sosialisasi', label: 'Sosialisasi' },
+                                                { value: 'pelatihan', label: 'Pelatihan' },
+                                                { value: 'kegiatan_lainnya', label: 'Kegiatan Lainnya' }
+                                            ]" :key="opt.value">
+                                                <button type="button" @click="kategoriVal = opt.value; openEditKat = false" 
+                                                        class="w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs font-semibold transition-colors"
+                                                        :class="kategoriVal === opt.value ? 'bg-[#1b3bbb] text-white font-bold' : 'text-[#09103c] hover:bg-[#1b3bbb]/10 hover:text-[#1b3bbb]'">
+                                                    <span x-text="opt.label"></span>
+                                                    <svg x-show="kategoriVal === opt.value" class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/></svg>
+                                                </button>
+                                            </template>
                                         </div>
                                     </div>
                                 </div>
@@ -1410,18 +1441,43 @@ sekId: "{{ $sekretariatId }}",
                                                 <div class="text-[10px] text-[#5a508f] truncate font-medium mt-0.5" title="{{ $part->jabatan }}">{{ $part->jabatan }}</div>
                                             </div>
                                             @if(Auth::user()->isAdmin() || $isSecretaryOfAgenda)
-                                                <form action="{{ route('agenda.absen.koreksi', $agenda->id) }}" method="POST" class="shrink-0">
-                                                    @csrf
-                                                    <input type="hidden" name="user_id" value="{{ $part->id }}">
-                                                    <select name="status" onchange="submitStatusKoreksi(this)" 
-                                                            class="text-[11px] bg-white border border-[#d4d1f5] rounded-xl text-[#2e2552] px-2.5 py-1.5 font-bold focus:outline-none focus:ring-1 focus:ring-[#8e88dd] cursor-pointer shadow-xs">
-                                                        <option value="Belum Absen" {{ ($part->status_presensi === 'Belum Absen' || !$part->status_presensi) ? 'selected' : '' }}>Belum Absen</option>
-                                                        <option value="hadir" {{ $part->status_presensi === 'hadir' ? 'selected' : '' }}>Hadir</option>
-                                                        <option value="izin" {{ $part->status_presensi === 'izin' ? 'selected' : '' }}>Izin</option>
-                                                        <option value="sakit" {{ $part->status_presensi === 'sakit' ? 'selected' : '' }}>Sakit</option>
-                                                        <option value="alfa" {{ $part->status_presensi === 'alfa' ? 'selected' : '' }}>Alfa</option>
-                                                    </select>
-                                                </form>
+                                                <div x-data="{ currentStatus: '{{ $part->status_presensi ?: 'Belum Absen' }}', openStatus: false }" @click.outside="openStatus = false" class="relative shrink-0">
+                                                    <form action="{{ route('agenda.absen.koreksi', $agenda->id) }}" method="POST">
+                                                        @csrf
+                                                        <input type="hidden" name="user_id" value="{{ $part->id }}">
+                                                        <input type="hidden" name="status" :value="currentStatus">
+                                                        <button type="button" @click="openStatus = !openStatus" 
+                                                                class="px-2.5 py-1.5 bg-white hover:bg-slate-50 border border-[#d4d1f5] hover:border-[#1b3bbb] rounded-xl text-[#09103c] text-[11px] font-bold flex items-center gap-1 transition-all cursor-pointer shadow-2xs">
+                                                            <span class="capitalize" x-text="currentStatus === 'hadir' ? 'Hadir' : (currentStatus === 'izin' ? 'Izin' : (currentStatus === 'sakit' ? 'Sakit' : (currentStatus === 'alfa' ? 'Alfa' : 'Belum Absen')))"></span>
+                                                            <svg class="w-3 h-3 text-[#1b3bbb] transition-transform duration-200" :class="openStatus ? 'rotate-180' : ''" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                                                        </button>
+                                                        <div x-show="openStatus" x-cloak 
+                                                             x-transition:enter="transition ease-out duration-150 transform" 
+                                                             x-transition:enter-start="opacity-0 scale-95 -translate-y-1" 
+                                                             x-transition:enter-end="opacity-100 scale-100 translate-y-0" 
+                                                             x-transition:leave="transition ease-in duration-100 transform" 
+                                                             x-transition:leave-start="opacity-100 scale-100 translate-y-0" 
+                                                             x-transition:leave-end="opacity-0 scale-95 -translate-y-1" 
+                                                             class="absolute right-0 top-full mt-1 w-36 bg-white/98 backdrop-blur-md border border-[#cbd5e1] rounded-2xl shadow-xl shadow-[#1b3bbb]/10 p-1.5 z-50 overflow-hidden">
+                                                            <div class="space-y-0.5">
+                                                                <template x-for="st in [
+                                                                    { value: 'Belum Absen', label: 'Belum Absen' },
+                                                                    { value: 'hadir', label: 'Hadir' },
+                                                                    { value: 'izin', label: 'Izin' },
+                                                                    { value: 'sakit', label: 'Sakit' },
+                                                                    { value: 'alfa', label: 'Alfa' }
+                                                                ]" :key="st.value">
+                                                                    <button type="button" @click="currentStatus = st.value; openStatus = false; $nextTick(() => $el.closest('form').submit())" 
+                                                                            class="w-full flex items-center justify-between px-2.5 py-1.5 rounded-xl text-[11px] font-semibold transition-colors"
+                                                                            :class="currentStatus === st.value ? 'bg-[#1b3bbb] text-white font-bold' : 'text-[#09103c] hover:bg-[#1b3bbb]/10 hover:text-[#1b3bbb]'">
+                                                                        <span x-text="st.label"></span>
+                                                                        <svg x-show="currentStatus === st.value" class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/></svg>
+                                                                    </button>
+                                                                </template>
+                                                            </div>
+                                                        </div>
+                                                    </form>
+                                                </div>
                                             @else
                                                 <span class="text-[10px] px-2.5 py-1 rounded-xl font-bold uppercase border {{ $part->status_presensi === 'hadir' ? 'bg-emerald-50 text-emerald-700 border-emerald-200' : ($part->status_presensi === 'izin' ? 'bg-amber-50 text-amber-700 border-amber-200' : ($part->status_presensi === 'sakit' ? 'bg-rose-50 text-rose-700 border-rose-200' : ($part->status_presensi === 'alfa' ? 'bg-red-50 text-red-700 border-red-200' : 'bg-slate-100 text-slate-600 border-slate-200'))) }}">
                                                     {{ $part->status_presensi ?: 'Belum' }}
@@ -1541,18 +1597,43 @@ sekId: "{{ $sekretariatId }}",
                                             <div class="text-[10px] text-[#5a508f] truncate font-medium mt-0.5" title="{{ $part->jabatan }}">{{ $part->jabatan }}</div>
                                         </div>
                                         @if(Auth::user()->isAdmin() || $isSecretaryOfAgenda)
-                                            <form action="{{ route('agenda.absen.koreksi', $agenda->id) }}" method="POST" class="shrink-0">
-                                                @csrf
-                                                <input type="hidden" name="user_id" value="{{ $part->id }}">
-                                                <select name="status" onchange="submitStatusKoreksi(this)" 
-                                                        class="text-[11px] bg-white border border-[#d4d1f5] rounded-xl text-[#2e2552] px-2.5 py-1.5 font-bold focus:outline-none focus:ring-1 focus:ring-[#8e88dd] cursor-pointer shadow-xs">
-                                                    <option value="Belum Absen" {{ ($part->status_presensi === 'Belum Absen' || !$part->status_presensi) ? 'selected' : '' }}>Belum Absen</option>
-                                                    <option value="hadir" {{ $part->status_presensi === 'hadir' ? 'selected' : '' }}>Hadir</option>
-                                                    <option value="izin" {{ $part->status_presensi === 'izin' ? 'selected' : '' }}>Izin</option>
-                                                    <option value="sakit" {{ $part->status_presensi === 'sakit' ? 'selected' : '' }}>Sakit</option>
-                                                    <option value="alfa" {{ $part->status_presensi === 'alfa' ? 'selected' : '' }}>Alfa</option>
-                                                </select>
-                                            </form>
+                                            <div x-data="{ currentStatus: '{{ $part->status_presensi ?: 'Belum Absen' }}', openStatus: false }" @click.outside="openStatus = false" class="relative shrink-0">
+                                                <form action="{{ route('agenda.absen.koreksi', $agenda->id) }}" method="POST">
+                                                    @csrf
+                                                    <input type="hidden" name="user_id" value="{{ $part->id }}">
+                                                    <input type="hidden" name="status" :value="currentStatus">
+                                                    <button type="button" @click="openStatus = !openStatus" 
+                                                            class="px-2.5 py-1.5 bg-white hover:bg-slate-50 border border-[#d4d1f5] hover:border-[#1b3bbb] rounded-xl text-[#09103c] text-[11px] font-bold flex items-center gap-1 transition-all cursor-pointer shadow-2xs">
+                                                        <span class="capitalize" x-text="currentStatus === 'hadir' ? 'Hadir' : (currentStatus === 'izin' ? 'Izin' : (currentStatus === 'sakit' ? 'Sakit' : (currentStatus === 'alfa' ? 'Alfa' : 'Belum Absen')))"></span>
+                                                        <svg class="w-3 h-3 text-[#1b3bbb] transition-transform duration-200" :class="openStatus ? 'rotate-180' : ''" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                                                    </button>
+                                                    <div x-show="openStatus" x-cloak 
+                                                         x-transition:enter="transition ease-out duration-150 transform" 
+                                                         x-transition:enter-start="opacity-0 scale-95 -translate-y-1" 
+                                                         x-transition:enter-end="opacity-100 scale-100 translate-y-0" 
+                                                         x-transition:leave="transition ease-in duration-100 transform" 
+                                                         x-transition:leave-start="opacity-100 scale-100 translate-y-0" 
+                                                         x-transition:leave-end="opacity-0 scale-95 -translate-y-1" 
+                                                         class="absolute right-0 top-full mt-1 w-36 bg-white/98 backdrop-blur-md border border-[#cbd5e1] rounded-2xl shadow-xl shadow-[#1b3bbb]/10 p-1.5 z-50 overflow-hidden">
+                                                        <div class="space-y-0.5">
+                                                            <template x-for="st in [
+                                                                { value: 'Belum Absen', label: 'Belum Absen' },
+                                                                { value: 'hadir', label: 'Hadir' },
+                                                                { value: 'izin', label: 'Izin' },
+                                                                { value: 'sakit', label: 'Sakit' },
+                                                                { value: 'alfa', label: 'Alfa' }
+                                                            ]" :key="st.value">
+                                                                <button type="button" @click="currentStatus = st.value; openStatus = false; $nextTick(() => $el.closest('form').submit())" 
+                                                                        class="w-full flex items-center justify-between px-2.5 py-1.5 rounded-xl text-[11px] font-semibold transition-colors"
+                                                                        :class="currentStatus === st.value ? 'bg-[#1b3bbb] text-white font-bold' : 'text-[#09103c] hover:bg-[#1b3bbb]/10 hover:text-[#1b3bbb]'">
+                                                                    <span x-text="st.label"></span>
+                                                                    <svg x-show="currentStatus === st.value" class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/></svg>
+                                                                </button>
+                                                            </template>
+                                                        </div>
+                                                    </div>
+                                                </form>
+                                            </div>
                                         @else
                                             <span class="text-[10px] px-2.5 py-1 rounded-xl font-bold uppercase border {{ $part->status_presensi === 'hadir' ? 'bg-emerald-50 text-emerald-700 border-emerald-200' : ($part->status_presensi === 'izin' ? 'bg-amber-50 text-amber-700 border-amber-200' : ($part->status_presensi === 'sakit' ? 'bg-rose-50 text-rose-700 border-rose-200' : ($part->status_presensi === 'alfa' ? 'bg-red-50 text-red-700 border-red-200' : 'bg-slate-100 text-slate-600 border-slate-200'))) }}">
                                                 {{ $part->status_presensi ?: 'Belum' }}
