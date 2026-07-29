@@ -139,7 +139,6 @@ class AgendaController extends Controller
             if ($actualBidangCount > 3) {
                 return back()->withErrors(['bidangs' => 'Admin Bidang hanya diperbolehkan memilih maksimal 3 bidang/subbag (di luar Sekretariat & Kadin).'])->withInput();
             }
-            }
             $hakAkses = array_values(array_unique($bidangs));
         } else {
             if ($request->has('semua_orang')) {
@@ -503,7 +502,6 @@ class AgendaController extends Controller
 
             if ($actualBidangCount > 3) {
                 return back()->withErrors(['bidangs' => 'Admin Bidang hanya diperbolehkan memilih maksimal 3 bidang/subbag (di luar Sekretariat & Kadin).'])->withInput();
-            }
             }
             $newHakAkses = array_values(array_unique($bidangs));
         } else {
