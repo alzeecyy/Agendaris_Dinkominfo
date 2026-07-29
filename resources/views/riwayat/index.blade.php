@@ -10,6 +10,7 @@
     filterStatus: '',
     filterNotulensiStatus: '{{ $selectedNotulensiStatus ?? "" }}',
     currentPage: 1,
+    isPageChanging: false,
     itemsPerPage: 10,
     agendas: [
         @foreach($riwayatData as $item)
@@ -79,20 +80,27 @@
         return index >= start && index < end;
     },
     nextPage() {
-        if (this.currentPage < this.totalPages) {
-            this.currentPage++;
-            this.stripeRows();
+        if (this.currentPage < this.totalPages && !this.isPageChanging) {
+            this.setPage(this.currentPage + 1);
         }
     },
     prevPage() {
-        if (this.currentPage > 1) {
-            this.currentPage--;
-            this.stripeRows();
+        if (this.currentPage > 1 && !this.isPageChanging) {
+            this.setPage(this.currentPage - 1);
         }
     },
     setPage(page) {
-        this.currentPage = Math.max(1, Math.min(page, this.totalPages));
-        this.stripeRows();
+        const targetPage = Math.max(1, Math.min(page, this.totalPages));
+        if (targetPage === this.currentPage || this.isPageChanging) return;
+        
+        this.isPageChanging = true;
+        setTimeout(() => {
+            this.currentPage = targetPage;
+            this.stripeRows();
+            setTimeout(() => {
+                this.isPageChanging = false;
+            }, 40);
+        }, 120);
     },
     resetPagination() {
         this.currentPage = 1;
@@ -323,7 +331,7 @@ class="space-y-6">
                         <th style="background-color: #ebf2ff !important; color: #1b3bbb !important;" class="py-3 px-3 sm:px-4 text-[10px] sm:text-xs font-black uppercase tracking-wider text-center whitespace-nowrap">Notulensi</th>
                     </tr>
                 </thead>
-                <tbody class="divide-y divide-[#d4d1f5]/30">
+                <tbody class="divide-y divide-[#d4d1f5]/30 transition-all duration-200 ease-out transform" :class="isPageChanging ? 'opacity-0 -translate-y-1 scale-[0.995]' : 'opacity-100 translate-y-0 scale-100'">
                     <!-- Client-side Empty State for filters -->
                     <tr x-show="filteredAgendas.length === 0" class="hover:bg-transparent">
                         <td colspan="6" class="py-8 px-4 text-center">
@@ -496,7 +504,7 @@ class="space-y-6">
             <div class="flex items-center gap-1.5 flex-wrap">
                 <!-- First Page Button -->
                 <button @click="setPage(1)" :disabled="currentPage === 1"
-                        class="w-9 h-9 flex items-center justify-center rounded-xl border border-[#d4d1f5] hover:bg-[#8e88dd]/10 disabled:opacity-40 disabled:hover:bg-transparent transition-colors cursor-pointer"
+                        class="w-9 h-9 flex items-center justify-center rounded-xl border border-[#d4d1f5] hover:bg-[#1b3bbb]/10 hover:border-[#1b3bbb] hover:text-[#1b3bbb] hover:scale-110 active:scale-90 disabled:opacity-30 disabled:hover:scale-100 disabled:hover:bg-transparent disabled:hover:border-[#d4d1f5] disabled:hover:text-inherit transition-all duration-200 cursor-pointer shadow-2xs"
                         title="Halaman Pertama">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 19l-7-7 7-7M20 19l-7-7 7-7"></path>
@@ -505,7 +513,7 @@ class="space-y-6">
 
                 <!-- Previous Button -->
                 <button @click="prevPage()" :disabled="currentPage === 1"
-                        class="w-9 h-9 flex items-center justify-center rounded-xl border border-[#d4d1f5] hover:bg-[#8e88dd]/10 disabled:opacity-40 disabled:hover:bg-transparent transition-colors cursor-pointer"
+                        class="w-9 h-9 flex items-center justify-center rounded-xl border border-[#d4d1f5] hover:bg-[#1b3bbb]/10 hover:border-[#1b3bbb] hover:text-[#1b3bbb] hover:scale-110 active:scale-90 disabled:opacity-30 disabled:hover:scale-100 disabled:hover:bg-transparent disabled:hover:border-[#d4d1f5] disabled:hover:text-inherit transition-all duration-200 cursor-pointer shadow-2xs"
                         title="Halaman Sebelumnya">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
@@ -516,14 +524,14 @@ class="space-y-6">
                 <template x-for="p in displayedPages" :key="p">
                     <button @click="setPage(p)"
                             x-text="p"
-                            class="w-9 h-9 flex items-center justify-center rounded-xl border font-bold text-xs transition-all duration-200 cursor-pointer"
-                            :class="currentPage === p ? 'bg-[#2e2552] text-white border-[#2e2552] shadow-xs' : 'border-[#d4d1f5] hover:bg-[#8e88dd]/10 text-[#5a508f]'">
+                            class="w-9 h-9 flex items-center justify-center rounded-xl border font-extrabold text-xs transition-all duration-300 cursor-pointer transform"
+                            :class="currentPage === p ? 'bg-[#1b3bbb] text-white border-[#1b3bbb] shadow-md shadow-[#1b3bbb]/30 scale-110' : 'border-[#d4d1f5] hover:border-[#1b3bbb] hover:bg-[#1b3bbb]/10 text-[#5a508f] hover:text-[#1b3bbb] hover:scale-105 active:scale-95'">
                     </button>
                 </template>
                 
                 <!-- Next Button -->
                 <button @click="nextPage()" :disabled="currentPage === totalPages"
-                        class="w-9 h-9 flex items-center justify-center rounded-xl border border-[#d4d1f5] hover:bg-[#8e88dd]/10 disabled:opacity-40 disabled:hover:bg-transparent transition-colors cursor-pointer"
+                        class="w-9 h-9 flex items-center justify-center rounded-xl border border-[#d4d1f5] hover:bg-[#1b3bbb]/10 hover:border-[#1b3bbb] hover:text-[#1b3bbb] hover:scale-110 active:scale-90 disabled:opacity-30 disabled:hover:scale-100 disabled:hover:bg-transparent disabled:hover:border-[#d4d1f5] disabled:hover:text-inherit transition-all duration-200 cursor-pointer shadow-2xs"
                         title="Halaman Berikutnya">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
@@ -532,7 +540,7 @@ class="space-y-6">
 
                 <!-- Last Page Button -->
                 <button @click="setPage(totalPages)" :disabled="currentPage === totalPages"
-                        class="w-9 h-9 flex items-center justify-center rounded-xl border border-[#d4d1f5] hover:bg-[#8e88dd]/10 disabled:opacity-40 disabled:hover:bg-transparent transition-colors cursor-pointer"
+                        class="w-9 h-9 flex items-center justify-center rounded-xl border border-[#d4d1f5] hover:bg-[#1b3bbb]/10 hover:border-[#1b3bbb] hover:text-[#1b3bbb] hover:scale-110 active:scale-90 disabled:opacity-30 disabled:hover:scale-100 disabled:hover:bg-transparent disabled:hover:border-[#d4d1f5] disabled:hover:text-inherit transition-all duration-200 cursor-pointer shadow-2xs"
                         title="Halaman Terakhir">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 5l7 7-7 7M4 5l7 7-7 7"></path>
