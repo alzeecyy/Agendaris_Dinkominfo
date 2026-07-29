@@ -357,8 +357,22 @@
                                           $arrowAlignClass = 'after:left-1/2 after:-translate-x-1/2';
                                       }
 
-                                      $tooltipPosition = 'bottom-full mb-2 ' . $alignClass;
-                                      $arrowClass = 'after:top-full ' . $arrowAlignClass . ' after:border-t-' . ($event->kategori === 'rapat' ? '[#ffe4e6]' : ($event->kategori === 'sosialisasi' ? '[#dbeafe]' : ($event->kategori === 'pelatihan' ? '[#d1fae5]' : '[#f1f5f9]')));
+                                       if ($heightPct >= 25) {
+                                           if ($topPct < 15) {
+                                               $tooltipPosition = 'top-6 ' . $alignClass;
+                                           } else {
+                                               $tooltipPosition = 'top-1/2 -translate-y-1/2 ' . $alignClass;
+                                           }
+                                           $arrowClass = 'after:hidden';
+                                       } else {
+                                           if ($topPct < 20) {
+                                               $tooltipPosition = 'top-full mt-2 ' . $alignClass;
+                                               $arrowClass = 'after:bottom-full ' . $arrowAlignClass . ' after:border-b-' . ($event->kategori === 'rapat' ? '[#ffe4e6]' : ($event->kategori === 'sosialisasi' ? '[#dbeafe]' : ($event->kategori === 'pelatihan' ? '[#d1fae5]' : '[#f1f5f9]')));
+                                           } else {
+                                               $tooltipPosition = 'bottom-full mb-2 ' . $alignClass;
+                                               $arrowClass = 'after:top-full ' . $arrowAlignClass . ' after:border-t-' . ($event->kategori === 'rapat' ? '[#ffe4e6]' : ($event->kategori === 'sosialisasi' ? '[#dbeafe]' : ($event->kategori === 'pelatihan' ? '[#d1fae5]' : '[#f1f5f9]')));
+                                           }
+                                       }
                                       
                                       $tooltipStyles = [
                                           'rapat' => [
