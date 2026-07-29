@@ -756,7 +756,7 @@
                             this.adminValidationErrorMessage = "Pilih 1 Admin dari unit yang diundang (" + missingAdminBidangNames.join(", ") + ").";
                             this.$nextTick(() => {
                                 if (this.$refs.modalBody) {
-                                    this.$refs.modalBody.scrollTo({ top: 0, behavior: 'smooth' });
+                                    this.$refs.modalBody.scrollTo({ top: 0, behavior: "smooth" });
                                 }
                             });
                             return false;
@@ -1218,9 +1218,9 @@
                                             <template x-for="user in filteredUsers(bidang.users)" :key="user.id">
                                                 <label class="flex items-start gap-2.5 p-2.5 rounded-xl border select-none transition-all cursor-pointer"
                                                        :class="isAdminUser(user) 
-                                                               ? 'bg-gradient-to-r from-amber-50/90 to-amber-100/60 border-amber-300 hover:border-amber-400 text-amber-950' 
-                                                               : (isKetuaUser(user) || isNotulis(user)
-                                                                   ? 'bg-gradient-to-r from-purple-100 via-purple-100/90 to-purple-200/70 border-purple-400 hover:border-purple-500 text-purple-950' 
+                                                               ? 'bg-gradient-to-r from-amber-50/90 to-amber-100/60 border-amber-300 hover:border-amber-400' 
+                                                               : (isKetuaUser(user)
+                                                                   ? 'bg-gradient-to-r from-purple-100 via-purple-100/90 to-purple-200/70 border-purple-400 hover:border-purple-500' 
                                                                    : 'bg-[#f8f7ff] hover:bg-indigo-50/50 border-[#d4d1f5]/60 hover:border-[#1b3bbb]')">
                                                     
                                                     <input type="checkbox" 
@@ -1229,14 +1229,14 @@
                                                            :disabled="isMandatoryUser(user)"
                                                            @change="toggleUserParticipant(user)" 
                                                            class="w-4 h-4 rounded border-slate-300 mt-0.5 shrink-0"
-                                                           :class="isAdminUser(user) ? 'text-amber-600 focus:ring-amber-500' : 'text-purple-600 focus:ring-purple-500'"
+                                                           :class="isAdminUser(user) ? 'text-amber-600 focus:ring-amber-500' : (isKetuaUser(user) ? 'text-purple-600 focus:ring-purple-500' : 'text-[#1b3bbb] focus:ring-[#1b3bbb]')"
                                                            :class="isMandatoryUser(user) ? 'opacity-80 cursor-not-allowed' : ''">
                                                     
                                                     <div class="min-w-0 flex-1">
-                                                        <div class="text-xs font-bold leading-tight truncate" :class="isKetuaUser(user) || isNotulis(user) ? 'text-purple-950' : (isAdminUser(user) ? 'text-amber-950' : 'text-[#2e2552]')">
+                                                        <div class="text-xs font-bold leading-tight truncate" :class="isAdminUser(user) ? 'text-amber-950' : (isKetuaUser(user) ? 'text-purple-950' : 'text-[#2e2552]')">
                                                             <span x-text="user.name" class="truncate"></span>
                                                         </div>
-                                                        <div class="text-[10px] font-medium truncate mt-0.5" :class="isKetuaUser(user) || isNotulis(user) ? 'text-purple-800' : (isAdminUser(user) ? 'text-amber-800' : 'text-[#5a508f]')" x-text="user.jabatan"></div>
+                                                        <div class="text-[10px] font-medium truncate mt-0.5" :class="isAdminUser(user) ? 'text-amber-800' : (isKetuaUser(user) ? 'text-purple-800' : 'text-[#5a508f]')" x-text="user.jabatan"></div>
                                                     </div>
                                                 </label>
                                             </template>
