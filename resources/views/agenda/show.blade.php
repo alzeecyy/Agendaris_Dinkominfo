@@ -429,6 +429,11 @@
 
                                          if (missingAdminBidangNames.length > 0) {
                                              this.adminValidationErrorMessage = "Pilih 1 Admin dari unit yang diundang (" + missingAdminBidangNames.join(", ") + ").";
+                                             this.$nextTick(() => {
+                                                 if (this.$refs.modalBody) {
+                                                     this.$refs.modalBody.scrollTo({ top: 0, behavior: 'smooth' });
+                                                 }
+                                             });
                                              return false;
                                          }
                                          this.adminValidationErrorMessage = "";
@@ -790,7 +795,7 @@
                                                 </button>
                                             </div>
 
-                                            <div class="p-5 overflow-y-auto space-y-4 flex-1">
+                                            <div x-ref="modalBody" class="p-5 overflow-y-auto space-y-4 flex-1">
                                                  <!-- Search Bar -->
                                                  <div class="relative">
                                                      <input type="text" x-model="searchParticipant" placeholder="Cari nama, NIP, atau jabatan peserta..." 
