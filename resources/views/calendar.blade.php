@@ -534,10 +534,10 @@
                                     { value: 'kegiatan_lainnya', label: 'Kegiatan Lainnya' }
                                 ]" :key="opt.value">
                                     <button type="button" @click="kategori = opt.value; openKategori = false" 
-                                            class="w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs font-semibold transition-colors"
+                                            class="w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs font-semibold transition-colors text-left"
                                             :class="kategori === opt.value ? 'bg-[#1b3bbb] text-white font-bold' : 'text-[#09103c] hover:bg-[#1b3bbb]/10 hover:text-[#1b3bbb]'">
-                                        <span x-text="opt.label"></span>
-                                        <svg x-show="kategori === opt.value" class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/></svg>
+                                        <span class="text-left leading-snug" x-text="opt.label"></span>
+                                        <svg x-show="kategori === opt.value" class="w-3.5 h-3.5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/></svg>
                                     </button>
                                 </template>
                             </div>
@@ -578,19 +578,19 @@
                         </button>
                         <div x-show="openLokasi" x-cloak 
                              x-transition:enter="transition ease-out duration-150 transform" 
-                             x-transition:enter-start="opacity-0 scale-95 -translate-y-1" 
+                             x-transition:enter-start="opacity-0 scale-95 translate-y-1" 
                              x-transition:enter-end="opacity-100 scale-100 translate-y-0" 
                              x-transition:leave="transition ease-in duration-100 transform" 
                              x-transition:leave-start="opacity-100 scale-100 translate-y-0" 
-                             x-transition:leave-end="opacity-0 scale-95 -translate-y-1" 
-                             class="absolute left-0 top-full mt-1 w-full bg-white border border-[#cbd5e1] rounded-2xl shadow-xl shadow-[#1b3bbb]/10 p-1.5 z-50 max-h-52 overflow-y-auto">
+                             x-transition:leave-end="opacity-0 scale-95 translate-y-1" 
+                             class="absolute left-0 bottom-full mb-1 w-full bg-white border border-[#cbd5e1] rounded-2xl shadow-xl shadow-[#1b3bbb]/10 p-1.5 z-50 max-h-52 overflow-y-auto">
                             <div class="space-y-0.5">
                                 <template x-for="loc in ['Aula Rapat Dinkominfo', 'Ruang Pelatihan', 'Smart Room Graha Satria']" :key="loc">
                                     <button type="button" @click="lokasiVal = loc; openLokasi = false" 
-                                            class="w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs font-semibold transition-colors"
+                                            class="w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs font-semibold transition-colors text-left"
                                             :class="lokasiVal === loc ? 'bg-[#1b3bbb] text-white font-bold' : 'text-[#09103c] hover:bg-[#1b3bbb]/10 hover:text-[#1b3bbb]'">
-                                        <span x-text="loc"></span>
-                                        <svg x-show="lokasiVal === loc" class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/></svg>
+                                        <span class="text-left leading-snug" x-text="loc"></span>
+                                        <svg x-show="lokasiVal === loc" class="w-3.5 h-3.5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/></svg>
                                     </button>
                                 </template>
                             </div>

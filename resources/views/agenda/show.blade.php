@@ -214,10 +214,10 @@
                                         <div class="space-y-0.5">
                                             <template x-for="loc in ['Aula Rapat Dinkominfo', 'Ruang Pelatihan', 'Smart Room Graha Satria']" :key="loc">
                                                 <button type="button" @click="lokasiVal = loc; openEditLokasi = false" 
-                                                        class="w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs font-semibold transition-colors"
+                                                        class="w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs font-semibold transition-colors text-left"
                                                         :class="lokasiVal === loc ? 'bg-[#1b3bbb] text-white font-bold' : 'text-[#09103c] hover:bg-[#1b3bbb]/10 hover:text-[#1b3bbb]'">
-                                                    <span x-text="loc"></span>
-                                                    <svg x-show="lokasiVal === loc" class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/></svg>
+                                                    <span class="text-left leading-snug" x-text="loc"></span>
+                                                    <svg x-show="lokasiVal === loc" class="w-3.5 h-3.5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/></svg>
                                                 </button>
                                             </template>
                                         </div>
@@ -248,10 +248,10 @@
                                                 { value: 'kegiatan_lainnya', label: 'Kegiatan Lainnya' }
                                             ]" :key="opt.value">
                                                 <button type="button" @click="kategoriVal = opt.value; openEditKat = false" 
-                                                        class="w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs font-semibold transition-colors"
+                                                        class="w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs font-semibold transition-colors text-left"
                                                         :class="kategoriVal === opt.value ? 'bg-[#1b3bbb] text-white font-bold' : 'text-[#09103c] hover:bg-[#1b3bbb]/10 hover:text-[#1b3bbb]'">
-                                                    <span x-text="opt.label"></span>
-                                                    <svg x-show="kategoriVal === opt.value" class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/></svg>
+                                                    <span class="text-left leading-snug" x-text="opt.label"></span>
+                                                    <svg x-show="kategoriVal === opt.value" class="w-3.5 h-3.5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/></svg>
                                                 </button>
                                             </template>
                                         </div>

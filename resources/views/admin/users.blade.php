@@ -234,17 +234,17 @@ class="space-y-6">
                          class="absolute left-0 top-full mt-1.5 w-full bg-white border border-[#cbd5e1] rounded-2xl shadow-xl shadow-[#1b3bbb]/10 p-1.5 z-50 max-h-52 overflow-y-auto">
                         <div class="space-y-0.5">
                             <button type="button" @click="filterBidang = ''; open = false" 
-                                    class="w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs font-semibold transition-colors"
+                                    class="w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs font-semibold transition-colors text-left"
                                     :class="filterBidang === '' ? 'bg-[#1b3bbb] text-white font-bold' : 'text-[#09103c] hover:bg-[#1b3bbb]/10 hover:text-[#1b3bbb]'">
-                                <span>Semua Bidang</span>
-                                <svg x-show="filterBidang === ''" class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/></svg>
+                                <span class="text-left leading-snug">Semua Bidang</span>
+                                <svg x-show="filterBidang === ''" class="w-3.5 h-3.5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/></svg>
                             </button>
                             @foreach($bidangs as $bid)
                                 <button type="button" @click="filterBidang = '{{ $bid->id }}'; open = false" 
-                                        class="w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs font-semibold transition-colors"
+                                        class="w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs font-semibold transition-colors text-left"
                                         :class="String(filterBidang) === '{{ $bid->id }}' ? 'bg-[#1b3bbb] text-white font-bold' : 'text-[#09103c] hover:bg-[#1b3bbb]/10 hover:text-[#1b3bbb]'">
-                                    <span>{{ $bid->singkatan }}</span>
-                                    <svg x-show="String(filterBidang) === '{{ $bid->id }}'" class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/></svg>
+                                    <span class="text-left leading-snug">{{ $bid->nama }} ({{ $bid->singkatan }})</span>
+                                    <svg x-show="String(filterBidang) === '{{ $bid->id }}'" class="w-3.5 h-3.5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/></svg>
                                 </button>
                             @endforeach
                         </div>
@@ -288,10 +288,10 @@ class="space-y-6">
                                 { value: 'staff', label: 'Staff' }
                             ]" :key="opt.value">
                                 <button type="button" @click="filterRole = opt.value; open = false" 
-                                        class="w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs font-semibold transition-colors"
+                                        class="w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs font-semibold transition-colors text-left"
                                         :class="filterRole === opt.value ? 'bg-[#1b3bbb] text-white font-bold' : 'text-[#09103c] hover:bg-[#1b3bbb]/10 hover:text-[#1b3bbb]'">
-                                    <span x-text="opt.label"></span>
-                                    <svg x-show="filterRole === opt.value" class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/></svg>
+                                    <span class="text-left leading-snug" x-text="opt.label"></span>
+                                    <svg x-show="filterRole === opt.value" class="w-3.5 h-3.5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/></svg>
                                 </button>
                             </template>
                         </div>
@@ -332,10 +332,10 @@ class="space-y-6">
                                 { value: 'nonaktif', label: 'Nonaktif' }
                             ]" :key="opt.value">
                                 <button type="button" @click="filterStatus = opt.value; open = false" 
-                                        class="w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs font-semibold transition-colors"
+                                        class="w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs font-semibold transition-colors text-left"
                                         :class="filterStatus === opt.value ? 'bg-[#1b3bbb] text-white font-bold' : 'text-[#09103c] hover:bg-[#1b3bbb]/10 hover:text-[#1b3bbb]'">
-                                    <span x-text="opt.label"></span>
-                                    <svg x-show="filterStatus === opt.value" class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/></svg>
+                                    <span class="text-left leading-snug" x-text="opt.label"></span>
+                                    <svg x-show="filterStatus === opt.value" class="w-3.5 h-3.5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/></svg>
                                 </button>
                             </template>
                         </div>
@@ -508,7 +508,7 @@ class="space-y-6">
     <!-- MODAL: ADD PEGAWAI -->
     <div x-show="openAddModal" x-cloak class="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-5 bg-slate-950/70 backdrop-blur-md overflow-y-auto transition-all duration-300">
         <div @click.away="openAddModal = false" 
-             class="bg-white border border-[#d4d1f5] rounded-3xl w-full max-w-md shadow-2xl overflow-hidden relative text-[#2e2552] my-auto flex flex-col"
+             class="bg-white border border-[#d4d1f5] rounded-3xl w-full max-w-md shadow-2xl relative text-[#2e2552] my-auto flex flex-col"
              x-transition:enter="transition ease-out duration-300 transform"
              x-transition:enter-start="opacity-0 scale-95 translate-y-2"
              x-transition:enter-end="opacity-100 scale-100 translate-y-0"
@@ -517,7 +517,7 @@ class="space-y-6">
              x-transition:leave-end="opacity-0 scale-95 translate-y-2">
 
             <!-- Modal Header -->
-            <div class="px-5 py-3.5 sm:py-4 bg-gradient-to-r from-[#09103c] via-[#1b3bbb] to-[#09103c] text-white flex items-center justify-between shrink-0">
+            <div class="px-5 py-3.5 sm:py-4 bg-gradient-to-r from-[#09103c] via-[#1b3bbb] to-[#09103c] text-white flex items-center justify-between shrink-0 rounded-t-3xl">
                 <div class="flex items-center gap-3">
                     <div class="p-2 bg-white/10 rounded-xl border border-white/15 shrink-0">
                         <svg class="w-5 h-5 text-amber-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -566,24 +566,24 @@ class="space-y-6">
                         </button>
                         <div x-show="openBidang" x-cloak 
                              x-transition:enter="transition ease-out duration-150 transform" 
-                             x-transition:enter-start="opacity-0 scale-95 -translate-y-1" 
+                             x-transition:enter-start="opacity-0 scale-95 translate-y-1" 
                              x-transition:enter-end="opacity-100 scale-100 translate-y-0" 
                              x-transition:leave="transition ease-in duration-100 transform" 
                              x-transition:leave-start="opacity-100 scale-100 translate-y-0" 
-                             x-transition:leave-end="opacity-0 scale-95 -translate-y-1" 
-                             class="absolute left-0 top-full mt-1 w-full bg-white border border-[#cbd5e1] rounded-2xl shadow-xl shadow-[#1b3bbb]/10 p-1.5 z-50 max-h-52 overflow-y-auto">
+                             x-transition:leave-end="opacity-0 scale-95 translate-y-1" 
+                             class="absolute left-0 bottom-full mb-1 w-full bg-white border border-[#cbd5e1] rounded-2xl shadow-xl shadow-[#1b3bbb]/10 p-1.5 z-50 max-h-52 overflow-y-auto">
                             <div class="space-y-0.5">
                                 <button type="button" @click="addBidangId = ''; openBidang = false" 
-                                        class="w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs font-semibold transition-colors"
+                                        class="w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs font-semibold transition-colors text-left"
                                         :class="addBidangId === '' ? 'bg-[#1b3bbb] text-white font-bold' : 'text-[#09103c] hover:bg-[#1b3bbb]/10 hover:text-[#1b3bbb]'">
-                                    <span>Pilih Bidang / Subbag</span>
+                                    <span class="text-left leading-snug">Pilih Bidang / Subbag</span>
                                 </button>
                                 @foreach($bidangs as $bid)
                                     <button type="button" @click="addBidangId = '{{ $bid->id }}'; openBidang = false" 
-                                            class="w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs font-semibold transition-colors"
+                                            class="w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs font-semibold transition-colors text-left"
                                             :class="String(addBidangId) === '{{ $bid->id }}' ? 'bg-[#1b3bbb] text-[#1b3bbb] font-bold' : 'text-[#09103c] hover:bg-[#1b3bbb]/10 hover:text-[#1b3bbb]'">
-                                        <span>{{ $bid->singkatan }}</span>
-                                        <svg x-show="String(addBidangId) === '{{ $bid->id }}'" class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/></svg>
+                                        <span class="text-left leading-snug">{{ $bid->nama }} ({{ $bid->singkatan }})</span>
+                                        <svg x-show="String(addBidangId) === '{{ $bid->id }}'" class="w-3.5 h-3.5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/></svg>
                                     </button>
                                 @endforeach
                             </div>
@@ -601,12 +601,12 @@ class="space-y-6">
                         </button>
                         <div x-show="openRole" x-cloak 
                              x-transition:enter="transition ease-out duration-150 transform" 
-                             x-transition:enter-start="opacity-0 scale-95 -translate-y-1" 
+                             x-transition:enter-start="opacity-0 scale-95 translate-y-1" 
                              x-transition:enter-end="opacity-100 scale-100 translate-y-0" 
                              x-transition:leave="transition ease-in duration-100 transform" 
                              x-transition:leave-start="opacity-100 scale-100 translate-y-0" 
-                             x-transition:leave-end="opacity-0 scale-95 -translate-y-1" 
-                             class="absolute left-0 top-full mt-1 w-full bg-white border border-[#cbd5e1] rounded-2xl shadow-xl shadow-[#1b3bbb]/10 p-1.5 z-50 max-h-52 overflow-y-auto">
+                             x-transition:leave-end="opacity-0 scale-95 translate-y-1" 
+                             class="absolute left-0 bottom-full mb-1 w-full bg-white border border-[#cbd5e1] rounded-2xl shadow-xl shadow-[#1b3bbb]/10 p-1.5 z-50 max-h-52 overflow-y-auto">
                             <div class="space-y-0.5">
                                 <template x-for="opt in [
                                     { value: 'staff', label: 'Staff' },
@@ -616,10 +616,10 @@ class="space-y-6">
                                     { value: 'ketua_master', label: 'Kepala Dinas (Kadin)' }
                                 ]" :key="opt.value">
                                     <button type="button" @click="addRole = opt.value; openRole = false" 
-                                            class="w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs font-semibold transition-colors"
+                                            class="w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs font-semibold transition-colors text-left"
                                             :class="addRole === opt.value ? 'bg-[#1b3bbb] text-white font-bold' : 'text-[#09103c] hover:bg-[#1b3bbb]/10 hover:text-[#1b3bbb]'">
-                                        <span x-text="opt.label"></span>
-                                        <svg x-show="addRole === opt.value" class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/></svg>
+                                        <span class="text-left leading-snug" x-text="opt.label"></span>
+                                        <svg x-show="addRole === opt.value" class="w-3.5 h-3.5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/></svg>
                                     </button>
                                 </template>
                             </div>
@@ -642,7 +642,7 @@ class="space-y-6">
     <!-- MODAL: EDIT PEGAWAI -->
     <div x-show="openEditModal" x-cloak class="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-5 bg-slate-950/70 backdrop-blur-md overflow-y-auto transition-all duration-300">
         <div @click.away="openEditModal = false" 
-             class="bg-white border border-[#d4d1f5] rounded-3xl w-full max-w-md shadow-2xl overflow-hidden relative text-[#2e2552] my-auto flex flex-col"
+             class="bg-white border border-[#d4d1f5] rounded-3xl w-full max-w-md shadow-2xl relative text-[#2e2552] my-auto flex flex-col"
              x-transition:enter="transition ease-out duration-300 transform"
              x-transition:enter-start="opacity-0 scale-95 translate-y-2"
              x-transition:enter-end="opacity-100 scale-100 translate-y-0"
@@ -651,7 +651,7 @@ class="space-y-6">
              x-transition:leave-end="opacity-0 scale-95 translate-y-2">
 
             <!-- Modal Header -->
-            <div class="px-5 py-3.5 sm:py-4 bg-gradient-to-r from-[#09103c] via-[#1b3bbb] to-[#09103c] text-white flex items-center justify-between shrink-0">
+            <div class="px-5 py-3.5 sm:py-4 bg-gradient-to-r from-[#09103c] via-[#1b3bbb] to-[#09103c] text-white flex items-center justify-between shrink-0 rounded-t-3xl">
                 <div class="flex items-center gap-3">
                     <div class="p-2 bg-white/10 rounded-xl border border-white/15 shrink-0">
                         <svg class="w-5 h-5 text-amber-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -698,24 +698,24 @@ class="space-y-6">
                         </button>
                         <div x-show="openEditBidang" x-cloak 
                              x-transition:enter="transition ease-out duration-150 transform" 
-                             x-transition:enter-start="opacity-0 scale-95 -translate-y-1" 
+                             x-transition:enter-start="opacity-0 scale-95 translate-y-1" 
                              x-transition:enter-end="opacity-100 scale-100 translate-y-0" 
                              x-transition:leave="transition ease-in duration-100 transform" 
                              x-transition:leave-start="opacity-100 scale-100 translate-y-0" 
-                             x-transition:leave-end="opacity-0 scale-95 -translate-y-1" 
-                             class="absolute left-0 top-full mt-1 w-full bg-white border border-[#cbd5e1] rounded-2xl shadow-xl shadow-[#1b3bbb]/10 p-1.5 z-50 max-h-52 overflow-y-auto">
+                             x-transition:leave-end="opacity-0 scale-95 translate-y-1" 
+                             class="absolute left-0 bottom-full mb-1 w-full bg-white border border-[#cbd5e1] rounded-2xl shadow-xl shadow-[#1b3bbb]/10 p-1.5 z-50 max-h-52 overflow-y-auto">
                             <div class="space-y-0.5">
                                 <button type="button" @click="editUser.bidang_id = ''; openEditBidang = false" 
-                                        class="w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs font-semibold transition-colors"
+                                        class="w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs font-semibold transition-colors text-left"
                                         :class="!editUser.bidang_id ? 'bg-[#1b3bbb] text-white font-bold' : 'text-[#09103c] hover:bg-[#1b3bbb]/10 hover:text-[#1b3bbb]'">
-                                    <span>Pilih Bidang / Subbag</span>
+                                    <span class="text-left leading-snug">Pilih Bidang / Subbag</span>
                                 </button>
                                 @foreach($bidangs as $bid)
                                     <button type="button" @click="editUser.bidang_id = '{{ $bid->id }}'; openEditBidang = false" 
-                                            class="w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs font-semibold transition-colors"
+                                            class="w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs font-semibold transition-colors text-left"
                                             :class="String(editUser.bidang_id) === '{{ $bid->id }}' ? 'bg-[#1b3bbb] text-white font-bold' : 'text-[#09103c] hover:bg-[#1b3bbb]/10 hover:text-[#1b3bbb]'">
-                                        <span>{{ $bid->singkatan }}</span>
-                                        <svg x-show="String(editUser.bidang_id) === '{{ $bid->id }}'" class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/></svg>
+                                        <span class="text-left leading-snug">{{ $bid->nama }} ({{ $bid->singkatan }})</span>
+                                        <svg x-show="String(editUser.bidang_id) === '{{ $bid->id }}'" class="w-3.5 h-3.5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/></svg>
                                     </button>
                                 @endforeach
                             </div>
@@ -733,12 +733,12 @@ class="space-y-6">
                         </button>
                         <div x-show="openEditRole" x-cloak 
                              x-transition:enter="transition ease-out duration-150 transform" 
-                             x-transition:enter-start="opacity-0 scale-95 -translate-y-1" 
+                             x-transition:enter-start="opacity-0 scale-95 translate-y-1" 
                              x-transition:enter-end="opacity-100 scale-100 translate-y-0" 
                              x-transition:leave="transition ease-in duration-100 transform" 
                              x-transition:leave-start="opacity-100 scale-100 translate-y-0" 
-                             x-transition:leave-end="opacity-0 scale-95 -translate-y-1" 
-                             class="absolute left-0 top-full mt-1 w-full bg-white border border-[#cbd5e1] rounded-2xl shadow-xl shadow-[#1b3bbb]/10 p-1.5 z-50 max-h-52 overflow-y-auto">
+                             x-transition:leave-end="opacity-0 scale-95 translate-y-1" 
+                             class="absolute left-0 bottom-full mb-1 w-full bg-white border border-[#cbd5e1] rounded-2xl shadow-xl shadow-[#1b3bbb]/10 p-1.5 z-50 max-h-52 overflow-y-auto">
                             <div class="space-y-0.5">
                                 <template x-for="opt in [
                                     { value: 'staff', label: 'Staff' },
@@ -748,10 +748,10 @@ class="space-y-6">
                                     { value: 'ketua_master', label: 'Kepala Dinas (Kadin)' }
                                 ]" :key="opt.value">
                                     <button type="button" @click="editUser.role = opt.value; openEditRole = false" 
-                                            class="w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs font-semibold transition-colors"
+                                            class="w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs font-semibold transition-colors text-left"
                                             :class="editUser.role === opt.value ? 'bg-[#1b3bbb] text-white font-bold' : 'text-[#09103c] hover:bg-[#1b3bbb]/10 hover:text-[#1b3bbb]'">
-                                        <span x-text="opt.label"></span>
-                                        <svg x-show="editUser.role === opt.value" class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/></svg>
+                                        <span class="text-left leading-snug" x-text="opt.label"></span>
+                                        <svg x-show="editUser.role === opt.value" class="w-3.5 h-3.5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/></svg>
                                     </button>
                                 </template>
                             </div>

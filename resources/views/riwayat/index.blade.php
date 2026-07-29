@@ -195,10 +195,10 @@ class="space-y-6">
                                 { value: 'kegiatan_lainnya', label: 'Kegiatan Lainnya' }
                             ]" :key="opt.value">
                                 <button type="button" @click="filterKategori = opt.value; open = false" 
-                                        class="w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs font-semibold transition-colors"
+                                        class="w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs font-semibold transition-colors text-left"
                                         :class="filterKategori === opt.value ? 'bg-[#1b3bbb] text-white font-bold' : 'text-[#09103c] hover:bg-[#1b3bbb]/10 hover:text-[#1b3bbb]'">
-                                    <span x-text="opt.label"></span>
-                                    <svg x-show="filterKategori === opt.value" class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/></svg>
+                                    <span class="text-left leading-snug" x-text="opt.label"></span>
+                                    <svg x-show="filterKategori === opt.value" class="w-3.5 h-3.5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/></svg>
                                 </button>
                             </template>
                         </div>
@@ -253,10 +253,10 @@ class="space-y-6">
                                 { value: 'alfa', label: 'Alfa' }
                             ]" :key="opt.value">
                                 <button type="button" @click="filterStatus = opt.value; open = false" 
-                                        class="w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs font-semibold transition-colors"
+                                        class="w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs font-semibold transition-colors text-left"
                                         :class="filterStatus === opt.value ? 'bg-[#1b3bbb] text-white font-bold' : 'text-[#09103c] hover:bg-[#1b3bbb]/10 hover:text-[#1b3bbb]'">
-                                    <span x-text="opt.label"></span>
-                                    <svg x-show="filterStatus === opt.value" class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/></svg>
+                                    <span class="text-left leading-snug" x-text="opt.label"></span>
+                                    <svg x-show="filterStatus === opt.value" class="w-3.5 h-3.5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/></svg>
                                 </button>
                             </template>
                         </div>
@@ -299,10 +299,10 @@ class="space-y-6">
                                 { value: 'disahkan', label: 'Telah Disahkan' }
                             ]" :key="opt.value">
                                 <button type="button" @click="filterNotulensiStatus = opt.value; open = false" 
-                                        class="w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs font-semibold transition-colors"
+                                        class="w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs font-semibold transition-colors text-left"
                                         :class="filterNotulensiStatus === opt.value ? 'bg-[#1b3bbb] text-white font-bold' : 'text-[#09103c] hover:bg-[#1b3bbb]/10 hover:text-[#1b3bbb]'">
-                                    <span x-text="opt.label"></span>
-                                    <svg x-show="filterNotulensiStatus === opt.value" class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/></svg>
+                                    <span class="text-left leading-snug" x-text="opt.label"></span>
+                                    <svg x-show="filterNotulensiStatus === opt.value" class="w-3.5 h-3.5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/></svg>
                                 </button>
                             </template>
                         </div>
