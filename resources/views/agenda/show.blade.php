@@ -316,25 +316,17 @@
     @if($agenda->kategori === 'rapat' && ($isSecretaryOfAgenda || Auth::user()->isAdmin()))
         <div x-show="openNomorSuratModal" x-cloak class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/50 backdrop-blur-sm">
             <div @click.away="openNomorSuratModal = false" class="bg-white border border-[#d4d1f5]/60 rounded-3xl w-full max-w-md shadow-2xl overflow-hidden relative text-[#2e2552] animate-in fade-in zoom-in duration-200">
-                <div class="h-1.5 w-full bg-gradient-to-r from-[#1b3bbb] to-indigo-600"></div>
-                <div class="p-5 border-b border-[#d4d1f5]/40 flex items-center justify-between bg-slate-50/60">
-                    <div class="flex items-center gap-2.5">
-                        <div class="w-8 h-8 rounded-xl bg-[#1b3bbb]/10 text-[#1b3bbb] border border-[#1b3bbb]/20 flex items-center justify-center font-bold shrink-0">
-                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
-                            </svg>
-                        </div>
-                        <div>
-                            <h3 class="text-sm font-extrabold text-[#09103c]">Isi / Ubah Nomor Surat</h3>
-                            <p class="text-[10.5px] text-slate-500 font-medium">Lengkapi nomor surat pelaksanaan agenda</p>
-                        </div>
-                    </div>
-                    <button type="button" @click="openNomorSuratModal = false" class="w-7 h-7 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-400 hover:text-slate-600 flex items-center justify-center transition-all cursor-pointer">
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
-                        </svg>
-                    </button>
+                <div class="px-5 py-3.5 sm:py-4 bg-gradient-to-r from-[#09103c] via-[#1b3bbb] to-[#09103c] text-white flex items-center justify-between shrink-0 rounded-t-3xl">
+                <div>
+                    <h3 class="text-sm sm:text-base font-extrabold text-white">Isi / Ubah Nomor Surat</h3>
+                    <p class="text-[10px] sm:text-xs text-[#d4d1f5] font-medium mt-0.5">Lengkapi nomor surat pelaksanaan agenda</p>
                 </div>
+                <button type="button" @click="openNomorSuratModal = false" class="w-8 h-8 rounded-full bg-white/10 hover:bg-white/20 text-white flex items-center justify-center transition-all cursor-pointer">
+                    <svg class="w-4.5 h-4.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                    </svg>
+                </button>
+            </div>
                 <form action="{{ route('agenda.update-nomor-surat', $agenda->id) }}" method="POST" class="p-5 space-y-4">
                     @csrf
                     @method('PATCH')
@@ -371,10 +363,10 @@
             $hasNotulensiCard = ($agenda->kategori === 'rapat' && (bool)$agenda->notulensi);
             $hasMultipleRightCards = $hasAbsensiCard && $hasNotulensiCard;
         @endphp
-        <div class="flex flex-col gap-3.5 sm:gap-4.5 min-w-0 {{ $hasMultipleRightCards ? 'h-full justify-between' : 'justify-start' }}">
+        <div class="flex flex-col gap-3.5 sm:gap-4.5 min-w-0 h-full">
             <!-- 1. ABSENSI DIGITAL (Pegawai Internal Mandiri) -->
             @if($agenda->butuh_presensi)
-                <div class="bg-white border border-[#d4d1f5]/60 rounded-xl md:rounded-[24px] p-3.5 sm:p-5 shadow-sm space-y-2.5 {{ $hasMultipleRightCards ? 'flex-1 flex flex-col justify-between' : '' }}">
+                <div class="bg-white border border-[#d4d1f5]/60 rounded-xl md:rounded-[24px] p-3.5 sm:p-5 shadow-sm space-y-3">
                     <div class="flex items-center justify-between border-b border-[#d4d1f5]/40 pb-3">
                         <h3 class="text-xs font-bold uppercase tracking-wider text-[#2e2552]">Absensi Digital</h3>
                         <span class="text-[10px] font-bold text-[#5a508f] bg-[#f3f2fe] px-2.5 py-0.5 rounded-full border border-[#d4d1f5]/40">
@@ -558,7 +550,7 @@
 
             <!-- 3. STATUS NOTULENSI AI (Hanya Rapat yang Memiliki Notulensi) -->
             @if($agenda->kategori === 'rapat' && $agenda->notulensi)
-                <div class="bg-white border border-[#d4d1f5]/60 rounded-xl md:rounded-[24px] p-3.5 sm:p-5 shadow-sm space-y-3">
+                <div class="bg-white border border-[#d4d1f5]/60 rounded-xl md:rounded-[24px] p-3.5 sm:p-5 shadow-sm flex-1 flex flex-col justify-between space-y-3">
                     <h3 class="text-[11px] sm:text-xs font-bold uppercase tracking-wider text-[#2e2552]">Dokumentasi Notulensi</h3>
                     
                     @php
@@ -1090,15 +1082,13 @@
     @if(Auth::user()->role !== 'staff' || Auth::user()->isSekretariat())
     <div x-show="openDetailModal" x-cloak class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/50 backdrop-blur-sm">
         <div @click.away="openDetailModal = false" class="bg-white border border-[#d4d1f5]/60 rounded-3xl w-full max-w-2xl shadow-2xl overflow-hidden relative text-[#2e2552]">
-            <div class="absolute top-0 left-0 w-full h-[2px] bg-[#2e2552]"></div>
-            
-            <div class="p-6 border-b border-[#d4d1f5]/40 flex items-center justify-between">
+            <div class="px-5 py-3.5 sm:py-4 bg-gradient-to-r from-[#09103c] via-[#1b3bbb] to-[#09103c] text-white flex items-center justify-between shrink-0 rounded-t-3xl">
                 <div>
-                    <h3 class="text-base font-bold text-[#2e2552]">Detail Kehadiran Rapat</h3>
-                    <p class="text-xs text-[#5a508f]" x-text="selectedBidangName"></p>
+                    <h3 class="text-sm sm:text-base font-extrabold text-white">Detail Kehadiran Rapat</h3>
+                    <p class="text-[10px] sm:text-xs text-[#d4d1f5] font-medium mt-0.5" x-text="selectedBidangName"></p>
                 </div>
-                <button @click="openDetailModal = false" class="text-[#5a508f] hover:text-[#2e2552]">
-                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <button type="button" @click="openDetailModal = false" class="w-8 h-8 rounded-full bg-white/10 hover:bg-white/20 text-white flex items-center justify-center transition-all cursor-pointer">
+                    <svg class="w-4.5 h-4.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
                     </svg>
                 </button>
@@ -1171,15 +1161,13 @@
              x-transition:enter-start="opacity-0 scale-95"
              x-transition:enter-end="opacity-100 scale-100">
              
-            <div class="absolute top-0 left-0 w-full h-[2px] bg-gradient-to-r from-[#2e2552] to-[#8e88dd]"></div>
-
-            <div class="p-6 border-b border-[#d4d1f5]/40 flex items-center justify-between">
+            <div class="px-5 py-3.5 sm:py-4 bg-gradient-to-r from-[#09103c] via-[#1b3bbb] to-[#09103c] text-white flex items-center justify-between shrink-0 rounded-t-3xl">
                 <div>
-                    <h3 class="text-base font-bold text-[#2e2552]">Tambah Tamu Eksternal</h3>
-                    <p class="text-xs text-[#5a508f]">Masukkan nama undangan dari luar Dinkominfo</p>
+                    <h3 class="text-sm sm:text-base font-extrabold text-white">Tambah Tamu Eksternal</h3>
+                    <p class="text-[10px] sm:text-xs text-[#d4d1f5] font-medium mt-0.5">Masukkan nama undangan dari luar Dinkominfo</p>
                 </div>
-                <button @click="openGuestModal = false" class="text-[#5a508f] hover:text-[#2e2552] transition-colors">
-                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <button type="button" @click="openGuestModal = false" class="w-8 h-8 rounded-full bg-white/10 hover:bg-white/20 text-white flex items-center justify-center transition-all cursor-pointer">
+                    <svg class="w-4.5 h-4.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
                     </svg>
                 </button>
@@ -1225,15 +1213,13 @@
              x-transition:enter-start="opacity-0 scale-95"
              x-transition:enter-end="opacity-100 scale-100">
             
-            <div class="absolute top-0 left-0 w-full h-[2px] bg-gradient-to-r from-[#2e2552] to-[#8e88dd]"></div>
-
-            <div class="p-6 border-b border-[#d4d1f5]/40 flex items-center justify-between">
+            <div class="px-5 py-3.5 sm:py-4 bg-gradient-to-r from-[#09103c] via-[#1b3bbb] to-[#09103c] text-white flex items-center justify-between shrink-0 rounded-t-3xl">
                 <div>
-                    <h3 class="text-base font-bold text-[#2e2552]">Isi Formulir Presensi Kehadiran</h3>
-                    <p class="text-xs text-[#5a508f]">Konfirmasi kehadiran Anda pada agenda ini</p>
+                    <h3 class="text-sm sm:text-base font-extrabold text-white">Isi Formulir Presensi Kehadiran</h3>
+                    <p class="text-[10px] sm:text-xs text-[#d4d1f5] font-medium mt-0.5">Konfirmasi kehadiran Anda pada agenda ini</p>
                 </div>
-                <button @click="openAbsenModal = false" class="text-[#5a508f] hover:text-[#2e2552] transition-colors">
-                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <button type="button" @click="openAbsenModal = false" class="w-8 h-8 rounded-full bg-white/10 hover:bg-white/20 text-white flex items-center justify-center transition-all cursor-pointer">
+                    <svg class="w-4.5 h-4.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
                     </svg>
                 </button>
