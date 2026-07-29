@@ -226,7 +226,7 @@ class DashboardController extends Controller
                 ->with('agenda.sekretaris')
                 ->get()
                 ->filter(function($notulensi) use ($user) {
-                    return $notulensi->agenda && ($user->hasAccessToAgenda($notulensi->agenda) || $user->isApproverOfAgenda($notulensi->agenda));
+                    return $notulensi->agenda && $user->isApproverOfAgenda($notulensi->agenda);
                 });
 
             $kpi['sekdin_pending_reviews'] = $pendingReviews->count();
@@ -268,7 +268,7 @@ class DashboardController extends Controller
                 ->with('agenda.sekretaris')
                 ->get()
                 ->filter(function($notulensi) use ($user) {
-                    return $notulensi->agenda && ($user->hasAccessToAgenda($notulensi->agenda) || $user->isApproverOfAgenda($notulensi->agenda));
+                    return $notulensi->agenda && $user->isApproverOfAgenda($notulensi->agenda);
                 });
 
             $kpi['ketua_pending_reviews'] = $pendingReviews->count();
@@ -664,7 +664,7 @@ class DashboardController extends Controller
             ->orderBy('tanggal', 'desc')
             ->orderBy('jam_mulai', 'desc')
             ->get()
-            ->filter(fn($agenda) => $user->isInvitedToAgenda($agenda));
+            ->filter(fn($agenda) => $user->isInvitedToAgenda($agenda) || $user->isApproverOfAgenda($agenda));
 
         $presensis = Presensi::where('user_id', $user->id)
             ->get()
