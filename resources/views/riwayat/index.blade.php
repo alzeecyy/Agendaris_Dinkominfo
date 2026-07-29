@@ -160,16 +160,11 @@ class="space-y-6">
             <!-- Row 2: 4 Equal Width Filter Inputs (Exact 100% Width Match) -->
             <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2.5 sm:gap-3 items-center w-full">
                 <!-- Kategori Filter -->
-                <div class="relative w-full">
-                    <select x-model="filterKategori" 
-                            style="background-image: none !important; -webkit-appearance: none !important; -moz-appearance: none !important; appearance: none !important;"
-                            class="w-full pl-8 pr-8 py-2 bg-white border border-[#d4d1f5]/80 rounded-xl text-xs text-[#2e2552] font-semibold cursor-pointer focus:outline-none focus:ring-2 focus:ring-[#1b3bbb] transition-all shadow-2xs truncate">
-                        <option value="">Semua Kategori</option>
-                        <option value="rapat">Rapat</option>
-                        <option value="sosialisasi">Sosialisasi</option>
-                        <option value="pelatihan">Pelatihan</option>
-                        <option value="kegiatan_lainnya">Kegiatan Lainnya</option>
-                    </select>
+                <div x-data="{ open: false }" @click.outside="open = false" class="relative w-full">
+                    <button type="button" @click="open = !open" 
+                            class="w-full pl-8 pr-8 py-2 bg-white border border-[#d4d1f5]/80 hover:border-[#1b3bbb] rounded-xl text-xs text-[#09103c] font-semibold flex items-center justify-between transition-all cursor-pointer shadow-2xs truncate focus:outline-none focus:ring-2 focus:ring-[#1b3bbb]/20">
+                        <span class="truncate" x-text="filterKategori ? (filterKategori === 'rapat' ? 'Rapat' : (filterKategori === 'sosialisasi' ? 'Sosialisasi' : (filterKategori === 'pelatihan' ? 'Pelatihan' : 'Kegiatan Lainnya'))) : 'Semua Kategori'"></span>
+                    </button>
                     <!-- Icon Left -->
                     <div class="absolute left-2.5 top-1/2 -translate-y-1/2 text-[#1b3bbb] pointer-events-none">
                         <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -177,10 +172,36 @@ class="space-y-6">
                         </svg>
                     </div>
                     <!-- Custom Arrow Right -->
-                    <div class="absolute right-2.5 top-1/2 -translate-y-1/2 text-[#5a508f] pointer-events-none">
+                    <div class="absolute right-2.5 top-1/2 -translate-y-1/2 text-[#1b3bbb] pointer-events-none transition-transform duration-200" :class="open ? 'rotate-180' : ''">
                         <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
                         </svg>
+                    </div>
+                    <!-- Dropdown Menu -->
+                    <div x-show="open" x-cloak 
+                         x-transition:enter="transition ease-out duration-150 transform" 
+                         x-transition:enter-start="opacity-0 scale-95 -translate-y-1" 
+                         x-transition:enter-end="opacity-100 scale-100 translate-y-0" 
+                         x-transition:leave="transition ease-in duration-100 transform" 
+                         x-transition:leave-start="opacity-100 scale-100 translate-y-0" 
+                         x-transition:leave-end="opacity-0 scale-95 -translate-y-1" 
+                         class="absolute left-0 top-full mt-1.5 w-full bg-white border border-[#cbd5e1] rounded-2xl shadow-xl shadow-[#1b3bbb]/10 p-1.5 z-50 overflow-hidden">
+                        <div class="space-y-0.5">
+                            <template x-for="opt in [
+                                { value: '', label: 'Semua Kategori' },
+                                { value: 'rapat', label: 'Rapat' },
+                                { value: 'sosialisasi', label: 'Sosialisasi' },
+                                { value: 'pelatihan', label: 'Pelatihan' },
+                                { value: 'kegiatan_lainnya', label: 'Kegiatan Lainnya' }
+                            ]" :key="opt.value">
+                                <button type="button" @click="filterKategori = opt.value; open = false" 
+                                        class="w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs font-semibold transition-colors"
+                                        :class="filterKategori === opt.value ? 'bg-[#1b3bbb] text-white font-bold' : 'text-[#09103c] hover:bg-[#1b3bbb]/10 hover:text-[#1b3bbb]'">
+                                    <span x-text="opt.label"></span>
+                                    <svg x-show="filterKategori === opt.value" class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/></svg>
+                                </button>
+                            </template>
+                        </div>
                     </div>
                 </div>
                 
@@ -197,16 +218,11 @@ class="space-y-6">
                 </div>
                 
                 <!-- Status Kehadiran Filter -->
-                <div class="relative w-full">
-                    <select x-model="filterStatus" 
-                            style="background-image: none !important; -webkit-appearance: none !important; -moz-appearance: none !important; appearance: none !important;"
-                            class="w-full pl-8 pr-8 py-2 bg-white border border-[#d4d1f5]/80 rounded-xl text-xs text-[#2e2552] font-semibold cursor-pointer focus:outline-none focus:ring-2 focus:ring-[#1b3bbb] transition-all shadow-2xs truncate">
-                        <option value="">Semua Kehadiran</option>
-                        <option value="hadir">Hadir</option>
-                        <option value="izin">Izin</option>
-                        <option value="sakit">Sakit</option>
-                        <option value="alfa">Alfa</option>
-                    </select>
+                <div x-data="{ open: false }" @click.outside="open = false" class="relative w-full">
+                    <button type="button" @click="open = !open" 
+                            class="w-full pl-8 pr-8 py-2 bg-white border border-[#d4d1f5]/80 hover:border-[#1b3bbb] rounded-xl text-xs text-[#09103c] font-semibold flex items-center justify-between transition-all cursor-pointer shadow-2xs truncate focus:outline-none focus:ring-2 focus:ring-[#1b3bbb]/20">
+                        <span class="truncate" x-text="filterStatus ? (filterStatus === 'hadir' ? 'Hadir' : (filterStatus === 'izin' ? 'Izin' : (filterStatus === 'sakit' ? 'Sakit' : 'Alfa'))) : 'Semua Kehadiran'"></span>
+                    </button>
                     <!-- Icon Left -->
                     <div class="absolute left-2.5 top-1/2 -translate-y-1/2 text-[#1b3bbb] pointer-events-none">
                         <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -214,24 +230,45 @@ class="space-y-6">
                         </svg>
                     </div>
                     <!-- Custom Arrow Right -->
-                    <div class="absolute right-2.5 top-1/2 -translate-y-1/2 text-[#5a508f] pointer-events-none">
+                    <div class="absolute right-2.5 top-1/2 -translate-y-1/2 text-[#1b3bbb] pointer-events-none transition-transform duration-200" :class="open ? 'rotate-180' : ''">
                         <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
                         </svg>
                     </div>
+                    <!-- Dropdown Menu -->
+                    <div x-show="open" x-cloak 
+                         x-transition:enter="transition ease-out duration-150 transform" 
+                         x-transition:enter-start="opacity-0 scale-95 -translate-y-1" 
+                         x-transition:enter-end="opacity-100 scale-100 translate-y-0" 
+                         x-transition:leave="transition ease-in duration-100 transform" 
+                         x-transition:leave-start="opacity-100 scale-100 translate-y-0" 
+                         x-transition:leave-end="opacity-0 scale-95 -translate-y-1" 
+                         class="absolute left-0 top-full mt-1.5 w-full bg-white border border-[#cbd5e1] rounded-2xl shadow-xl shadow-[#1b3bbb]/10 p-1.5 z-50 overflow-hidden">
+                        <div class="space-y-0.5">
+                            <template x-for="opt in [
+                                { value: '', label: 'Semua Kehadiran' },
+                                { value: 'hadir', label: 'Hadir' },
+                                { value: 'izin', label: 'Izin' },
+                                { value: 'sakit', label: 'Sakit' },
+                                { value: 'alfa', label: 'Alfa' }
+                            ]" :key="opt.value">
+                                <button type="button" @click="filterStatus = opt.value; open = false" 
+                                        class="w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs font-semibold transition-colors"
+                                        :class="filterStatus === opt.value ? 'bg-[#1b3bbb] text-white font-bold' : 'text-[#09103c] hover:bg-[#1b3bbb]/10 hover:text-[#1b3bbb]'">
+                                    <span x-text="opt.label"></span>
+                                    <svg x-show="filterStatus === opt.value" class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/></svg>
+                                </button>
+                            </template>
+                        </div>
+                    </div>
                 </div>
 
                 <!-- Status Notulensi Filter -->
-                <div class="relative w-full">
-                    <select x-model="filterNotulensiStatus" 
-                            style="background-image: none !important; -webkit-appearance: none !important; -moz-appearance: none !important; appearance: none !important;"
-                            class="w-full pl-8 pr-8 py-2 bg-white border border-[#d4d1f5]/80 rounded-xl text-xs text-[#2e2552] font-semibold cursor-pointer focus:outline-none focus:ring-2 focus:ring-[#1b3bbb] transition-all shadow-2xs truncate">
-                        <option value="">Semua Status Notulen</option>
-                        <option value="draft">Belum Ada Draft</option>
-                        <option value="menunggu_review">Menunggu Review</option>
-                        <option value="revisi">Perlu Revisi</option>
-                        <option value="disahkan">Telah Disahkan</option>
-                    </select>
+                <div x-data="{ open: false }" @click.outside="open = false" class="relative w-full">
+                    <button type="button" @click="open = !open" 
+                            class="w-full pl-8 pr-8 py-2 bg-white border border-[#d4d1f5]/80 hover:border-[#1b3bbb] rounded-xl text-xs text-[#09103c] font-semibold flex items-center justify-between transition-all cursor-pointer shadow-2xs truncate focus:outline-none focus:ring-2 focus:ring-[#1b3bbb]/20">
+                        <span class="truncate" x-text="filterNotulensiStatus ? (filterNotulensiStatus === 'draft' ? 'Belum Ada Draft' : (filterNotulensiStatus === 'menunggu_review' ? 'Menunggu Review' : (filterNotulensiStatus === 'revisi' ? 'Perlu Revisi' : 'Telah Disahkan'))) : 'Semua Status Notulen'"></span>
+                    </button>
                     <!-- Icon Left -->
                     <div class="absolute left-2.5 top-1/2 -translate-y-1/2 text-[#1b3bbb] pointer-events-none">
                         <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -239,10 +276,36 @@ class="space-y-6">
                         </svg>
                     </div>
                     <!-- Custom Arrow Right -->
-                    <div class="absolute right-2.5 top-1/2 -translate-y-1/2 text-[#5a508f] pointer-events-none">
+                    <div class="absolute right-2.5 top-1/2 -translate-y-1/2 text-[#1b3bbb] pointer-events-none transition-transform duration-200" :class="open ? 'rotate-180' : ''">
                         <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
                         </svg>
+                    </div>
+                    <!-- Dropdown Menu -->
+                    <div x-show="open" x-cloak 
+                         x-transition:enter="transition ease-out duration-150 transform" 
+                         x-transition:enter-start="opacity-0 scale-95 -translate-y-1" 
+                         x-transition:enter-end="opacity-100 scale-100 translate-y-0" 
+                         x-transition:leave="transition ease-in duration-100 transform" 
+                         x-transition:leave-start="opacity-100 scale-100 translate-y-0" 
+                         x-transition:leave-end="opacity-0 scale-95 -translate-y-1" 
+                         class="absolute left-0 top-full mt-1.5 w-full bg-white border border-[#cbd5e1] rounded-2xl shadow-xl shadow-[#1b3bbb]/10 p-1.5 z-50 overflow-hidden">
+                        <div class="space-y-0.5">
+                            <template x-for="opt in [
+                                { value: '', label: 'Semua Status Notulen' },
+                                { value: 'draft', label: 'Belum Ada Draft' },
+                                { value: 'menunggu_review', label: 'Menunggu Review' },
+                                { value: 'revisi', label: 'Perlu Revisi' },
+                                { value: 'disahkan', label: 'Telah Disahkan' }
+                            ]" :key="opt.value">
+                                <button type="button" @click="filterNotulensiStatus = opt.value; open = false" 
+                                        class="w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs font-semibold transition-colors"
+                                        :class="filterNotulensiStatus === opt.value ? 'bg-[#1b3bbb] text-white font-bold' : 'text-[#09103c] hover:bg-[#1b3bbb]/10 hover:text-[#1b3bbb]'">
+                                    <span x-text="opt.label"></span>
+                                    <svg x-show="filterNotulensiStatus === opt.value" class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/></svg>
+                                </button>
+                            </template>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -282,6 +345,38 @@ class="space-y-6">
                                 <a href="{{ route('agenda.show', $item->id) }}" class="hover:text-[#8e88dd] transition-colors leading-snug">
                                     {{ $item->judul }}
                                 </a>
+                                @php
+                                    $itemHak = (array)($item->hak_akses ?? []);
+                                @endphp
+                                @if(!empty($itemHak))
+                                    <div class="flex items-center gap-1 flex-wrap mt-1">
+                                        @if(in_array('semua_orang', $itemHak))
+                                            <span class="inline-block text-[8.5px] px-1.5 py-0.5 font-bold rounded-md bg-emerald-50 text-emerald-700 border border-emerald-200">
+                                                Semua Bidang & Subbag
+                                            </span>
+                                        @else
+                                            @php
+                                                $bRecords = \App\Models\Bidang::whereIn('id', $itemHak)->get();
+                                                $bNames = $bRecords->map(fn($b) => $b->singkatan ?? $b->nama)->toArray();
+                                                $maxRShow = 2;
+                                                $totalRCount = count($bNames);
+                                                $visibleRNames = array_slice($bNames, 0, $maxRShow);
+                                                $remRCount = $totalRCount - $maxRShow;
+                                                $remRNames = $remRCount > 0 ? implode(', ', array_slice($bNames, $maxRShow)) : '';
+                                            @endphp
+                                            @foreach($visibleRNames as $bNm)
+                                                <span class="inline-block text-[8.5px] px-1.5 py-0.5 font-bold rounded-md bg-indigo-50 text-[#1b3bbb] border border-indigo-200">
+                                                    {{ $bNm }}
+                                                </span>
+                                            @endforeach
+                                            @if($remRCount > 0)
+                                                <span class="inline-block text-[8.5px] px-1.5 py-0.5 font-extrabold rounded-md bg-indigo-50 text-[#1b3bbb] border border-indigo-200 cursor-help" title="{{ $remRNames }}">
+                                                    +{{ $remRCount }} lainnya
+                                                </span>
+                                            @endif
+                                        @endif
+                                    </div>
+                                @endif
                             </td>
                             <td class="py-2 sm:py-4 px-2 sm:px-4 text-center whitespace-nowrap">
                                 @php

@@ -209,16 +209,40 @@ class="w-full flex flex-col gap-3.5 sm:gap-5 select-none">
                             </span>
                         </div>
 
-                        <!-- Scope Access Badge -->
-                        @if(in_array('semua_orang', $agenda->hak_akses))
-                            <span class="text-[9.5px] sm:text-[10px] font-bold text-indigo-600 bg-indigo-50 border border-indigo-100 rounded-full px-2 py-0.5">
-                                🌐 Lintas Dinas (Semua)
-                            </span>
-                        @else
-                            <span class="text-[9.5px] sm:text-[10px] font-bold text-purple-600 bg-purple-50 border border-purple-100 rounded-full px-2 py-0.5">
-                                🏢 Bidang Khusus
-                            </span>
-                        @endif
+                        <!-- Scope Access & Target Bidang Badges -->
+                        <div class="flex items-center gap-1 flex-wrap">
+                            @if(in_array('semua_orang', (array)($agenda->hak_akses ?? [])))
+                                <span class="text-[8.5px] sm:text-[9px] font-bold text-emerald-700 bg-emerald-50 border border-emerald-200 rounded-full px-2 py-0.5">
+                                    Semua Bidang & Subbag (Lintas Dinas)
+                                </span>
+                            @else
+                                @php
+                                    $hList = (array)($agenda->hak_akses ?? []);
+                                    $targetBids = \App\Models\Bidang::whereIn('id', $hList)->get();
+                                    $maxShowT = 2;
+                                    $totalTBids = $targetBids->count();
+                                    $visibleTBids = $targetBids->take($maxShowT);
+                                    $remTBidsCount = $totalTBids - $maxShowT;
+                                    $remTBidsNames = $remTBidsCount > 0 ? $targetBids->skip($maxShowT)->pluck('singkatan')->filter()->implode(', ') : '';
+                                @endphp
+                                @if($totalTBids > 0)
+                                    @foreach($visibleTBids as $tb)
+                                        <span class="text-[8.5px] sm:text-[9px] font-bold text-[#1b3bbb] bg-indigo-50 border border-indigo-200 rounded-full px-2 py-0.5">
+                                            {{ $tb->singkatan ?? $tb->nama }}
+                                        </span>
+                                    @endforeach
+                                    @if($remTBidsCount > 0)
+                                        <span class="text-[8.5px] sm:text-[9px] font-extrabold text-[#1b3bbb] bg-indigo-50 border border-indigo-200 rounded-full px-2 py-0.5 cursor-help" title="{{ $remTBidsNames }}">
+                                            +{{ $remTBidsCount }} lainnya
+                                        </span>
+                                    @endif
+                                @else
+                                    <span class="text-[8.5px] sm:text-[9px] font-bold text-purple-600 bg-purple-50 border border-purple-100 rounded-full px-2 py-0.5">
+                                        Bidang Khusus
+                                    </span>
+                                @endif
+                            @endif
+                        </div>
                     </div>
 
                     <div class="space-y-1.5 sm:space-y-2">
@@ -482,7 +506,7 @@ class="w-full flex flex-col gap-3.5 sm:gap-5 select-none">
                             <div class="pt-2.5 border-t flex items-center justify-between text-xs font-bold"
                                  :class="tvTheme === 'cerah' ? 'border-slate-100' : 'border-slate-800'">
                                 <span class="text-[10.5px] px-2.5 py-0.5 rounded-full border bg-purple-50 text-purple-700 border-purple-200 font-extrabold">
-                                    {{ in_array('semua_orang', $agenda->hak_akses) ? '🌐 Rapat Lintas Dinas (Semua Orang)' : '🏢 Rapat Internal Bidang Khusus' }}
+                                    {{ in_array('semua_orang', $agenda->hak_akses) ? 'Rapat Lintas Dinas (Semua Orang)' : 'Rapat Internal Bidang Khusus' }}
                                 </span>
                             </div>
                         </div>

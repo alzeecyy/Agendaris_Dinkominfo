@@ -247,37 +247,33 @@ class User extends Authenticatable
     }
 
     /**
-     * Checks if this user is the authorized secretary who can EDIT an agenda's notulensi.
-     * Rule:
-     * - Admin Master & Staff CANNOT edit notulensi.
-     * - Sekretaris Master (Sekdin) & Admin Bidang (Sekretaris Bidang) who have access to the agenda CAN EDIT/MANAGE.
+     * Checks if this user is the meeting creator who can CREATE, EDIT, and MANAGE an agenda's notulensi.
+     * Rule: Strictly based on meeting creator ID (agenda.sekretaris_id == user.id) or System Admin.
      */
     public function isSecretaryOfAgenda(Agenda $agenda): bool
     {
-        if ($this->isAdmin() || $this->isStaff()) {
-            return false;
-        }
-
-        // Direct creator of the agenda can always edit
-        if ((string)$this->id === (string)$agenda->sekretaris_id) {
+        if ($this->isAdmin()) {
             return true;
         }
 
-        // Sekretaris Master and Sekretaris Bidang who have access to the agenda can edit/manage notulensi
-        if (($this->isSekretarisMaster() || $this->isSekretarisBidang()) && $this->hasAccessToAgenda($agenda)) {
-            return true;
-        }
+        // Direct creator of the agenda is the ONLY ONE who can manage/edit notulensi
+        return (string)$this->id === (string)$agenda->sekretaris_id;
+    }
 
-        return false;
+    /**
+     * Alias method for clarity in permission checks: Can user manage notulensi?
+     */
+    public function canManageNotulensi(Agenda $agenda): bool
+    {
+        return $this->isSecretaryOfAgenda($agenda);
     }
 
     /**
      * Checks if this user has authority to APPROVE and SIGN (TTD) an agenda's notulensi.
      * Rules:
-     * - Kepala Dinas: Can ONLY approve & sign agendas created by Sekretariat Dinas (read-only for all others).
-     * - Subbagian (Umum, Keuangan, Perencanaan): Can be approved by Kasubag OR Sekdin.
-     * - Bidang (IKP, Aptika, etc.): Can be approved by Kabid or Sekdin.
-     * - Lintas Dinas: Can be approved by Sekdin or Kadis (if created by Sekdin).
+     * 1. KADIN (ketua_master): Can ONLY approve & sign agendas created by SEKDIN (sekretaris_master).
+     * 2. SEKDIN (sekretaris_master): Can approve & sign agendas created in Sekretariat scope or Subbag under Sekretariat.
+     * 3. Kasubag / Kabid (ketua_bidang): Can approve agendas created by their own Bidang / Subbag.
      */
     public function isApproverOfAgenda(Agenda $agenda): bool
     {
@@ -287,29 +283,11 @@ class User extends Authenticatable
 
         $creator = $agenda->sekretaris;
         $creatorBidangId = $creator?->bidang_id;
-        $hakAkses = $agenda->hak_akses ?? [];
-
-        // Check if agenda was created by Sekretariat Dinas (Sekretaris Master / Sekretariat bidang)
-        $isCreatedBySekretariat = false;
-        if ($creator) {
-            if ($creator->isSekretarisMaster()) {
-                $isCreatedBySekretariat = true;
-            } elseif ($creator->bidang) {
-                $singkatan = strtolower($creator->bidang->singkatan ?? '');
-                $nama = strtolower($creator->bidang->nama ?? '');
-                if ($singkatan === 'sekretariat' || $nama === 'sekretariat') {
-                    $isCreatedBySekretariat = true;
-                }
-            }
-        }
 
         // 1. Kepala Dinas (ketua_master):
-        // Only allowed to review & approve if user has access to the agenda AND the agenda was created by Sekretariat Dinas
+        // ACC ONLY if agenda was created by SEKDIN (sekretaris_master)
         if ($this->isKetuaMaster()) {
-            if (!$this->hasAccessToAgenda($agenda)) {
-                return false;
-            }
-            return $isCreatedBySekretariat;
+            return $creator && $creator->isSekretarisMaster();
         }
 
         // Check if agenda belongs to Sekretariat or a Subbagian under Sekretariat
@@ -321,23 +299,40 @@ class User extends Authenticatable
         }
 
         // 2. Sekdin (sekretaris_master):
+        // ACC for agendas in Sekretariat scope or Subbag under Sekretariat
         if ($this->isSekretarisMaster()) {
-            // Sekdin has authority to approve & sign any Notulensi under Sekretariat/Subbagian or Lintas Dinas
-            if ($isSubbagOrSekretariat || in_array('semua_orang', $hakAkses) || count($hakAkses) > 1 || count($hakAkses) === 0) {
+            return $isSubbagOrSekretariat;
+        }
+
+        // 3. Kasubag / Kabid (ketua_bidang):
+        // ACC for agendas created within their own Bidang / Subbag
+        if ($this->isKetuaBidang()) {
+            if ($creatorBidangId && (string)$this->bidang_id === (string)$creatorBidangId) {
                 return true;
             }
         }
 
-        // 3. Kasubag / Kabid (ketua_bidang):
-        if ($this->isKetuaBidang()) {
-            // Kasubag / Kabid can approve if creator is in the same Subbag / Bidang
-            if ($creatorBidangId && (string)$this->bidang_id === (string)$creatorBidangId) {
-                return true;
-            }
-            // Or if agenda hak_akses matches user's bidang_id
-            if (in_array((string)$this->bidang_id, array_map('strval', $hakAkses))) {
-                return true;
-            }
+        return false;
+    }
+
+    /**
+     * Check if user is authorized to perform attendance correction (Koreksi Presensi) for a target participant.
+     * Allowed if user is meeting creator OR user is Admin (sekretaris_bidang/master) of the target participant's Bidang/Subbag.
+     */
+    public function canKoreksiPresensi(Agenda $agenda, User $targetUser): bool
+    {
+        if ($this->isAdmin() || (string)$this->id === (string)$agenda->sekretaris_id) {
+            return true;
+        }
+
+        // SEKDIN can correct attendance for Sekretariat & Subbags
+        if ($this->isSekretarisMaster()) {
+            return true;
+        }
+
+        // Admin of target user's Bidang/Subbag
+        if ($this->isSekretarisBidang() && $this->bidang_id && (string)$this->bidang_id === (string)$targetUser->bidang_id) {
+            return true;
         }
 
         return false;

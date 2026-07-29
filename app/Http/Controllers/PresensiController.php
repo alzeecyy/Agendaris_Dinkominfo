@@ -106,10 +106,6 @@ class PresensiController extends Controller
     {
         $user = Auth::user();
 
-        if (!$user->isSecretaryOfAgenda($agenda)) {
-            return back()->with('error', 'Hanya Sekretaris pembuat agenda yang memiliki wewenang untuk mengoreksi presensi.');
-        }
-
         $validated = $request->validate([
             'user_id' => 'required|exists:users,id',
             'status' => 'required|string',
@@ -118,6 +114,11 @@ class PresensiController extends Controller
         $employee = \App\Models\User::find($validated['user_id']);
         if (!$employee) {
             return back()->with('error', 'Pegawai tidak ditemukan.');
+        }
+
+        // Authorization check: User must be meeting creator OR Admin of the target employee's Bidang/Subbag
+        if (!$user->canKoreksiPresensi($agenda, $employee)) {
+            return back()->with('error', 'Anda tidak memiliki wewenang untuk mengoreksi presensi pegawai dari unit ini.');
         }
 
         // Check if employee is valid for this agenda
