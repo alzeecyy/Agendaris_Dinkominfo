@@ -88,7 +88,16 @@ class Agenda extends Model
         $hakAkses = $this->hak_akses ?? [];
         $query = User::with('bidang')->where('role', '!=', 'admin')->where('active', true);
         if (!in_array('semua_orang', $hakAkses)) {
-            $query->whereIn('bidang_id', $hakAkses);
+            $numericHakAkses = array_values(array_filter($hakAkses, 'is_numeric'));
+            $hasKadin = in_array('kadin', $hakAkses);
+            $query->where(function($q) use ($numericHakAkses, $hasKadin) {
+                if (!empty($numericHakAkses)) {
+                    $q->whereIn('bidang_id', $numericHakAkses);
+                }
+                if ($hasKadin) {
+                    $q->orWhere('role', 'ketua_master');
+                }
+            });
         }
         return $query->orderBy('name')->get();
     }

@@ -519,16 +519,34 @@ class NotulensiController extends Controller
 
         // Attendance recap per bidang
         $recap = [];
-        $allowedBidangs = in_array('semua_orang', $hakAkses) 
+        $numericHakAkses = array_values(array_filter((array) $hakAkses, 'is_numeric'));
+        $allowedBidangs = in_array('semua_orang', (array) $hakAkses) 
             ? \App\Models\Bidang::orderBy('nama')->get()
-            : \App\Models\Bidang::whereIn('id', $hakAkses)->orderBy('nama')->get();
+            : \App\Models\Bidang::whereIn('id', $numericHakAkses)->orderBy('nama')->get();
+
+        $kadinUsers = $internalUsers->filter(fn($p) => $p->role === 'ketua_master' || !$p->bidang_id);
+        if ($kadinUsers->isNotEmpty() || in_array('kadin', (array)$hakAkses)) {
+            $hadir = $kadinUsers->filter(fn($p) => $attendanceRecords->has($p->id) && $attendanceRecords[$p->id]->status === 'hadir')->count();
+            $izin = $kadinUsers->filter(fn($p) => $attendanceRecords->has($p->id) && $attendanceRecords[$p->id]->status === 'izin')->count();
+            $sakit = $kadinUsers->filter(fn($p) => $attendanceRecords->has($p->id) && $attendanceRecords[$p->id]->status === 'sakit')->count();
+            $belum = $kadinUsers->filter(fn($p) => !$attendanceRecords->has($p->id) || !in_array($attendanceRecords[$p->id]->status, ['hadir', 'izin', 'sakit']))->count();
+
+            $recap[] = (object) [
+                'bidang_nama' => 'Kepala Dinas',
+                'hadir' => $hadir,
+                'izin' => $izin,
+                'sakit' => $sakit,
+                'alfa' => $belum,
+                'belum' => $belum,
+            ];
+        }
 
         foreach ($allowedBidangs as $bid) {
-            $total = $internalUsers->filter(fn($p) => $p->bidang_id === $bid->id)->count();
-            $hadir = $internalUsers->filter(fn($p) => $p->bidang_id === $bid->id && ($attendanceRecords->has($p->id) && $attendanceRecords[$p->id]->status === 'hadir'))->count();
-            $izin = $internalUsers->filter(fn($p) => $p->bidang_id === $bid->id && ($attendanceRecords->has($p->id) && $attendanceRecords[$p->id]->status === 'izin'))->count();
-            $sakit = $internalUsers->filter(fn($p) => $p->bidang_id === $bid->id && ($attendanceRecords->has($p->id) && $attendanceRecords[$p->id]->status === 'sakit'))->count();
-            $belum = $internalUsers->filter(fn($p) => $p->bidang_id === $bid->id && (!$attendanceRecords->has($p->id) || !in_array($attendanceRecords[$p->id]->status, ['hadir', 'izin', 'sakit'])))->count();
+            $bidangUsers = $internalUsers->filter(fn($p) => (int)$p->bidang_id === (int)$bid->id && $p->role !== 'ketua_master');
+            $hadir = $bidangUsers->filter(fn($p) => $attendanceRecords->has($p->id) && $attendanceRecords[$p->id]->status === 'hadir')->count();
+            $izin = $bidangUsers->filter(fn($p) => $attendanceRecords->has($p->id) && $attendanceRecords[$p->id]->status === 'izin')->count();
+            $sakit = $bidangUsers->filter(fn($p) => $attendanceRecords->has($p->id) && $attendanceRecords[$p->id]->status === 'sakit')->count();
+            $belum = $bidangUsers->filter(fn($p) => !$attendanceRecords->has($p->id) || !in_array($attendanceRecords[$p->id]->status, ['hadir', 'izin', 'sakit']))->count();
 
             $recap[] = (object) [
                 'bidang_nama' => $bid->nama,

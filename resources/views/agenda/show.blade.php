@@ -53,7 +53,11 @@
     },
     showBidangDetails(bidId, bidName) {
         this.selectedBidangName = bidName;
-        this.detailParticipants = this.allParticipants.filter(p => p.bidang_id == bidId);
+        if (bidId == 0) {
+            this.detailParticipants = this.allParticipants.filter(p => p.role === 'ketua_master' || !p.bidang_id || p.bidang_id == 0);
+        } else {
+            this.detailParticipants = this.allParticipants.filter(p => p.bidang_id == bidId && p.role !== 'ketua_master');
+        }
         this.openDetailModal = true;
     },
     initSignaturePad() {
@@ -489,13 +493,16 @@ sekId: "{{ $sekretariatId }}",
                                          return nonMandatoryIds.every(id => currentSelected.includes(id));
                                      }
                                  }'>
-                                     <!-- Hidden Inputs for Selected Participants -->
-                                     <template x-for="userId in selectedParticipants" :key="userId">
+                                     <!-- Hidden Inputs for Selected Bidangs & Participants -->
+                                     <template x-for="bidId in bidangs" :key="'bidang-' + bidId">
+                                         <input type="hidden" name="bidangs[]" :value="bidId">
+                                     </template>
+                                     <template x-for="userId in selectedParticipants" :key="'participant-' + userId">
                                          <input type="hidden" name="participants[]" :value="userId">
                                      </template>
 
                                      @if(Auth::user()->isSekretarisBidang() && !Auth::user()->isSekretariatScope())
-                                         <input type="hidden" name="bidangs[]" value="{{ Auth::user()->bidang_id }}">
+                                         <!-- Bidang sendiri otomatis masuk ke Alpine array bidangs -->
                                      @else
                                          <label class="flex items-center text-xs text-[#2e2552] font-bold mb-1 cursor-pointer select-none">
                                              <input type="checkbox" name="semua_orang" value="1" x-model="semua" @change="toggleSemua()" class="mr-2 rounded border-[#d4d1f5] text-[#8e88dd]">
@@ -525,7 +532,7 @@ sekId: "{{ $sekretariatId }}",
                                                      @if($isSub)
                                                          <span class="text-slate-400 text-[11px] font-bold shrink-0 -mr-1">└</span>
                                                      @endif
-                                                     <input type="checkbox" name="bidangs[]" value="{{ $b->id }}" x-model="bidangs" @change="check('{{ $b->id }}')"
+                                                     <input type="checkbox" value="{{ $b->id }}" x-model="bidangs" @change="check('{{ $b->id }}')"
                                                             @if($isMandatory) disabled @endif
                                                             class="w-3.5 h-3.5 rounded border-[#d4d1f5] text-[#8e88dd]">
                                                      <span class="text-xs text-[#5a508f] {{ $isMandatory ? 'font-bold text-[#2e2552]' : 'font-medium' }}">
@@ -1895,7 +1902,11 @@ sekId: "{{ $sekretariatId }}",
                 },
                 showBidangDetails(bidId, bidName) {
                     this.selectedBidangName = bidName;
-                    this.detailParticipants = this.allParticipants.filter(p => p.bidang_id == bidId);
+                    if (bidId == 0) {
+                        this.detailParticipants = this.allParticipants.filter(p => p.role === 'ketua_master' || !p.bidang_id || p.bidang_id == 0);
+                    } else {
+                        this.detailParticipants = this.allParticipants.filter(p => p.bidang_id == bidId && p.role !== 'ketua_master');
+                    }
                     this.openDetailModal = true;
                 },
                 initSignaturePad() {

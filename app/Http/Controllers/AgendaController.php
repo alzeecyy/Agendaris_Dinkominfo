@@ -130,7 +130,7 @@ class AgendaController extends Controller
                 $bidangs[] = (string)$user->bidang_id;
             }
             // Max 3 bidangs allowed for standard Bidangs
-            if (count($bidangs) > 3) {
+            if (count(array_filter($bidangs, 'is_numeric')) > 3) {
                 return back()->withErrors(['bidangs' => 'Admin Bidang hanya diperbolehkan memilih bidangnya sendiri dan maksimal 2 bidang tambahan (maksimal 3 bidang).'])->withInput();
             }
             $hakAkses = array_values(array_unique($bidangs));
@@ -170,11 +170,18 @@ class AgendaController extends Controller
         ]);
 
         // Determine participants to attach
+        $numericHakAkses = array_values(array_filter($hakAkses, 'is_numeric'));
+        $hasKadin = in_array('kadin', $hakAkses);
+
         $allowedUsersQuery = \App\Models\User::where('role', '!=', 'admin')->where('active', true);
         if (!in_array('semua_orang', $hakAkses)) {
-            $allowedUsersQuery->where(function($q) use ($hakAkses) {
-                $q->whereIn('bidang_id', $hakAkses)
-                  ->orWhere('role', 'ketua_master');
+            $allowedUsersQuery->where(function($q) use ($numericHakAkses, $hasKadin) {
+                if (!empty($numericHakAkses)) {
+                    $q->whereIn('bidang_id', $numericHakAkses);
+                }
+                if ($hasKadin) {
+                    $q->orWhere('role', 'ketua_master');
+                }
             });
         }
         $allowedUserIds = $allowedUsersQuery->pluck('id')->toArray();
@@ -200,11 +207,15 @@ class AgendaController extends Controller
 
         $leaderUserIds = \App\Models\User::where('active', true)
             ->whereIn('role', ['ketua_master', 'sekretaris_master', 'ketua_bidang'])
-            ->where(function($q) use ($hakAkses) {
+            ->where(function($q) use ($hakAkses, $numericHakAkses, $hasKadin) {
                 if (!in_array('semua_orang', $hakAkses)) {
-                    $q->whereIn('bidang_id', $hakAkses)
-                      ->orWhere('role', 'ketua_master')
-                      ->orWhere('role', 'sekretaris_master');
+                    if (!empty($numericHakAkses)) {
+                        $q->whereIn('bidang_id', $numericHakAkses);
+                    }
+                    if ($hasKadin) {
+                        $q->orWhere('role', 'ketua_master');
+                    }
+                    $q->orWhere('role', 'sekretaris_master');
                 }
             })
             ->pluck('id')
@@ -315,23 +326,47 @@ class AgendaController extends Controller
 
         // Calculate attendance recap per bidang
         $recap = [];
-        $hakAkses = $agenda->hak_akses;
+        $hakAkses = (array) ($agenda->hak_akses ?? []);
         $allowedBidangs = [];
         
         if (in_array('semua_orang', $hakAkses)) {
             $allowedBidangs = Bidang::orderBy('nama')->get();
         } else {
-            $allowedBidangs = Bidang::whereIn('id', $hakAkses)->orderBy('nama')->get();
+            $numericHakAkses = array_values(array_filter($hakAkses, 'is_numeric'));
+            $allowedBidangs = Bidang::whereIn('id', $numericHakAkses)->orderBy('nama')->get();
         }
 
+        // 1. Include Kepala Dinas card if invited or in hak_akses
+        $kadinUsers = $participants->filter(fn($p) => $p->role === 'ketua_master' || !$p->bidang_id);
+        if ($kadinUsers->isNotEmpty() || in_array('kadin', $hakAkses)) {
+            $total = $kadinUsers->count();
+            $hadir = $kadinUsers->filter(fn($p) => $p->status_presensi === 'hadir')->count();
+            $izin = $kadinUsers->filter(fn($p) => $p->status_presensi === 'izin')->count();
+            $sakit = $kadinUsers->filter(fn($p) => $p->status_presensi === 'sakit')->count();
+            $alfa = $kadinUsers->filter(fn($p) => $p->status_presensi === 'alfa')->count();
+            $belum = $kadinUsers->filter(fn($p) => $p->status_presensi === 'Belum Absen' || !$p->status_presensi)->count();
+
+            $recap[] = (object) [
+                'bidang_id' => 0,
+                'bidang_nama' => 'Kepala Dinas',
+                'total' => $total,
+                'hadir' => $hadir,
+                'izin' => $izin,
+                'sakit' => $sakit,
+                'alfa' => $alfa,
+                'belum' => $belum,
+            ];
+        }
+
+        // 2. Include each allowed Bidang card
         foreach ($allowedBidangs as $bid) {
-            $bidangUsers = $participants->filter(fn($p) => $p->bidang_id === $bid->id);
+            $bidangUsers = $participants->filter(fn($p) => (int)$p->bidang_id === (int)$bid->id && $p->role !== 'ketua_master');
             $total = $bidangUsers->count();
             $hadir = $bidangUsers->filter(fn($p) => $p->status_presensi === 'hadir')->count();
             $izin = $bidangUsers->filter(fn($p) => $p->status_presensi === 'izin')->count();
             $sakit = $bidangUsers->filter(fn($p) => $p->status_presensi === 'sakit')->count();
             $alfa = $bidangUsers->filter(fn($p) => $p->status_presensi === 'alfa')->count();
-            $belum = $bidangUsers->filter(fn($p) => $p->status_presensi === 'Belum Absen')->count();
+            $belum = $bidangUsers->filter(fn($p) => $p->status_presensi === 'Belum Absen' || !$p->status_presensi)->count();
 
             $recap[] = (object) [
                 'bidang_id' => $bid->id,
@@ -455,7 +490,7 @@ class AgendaController extends Controller
                 $bidangs[] = (string)$user->bidang_id;
             }
             // Max 3 bidangs allowed for standard Bidangs
-            if (count($bidangs) > 3) {
+            if (count(array_filter($bidangs, 'is_numeric')) > 3) {
                 return back()->withErrors(['bidangs' => 'Admin Bidang hanya diperbolehkan memilih bidangnya sendiri dan maksimal 2 bidang tambahan (maksimal 3 bidang).'])->withInput();
             }
             $newHakAkses = array_values(array_unique($bidangs));
@@ -480,11 +515,18 @@ class AgendaController extends Controller
         $butuhPresensi = $request->has('butuh_presensi');
 
         // Pre-compute target participant list for validation before entering transaction
+        $numericNewHakAkses = array_values(array_filter($newHakAkses, 'is_numeric'));
+        $hasKadinNew = in_array('kadin', $newHakAkses);
+
         $allowedUsersQuery = \App\Models\User::where('role', '!=', 'admin')->where('active', true);
         if (!in_array('semua_orang', $newHakAkses)) {
-            $allowedUsersQuery->where(function($q) use ($newHakAkses) {
-                $q->whereIn('bidang_id', $newHakAkses)
-                  ->orWhere('role', 'ketua_master');
+            $allowedUsersQuery->where(function($q) use ($numericNewHakAkses, $hasKadinNew) {
+                if (!empty($numericNewHakAkses)) {
+                    $q->whereIn('bidang_id', $numericNewHakAkses);
+                }
+                if ($hasKadinNew) {
+                    $q->orWhere('role', 'ketua_master');
+                }
             });
         }
         $allowedUserIds = $allowedUsersQuery->pluck('id')->toArray();
@@ -510,11 +552,15 @@ class AgendaController extends Controller
 
         $leaderUserIds = \App\Models\User::where('active', true)
             ->whereIn('role', ['ketua_master', 'sekretaris_master', 'ketua_bidang'])
-            ->where(function($q) use ($newHakAkses) {
+            ->where(function($q) use ($newHakAkses, $numericNewHakAkses, $hasKadinNew) {
                 if (!in_array('semua_orang', $newHakAkses)) {
-                    $q->whereIn('bidang_id', $newHakAkses)
-                      ->orWhere('role', 'ketua_master')
-                      ->orWhere('role', 'sekretaris_master');
+                    if (!empty($numericNewHakAkses)) {
+                        $q->whereIn('bidang_id', $numericNewHakAkses);
+                    }
+                    if ($hasKadinNew) {
+                        $q->orWhere('role', 'ketua_master');
+                    }
+                    $q->orWhere('role', 'sekretaris_master');
                 }
             })
             ->pluck('id')

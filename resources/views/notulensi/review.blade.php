@@ -56,9 +56,13 @@
                     if (in_array('semua_orang', (array)$agenda->hak_akses)) {
                         $sasaranList[] = 'Semua Bidang / Rapat Lintas Dinas';
                     } else {
-                        $bRecords = \App\Models\Bidang::whereIn('id', (array)$agenda->hak_akses)->get();
+                        $numericHakAkses = array_values(array_filter((array)$agenda->hak_akses, 'is_numeric'));
+                        $bRecords = \App\Models\Bidang::whereIn('id', $numericHakAkses)->get();
                         foreach ($bRecords as $b) {
                             $sasaranList[] = $b->nama . ($b->singkatan ? ' (' . $b->singkatan . ')' : '');
+                        }
+                        if (in_array('kadin', (array)$agenda->hak_akses)) {
+                            $sasaranList[] = 'Kepala Dinas';
                         }
                     }
                 }
