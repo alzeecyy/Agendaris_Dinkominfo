@@ -208,24 +208,9 @@ class User extends Authenticatable
             return true;
         }
 
-        // Sekretaris Dinas (Sekdin) has management access across agency agendas
-        if ($this->isSekretarisMaster()) {
+        // Sekretaris Dinas (Sekdin) & Kepala Dinas (Kadin) have view access across all agency agendas
+        if ($this->isSekretarisMaster() || $this->isKetuaMaster()) {
             return true;
-        }
-
-        // Kepala Dinas (ketua_master) has access IF:
-        // 1. Agenda is Lintas Dinas (semua_orang)
-        // 2. Or if meeting_participants exist, Kepala Dinas is explicitly included
-        // 3. Or if no specific meeting_participants exist, agenda was created by Sekretariat Dinas
-        if ($this->isKetuaMaster()) {
-            if (in_array('semua_orang', $hakAkses)) {
-                return true;
-            }
-            if ($agenda->participants()->exists()) {
-                return $agenda->participants()->where('users.id', $this->id)->exists();
-            }
-            $creator = $agenda->sekretaris;
-            return $creator && ($creator->isSekretarisMaster() || ($creator->bidang && (strcasecmp($creator->bidang->singkatan, 'sekretariat') === 0 || strcasecmp($creator->bidang->nama, 'sekretariat') === 0)));
         }
 
         // If specific meeting_participants are saved for this agenda, check if user is explicitly invited
@@ -239,6 +224,47 @@ class User extends Authenticatable
         }
 
         // Check if agenda belongs to user's same bidang
+        if ($this->bidang_id && $agenda->sekretaris && (string)$agenda->sekretaris->bidang_id === (string)$this->bidang_id) {
+            return true;
+        }
+
+        return false;
+    }
+
+    /**
+     * Checks if this user is explicitly invited or participating in an agenda.
+     */
+    public function isInvitedToAgenda(Agenda $agenda): bool
+    {
+        if ($this->isAdmin()) {
+            return false;
+        }
+
+        $hakAkses = $agenda->hak_akses ?? [];
+
+        // For Kepala Dinas (isKetuaMaster), ONLY include if:
+        // 1. Lintas Dinas (semua_orang)
+        // 2. 'kadin' is explicitly in target hak_akses
+        if ($this->isKetuaMaster()) {
+            return in_array('semua_orang', $hakAkses) || in_array('kadin', $hakAkses);
+        }
+
+        if ((string)$this->id === (string)$agenda->sekretaris_id) {
+            return true;
+        }
+
+        if (in_array('semua_orang', $hakAkses)) {
+            return true;
+        }
+
+        if ($agenda->participants()->exists()) {
+            return $agenda->participants()->where('users.id', $this->id)->exists();
+        }
+
+        if ($this->bidang_id && in_array((string)$this->bidang_id, array_map('strval', $hakAkses))) {
+            return true;
+        }
+
         if ($this->bidang_id && $agenda->sekretaris && (string)$agenda->sekretaris->bidang_id === (string)$this->bidang_id) {
             return true;
         }
@@ -277,35 +303,24 @@ class User extends Authenticatable
      */
     public function isApproverOfAgenda(Agenda $agenda): bool
     {
-        if ($this->isAdmin()) {
+        if ($this->isAdmin() || $this->isKetuaMaster()) {
             return false;
         }
 
         $creator = $agenda->sekretaris;
         $creatorBidangId = $creator?->bidang_id;
 
-        // 1. Kepala Dinas (ketua_master):
-        // ACC ONLY if agenda was created by SEKDIN (sekretaris_master)
-        if ($this->isKetuaMaster()) {
-            return $creator && $creator->isSekretarisMaster();
-        }
-
-        // Check if agenda belongs to Sekretariat or a Subbagian under Sekretariat
-        $isSubbagOrSekretariat = false;
-        if ($creator && ($creator->isSekretariat() || $creator->isSekretarisMaster())) {
-            $isSubbagOrSekretariat = true;
-        } elseif ($creatorBidangId && Bidang::isSubbagianId($creatorBidangId)) {
-            $isSubbagOrSekretariat = true;
-        }
-
-        // 2. Sekdin (sekretaris_master):
-        // ACC for agendas in Sekretariat scope or Subbag under Sekretariat
+        // 1. Sekdin (sekretaris_master):
+        // Disahkan oleh Sekdin untuk agenda yang dibuat oleh Sekretariat Dinas / Subbagian Sekretariat
         if ($this->isSekretarisMaster()) {
-            return $isSubbagOrSekretariat;
+            if (!$creator) return true;
+            return $creator->isSekretarisMaster() 
+                || $creator->isSekretariat() 
+                || ($creatorBidangId && Bidang::isSubbagianId($creatorBidangId));
         }
 
-        // 3. Kasubag / Kabid (ketua_bidang):
-        // ACC for agendas created within their own Bidang / Subbag
+        // 2. Kabid / Kasubag (ketua_bidang):
+        // Disahkan oleh Ketua Bidang / Kasubag masing-masing
         if ($this->isKetuaBidang()) {
             if ($creatorBidangId && (string)$this->bidang_id === (string)$creatorBidangId) {
                 return true;

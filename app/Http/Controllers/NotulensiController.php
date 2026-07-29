@@ -657,54 +657,59 @@ class NotulensiController extends Controller
      */
     private function getApproverSignatureInfo(Agenda $agenda, Notulensi $notulensi)
     {
-        $actualApprover = $notulensi->approver;
+        $creator = $agenda->sekretaris;
+        $creatorBidangId = $creator?->bidang_id;
 
-        if ($actualApprover) {
+        // 1. If agenda belongs to a specific Bidang (e.g. IKP, Aptika, Statistik)
+        if ($creatorBidangId && !\App\Models\Bidang::isSubbagianId($creatorBidangId)) {
+            $kabid = \App\Models\User::where('role', 'ketua_bidang')
+                ->where('bidang_id', $creatorBidangId)
+                ->first();
+
+            if ($kabid) {
+                return (object) [
+                    'jabatan' => $kabid->jabatan ?: ('Kepala ' . ($creator->bidang->nama ?? 'Bidang')),
+                    'sub_jabatan' => '',
+                    'name' => $kabid->name,
+                    'nip' => $kabid->nip,
+                    'is_lintas_dinas' => false,
+                ];
+            }
+        }
+
+        // 2. If agenda belongs to Subbag
+        if ($creatorBidangId && \App\Models\Bidang::isSubbagianId($creatorBidangId)) {
+            $kasubag = \App\Models\User::where('role', 'ketua_bidang')
+                ->where('bidang_id', $creatorBidangId)
+                ->first();
+
+            if ($kasubag) {
+                return (object) [
+                    'jabatan' => $kasubag->jabatan ?: 'Kepala Subbagian',
+                    'sub_jabatan' => '',
+                    'name' => $kasubag->name,
+                    'nip' => $kasubag->nip,
+                    'is_lintas_dinas' => false,
+                ];
+            }
+        }
+
+        // 3. For Sekretariat / Sekretaris Dinas:
+        $actualApprover = $notulensi->approver;
+        if ($actualApprover && !$actualApprover->isKetuaMaster()) {
             return (object) [
-                'jabatan' => $actualApprover->jabatan ?? 'Pejabat Pengesah',
-                'sub_jabatan' => '',
+                'jabatan' => $actualApprover->jabatan ?? 'Sekretaris Dinas',
+                'sub_jabatan' => 'Sekretariat Dinkominfo',
                 'name' => $actualApprover->name,
                 'nip' => $actualApprover->nip,
                 'is_lintas_dinas' => false,
             ];
         }
 
-        $user = Auth::user();
-        if ($user && $user->isKetuaMaster() && $user->isApproverOfAgenda($agenda)) {
-            return (object) [
-                'jabatan' => $user->jabatan ?? 'Kepala Dinas Komunikasi dan Informatika',
-                'sub_jabatan' => 'Kabupaten Banyumas',
-                'name' => $user->name,
-                'nip' => $user->nip,
-                'is_lintas_dinas' => true,
-            ];
-        }
-
-        // Preview before approval: Resolve expected Kasubag / Kabid / Sekdin
-        $creator = $agenda->sekretaris;
-        $creatorBidangId = $creator?->bidang_id;
-
-        if ($creatorBidangId) {
-            $ketuaUser = \App\Models\User::where('role', 'ketua_bidang')
-                ->where('bidang_id', $creatorBidangId)
-                ->first();
-
-            if ($ketuaUser) {
-                return (object) [
-                    'jabatan' => $ketuaUser->jabatan,
-                    'sub_jabatan' => '',
-                    'name' => $ketuaUser->name,
-                    'nip' => $ketuaUser->nip,
-                    'is_lintas_dinas' => false,
-                ];
-            }
-        }
-
-        // Fallback to Sekdin / Kadis
         $sekdin = \App\Models\User::where('role', 'sekretaris_master')->first();
         if ($sekdin) {
             return (object) [
-                'jabatan' => 'Sekretaris Dinas',
+                'jabatan' => $sekdin->jabatan ?: 'Sekretaris Dinas',
                 'sub_jabatan' => 'Sekretariat Dinkominfo',
                 'name' => $sekdin->name,
                 'nip' => $sekdin->nip,
@@ -712,13 +717,12 @@ class NotulensiController extends Controller
             ];
         }
 
-        $kadis = \App\Models\User::where('role', 'ketua_master')->first();
         return (object) [
-            'jabatan' => 'Kepala Dinas Komunikasi dan Informatika',
-            'sub_jabatan' => 'Kabupaten Banyumas',
-            'name' => $kadis ? $kadis->name : 'Kepala Dinas',
-            'nip' => $kadis ? $kadis->nip : '-',
-            'is_lintas_dinas' => true,
+            'jabatan' => 'Sekretaris Dinas',
+            'sub_jabatan' => 'Sekretariat Dinkominfo',
+            'name' => 'Sekretaris Dinas',
+            'nip' => '-',
+            'is_lintas_dinas' => false,
         ];
     }
 

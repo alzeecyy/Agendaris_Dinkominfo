@@ -273,7 +273,6 @@
                             <div class="space-y-2">
                                 <label class="block text-xs font-bold text-[#5a508f] uppercase">Bidang & Peserta Rapat <span class="text-rose-500">*</span></label>
                                  @php
-@php
                                      $hakAksesArray = $agenda->hak_akses;
                                      $isSemua = in_array('semua_orang', $hakAksesArray);
                                      $allBidangs = $bidangsWithUsers;
@@ -1108,31 +1107,19 @@
 
                     @if(!empty($invitedBidangLabels))
                         <!-- Bidang / Subbag Peserta Rapat (Bidang Diundang) -->
-                        <div class="px-3 py-2 bg-slate-50/80 border border-[#d4d1f5]/50 rounded-2xl flex flex-col sm:flex-row sm:items-center gap-1.5 justify-between">
-                            <span class="text-[9.5px] font-extrabold text-[#5a508f] uppercase tracking-wider shrink-0 flex items-center gap-1">
-                                <svg class="w-3.5 h-3.5 text-[#8e88dd]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <div class="px-3 py-2 bg-slate-50/80 border border-[#d4d1f5]/50 rounded-2xl space-y-1.5">
+                            <span class="text-[9.5px] font-extrabold text-[#5a508f] uppercase tracking-wider block flex items-center gap-1">
+                                <svg class="w-3.5 h-3.5 text-[#8e88dd] shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2.25 2.25 0 11-4.5 0 2.25 2.25 0 014.5 0zm-13.5 0a2.25 2.25 0 11-4.5 0 2.25 2.25 0 014.5 0z"></path>
                                 </svg>
                                 <span>Peserta / Bidang Diundang:</span>
                             </span>
-                            <div class="flex items-center gap-1 flex-wrap">
-                                @php
-                                    $maxShow = 3;
-                                    $totalLabels = count($invitedBidangLabels);
-                                    $visibleLabels = array_slice($invitedBidangLabels, 0, $maxShow);
-                                    $remainingCount = $totalLabels - $maxShow;
-                                    $remainingNames = $remainingCount > 0 ? implode(', ', array_column(array_slice($invitedBidangLabels, $maxShow), 'name')) : '';
-                                @endphp
-                                @foreach($visibleLabels as $lbl)
+                            <div class="flex items-center gap-1 flex-wrap pt-0.5">
+                                @foreach($invitedBidangLabels as $lbl)
                                     <span class="px-2 py-0.5 rounded-full border text-[8.5px] sm:text-[9px] font-bold shadow-2xs {{ $lbl['bg'] }}">
                                         {{ $lbl['name'] }}
                                     </span>
                                 @endforeach
-                                @if($remainingCount > 0)
-                                    <span class="px-2 py-0.5 rounded-full border border-indigo-200 bg-indigo-50 text-[#1b3bbb] text-[8.5px] sm:text-[9px] font-extrabold cursor-help shadow-2xs" title="{{ $remainingNames }}">
-                                        +{{ $remainingCount }} lainnya
-                                    </span>
-                                @endif
                             </div>
                         </div>
                     @endif

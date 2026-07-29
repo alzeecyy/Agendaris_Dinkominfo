@@ -34,14 +34,8 @@ class AgendaController extends Controller
             ->whereDate('tanggal', $todayDate)
             ->get();
 
-        // Sort priority: 1. Ongoing (Berlangsung), 2. Upcoming (Mendatang), 3. Completed (Selesai at the bottom)
-        // Rule: On Card Agenda Hari Ini, KADIN & SEKDIN ONLY see agendas where they are explicitly invited or creator.
-        $agendas = $rawAgendas->filter(function($a) use ($user) {
-            if ($user->isKetuaMaster() || $user->isSekretarisMaster()) {
-                return ((string)$a->sekretaris_id === (string)$user->id) || $a->participants()->where('users.id', $user->id)->exists();
-            }
-            return $user->hasAccessToAgenda($a);
-        })
+        // Rule: On Card Agenda Hari Ini, ALL ROLES ONLY see agendas where they are explicitly invited, creator, or target bidang.
+        $agendas = $rawAgendas->filter(fn($a) => $user->isInvitedToAgenda($a))
         ->sortBy(function($a) use ($nowTime) {
                 $start = Carbon::parse($a->jam_mulai)->format('H:i:s');
                 $end = Carbon::parse($a->jam_selesai)->format('H:i:s');

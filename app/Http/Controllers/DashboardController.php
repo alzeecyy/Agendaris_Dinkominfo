@@ -331,11 +331,11 @@ class DashboardController extends Controller
                 ];
             }
 
-            // Highlights for Kadin: Only agendas where Kadin is explicitly invited today
+            // Highlights for Kadin: Only agendas where Kadin is explicitly invited today or Lintas Dinas
             $todayAgendas = Agenda::where('tanggal', Carbon::today()->toDateString())
                 ->orderBy('jam_mulai', 'asc')
                 ->get()
-                ->filter(fn($agenda) => $user->hasAccessToAgenda($agenda));
+                ->filter(fn($agenda) => $user->isInvitedToAgenda($agenda));
 
             foreach ($todayAgendas as $agenda) {
                 $highlights[] = [
@@ -361,7 +361,7 @@ class DashboardController extends Controller
         ->orderBy('tanggal', 'desc')
         ->orderBy('jam_mulai', 'desc')
         ->get()
-        ->filter(fn($agenda) => $user->hasAccessToAgenda($agenda));
+        ->filter(fn($agenda) => $user->isInvitedToAgenda($agenda));
 
         $presensis = Presensi::where('user_id', $user->id)->get()->keyBy('agenda_id');
 
@@ -516,10 +516,14 @@ class DashboardController extends Controller
             }])->orderBy('nama')->get();
         }
 
-        // Find today's events for the highlighting/side summary panel
+        // Find today's events for the highlighting/side summary panel (Card Kegiatan Hari Ini)
         $todayStr = Carbon::today()->toDateString();
-        $todayAgendas = $agendas->filter(function($a) use ($todayStr) {
-            return $a->tanggal === $todayStr && $a->has_access;
+        $todayAgendas = $agendas->filter(function($a) use ($todayStr, $user) {
+            if ($a->tanggal !== $todayStr) {
+                return false;
+            }
+            $agendaModel = Agenda::find($a->id);
+            return $agendaModel ? $user->isInvitedToAgenda($agendaModel) : false;
         });
 
         return view('calendar', compact('dates', 'selectedDate', 'agendasByDate', 'bidangs', 'todayAgendas', 'miniCalendarDatesWithEvents'));
@@ -660,7 +664,7 @@ class DashboardController extends Controller
             ->orderBy('tanggal', 'desc')
             ->orderBy('jam_mulai', 'desc')
             ->get()
-            ->filter(fn($agenda) => $user->hasAccessToAgenda($agenda));
+            ->filter(fn($agenda) => $user->isInvitedToAgenda($agenda));
 
         $presensis = Presensi::where('user_id', $user->id)
             ->get()
