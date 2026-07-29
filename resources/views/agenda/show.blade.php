@@ -959,7 +959,6 @@
                                         </div>
                                     </div>
                                 </div>
-                            </div>
 
                             <div class="flex items-center justify-between p-3 bg-[#f8f7ff] border border-[#d4d1f5]/40 rounded-2xl">
                                 <span class="text-xs font-bold text-[#2e2552]">Butuh Presensi Digital?</span>
@@ -983,7 +982,6 @@
                 </div>
             </div>
         @endif
-    </div>
 
     <!-- TOP GRID: Card Agenda (Full width jika Sosialisasi/Pelatihan tanpa presensi, 2-kolom jika Rapat / Membutuhkan Presensi) -->
     <div class="grid grid-cols-1 {{ ($agenda->kategori !== 'rapat' && !$agenda->butuh_presensi) ? 'grid-cols-1' : 'lg:grid-cols-2' }} gap-3 sm:gap-4.5 items-stretch">
@@ -1778,8 +1776,6 @@
                         @endif
                     </div>
                 </div>
-
-            </div>
         @else
             <!-- KEGIATAN LAINNYA (SOSIALISASI, PELATIHAN, DLL): FULL WIDTH KOREKSI PRESENSI PEGAWAI -->
             <div class="bg-white border border-[#d4d1f5]/60 rounded-xl md:rounded-[32px] p-4 sm:p-6 shadow-sm space-y-3 sm:space-y-4">
