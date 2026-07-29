@@ -34,14 +34,8 @@ class AgendaController extends Controller
             ->whereDate('tanggal', $todayDate)
             ->get();
 
-        // Sort priority: 1. Ongoing (Berlangsung), 2. Upcoming (Mendatang), 3. Completed (Selesai at the bottom)
-        // Rule: On Card Agenda Hari Ini, KADIN & SEKDIN ONLY see agendas where they are explicitly invited or creator.
-        $agendas = $rawAgendas->filter(function($a) use ($user) {
-            if ($user->isKetuaMaster() || $user->isSekretarisMaster()) {
-                return ((string)$a->sekretaris_id === (string)$user->id) || $a->participants()->where('users.id', $user->id)->exists();
-            }
-            return $user->hasAccessToAgenda($a);
-        })
+        // Rule: On Card Agenda Hari Ini, ALL ROLES ONLY see agendas where they are explicitly invited, creator, or target bidang.
+        $agendas = $rawAgendas->filter(fn($a) => $user->isInvitedToAgenda($a))
         ->sortBy(function($a) use ($nowTime) {
                 $start = Carbon::parse($a->jam_mulai)->format('H:i:s');
                 $end = Carbon::parse($a->jam_selesai)->format('H:i:s');
@@ -185,8 +179,10 @@ class AgendaController extends Controller
         $allowedUsersQuery = \App\Models\User::where('role', '!=', 'admin')->where('active', true);
         if (!in_array('semua_orang', $hakAkses)) {
             $allowedUsersQuery->where(function($q) use ($hakAkses) {
-                $q->whereIn('bidang_id', $hakAkses)
-                  ->orWhere('role', 'ketua_master');
+                $q->whereIn('bidang_id', $hakAkses);
+                if (in_array('kadin', $hakAkses)) {
+                    $q->orWhere('role', 'ketua_master');
+                }
             });
         }
         $allowedUserIds = $allowedUsersQuery->pluck('id')->toArray();
@@ -499,8 +495,10 @@ class AgendaController extends Controller
         $allowedUsersQuery = \App\Models\User::where('role', '!=', 'admin')->where('active', true);
         if (!in_array('semua_orang', $newHakAkses)) {
             $allowedUsersQuery->where(function($q) use ($newHakAkses) {
-                $q->whereIn('bidang_id', $newHakAkses)
-                  ->orWhere('role', 'ketua_master');
+                $q->whereIn('bidang_id', $newHakAkses);
+                if (in_array('kadin', $newHakAkses)) {
+                    $q->orWhere('role', 'ketua_master');
+                }
             });
         }
         $allowedUserIds = $allowedUsersQuery->pluck('id')->toArray();
