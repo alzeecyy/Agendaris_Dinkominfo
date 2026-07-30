@@ -96,23 +96,28 @@
         .hover\:bg-\[\#8e88dd\]\/20:hover { background-color: rgba(27, 59, 187, 0.1) !important; }
         .hover\:border-\[\#8e88dd\]\/50:hover { border-color: rgba(27, 59, 187, 0.5) !important; }
         .hover\:bg-\[\#f8f7ff\]:hover { background-color: #f1f5f9 !important; }
-        .hover\:bg-\[\#3d326a\]:hover { background-image: linear-gradient(135deg, #0b1554 0%, #1b3bbb 100%) !important; }
-        .hover\:bg-\[\#152e96\]:hover { background-image: linear-gradient(135deg, #0b1554 0%, #1b3bbb 100%) !important; }
-        .hover\:bg-\[\#09103c\]:hover { background-image: linear-gradient(135deg, #0b1554 0%, #1b3bbb 100%) !important; }
-
-        /* Global Blue Buttons Gradient & Hover Style */
+        /* Global Royal Blue & Dark Navy Horizontal Mirror Sliding Gradient for BUTTONS ONLY */
         button.bg-\[\#1b3bbb\],
         a.bg-\[\#1b3bbb\],
         label.bg-\[\#1b3bbb\],
-        .btn-primary {
-            background-image: linear-gradient(135deg, #1b3bbb 0%, #0b1554 100%) !important;
-            transition: all 0.3s ease !important;
+        .btn-primary,
+        button[class*="from-[#1b3bbb]"],
+        a[class*="from-[#1b3bbb]"],
+        label[class*="from-[#1b3bbb]"] {
+            background-image: linear-gradient(to right, #1b3bbb 0%, #09103c 50%, #1b3bbb 100%) !important;
+            background-size: 200% 100% !important;
+            background-position: left center !important;
+            transition: background-position 0.4s ease-in-out, transform 0.2s ease, box-shadow 0.2s ease !important;
         }
+
         button.bg-\[\#1b3bbb\]:hover,
         a.bg-\[\#1b3bbb\]:hover,
         label.bg-\[\#1b3bbb\]:hover,
-        .btn-primary:hover {
-            background-image: linear-gradient(135deg, #0b1554 0%, #1b3bbb 100%) !important;
+        .btn-primary:hover,
+        button[class*="from-[#1b3bbb]"]:hover,
+        a[class*="from-[#1b3bbb]"]:hover,
+        label[class*="from-[#1b3bbb]"]:hover {
+            background-position: right center !important;
         }
 
         /* Custom SweetAlert2 Premium Compact Responsive Styling */

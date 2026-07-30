@@ -638,9 +638,6 @@ class="space-y-6">
                     <button type="button" @click="openAddModal = false" class="px-4 py-2.5 bg-slate-100 hover:bg-slate-200 text-[#5a508f] text-xs font-bold rounded-xl transition-all cursor-pointer">Batalkan</button>
                     <button type="submit" class="px-5 py-2.5 bg-[#1b3bbb] hover:bg-[#152e96] text-white text-xs font-bold rounded-xl shadow-md shadow-[#1b3bbb]/20 transition-all inline-flex items-center gap-1.5 cursor-pointer">
                         <span>Simpan Akun</span>
-                        <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
-                        </svg>
                     </button>
                 </div>
             </form>
@@ -770,9 +767,6 @@ class="space-y-6">
                     <button type="button" @click="openEditModal = false" class="px-4 py-2.5 bg-slate-100 hover:bg-slate-200 text-[#5a508f] text-xs font-bold rounded-xl transition-all cursor-pointer">Batalkan</button>
                     <button type="submit" class="px-5 py-2.5 bg-[#1b3bbb] hover:bg-[#152e96] text-white text-xs font-bold rounded-xl shadow-md shadow-[#1b3bbb]/20 transition-all inline-flex items-center gap-1.5 cursor-pointer">
                         <span>Simpan Perubahan</span>
-                        <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
-                        </svg>
                     </button>
                 </div>
             </form>

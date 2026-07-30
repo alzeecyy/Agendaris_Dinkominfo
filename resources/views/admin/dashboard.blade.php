@@ -106,12 +106,12 @@
                         <p class="text-[10px] text-[#5a508f] mt-0.5">5 akun pegawai yang terakhir kali ditambahkan ke sistem</p>
                     </div>
                     <a href="{{ route('admin.users.index') }}" 
-                       class="w-9 h-9 sm:w-auto sm:h-auto sm:px-3 sm:py-1.5 bg-[#f3f2fe] hover:bg-[#8e88dd]/20 border border-[#d4d1f5]/80 text-[#5a508f] hover:text-[#2e2552] rounded-xl text-xs font-bold transition-all duration-200 inline-flex items-center justify-center gap-1.5 shrink-0 shadow-2xs group"
+                       class="px-3.5 py-1.5 sm:px-4.5 sm:py-2 bg-gradient-to-r from-[#1b3bbb] to-[#0b1554] text-white text-xs font-bold rounded-xl sm:rounded-full shadow-md shadow-[#1b3bbb]/20 hover:shadow-lg hover:scale-[1.02] active:scale-95 transition-all duration-300 inline-flex items-center justify-center gap-1.5 shrink-0 whitespace-nowrap cursor-pointer group"
                        title="Semua Pegawai"
                        aria-label="Lihat Semua Pegawai">
-                        <span class="hidden sm:inline">Semua Pegawai</span>
-                        <svg class="w-4 h-4 text-[#5a508f] group-hover:text-[#2e2552] transition-transform group-hover:translate-x-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7-7 7"></path>
+                        <span>Semua Pegawai</span>
+                        <svg class="w-3.5 h-3.5 sm:w-4 sm:h-4 text-white group-hover:translate-x-0.5 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M14 5l7 7-7 7"></path>
                         </svg>
                     </a>
                 </div>
