@@ -319,27 +319,34 @@ class NotulensiController extends Controller
         $user = Auth::user();
 
         $notulensi = $agenda->notulensi;
-        if (!$notulensi || !in_array($notulensi->status, ['menunggu_review', 'disahkan'])) {
+        if (!$notulensi) {
             return redirect()->route('agenda.show', $agenda->id)
                 ->with('error', 'Notulensi belum tersedia.');
         }
 
-        $canView = $user->isKetuaMaster() 
-            || $user->isSekretarisMaster() 
-            || $notulensi->status === 'disahkan' 
-            || $user->hasAccessToAgenda($agenda);
-
-        if (!$canView) {
-            $prevUrl = url()->previous();
-            if (empty($prevUrl) || $prevUrl === url()->current()) {
-                return redirect()->route('agenda.today')->with('warning', 'Akses ditolak. Anda tidak memiliki wewenang untuk membaca notulensi ini.');
-            }
-            return redirect()->back()->with('warning', 'Akses ditolak. Anda tidak memiliki wewenang untuk membaca notulensi ini.');
+        // Access Rule:
+        // 1. If status === 'disahkan' (Approved / Final):
+        //    Anyone with access to the agenda can view in Read-Only mode.
+        // 2. If status === 'menunggu_review' (In Review Process):
+        //    ONLY the Agenda Creator OR the Authorized Approver (Sekdin/Kabid) can view.
+        // 3. If status === 'draft' or any other status:
+        //    ONLY the Agenda Creator can view.
+        if ($notulensi->status === 'disahkan') {
+            $canView = $user->isKetuaMaster() 
+                || $user->isSekretarisMaster() 
+                || $user->hasAccessToAgenda($agenda);
+        } elseif ($notulensi->status === 'menunggu_review') {
+            $canView = $user->isSecretaryOfAgenda($agenda) || $user->isApproverOfAgenda($agenda);
+        } else {
+            $canView = $user->isSecretaryOfAgenda($agenda);
         }
 
-        // Verify if user is the authorized secretary
+        if (!$canView) {
+            return redirect()->route('agenda.show', $agenda->id)
+                ->with('error', 'Akses ditolak. Notulensi hanya dapat diakses oleh pembuat rapat atau pimpinan yang berwenang sebelum resmi disahkan.');
+        }
+
         $isSecretaryOfAgenda = $user->isSecretaryOfAgenda($agenda);
-        // Verify that user is the authorized Ketua (Master or Bidang)
         $isApprover = $user->isApproverOfAgenda($agenda);
 
         $approverInfo = $this->getApproverSignatureInfo($agenda, $notulensi);

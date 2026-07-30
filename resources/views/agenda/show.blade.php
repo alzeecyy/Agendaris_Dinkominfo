@@ -680,14 +680,13 @@
                                     </a>
                                 </div>
                             @else
-                                <div class="space-y-2">
-                                    <a href="{{ route('notulensi.review', $agenda->id) }}" 
-                                       class="w-full py-2 sm:py-2.5 bg-indigo-50 hover:bg-indigo-100 text-[#1b3bbb] font-extrabold text-[11px] sm:text-xs rounded-xl border border-indigo-200 shadow-2xs transition-all flex items-center justify-center gap-1.5">
-                                        <svg class="w-4 h-4 text-[#1b3bbb]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
-                                        <span>Lihat Draf Notulensi</span>
-                                    </a>
-                                    <p class="text-[10.5px] text-[#5a508f] text-center italic">
-                                        Status: Sedang dalam proses pengajuan & verifikasi Pimpinan.
+                                <div class="space-y-2 p-3 bg-amber-50/60 border border-amber-200/60 rounded-xl text-center">
+                                    <p class="text-[11px] font-bold text-amber-900 flex items-center justify-center gap-1.5">
+                                        <svg class="w-4 h-4 text-amber-600 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                                        <span>Notulensi Sedang Ditinjau</span>
+                                    </p>
+                                    <p class="text-[10.5px] text-amber-800 font-medium">
+                                        Notulensi rapat dalam proses verifikasi & pengesahan Pimpinan. Dapat diakses setelah resmi disahkan.
                                     </p>
                                 </div>
                             @endif

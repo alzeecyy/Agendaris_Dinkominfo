@@ -686,6 +686,7 @@ class DashboardController extends Controller
                 'kategori' => $agenda->kategori,
                 'lokasi' => $agenda->lokasi,
                 'is_approver' => $user->isApproverOfAgenda($agenda),
+                'is_secretary' => $user->isSecretaryOfAgenda($agenda),
             ];
         });
 

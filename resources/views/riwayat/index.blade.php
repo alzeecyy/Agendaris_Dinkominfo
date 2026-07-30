@@ -446,8 +446,8 @@ class="space-y-6">
                                         </a>
                                     </div>
                                 @elseif($item->notulensi_status === 'menunggu_review')
-                                    @if(!empty($item->is_approver))
-                                        <a href="{{ route('notulensi.review', $item->id) }}" title="Tinjau & Sahkan Notulensi" 
+                                    @if(!empty($item->is_approver) || !empty($item->is_secretary))
+                                        <a href="{{ route('notulensi.review', $item->id) }}" title="Tinjau Notulensi" 
                                            class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-amber-50 hover:bg-amber-100 text-amber-700 border border-amber-200 rounded-xl text-xs font-bold transition-all shadow-2xs">
                                             <svg class="w-3.5 h-3.5 text-amber-600 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
