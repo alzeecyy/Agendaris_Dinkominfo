@@ -242,6 +242,18 @@
             display: none !important;
         }
     </style>
+    @if(Auth::check() && Auth::user()->isAdmin())
+        <style>
+            body.admin-batik-bg,
+            div.admin-batik-bg {
+                background-color: #eef2ff !important;
+                background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120' viewBox='0 0 120 120'%3E%3Cg stroke='%231b3bbb' fill='%231b3bbb' stroke-width='1' opacity='0.12'%3E%3Cpath d='M60 0 L120 60 L60 120 L0 60 Z' fill='none' stroke-width='1.2'/%3E%3Cpath d='M0 0 L60 60 L0 120' fill='none' stroke-width='1.2'/%3E%3Cpath d='M120 0 L60 60 L120 120' fill='none' stroke-width='1.2'/%3E%3Ccircle cx='60' cy='0' r='3.5'/%3E%3Ccircle cx='60' cy='120' r='3.5'/%3E%3Ccircle cx='0' cy='60' r='3.5'/%3E%3Ccircle cx='120' cy='60' r='3.5'/%3E%3Ccircle cx='60' cy='60' r='4'/%3E%3Cpath d='M60 55 C54 46 54 38 60 33 C66 38 66 46 60 55 Z'/%3E%3Cpath d='M60 65 C54 74 54 82 60 87 C66 82 66 74 60 65 Z'/%3E%3Cpath d='M55 60 C46 54 38 54 33 60 C38 66 46 66 55 60 Z'/%3E%3Cpath d='M65 60 C74 54 82 54 87 60 C82 66 74 66 65 60 Z'/%3E%3Ccircle cx='46' cy='46' r='2'/%3E%3Ccircle cx='74' cy='46' r='2'/%3E%3Ccircle cx='46' cy='74' r='2'/%3E%3Ccircle cx='74' cy='74' r='2'/%3E%3Ccircle cx='60' cy='27' r='2'/%3E%3Ccircle cx='60' cy='93' r='2'/%3E%3Ccircle cx='27' cy='60' r='2'/%3E%3Ccircle cx='93' cy='60' r='2'/%3E%3Ccircle cx='0' cy='0' r='4'/%3E%3Cpath d='M0 5 C-6 14 -6 22 0 27 C6 22 6 14 0 5 Z'/%3E%3Cpath d='M5 0 C14 -6 22 -6 27 0 C22 6 14 6 5 0 Z'/%3E%3Ccircle cx='14' cy='14' r='2'/%3E%3Ccircle cx='0' cy='33' r='2'/%3E%3Ccircle cx='33' cy='0' r='2'/%3E%3Ccircle cx='120' cy='0' r='4'/%3E%3Cpath d='M120 5 C114 14 114 22 120 27 C126 22 126 14 120 5 Z'/%3E%3Cpath d='M115 0 C106 -6 98 -6 93 0 C98 6 106 6 115 0 Z'/%3E%3Ccircle cx='106' cy='14' r='2'/%3E%3Ccircle cx='120' cy='33' r='2'/%3E%3Ccircle cx='87' cy='0' r='2'/%3E%3Ccircle cx='0' cy='120' r='4'/%3E%3Cpath d='M0 115 C-6 106 -6 98 0 93 C6 98 6 106 0 115 Z'/%3E%3Cpath d='M5 120 C14 126 22 126 27 120 C22 114 14 114 5 120 Z'/%3E%3Ccircle cx='14' cy='106' r='2'/%3E%3Ccircle cx='0' cy='87' r='2'/%3E%3Ccircle cx='33' cy='120' r='2'/%3E%3Ccircle cx='120' cy='120' r='4'/%3E%3Cpath d='M120 115 C114 106 114 98 120 93 C126 98 126 106 120 115 Z'/%3E%3Cpath d='M115 120 C106 126 98 126 93 120 C98 114 106 114 115 120 Z'/%3E%3Ccircle cx='106' cy='106' r='2'/%3E%3Ccircle cx='120' cy='87' r='2'/%3E%3Ccircle cx='87' cy='120' r='2'/%3E%3C/g%3E%3C/svg%3E") !important;
+                background-repeat: repeat !important;
+                background-attachment: fixed !important;
+                background-size: 120px 120px !important;
+            }
+        </style>
+    @endif
     @yield('styles')
     <!-- SweetAlert2 for beautiful custom alerts and confirms -->
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
@@ -250,10 +262,10 @@
     <!-- AlpineJS for interactive elements -->
     <script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
 </head>
-<body class="min-h-screen md:h-screen md:overflow-hidden text-[#2e2552] bg-[#eef2ff] antialiased">
+<body class="min-h-screen md:h-screen md:overflow-hidden text-[#2e2552] bg-[#eef2ff] antialiased {{ Auth::check() && Auth::user()->isAdmin() ? 'admin-batik-bg' : '' }}">
 
     <!-- Outer Page App Window -->
-    <div x-data="{ mobileNavOpen: false, profileMenuOpen: false }" class="min-h-screen md:h-screen flex flex-col p-2.5 sm:p-3.5 md:p-4 pt-2 sm:pt-2.5 md:pt-3 gap-4.5 sm:gap-5.5 md:gap-6 max-w-[1600px] w-full mx-auto md:overflow-hidden bg-[#eef2ff]">
+    <div x-data="{ mobileNavOpen: false, profileMenuOpen: false }" class="min-h-screen md:h-screen flex flex-col p-2.5 sm:p-3.5 md:p-4 pt-2 sm:pt-2.5 md:pt-3 gap-4.5 sm:gap-5.5 md:gap-6 max-w-[1600px] w-full mx-auto md:overflow-hidden bg-[#eef2ff] {{ Auth::check() && Auth::user()->isAdmin() ? 'admin-batik-bg' : '' }}">
         
         <!-- TOP NAVBAR (Sticky Header on Mobile, Top Header on Desktop) -->
         <header class="w-full bg-white/95 backdrop-blur-md rounded-2xl sm:rounded-2xl md:rounded-3xl border border-slate-200/80 px-3 sm:px-4 md:px-6 py-2 sm:py-2.5 md:py-4 flex items-center justify-between shadow-sm md:shadow-md sticky top-2 sm:top-3 md:relative z-50 text-[#09103c]">

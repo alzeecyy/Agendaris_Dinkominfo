@@ -176,9 +176,9 @@
             @if(Auth::user()->isSekretarisMaster() || Auth::user()->isSekretarisBidang())
                 <div class="shrink-0 pt-3">
                     <button @click="openAddModal = true; selectedDate = '{{ $selectedDate->toDateString() }}'; selectedTime = '07:15'" 
-                            class="w-full py-2.5 bg-[#2e2552] hover:bg-[#3d326a] active:scale-[0.98] text-white font-bold rounded-2xl text-xs transition-all duration-200 shadow-md shadow-[#2e2552]/20 flex items-center justify-center gap-2 cursor-pointer">
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
+                            class="w-full py-2.5 sm:py-3 bg-gradient-to-r from-[#1b3bbb] to-[#0b1554] hover:from-[#0b1554] hover:to-[#1b3bbb] active:scale-[0.98] text-white font-bold rounded-xl sm:rounded-2xl text-xs transition-all duration-300 shadow-md shadow-[#1b3bbb]/20 flex items-center justify-center gap-2 cursor-pointer">
+                        <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4"></path>
                         </svg>
                         <span>Tambah Agenda Baru</span>
                     </button>

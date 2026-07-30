@@ -131,8 +131,8 @@ class="w-full flex flex-col gap-3.5 sm:gap-5 select-none">
 
         @if(Auth::check() && (Auth::user()->isSekretarisMaster() || Auth::user()->isSekretarisBidang()))
             <a href="{{ route('calendar', ['open_add' => 1]) }}" 
-               class="px-4 py-2.5 bg-[#1b3bbb] hover:bg-[#09103c] text-white text-xs font-bold rounded-xl shadow-md shadow-[#1b3bbb]/20 transition-all inline-flex items-center justify-center gap-1.5 shrink-0 active:scale-95">
-                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4"></path></svg>
+               class="px-4 py-2.5 sm:px-6 sm:py-3 bg-gradient-to-r from-[#1b3bbb] to-[#0b1554] hover:from-[#0b1554] hover:to-[#1b3bbb] text-white text-xs font-bold rounded-xl sm:rounded-2xl shadow-md shadow-[#1b3bbb]/20 hover:scale-[1.02] active:scale-95 transition-all duration-300 inline-flex items-center justify-center gap-2 shrink-0 whitespace-nowrap cursor-pointer">
+                <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4"></path></svg>
                 <span>Tambah Agenda Baru</span>
             </a>
         @endif
