@@ -470,7 +470,7 @@
                                     </p>
                                 </div>
                                 <button @click="openAbsenModal = true; initSignaturePad()" 
-                                        class="w-full py-1.5 sm:py-2.5 bg-[#2e2552] hover:bg-[#3d326a] text-white font-bold text-[11px] sm:text-xs rounded-xl shadow-md transition-all flex items-center justify-center gap-1.5">
+                                        class="w-full py-2.5 sm:py-3 bg-gradient-to-r from-[#1b3bbb] to-[#0b1554] hover:from-[#0b1554] hover:to-[#1b3bbb] text-white font-bold text-[11px] sm:text-xs rounded-xl shadow-md shadow-[#1b3bbb]/20 hover:scale-[1.01] active:scale-95 transition-all duration-300 flex items-center justify-center gap-1.5 cursor-pointer">
                                     <span>Isi Presensi Kehadiran</span>
                                     <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
@@ -488,7 +488,7 @@
                                     <span class="px-2 py-0.5 rounded bg-rose-100 text-rose-700 font-extrabold uppercase text-[9px] border border-rose-300">Belum Absen</span>
                                 </div>
                                 <button @click="openAbsenModal = true; initSignaturePad()" 
-                                        class="w-full py-1.5 sm:py-2.5 bg-[#2e2552] hover:bg-[#3d326a] text-white font-bold text-[11px] sm:text-xs rounded-xl shadow-md transition-all flex items-center justify-center gap-1.5">
+                                        class="w-full py-2.5 sm:py-3 bg-gradient-to-r from-[#1b3bbb] to-[#0b1554] hover:from-[#0b1554] hover:to-[#1b3bbb] text-white font-bold text-[11px] sm:text-xs rounded-xl shadow-md shadow-[#1b3bbb]/20 hover:scale-[1.01] active:scale-95 transition-all duration-300 flex items-center justify-center gap-1.5 cursor-pointer">
                                     <span>Isi Presensi Kehadiran</span>
                                     <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
@@ -641,7 +641,7 @@
                             </div>
                             @if($isSecretaryOfAgenda)
                                 <a href="{{ route('notulensi.edit', $agenda->id) }}" 
-                                   class="w-full py-1.5 sm:py-2.5 bg-[#2e2552] hover:bg-[#3d326a] text-white font-bold text-[11px] sm:text-xs rounded-xl shadow-md transition-all flex items-center justify-center gap-1.5">
+                                   class="w-full py-2.5 sm:py-3 bg-gradient-to-r from-[#1b3bbb] to-[#0b1554] hover:from-[#0b1554] hover:to-[#1b3bbb] text-white font-bold text-[11px] sm:text-xs rounded-xl shadow-md shadow-[#1b3bbb]/20 hover:scale-[1.01] active:scale-95 transition-all duration-300 flex items-center justify-center gap-1.5 cursor-pointer">
                                     <span>Kelola & Edit Notulen</span>
                                 </a>
                             @elseif($hasDraftContent)
@@ -670,7 +670,7 @@
                             @elseif($isSecretaryOfAgenda)
                                 <div class="space-y-2">
                                     <a href="{{ route('notulensi.edit', $agenda->id) }}" 
-                                       class="w-full py-2 sm:py-2.5 bg-[#2e2552] hover:bg-[#3d326a] text-white font-bold text-[11px] sm:text-xs rounded-xl shadow-md transition-all flex items-center justify-center gap-1.5">
+                                       class="w-full py-2.5 sm:py-3 bg-gradient-to-r from-[#1b3bbb] to-[#0b1554] hover:from-[#0b1554] hover:to-[#1b3bbb] text-white font-bold text-[11px] sm:text-xs rounded-xl shadow-md shadow-[#1b3bbb]/20 hover:scale-[1.01] active:scale-95 transition-all duration-300 flex items-center justify-center gap-1.5 cursor-pointer">
                                         <span>Kelola & Edit Notulensi</span>
                                     </a>
                                     <a href="{{ route('notulensi.review', $agenda->id) }}" 
@@ -693,7 +693,7 @@
                         @elseif($agenda->notulensi->status === 'disahkan')
                             <div class="space-y-2">
                                 <a href="{{ route('notulensi.review', $agenda->id) }}" 
-                                   class="w-full py-2 sm:py-2.5 bg-[#2e2552] hover:bg-[#3d326a] text-white font-bold text-[11px] sm:text-xs rounded-xl shadow-md transition-all flex items-center justify-center gap-1.5">
+                                   class="w-full py-2.5 sm:py-3 bg-gradient-to-r from-[#1b3bbb] to-[#0b1554] hover:from-[#0b1554] hover:to-[#1b3bbb] text-white font-bold text-[11px] sm:text-xs rounded-xl shadow-md shadow-[#1b3bbb]/20 hover:scale-[1.01] active:scale-95 transition-all duration-300 flex items-center justify-center gap-1.5 cursor-pointer">
                                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path>
                                     </svg>
