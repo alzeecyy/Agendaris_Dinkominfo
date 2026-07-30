@@ -65,10 +65,10 @@
             </div>
         </a>
 
-        <!-- KPI 3: Agenda Rapat Terkini (Smooth scroll to #agenda-terkini) -->
+        <!-- KPI 3: Kegiatan Terkini (Smooth scroll to #agenda-terkini) -->
         <a href="#agenda-terkini" class="kpi-card bg-white border border-[#d4d1f5]/60 hover:border-amber-400 rounded-[32px] p-6 flex flex-col justify-between shadow-sm hover:shadow-md hover:scale-[1.01] active:scale-[0.99] transition-all duration-200 group cursor-pointer">
             <div class="flex items-center justify-between">
-                <span class="text-xs font-bold text-[#5a508f] group-hover:text-amber-600 transition-colors uppercase">Agenda Terkini</span>
+                <span class="text-xs font-bold text-[#5a508f] group-hover:text-amber-600 transition-colors uppercase">Kegiatan Terkini</span>
                 <div class="kpi-icon kpi-icon-orange p-2 bg-[#fef3cd] text-[#f59e0b] rounded-2xl group-hover:!bg-[#f59e0b] group-hover:!text-white transition-all duration-200">
                     <svg class="w-6 h-6 text-[#f59e0b] group-hover:!text-white transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
@@ -76,8 +76,8 @@
                 </div>
             </div>
             <div class="mt-4">
-                <h2 class="text-4xl font-black text-[#2e2552] group-hover:scale-105 origin-left transition-transform duration-200">{{ $stats['total_agenda'] }} <span class="text-xs text-[#5a508f] font-bold">Rapat</span></h2>
-                <p class="text-xs text-[#5a508f] mt-1.5 font-bold">Lihat <span class="text-[#2e2552]">5 agenda rapat</span> dinas terbaru</p>
+                <h2 class="text-4xl font-black text-[#2e2552] group-hover:scale-105 origin-left transition-transform duration-200">{{ $recentAgendas->count() }} <span class="text-xs text-[#5a508f] font-bold">Kegiatan</span></h2>
+                <p class="text-xs text-[#5a508f] mt-1.5 font-bold">Dalam <span class="text-[#2e2552]">7 hari terakhir</span></p>
             </div>
         </a>
 
@@ -161,8 +161,8 @@
             <div>
                 <div class="flex items-center justify-between border-b border-[#d4d1f5]/40 pb-4 mb-4">
                     <div>
-                        <h3 class="text-xs sm:text-sm font-black text-[#2e2552] uppercase tracking-wider">Agenda Rapat Terkini</h3>
-                        <p class="text-[10px] text-[#5a508f] mt-0.5">5 agenda rapat dinas terbaru yang terjadwal di sistem</p>
+                        <h3 class="text-xs sm:text-sm font-black text-[#2e2552] uppercase tracking-wider">Kegiatan Terkini</h3>
+                        <p class="text-[10px] text-[#5a508f] mt-0.5">Kegiatan dalam 7 hari terakhir</p>
                     </div>
                 </div>
                 
@@ -170,7 +170,7 @@
                     <table class="w-full min-w-[550px] sm:min-w-0 table-auto sm:table-fixed text-left text-xs text-[#2e2552]">
                         <thead style="background-color: #ebf2ff !important; color: #1b3bbb !important;" class="bg-[#ebf2ff] text-[#1b3bbb] border-y border-[#bfd5ff] select-none">
                             <tr style="background-color: #ebf2ff !important;">
-                                <th style="background-color: #ebf2ff !important; color: #1b3bbb !important;" class="py-2.5 px-3 sm:px-2 sm:w-[40%] font-black uppercase tracking-wider whitespace-nowrap">Judul Rapat</th>
+                                <th style="background-color: #ebf2ff !important; color: #1b3bbb !important;" class="py-2.5 px-3 sm:px-2 sm:w-[40%] font-black uppercase tracking-wider whitespace-nowrap">Nama Kegiatan</th>
                                 <th style="background-color: #ebf2ff !important; color: #1b3bbb !important;" class="py-2.5 px-3 sm:px-2 sm:w-[25%] font-black uppercase tracking-wider whitespace-nowrap">Tanggal / Waktu</th>
                                 <th style="background-color: #ebf2ff !important; color: #1b3bbb !important;" class="py-2.5 px-3 sm:px-2 font-black uppercase tracking-wider text-center sm:text-left sm:w-[20%] whitespace-nowrap">Penyelenggara</th>
                                 <th style="background-color: #ebf2ff !important; color: #1b3bbb !important;" class="py-2.5 px-3 sm:px-2 font-black uppercase tracking-wider text-center sm:w-[15%] whitespace-nowrap">Kategori</th>
@@ -193,23 +193,36 @@
                                                 'rapat' => 'bg-rose-50 text-rose-700 border-rose-200',
                                                 'sosialisasi' => 'bg-blue-50 text-blue-700 border-blue-200',
                                                 'pelatihan' => 'bg-emerald-50 text-emerald-700 border-emerald-200',
+                                                'workshop' => 'bg-purple-50 text-purple-700 border-purple-200',
+                                                'bimtek' => 'bg-amber-50 text-amber-700 border-amber-200',
+                                                'seminar' => 'bg-indigo-50 text-indigo-700 border-indigo-200',
+                                                'webinar' => 'bg-cyan-50 text-cyan-700 border-cyan-200',
+                                                'koordinasi' => 'bg-teal-50 text-teal-700 border-teal-200',
                                                 'kegiatan_lainnya' => 'bg-slate-100 text-slate-700 border-slate-200',
                                             ];
                                             $kategoriLabels = [
                                                 'rapat' => 'Rapat',
                                                 'sosialisasi' => 'Sosialisasi',
                                                 'pelatihan' => 'Pelatihan',
+                                                'workshop' => 'Workshop',
+                                                'bimtek' => 'Bimtek',
+                                                'seminar' => 'Seminar',
+                                                'webinar' => 'Webinar',
+                                                'koordinasi' => 'Koordinasi',
                                                 'kegiatan_lainnya' => 'Kegiatan Lainnya',
                                             ];
+                                            $katKey = strtolower($agenda->kategori ?? '');
+                                            $badgeClass = $kategoriBadgeStyles[$katKey] ?? 'bg-indigo-50 text-indigo-700 border-indigo-200';
+                                            $badgeLabel = $kategoriLabels[$katKey] ?? ucwords(str_replace('_', ' ', $agenda->kategori ?? 'Kegiatan'));
                                         @endphp
-                                        <span class="inline-block text-[8px] font-black px-2 py-0.5 rounded-full border {{ $kategoriBadgeStyles[$agenda->kategori] ?? 'bg-rose-50 text-rose-700 border-rose-200' }} uppercase">
-                                            {{ $kategoriLabels[$agenda->kategori] ?? $agenda->kategori }}
+                                        <span class="inline-block text-[8px] font-black px-2 py-0.5 rounded-full border {{ $badgeClass }} uppercase">
+                                            {{ $badgeLabel }}
                                         </span>
                                     </td>
                                 </tr>
                             @empty
                                 <tr>
-                                    <td colspan="4" class="py-6 text-center text-[#8e88dd] italic">Tidak ada agenda rapat terbaru.</td>
+                                    <td colspan="4" class="py-6 text-center text-[#8e88dd] italic font-medium">Belum ada kegiatan yang selesai dalam 7 hari terakhir.</td>
                                 </tr>
                             @endforelse
                         </tbody>

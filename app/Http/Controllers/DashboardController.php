@@ -39,11 +39,20 @@ class DashboardController extends Controller
                 ->take(5)
                 ->get();
                 
+            $now = Carbon::now('Asia/Jakarta');
+            $sevenDaysAgo = $now->copy()->subDays(7)->startOfDay();
+
             $recentAgendas = \App\Models\Agenda::with('sekretaris.bidang')
-                ->orderBy('tanggal', 'desc')
-                ->orderBy('jam_mulai', 'desc')
-                ->take(5)
-                ->get();
+                ->whereBetween('tanggal', [$sevenDaysAgo->toDateString(), $now->toDateString()])
+                ->get()
+                ->filter(function ($agenda) use ($now, $sevenDaysAgo) {
+                    $endDateTime = Carbon::parse($agenda->tanggal->format('Y-m-d') . ' ' . $agenda->jam_selesai, 'Asia/Jakarta');
+                    return $endDateTime->lte($now) && $endDateTime->gte($sevenDaysAgo);
+                })
+                ->sortByDesc(function ($agenda) {
+                    return $agenda->tanggal->format('Y-m-d') . ' ' . $agenda->jam_selesai;
+                })
+                ->values();
 
             return view('admin.dashboard', compact('stats', 'recentUsers', 'recentAgendas'));
         }
