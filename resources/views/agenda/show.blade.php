@@ -1253,6 +1253,7 @@
                 openEditModal: {{ $errors->any() ? 'true' : 'false' }},
                 openDetailModal: false,
                 openAbsenModal: false,
+                openNomorSuratModal: false,
                 openGuestModal: false,
                 status: 'hadir',
                 keterangan: '',
