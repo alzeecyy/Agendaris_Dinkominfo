@@ -1223,7 +1223,7 @@
                     <button type="button" @click="openAbsenModal = false" class="px-4 py-2.5 border border-[#cbd5e1] hover:bg-slate-50 text-[#2e2552] text-xs font-bold rounded-2xl">
                         Batal
                     </button>
-                    <button type="submit" class="px-5 py-2.5 bg-[#2e2552] hover:bg-[#3d326a] text-white text-xs font-bold rounded-2xl shadow-sm">
+                    <button type="submit" class="px-5 py-2.5 sm:px-6 sm:py-3 bg-gradient-to-r from-[#1b3bbb] to-[#0b1554] hover:from-[#0b1554] hover:to-[#1b3bbb] text-white text-xs font-bold rounded-xl sm:rounded-2xl shadow-md shadow-[#1b3bbb]/20 hover:scale-[1.02] active:scale-95 transition-all duration-300 cursor-pointer">
                         Kirim Presensi
                     </button>
                 </div>
