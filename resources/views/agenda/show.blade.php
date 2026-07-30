@@ -732,15 +732,21 @@
                                                 <div class="text-[10px] text-[#5a508f] truncate font-medium mt-0.5" title="{{ $part->jabatan }}">{{ $part->jabatan }}</div>
                                             </div>
                                             @if(Auth::user()->isAdmin() || $isSecretaryOfAgenda)
-                                                <div x-data="{ currentStatus: '{{ $part->status_presensi ?: 'Belum Absen' }}', openStatus: false }" @click.outside="openStatus = false" class="relative shrink-0">
+                                                <div x-data="{ currentStatus: '{{ $part->status_presensi ?: 'Belum Absen' }}', openStatus: false, isLoading: false }" @click.outside="openStatus = false" class="relative shrink-0">
                                                     <form action="{{ route('agenda.absen.koreksi', $agenda->id) }}" method="POST">
                                                         @csrf
                                                         <input type="hidden" name="user_id" value="{{ $part->id }}">
                                                         <input type="hidden" name="status" :value="currentStatus">
-                                                        <button type="button" @click="openStatus = !openStatus" 
-                                                                class="px-2.5 py-1.5 bg-white hover:bg-slate-50 border border-[#d4d1f5] hover:border-[#1b3bbb] rounded-xl text-[#09103c] text-[11px] font-bold flex items-center gap-1 transition-all cursor-pointer shadow-2xs">
-                                                            <span class="capitalize" x-text="currentStatus === 'hadir' ? 'Hadir' : (currentStatus === 'izin' ? 'Izin' : (currentStatus === 'sakit' ? 'Sakit' : (currentStatus === 'alfa' ? 'Alfa' : 'Belum Absen')))"></span>
-                                                            <svg class="w-3 h-3 text-[#1b3bbb] transition-transform duration-200" :class="openStatus ? 'rotate-180' : ''" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                                                        <button type="button" @click="openStatus = !openStatus" :disabled="isLoading"
+                                                                class="px-2.5 py-1.5 bg-white hover:bg-slate-50 border border-[#d4d1f5] hover:border-[#1b3bbb] rounded-xl text-[#09103c] text-[11px] font-bold flex items-center gap-1.5 transition-all cursor-pointer shadow-2xs disabled:opacity-75 disabled:cursor-wait">
+                                                            <template x-if="isLoading">
+                                                                <svg class="w-3 h-3 text-[#1b3bbb] animate-spin shrink-0" fill="none" viewBox="0 0 24 24">
+                                                                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                                                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                                                </svg>
+                                                            </template>
+                                                            <span class="capitalize" x-text="isLoading ? 'Memproses...' : (currentStatus === 'hadir' ? 'Hadir' : (currentStatus === 'izin' ? 'Izin' : (currentStatus === 'sakit' ? 'Sakit' : (currentStatus === 'alfa' ? 'Alfa' : 'Belum Absen'))))"></span>
+                                                            <svg x-show="!isLoading" class="w-3 h-3 text-[#1b3bbb] transition-transform duration-200" :class="openStatus ? 'rotate-180' : ''" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
                                                         </button>
                                                         <div x-show="openStatus" x-cloak 
                                                              x-transition:enter="transition ease-out duration-150 transform" 
@@ -758,7 +764,26 @@
                                                                     { value: 'sakit', label: 'Sakit' },
                                                                     { value: 'alfa', label: 'Alfa' }
                                                                 ]" :key="st.value">
-                                                                    <button type="button" @click="currentStatus = st.value; openStatus = false; $nextTick(() => $el.closest('form').submit())" 
+                                                                    <button type="button" 
+                                                                            @click="
+                                                                                if (currentStatus !== st.value) {
+                                                                                    currentStatus = st.value; 
+                                                                                    openStatus = false; 
+                                                                                    isLoading = true;
+                                                                                    if (typeof Swal !== 'undefined') {
+                                                                                        Swal.fire({
+                                                                                            title: 'Memperbarui Presensi...',
+                                                                                            text: 'Mohon tunggu sebentar',
+                                                                                            allowOutsideClick: false,
+                                                                                            showConfirmButton: false,
+                                                                                            didOpen: () => { Swal.showLoading(); }
+                                                                                        });
+                                                                                    }
+                                                                                    $nextTick(() => $el.closest('form').submit());
+                                                                                } else {
+                                                                                    openStatus = false;
+                                                                                }
+                                                                            " 
                                                                             class="w-full flex items-center justify-between px-2.5 py-1.5 rounded-xl text-[11px] font-semibold transition-colors"
                                                                             :class="currentStatus === st.value ? 'bg-[#1b3bbb] text-white font-bold' : 'text-[#09103c] hover:bg-[#1b3bbb]/10 hover:text-[#1b3bbb]'">
                                                                         <span x-text="st.label"></span>
@@ -886,15 +911,21 @@
                                             <div class="text-[10px] text-[#5a508f] truncate font-medium mt-0.5" title="{{ $part->jabatan }}">{{ $part->jabatan }}</div>
                                         </div>
                                         @if(Auth::user()->isAdmin() || $isSecretaryOfAgenda)
-                                            <div x-data="{ currentStatus: '{{ $part->status_presensi ?: 'Belum Absen' }}', openStatus: false }" @click.outside="openStatus = false" class="relative shrink-0">
+                                            <div x-data="{ currentStatus: '{{ $part->status_presensi ?: 'Belum Absen' }}', openStatus: false, isLoading: false }" @click.outside="openStatus = false" class="relative shrink-0">
                                                 <form action="{{ route('agenda.absen.koreksi', $agenda->id) }}" method="POST">
                                                     @csrf
                                                     <input type="hidden" name="user_id" value="{{ $part->id }}">
                                                     <input type="hidden" name="status" :value="currentStatus">
-                                                    <button type="button" @click="openStatus = !openStatus" 
-                                                            class="px-2.5 py-1.5 bg-white hover:bg-slate-50 border border-[#d4d1f5] hover:border-[#1b3bbb] rounded-xl text-[#09103c] text-[11px] font-bold flex items-center gap-1 transition-all cursor-pointer shadow-2xs">
-                                                        <span class="capitalize" x-text="currentStatus === 'hadir' ? 'Hadir' : (currentStatus === 'izin' ? 'Izin' : (currentStatus === 'sakit' ? 'Sakit' : (currentStatus === 'alfa' ? 'Alfa' : 'Belum Absen')))"></span>
-                                                        <svg class="w-3 h-3 text-[#1b3bbb] transition-transform duration-200" :class="openStatus ? 'rotate-180' : ''" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                                                    <button type="button" @click="openStatus = !openStatus" :disabled="isLoading"
+                                                            class="px-2.5 py-1.5 bg-white hover:bg-slate-50 border border-[#d4d1f5] hover:border-[#1b3bbb] rounded-xl text-[#09103c] text-[11px] font-bold flex items-center gap-1.5 transition-all cursor-pointer shadow-2xs disabled:opacity-75 disabled:cursor-wait">
+                                                        <template x-if="isLoading">
+                                                            <svg class="w-3 h-3 text-[#1b3bbb] animate-spin shrink-0" fill="none" viewBox="0 0 24 24">
+                                                                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                                                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                                            </svg>
+                                                        </template>
+                                                        <span class="capitalize" x-text="isLoading ? 'Memproses...' : (currentStatus === 'hadir' ? 'Hadir' : (currentStatus === 'izin' ? 'Izin' : (currentStatus === 'sakit' ? 'Sakit' : (currentStatus === 'alfa' ? 'Alfa' : 'Belum Absen'))))"></span>
+                                                        <svg x-show="!isLoading" class="w-3 h-3 text-[#1b3bbb] transition-transform duration-200" :class="openStatus ? 'rotate-180' : ''" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
                                                     </button>
                                                     <div x-show="openStatus" x-cloak 
                                                          x-transition:enter="transition ease-out duration-150 transform" 
@@ -912,7 +943,26 @@
                                                                 { value: 'sakit', label: 'Sakit' },
                                                                 { value: 'alfa', label: 'Alfa' }
                                                             ]" :key="st.value">
-                                                                <button type="button" @click="currentStatus = st.value; openStatus = false; $nextTick(() => $el.closest('form').submit())" 
+                                                                <button type="button" 
+                                                                        @click="
+                                                                            if (currentStatus !== st.value) {
+                                                                                currentStatus = st.value; 
+                                                                                openStatus = false; 
+                                                                                isLoading = true;
+                                                                                if (typeof Swal !== 'undefined') {
+                                                                                    Swal.fire({
+                                                                                        title: 'Memperbarui Presensi...',
+                                                                                        text: 'Mohon tunggu sebentar',
+                                                                                        allowOutsideClick: false,
+                                                                                        showConfirmButton: false,
+                                                                                        didOpen: () => { Swal.showLoading(); }
+                                                                                    });
+                                                                                }
+                                                                                $nextTick(() => $el.closest('form').submit());
+                                                                            } else {
+                                                                                openStatus = false;
+                                                                            }
+                                                                        " 
                                                                         class="w-full flex items-center justify-between px-2.5 py-1.5 rounded-xl text-[11px] font-semibold transition-colors"
                                                                         :class="currentStatus === st.value ? 'bg-[#1b3bbb] text-white font-bold' : 'text-[#09103c] hover:bg-[#1b3bbb]/10 hover:text-[#1b3bbb]'">
                                                                     <span x-text="st.label"></span>
@@ -2159,9 +2209,6 @@
                         <button type="submit"
                                 class="px-4 py-2 bg-[#1b3bbb] hover:bg-[#09103c] text-white text-xs font-extrabold rounded-xl shadow-md shadow-[#1b3bbb]/20 transition-all active:scale-[0.98] flex items-center gap-1.5 cursor-pointer whitespace-nowrap">
                             <span>Simpan Perubahan</span>
-                            <svg class="w-3.5 h-3.5 text-indigo-200 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
-                            </svg>
                         </button>
                     </div>
                 </div>
