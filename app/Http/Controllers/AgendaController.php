@@ -144,16 +144,7 @@ class AgendaController extends Controller
             if ($request->has('semua_orang')) {
                 $hakAkses = ['semua_orang'];
             } else {
-                $bidangs = array_map('strval', $request->input('bidangs', []));
-                if ($user->isSekretariatScope()) {
-                    $sekId = \App\Models\Bidang::where('singkatan', 'Sekretariat')->orWhere('nama', 'Sekretariat')->value('id');
-                    if ($user->bidang_id && !in_array((string)$user->bidang_id, $bidangs)) {
-                        $bidangs[] = (string)$user->bidang_id;
-                    }
-                    if ($sekId && !in_array((string)$sekId, $bidangs)) {
-                        $bidangs[] = (string)$sekId;
-                    }
-                }
+                $bidangs = array_map('strval', (array)$request->input('bidangs', []));
                 $hakAkses = array_values(array_unique($bidangs));
             }
         }
@@ -224,8 +215,9 @@ class AgendaController extends Controller
                 if (!empty($unitAdminUsers)) {
                     $selectedAdminsInUnit = array_intersect($unitAdminUsers, $targetUserIds);
                     $adminCount = count($selectedAdminsInUnit);
-                    if ($adminCount === 0 || $adminCount > 1) {
-                        return back()->withErrors(['bidangs' => 'Pilih 1 Admin dari unit yang diundang.'])->withInput();
+                    if ($adminCount < 1) {
+                        $bidName = \App\Models\Bidang::where('id', $bidId)->value('nama');
+                        return back()->withErrors(['participants' => 'Pilih minimal 1 Admin dari unit yang diundang (' . ($bidName ?: 'Unit Kerja') . ').'])->withInput();
                     }
                 }
             }
@@ -483,16 +475,11 @@ class AgendaController extends Controller
         ];
 
         // Validate hak_akses depending on role
-        // Auto-merge mandatory bidangs into request if NOT semua_orang
         if (!$request->has('semua_orang')) {
             $reqBidangs = array_map('strval', (array)$request->input('bidangs', []));
-            if ($user->bidang_id && !in_array((string)$user->bidang_id, $reqBidangs)) {
-                $reqBidangs[] = (string)$user->bidang_id;
-            }
-            if ($user->isSekretariatScope()) {
-                $sekId = \App\Models\Bidang::where('singkatan', 'Sekretariat')->orWhere('nama', 'Sekretariat')->value('id');
-                if ($sekId && !in_array((string)$sekId, $reqBidangs)) {
-                    $reqBidangs[] = (string)$sekId;
+            if ($user->isSekretarisBidang() && !$user->isSekretariatScope()) {
+                if ($user->bidang_id && !in_array((string)$user->bidang_id, $reqBidangs)) {
+                    $reqBidangs[] = (string)$user->bidang_id;
                 }
             }
             $request->merge(['bidangs' => array_values(array_unique($reqBidangs))]);
@@ -510,7 +497,7 @@ class AgendaController extends Controller
             'semua_orang.prohibited' => 'Admin Bidang tidak diperbolehkan membuat rapat Lintas Dinas (Semua Orang).',
         ]);
 
-        // --- Fix #2: Reject changes to kategori/butuh_presensi if notulensi workflow is locked ---
+        // Reject changes to kategori/butuh_presensi if notulensi workflow is locked
         if ($notulensiLocked) {
             $requestedKategori = $validated['kategori'];
             $requestedButuhPresensi = $request->has('butuh_presensi');
@@ -525,12 +512,10 @@ class AgendaController extends Controller
 
         // Determine hak_akses
         if ($user->isSekretarisBidang() && !$user->isSekretariatScope()) {
-            $bidangs = array_map('strval', $request->input('bidangs', []));
-            // Enforce own bidang is checked
+            $bidangs = array_map('strval', (array)$request->input('bidangs', []));
             if (!in_array((string)$user->bidang_id, $bidangs)) {
                 $bidangs[] = (string)$user->bidang_id;
             }
-            // Max 3 bidangs allowed for standard Bidangs (excluding Kadin & Bidang Sekretariat)
             $sekretariatId = \App\Models\Bidang::where('singkatan', 'Sekretariat')->orWhere('nama', 'Sekretariat')->value('id');
 
             $actualBidangCount = count(array_filter($bidangs, function($b) use ($sekretariatId) {
@@ -545,16 +530,7 @@ class AgendaController extends Controller
             if ($request->has('semua_orang')) {
                 $newHakAkses = ['semua_orang'];
             } else {
-                $bidangs = array_map('strval', $request->input('bidangs', []));
-                if ($user->isSekretariatScope()) {
-                    $sekId = \App\Models\Bidang::where('singkatan', 'Sekretariat')->orWhere('nama', 'Sekretariat')->value('id');
-                    if ($user->bidang_id && !in_array((string)$user->bidang_id, $bidangs)) {
-                        $bidangs[] = (string)$user->bidang_id;
-                    }
-                    if ($sekId && !in_array((string)$sekId, $bidangs)) {
-                        $bidangs[] = (string)$sekId;
-                    }
-                }
+                $bidangs = array_map('strval', (array)$request->input('bidangs', []));
                 $newHakAkses = array_values(array_unique($bidangs));
             }
         }
@@ -582,7 +558,7 @@ class AgendaController extends Controller
             $submittedParticipants = array_map('intval', (array) $request->input('participants', []));
             $targetUserIds = array_values(array_intersect($submittedParticipants, $allowedUserIds));
             if (count($targetUserIds) === 0) {
-                return back()->withErrors(['bidangs' => 'Pilih minimal 1 peserta rapat yang diundang.'])->withInput();
+                return back()->withErrors(['participants' => 'Pilih minimal 1 peserta rapat yang diundang.'])->withInput();
             }
         } else {
             $targetUserIds = $allowedUserIds;
@@ -610,8 +586,9 @@ class AgendaController extends Controller
                 if (!empty($unitAdminUsers)) {
                     $selectedAdminsInUnit = array_intersect($unitAdminUsers, $targetUserIds);
                     $adminCount = count($selectedAdminsInUnit);
-                    if ($adminCount === 0 || $adminCount > 1) {
-                        return back()->withErrors(['bidangs' => 'Pilih 1 Admin dari unit yang diundang.'])->withInput();
+                    if ($adminCount < 1) {
+                        $bidName = \App\Models\Bidang::where('id', $bidId)->value('nama');
+                        return back()->withErrors(['participants' => 'Pilih minimal 1 Admin dari unit yang diundang (' . ($bidName ?: 'Unit Kerja') . ').'])->withInput();
                     }
                 }
             }

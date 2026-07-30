@@ -722,7 +722,7 @@
                                 let unitAdmins = (b.users || []).filter(u => this.isAdminUser(u));
                                 if (unitAdmins.length > 0) {
                                     let selectedCount = unitAdmins.filter(u => curSelected.includes(String(u.id))).length;
-                                    if (selectedCount !== 1) {
+                                    if (selectedCount < 1) {
                                         missingAdminBidangNames.push(b.nama || b.singkatan);
                                     }
                                 }
@@ -730,7 +730,7 @@
                         });
 
                         if (missingAdminBidangNames.length > 0) {
-                            this.adminValidationErrorMessage = "Pilih 1 Admin dari unit yang diundang (" + missingAdminBidangNames.join(", ") + ").";
+                            this.adminValidationErrorMessage = "Pilih minimal 1 Admin dari unit yang diundang (" + missingAdminBidangNames.join(", ") + ").";
                             this.$nextTick(() => {
                                 if (this.$refs.modalBody) {
                                     this.$refs.modalBody.scrollTo({ top: 0, behavior: "smooth" });

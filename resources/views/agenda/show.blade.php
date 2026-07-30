@@ -1230,11 +1230,27 @@
             </form>
         </div>
     </div>
-    <script>
+@php
+    $editJudul = old('judul', $agenda->judul);
+    $editKategori = old('kategori', $agenda->kategori);
+    $editTanggal = old('tanggal', $agenda->tanggal ? $agenda->tanggal->format('Y-m-d') : '');
+    $editJamMulai = old('jam_mulai', substr($agenda->jam_mulai, 0, 5));
+    $editJamSelesai = old('jam_selesai', substr($agenda->jam_selesai, 0, 5));
+    $editLokasi = old('lokasi', $agenda->lokasi);
+    $editDeskripsi = old('deskripsi', $agenda->deskripsi ?? '');
+    $editButuhPresensi = (bool) old('butuh_presensi', $agenda->butuh_presensi);
+    $editBidangs = array_values(array_map('strval', (array) old('bidangs', $agenda->hak_akses ?? [])));
+    $editSemuaOrang = (bool) old('semua_orang', in_array('semua_orang', (array) ($agenda->hak_akses ?? [])));
+    $editKadinTarget = in_array('kadin', $editBidangs);
+    $editParticipants = array_values(array_map('strval', (array) old('participants', $agenda->participants->pluck('id')->toArray())));
+    $validationErrors = collect($errors->getMessages())->mapWithKeys(fn($v, $k) => [$k => $v[0]])->all();
+@endphp
+
+<script>
     function registerAgendaDetail() {
         if (typeof Alpine !== 'undefined') {
             Alpine.data('agendaDetail', () => ({
-                openEditModal: {{ ($errors->has('judul') || $errors->has('tanggal') || $errors->has('jam_mulai') || $errors->has('jam_selesai') || $errors->has('lokasi') || $errors->has('kategori') || $errors->has('bidangs')) ? 'true' : 'false' }},
+                openEditModal: {{ $errors->any() ? 'true' : 'false' }},
                 openDetailModal: false,
                 openAbsenModal: false,
                 openGuestModal: false,
@@ -1248,21 +1264,21 @@
                 allParticipants: @json((Auth::user()->role === 'staff' && !Auth::user()->isSekretariat()) ? [] : $participants),
 
                 // Edit Modal State
-                judul: @json($agenda->judul),
-                kategori: @json($agenda->kategori),
+                judul: @json($editJudul),
+                kategori: @json($editKategori),
                 openKategori: false,
-                selectedDate: @json($agenda->tanggal->format('Y-m-d')),
-                selectedTime: @json(substr($agenda->jam_mulai, 0, 5)),
-                selectedEndTime: @json(substr($agenda->jam_selesai, 0, 5)),
-                lokasiVal: @json($agenda->lokasi),
+                selectedDate: @json($editTanggal),
+                selectedTime: @json($editJamMulai),
+                selectedEndTime: @json($editJamSelesai),
+                lokasiVal: @json($editLokasi),
                 openLokasi: false,
-                deskripsi: @json($agenda->deskripsi ?? ''),
-                butuh_presensi: {{ $agenda->butuh_presensi ? 'true' : 'false' }},
+                deskripsi: @json($editDeskripsi),
+                butuh_presensi: {{ $editButuhPresensi ? 'true' : 'false' }},
 
-                bidangs: @json(array_values(array_map('strval', (array)($agenda->hak_akses ?? [])))),
-                semuaOrang: {{ in_array('semua_orang', (array)($agenda->hak_akses ?? [])) ? 'true' : 'false' }},
+                bidangs: @json($editBidangs),
+                semuaOrang: {{ $editSemuaOrang ? 'true' : 'false' }},
                 semuaSekretariat: false,
-                kadinTarget: {{ in_array('kadin', (array)($agenda->hak_akses ?? [])) ? 'true' : 'false' }},
+                kadinTarget: {{ $editKadinTarget ? 'true' : 'false' }},
 
                 ownBidangId: @json((string)Auth::user()->bidang_id),
                 isSekBid: {{ (Auth::user()->role === 'sekretaris_bidang' && !Auth::user()->isSekretariat()) ? 'true' : 'false' }},
@@ -1276,11 +1292,11 @@
                 showBidangLimitWarning: false,
                 bidangsUserData: @json($bidangsUserData),
                 currentUserId: @json((string)Auth::id()),
-                selectedParticipants: @json(array_values(array_map('strval', $agenda->participants->pluck('id')->toArray()))),
+                selectedParticipants: @json($editParticipants),
                 participantModalOpen: false,
                 searchParticipant: '',
                 adminValidationErrorMessage: '',
-                formErrors: {},
+                formErrors: @json($validationErrors),
                 isDirty: false,
 
                 init() {
@@ -1298,7 +1314,6 @@
                     let sekSubIds = (this.sekretariatSubbagIds || []).map(String);
                     let curBids = (this.bidangs || []).map(String);
                     this.semuaSekretariat = sekSubIds.length > 0 && sekSubIds.every(id => curBids.includes(id));
-                    this.syncParticipants();
                 },
 
                 validateForm(e) {
@@ -1338,8 +1353,7 @@
                         hasError = true;
                     }
 
-                    let numericBids = (this.bidangs || []).filter(b => b !== 'kadin');
-                    if (numericBids.length === 0 && !this.semuaOrang) {
+                    if ((!this.bidangs || this.bidangs.length === 0) && !this.semuaOrang) {
                         this.formErrors.bidangs = 'Pilih minimal 1 sasaran bidang / unit.';
                         hasError = true;
                     }
@@ -1418,7 +1432,7 @@
                             let unitAdmins = (b.users || []).filter(u => this.isAdminUser(u));
                             if (unitAdmins.length > 0) {
                                 let selectedCount = unitAdmins.filter(u => curSelected.includes(String(u.id))).length;
-                                if (selectedCount !== 1) {
+                                if (selectedCount < 1) {
                                     missingAdminBidangNames.push(b.nama || b.singkatan);
                                 }
                             }
@@ -1426,15 +1440,18 @@
                     });
 
                     if (missingAdminBidangNames.length > 0) {
-                        this.adminValidationErrorMessage = 'Pilih 1 Admin dari unit yang diundang (' + missingAdminBidangNames.join(', ') + ').';
+                        let msg = 'Pilih minimal 1 Admin dari unit yang diundang (' + missingAdminBidangNames.join(', ') + ').';
+                        this.adminValidationErrorMessage = msg;
+                        this.formErrors.participants = msg;
                         this.$nextTick(() => {
-                            if (this.$refs.modalBody) {
-                                this.$refs.modalBody.scrollTo({ top: 0, behavior: 'smooth' });
+                            if (this.$refs.editFormContainer) {
+                                this.$refs.editFormContainer.scrollTo({ top: 9999, behavior: 'smooth' });
                             }
                         });
                         return false;
                     }
                     this.adminValidationErrorMessage = '';
+                    delete this.formErrors.participants;
                     return true;
                 },
 
