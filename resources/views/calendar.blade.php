@@ -479,7 +479,7 @@
     <div x-show="openAddModal" x-cloak 
          class="fixed inset-0 z-[9999] flex items-center justify-center p-3 sm:p-5 bg-slate-950/70 backdrop-blur-md overflow-y-auto transition-all duration-300">
         
-        <div @click.away="openAddModal = false" 
+        <div @click.away="if (!participantModalOpen) openAddModal = false" 
              class="bg-white border border-[#d4d1f5] rounded-3xl w-full max-w-xl shadow-2xl overflow-hidden relative text-[#2e2552] my-auto flex flex-col max-h-[85vh] sm:max-h-[88vh]"
              x-transition:enter="transition ease-out duration-300 transform"
              x-transition:enter-start="opacity-0 scale-95 translate-y-2"

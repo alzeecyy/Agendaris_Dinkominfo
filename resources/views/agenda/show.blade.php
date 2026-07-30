@@ -1839,7 +1839,7 @@
     @if($isSecretaryOfAgenda)
     <!-- MODAL EDIT AGENDA KEGIATAN -->
     <div x-show="openEditModal" x-cloak class="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-slate-950/60 backdrop-blur-sm select-none">
-        <div @click.away="openEditModal = false" 
+        <div @click.away="if (!participantModalOpen) openEditModal = false" 
              class="bg-white border border-[#d4d1f5]/60 rounded-3xl w-full max-w-xl shadow-2xl overflow-hidden relative text-[#2e2552] my-auto flex flex-col max-h-[90vh]"
              x-transition:enter="transition ease-out duration-300 transform"
              x-transition:enter-start="opacity-0 scale-95"
@@ -2164,164 +2164,144 @@
                         </button>
                     </div>
                 </div>
-            </form>
-        </div>
-    </div>
 
-    <!-- KELOLA PESERTA MODAL FOR EDIT AGENDA -->
-    <div x-show="participantModalOpen" x-cloak 
-         class="fixed inset-0 z-[99999] flex items-center justify-center p-4 sm:p-6 bg-slate-950/70 backdrop-blur-sm select-none">
-        <div @click.away="participantModalOpen = false" 
-             class="bg-white rounded-3xl shadow-2xl border border-[#d4d1f5] w-full max-w-xl flex flex-col max-h-[85vh] overflow-hidden animate-in fade-in zoom-in duration-200">
-            
-            <!-- Header Modal Kelola Peserta -->
-            <div class="px-5 py-4 bg-gradient-to-r from-[#09103c] via-[#1b3bbb] to-[#09103c] text-white flex items-center justify-between shrink-0">
-                <div class="flex items-center gap-3">
-                    <div class="p-2 bg-white/10 rounded-xl border border-white/15 shrink-0">
-                        <svg class="w-5 h-5 text-amber-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"></path>
-                        </svg>
-                    </div>
-                    <div>
-                        <h3 class="text-base font-extrabold text-white">Kelola Peserta Rapat & Kewenangan</h3>
-                        <p class="text-[11px] text-indigo-100 font-medium">Pilih tepat 1 Admin dari setiap unit yang diundang</p>
-                    </div>
-                </div>
-                <button @click="participantModalOpen = false" type="button" class="p-1.5 bg-white/10 hover:bg-rose-500/80 rounded-xl text-white transition-all cursor-pointer shrink-0">
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
-                    </svg>
-                </button>
-            </div>
-
-            <!-- Body Modal Kelola Peserta -->
-            <div x-ref="modalBody" class="p-4 sm:p-5 overflow-y-auto no-scrollbar space-y-4 flex-1 bg-slate-50/50">
-                 <!-- Search Bar -->
-                <div class="relative">
-                    <input type="text" x-model="searchParticipant" placeholder="Cari nama, NIP, atau jabatan peserta..." 
-                           class="w-full pl-9 pr-8 py-2 bg-white border border-[#d4d1f5] rounded-xl text-xs text-[#2e2552] placeholder-slate-400 focus:border-[#1b3bbb] focus:ring-2 focus:ring-[#1b3bbb]/20 transition-all font-semibold shadow-2xs">
-                    <svg class="w-4 h-4 text-[#1b3bbb] absolute left-3 top-2.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
-                    </svg>
-                    <button type="button" x-show="searchParticipant.length > 0" @click="searchParticipant = ''" class="absolute right-2.5 top-2.5 text-slate-400 hover:text-slate-600">
-                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
-                    </button>
-                </div>
-
-                <!-- Inline Validation Alert Banner inside Kelola Peserta Modal -->
-                <template x-if="adminValidationErrorMessage">
-                    <div class="p-3 bg-amber-50 border-2 border-amber-400 text-amber-900 rounded-2xl text-xs font-bold flex items-center justify-between shadow-sm animate-in fade-in duration-200">
-                        <div class="flex items-center gap-2.5 min-w-0">
-                            <div class="p-1 bg-amber-200/80 rounded-lg shrink-0">
-                                <svg class="w-4 h-4 text-amber-800 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path>
-                                </svg>
-                            </div>
-                            <span x-text="adminValidationErrorMessage" class="leading-tight"></span>
-                        </div>
-                        <button type="button" @click="adminValidationErrorMessage = ''" class="p-1 text-amber-700 hover:text-amber-950 hover:bg-amber-200/60 rounded-lg transition-all cursor-pointer shrink-0 ml-2">
-                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
-                        </button>
-                    </div>
-                </template>
-
-                <template x-if="bidangs.length === 0">
-                    <div class="p-8 text-center bg-white rounded-2xl border border-dashed border-[#d4d1f5] shadow-2xs">
-                        <p class="text-xs text-slate-500 font-bold">Pilih minimal satu bidang di atas terlebih dahulu untuk mengelola peserta.</p>
-                    </div>
-                </template>
-
-                <!-- Group Card Khusus Kepala Dinas (Kadin) -->
-                <template x-if="kadinUser && kadinTarget && (!searchParticipant || kadinUser.name.toLowerCase().includes(searchParticipant.toLowerCase()) || kadinUser.jabatan.toLowerCase().includes(searchParticipant.toLowerCase()))">
-                    <div class="bg-gradient-to-r from-purple-100 via-purple-100/90 to-purple-200/70 border border-purple-400 rounded-2xl p-3.5 space-y-2.5 shadow-2xs">
-                        <div class="flex items-center justify-between pb-2 border-b border-purple-200">
-                            <div class="flex items-center gap-2">
-                                <span class="w-2.5 h-2.5 rounded-full bg-purple-600"></span>
-                                <span class="text-xs font-extrabold text-purple-950">Kepala Dinas (Kadin)</span>
-                            </div>
-                        </div>
-
-                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-1.5">
-                            <label class="flex items-start gap-2.5 p-2 bg-white/90 rounded-xl border border-purple-300 cursor-pointer select-none transition-all">
-                                <input type="checkbox" :value="kadinUser.id" x-model="selectedParticipants" :disabled="true" class="w-4 h-4 rounded border-slate-300 text-purple-600 focus:ring-purple-500 mt-0.5 shrink-0 opacity-80 cursor-not-allowed">
-                                <div class="min-w-0 flex-1">
-                                    <div class="text-xs font-bold text-purple-950 leading-tight truncate">
-                                        <span x-text="kadinUser.name"></span>
-                                    </div>
-                                    <div class="text-[10px] text-purple-700 font-medium truncate" x-text="kadinUser.jabatan || 'Kepala Dinas / Kadin'"></div>
+                <!-- KELOLA PESERTA MODAL FOR EDIT AGENDA -->
+                <div x-show="participantModalOpen" x-cloak 
+                     class="fixed inset-0 z-[99999] flex items-center justify-center p-4 sm:p-6 bg-slate-950/70 backdrop-blur-sm select-none">
+                    <div @click.away="participantModalOpen = false" 
+                         class="bg-white rounded-3xl shadow-2xl border border-[#d4d1f5] w-full max-w-xl flex flex-col max-h-[85vh] overflow-hidden animate-in fade-in zoom-in duration-200">
+                        
+                        <!-- Header Modal Kelola Peserta -->
+                        <div class="px-5 py-4 bg-gradient-to-r from-[#09103c] via-[#1b3bbb] to-[#09103c] text-white flex items-center justify-between shrink-0">
+                            <div class="flex items-center gap-3">
+                                <div class="p-2 bg-white/10 rounded-xl border border-white/15 shrink-0">
+                                    <svg class="w-5 h-5 text-amber-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"></path>
+                                    </svg>
                                 </div>
-                            </label>
-                        </div>
-                    </div>
-                </template>
-
-                <template x-for="bidang in visibleBidangs" :key="bidang.id">
-                    <div class="bg-white border border-[#d4d1f5]/80 rounded-2xl p-3.5 space-y-2.5 shadow-2xs">
-                        <div class="flex items-center justify-between pb-2 border-b border-[#d4d1f5]/40">
-                            <div class="flex items-center gap-2">
-                                <span class="w-2.5 h-2.5 rounded-full bg-[#1b3bbb]"></span>
-                                <span class="text-xs font-extrabold text-[#2e2552]" x-text="bidang.nama + ' (' + bidang.singkatan + ')'"></span>
+                                <div>
+                                    <h3 class="text-base font-extrabold text-white">Kelola Peserta Rapat & Kewenangan</h3>
+                                    <p class="text-[11px] text-indigo-100 font-medium">Pilih tepat 1 Admin dari setiap unit yang diundang</p>
+                                </div>
                             </div>
-                            <button type="button" @click="toggleBidangUsers(bidang.id)" class="text-[11px] font-extrabold text-[#1b3bbb] hover:underline cursor-pointer">
-                                <span x-text="isBidangAllChecked(bidang.id) ? 'Hapus Centang Staf' : 'Centang Semua Staf'"></span>
+                            <button @click="participantModalOpen = false" type="button" class="p-1.5 bg-white/10 hover:bg-rose-500/80 rounded-xl text-white transition-all cursor-pointer shrink-0">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                                </svg>
                             </button>
                         </div>
 
-                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-1.5">
-                            <template x-for="user in filteredUsers(bidang.users)" :key="user.id">
-                                <label class="flex items-start gap-2.5 p-2.5 rounded-xl border select-none transition-all cursor-pointer"
-                                       :class="isAdminUser(user) 
-                                               ? 'bg-gradient-to-r from-amber-50/90 to-amber-100/60 border-amber-300 hover:border-amber-400' 
-                                               : (isKetuaUser(user)
-                                                   ? 'bg-gradient-to-r from-purple-100 via-purple-100/90 to-purple-200/70 border-purple-400 hover:border-purple-500' 
-                                                   : 'bg-[#f8f7ff] hover:bg-indigo-50/50 border-[#d4d1f5]/60 hover:border-[#1b3bbb]')">
-                                    
-                                    <input type="checkbox" 
-                                           :value="user.id" 
-                                           x-model="selectedParticipants" 
-                                           :disabled="isMandatoryUser(user)"
-                                           class="w-4 h-4 rounded border-slate-300 mt-0.5 shrink-0"
-                                           :class="isAdminUser(user) ? 'text-amber-600 focus:ring-amber-500' : (isKetuaUser(user) ? 'text-purple-600 focus:ring-purple-500' : 'text-[#1b3bbb] focus:ring-[#1b3bbb]')"
-                                           :class="isMandatoryUser(user) ? 'opacity-80 cursor-not-allowed' : ''">
-                                    
-                                    <div class="min-w-0 flex-1">
-                                        <div class="text-xs font-bold leading-tight truncate" :class="isAdminUser(user) ? 'text-amber-950' : (isKetuaUser(user) ? 'text-purple-950' : 'text-[#2e2552]')">
-                                            <span x-text="user.name" class="truncate"></span>
+                        <!-- Body Modal Kelola Peserta -->
+                        <div x-ref="modalBody" class="p-4 sm:p-5 overflow-y-auto no-scrollbar space-y-4 flex-1 bg-slate-50/50">
+                             <!-- Search Bar -->
+                            <div class="relative">
+                                <input type="text" x-model="searchParticipant" placeholder="Cari nama, NIP, atau jabatan peserta..." 
+                                       class="w-full pl-9 pr-4 py-2.5 bg-white border border-[#d4d1f5] rounded-xl text-xs text-[#2e2552] placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-[#1b3bbb]">
+                                <svg class="w-4 h-4 text-slate-400 absolute left-3 top-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+                                </svg>
+                            </div>
+
+                            <template x-if="bidangs.length === 0">
+                                <div class="p-6 text-center bg-amber-50/60 rounded-2xl border border-amber-200">
+                                    <p class="text-xs text-amber-800 font-bold">Belum ada unit/bidang yang dipilih.</p>
+                                    <p class="text-xs text-slate-500 font-bold">Pilih minimal satu bidang di atas terlebih dahulu untuk mengelola peserta.</p>
+                                </div>
+                            </template>
+
+                            <!-- Group Card Khusus Kepala Dinas (Kadin) -->
+                            <template x-if="kadinUser && kadinTarget && (!searchParticipant || kadinUser.name.toLowerCase().includes(searchParticipant.toLowerCase()) || kadinUser.jabatan.toLowerCase().includes(searchParticipant.toLowerCase()))">
+                                <div class="bg-gradient-to-r from-purple-100 via-purple-100/90 to-purple-200/70 border border-purple-400 rounded-2xl p-3.5 space-y-2.5 shadow-2xs">
+                                    <div class="flex items-center justify-between pb-2 border-b border-purple-200">
+                                        <div class="flex items-center gap-2">
+                                            <span class="w-2.5 h-2.5 rounded-full bg-purple-600"></span>
+                                            <span class="text-xs font-extrabold text-purple-950">Kepala Dinas (Kadin)</span>
                                         </div>
-                                        <div class="text-[10px] font-medium truncate mt-0.5" :class="isAdminUser(user) ? 'text-amber-800' : (isKetuaUser(user) ? 'text-purple-800' : 'text-[#5a508f]')" x-text="user.jabatan"></div>
                                     </div>
-                                </label>
+
+                                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-1.5">
+                                        <label class="flex items-start gap-2.5 p-2 bg-white/90 rounded-xl border border-purple-300 cursor-pointer select-none transition-all">
+                                            <input type="checkbox" :value="kadinUser.id" x-model="selectedParticipants" :disabled="true" class="w-4 h-4 rounded border-slate-300 text-purple-600 focus:ring-purple-500 mt-0.5 shrink-0 opacity-80 cursor-not-allowed">
+                                            <div class="min-w-0 flex-1">
+                                                <div class="text-xs font-bold text-purple-950 leading-tight truncate">
+                                                    <span x-text="kadinUser.name"></span>
+                                                </div>
+                                                <div class="text-[10px] text-purple-700 font-medium truncate" x-text="kadinUser.jabatan || 'Kepala Dinas / Kadin'"></div>
+                                            </div>
+                                        </label>
+                                    </div>
+                                </div>
+                            </template>
+
+                            <template x-for="bidang in visibleBidangs" :key="bidang.id">
+                                <div class="bg-white border border-[#d4d1f5]/80 rounded-2xl p-3.5 space-y-2.5 shadow-2xs">
+                                    <div class="flex items-center justify-between pb-2 border-b border-[#d4d1f5]/40">
+                                        <div class="flex items-center gap-2">
+                                            <span class="w-2.5 h-2.5 rounded-full bg-[#1b3bbb]"></span>
+                                            <span class="text-xs font-extrabold text-[#2e2552]" x-text="bidang.nama + ' (' + bidang.singkatan + ')'"></span>
+                                        </div>
+                                        <button type="button" @click="toggleBidangUsers(bidang.id)" class="text-[11px] font-extrabold text-[#1b3bbb] hover:underline cursor-pointer">
+                                            <span x-text="isBidangAllChecked(bidang.id) ? 'Hapus Centang Staf' : 'Centang Semua Staf'"></span>
+                                        </button>
+                                    </div>
+
+                                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-1.5">
+                                        <template x-for="user in filteredUsers(bidang.users)" :key="user.id">
+                                            <label class="flex items-start gap-2.5 p-2.5 rounded-xl border select-none transition-all cursor-pointer"
+                                                   :class="isAdminUser(user) 
+                                                           ? 'bg-gradient-to-r from-amber-50/90 to-amber-100/60 border-amber-300 hover:border-amber-400' 
+                                                           : (isKetuaUser(user)
+                                                               ? 'bg-gradient-to-r from-purple-100 via-purple-100/90 to-purple-200/70 border-purple-400 hover:border-purple-500' 
+                                                               : 'bg-[#f8f7ff] hover:bg-indigo-50/50 border-[#d4d1f5]/60 hover:border-[#1b3bbb]')">
+                                                
+                                                <input type="checkbox" 
+                                                       :value="user.id" 
+                                                       x-model="selectedParticipants" 
+                                                       :disabled="isMandatoryUser(user)"
+                                                       class="w-4 h-4 rounded border-slate-300 mt-0.5 shrink-0"
+                                                       :class="isAdminUser(user) ? 'text-amber-600 focus:ring-amber-500' : (isKetuaUser(user) ? 'text-purple-600 focus:ring-purple-500' : 'text-[#1b3bbb] focus:ring-[#1b3bbb]')"
+                                                       :class="isMandatoryUser(user) ? 'opacity-80 cursor-not-allowed' : ''">
+                                                
+                                                <div class="min-w-0 flex-1">
+                                                    <div class="text-xs font-bold leading-tight truncate" :class="isAdminUser(user) ? 'text-amber-950' : (isKetuaUser(user) ? 'text-purple-950' : 'text-[#2e2552]')">
+                                                        <span x-text="user.name" class="truncate"></span>
+                                                    </div>
+                                                    <div class="text-[10px] font-medium truncate mt-0.5" :class="isAdminUser(user) ? 'text-amber-800' : (isKetuaUser(user) ? 'text-purple-800' : 'text-[#5a508f]')" x-text="user.jabatan"></div>
+                                                </div>
+                                            </label>
+                                        </template>
+                                    </div>
+                                </div>
                             </template>
                         </div>
-                    </div>
-                </template>
-            </div>
 
-            <!-- Footer Modal Kelola Peserta -->
-            <div class="px-5 py-3.5 bg-[#f8f7ff] border-t border-[#d4d1f5] flex flex-col sm:flex-row items-center justify-between gap-3 shrink-0">
-                <div class="text-xs font-bold text-[#5a508f] flex items-center gap-1">
-                    <template x-if="selectedParticipants.length === 0">
-                        <span class="text-rose-600 font-black flex items-center gap-1">Pilih minimal 1 peserta!</span>
-                    </template>
-                    <template x-if="selectedParticipants.length > 0">
-                        <span>Total Terpilih: <span class="text-[#1b3bbb] font-extrabold" x-text="selectedParticipants.length"></span> Peserta</span>
-                    </template>
+                        <!-- Footer Modal Kelola Peserta -->
+                        <div class="px-5 py-3.5 bg-[#f8f7ff] border-t border-[#d4d1f5] flex flex-col sm:flex-row items-center justify-between gap-3 shrink-0">
+                            <div class="text-xs font-bold text-[#5a508f] flex items-center gap-1">
+                                <template x-if="selectedParticipants.length === 0">
+                                    <span class="text-rose-600 font-black flex items-center gap-1">Pilih minimal 1 peserta!</span>
+                                </template>
+                                <template x-if="selectedParticipants.length > 0">
+                                    <span>Total Terpilih: <span class="text-[#1b3bbb] font-extrabold" x-text="selectedParticipants.length"></span> Peserta</span>
+                                </template>
+                            </div>
+                            <div class="flex items-center gap-2 w-full sm:w-auto justify-end">
+                                <button type="button" @click="participantModalOpen = false" class="px-4 py-2 bg-slate-200 hover:bg-slate-300 text-[#2e2552] text-xs font-bold rounded-xl transition-all cursor-pointer">
+                                    Tutup
+                                </button>
+                                <button type="button" 
+                                        @click="if(validateAdminSelection()) { participantModalOpen = false; }" 
+                                        :class="selectedParticipants.length === 0 ? 'bg-slate-300 text-slate-500 cursor-not-allowed' : 'bg-[#1b3bbb] hover:bg-[#09103c] text-white shadow-md shadow-[#1b3bbb]/20 cursor-pointer'"
+                                        class="px-5 py-2 text-xs font-extrabold rounded-xl transition-all">
+                                    Simpan Peserta
+                                </button>
+                            </div>
+                        </div>
+                    </div>
                 </div>
-                <div class="flex items-center gap-2 w-full sm:w-auto justify-end">
-                    <button type="button" @click="participantModalOpen = false" class="px-4 py-2 bg-slate-200 hover:bg-slate-300 text-[#2e2552] text-xs font-bold rounded-xl transition-all cursor-pointer">
-                        Tutup
-                    </button>
-                    <button type="button" 
-                            @click="if(validateAdminSelection()) { participantModalOpen = false; }" 
-                            :class="selectedParticipants.length === 0 ? 'bg-slate-300 text-slate-500 cursor-not-allowed' : 'bg-[#1b3bbb] hover:bg-[#09103c] text-white shadow-md shadow-[#1b3bbb]/20 cursor-pointer'"
-                            class="px-5 py-2 text-xs font-extrabold rounded-xl transition-all">
-                        Simpan Peserta
-                    </button>
-                </div>
-            </div>
+            </form>
         </div>
     </div>
     @endif
 </div>
 @endsection
-
