@@ -28,15 +28,16 @@
             </div>
 
 @php
-                $selectedLabel = 'Semua Bidang (' . ($bidangCounts['semua'] ?? 0) . ' Notulensi)';
+                $selectedLabelName = 'Semua Bidang';
+                $selectedCount = $bidangCounts['semua'] ?? 0;
                 if ($selectedBidangId === 'lintas_dinas') {
-                    $selectedLabel = 'Rapat Lintas Dinas (' . ($bidangCounts['lintas_dinas'] ?? 0) . ' Notulensi)';
+                    $selectedLabelName = 'Rapat Lintas Dinas';
+                    $selectedCount = $bidangCounts['lintas_dinas'] ?? 0;
                 } else {
                     foreach($bidangs as $b) {
                         if ((string)$selectedBidangId === (string)$b->id) {
-                            $count = $bidangCounts[$b->id] ?? 0;
-                            $labelName = $b->singkatan ?: $b->nama;
-                            $selectedLabel = $labelName . ' (' . $count . ' Notulensi)';
+                            $selectedCount = $bidangCounts[$b->id] ?? 0;
+                            $selectedLabelName = $b->nama ?: $b->singkatan;
                             break;
                         }
                     }
@@ -45,11 +46,14 @@
 
             <div class="flex items-center gap-3 w-full sm:w-auto">
                 <!-- Modern Custom Dropdown -->
-                <div x-data="{ open: false }" @click.outside="open = false" class="relative w-full sm:w-72">
+                <div x-data="{ open: false }" @click.outside="open = false" class="relative w-full sm:w-80">
                     <button type="button" 
                             @click="open = !open" 
-                            class="w-full pl-8 pr-8 py-2.5 bg-white border border-[#d4d1f5] hover:border-[#1b3bbb] rounded-xl text-xs font-bold text-[#09103c] shadow-xs flex items-center justify-between transition-all cursor-pointer truncate focus:outline-none focus:ring-2 focus:ring-[#1b3bbb]/20">
-                        <span class="truncate">{{ $selectedLabel }}</span>
+                            class="w-full pl-8 pr-8 py-2.5 bg-white border border-[#d4d1f5] hover:border-[#1b3bbb] rounded-xl text-xs font-bold text-[#09103c] shadow-xs flex items-center justify-between gap-2 transition-all cursor-pointer truncate focus:outline-none focus:ring-2 focus:ring-[#1b3bbb]/20">
+                        <span class="truncate">{{ $selectedLabelName }}</span>
+                        <span class="px-2 py-0.5 rounded-full text-[10px] font-extrabold shrink-0 {{ $selectedCount > 0 ? 'bg-[#1b3bbb]/10 text-[#1b3bbb] border border-[#1b3bbb]/20' : 'bg-slate-100 text-slate-500 border border-slate-200' }}">
+                            {{ $selectedCount }} Notulensi
+                        </span>
                     </button>
                     <!-- Icon Left -->
                     <div class="absolute left-2.5 top-1/2 -translate-y-1/2 text-[#1b3bbb] pointer-events-none">
@@ -72,34 +76,53 @@
                          x-transition:leave="transition ease-in duration-100 transform" 
                          x-transition:leave-start="opacity-100 scale-100 translate-y-0" 
                          x-transition:leave-end="opacity-0 scale-95 -translate-y-1" 
-                         class="absolute left-0 top-full mt-1.5 w-full bg-white border border-[#cbd5e1] rounded-2xl shadow-xl shadow-[#1b3bbb]/10 p-1.5 z-50 max-h-52 overflow-y-auto">
+                         class="absolute left-0 top-full mt-1.5 w-full bg-white border border-[#cbd5e1] rounded-2xl shadow-xl shadow-[#1b3bbb]/10 p-1.5 z-50 max-h-60 overflow-y-auto">
                         <div class="space-y-0.5">
+                            @php $semuaCount = $bidangCounts['semua'] ?? 0; @endphp
                             <a href="{{ route('notulensi.arsip', ['bidang_id' => 'semua']) }}" 
-                               class="flex items-center justify-between px-3.5 py-2.5 rounded-xl text-xs font-semibold transition-colors text-left {{ $selectedBidangId === 'semua' ? 'bg-[#1b3bbb] text-white font-bold' : 'text-[#09103c] hover:bg-[#1b3bbb]/10 hover:text-[#1b3bbb]' }}">
-                                <span class="text-left leading-snug">Semua Bidang ({{ $bidangCounts['semua'] ?? 0 }} Notulensi)</span>
-                                @if($selectedBidangId === 'semua')
-                                    <svg class="w-3.5 h-3.5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/></svg>
-                                @endif
+                               class="flex items-center justify-between gap-2 px-3 py-2 rounded-xl text-xs font-semibold transition-colors text-left {{ $selectedBidangId === 'semua' ? 'bg-[#1b3bbb] text-white font-bold' : 'text-[#09103c] hover:bg-[#1b3bbb]/10 hover:text-[#1b3bbb]' }}">
+                                <div class="flex items-center gap-1.5 min-w-0">
+                                    @if($selectedBidangId === 'semua')
+                                        <svg class="w-3.5 h-3.5 shrink-0 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/></svg>
+                                    @endif
+                                    <span class="truncate">Semua Bidang</span>
+                                </div>
+                                <span class="px-2 py-0.5 rounded-full text-[10px] font-extrabold shrink-0 {{ $selectedBidangId === 'semua' ? ($semuaCount > 0 ? 'bg-white/20 text-white border border-white/30' : 'bg-white/10 text-white/80 border border-white/20') : ($semuaCount > 0 ? 'bg-[#1b3bbb]/10 text-[#1b3bbb] border border-[#1b3bbb]/20' : 'bg-slate-100 text-slate-500 border border-slate-200') }}">
+                                    {{ $semuaCount }} Notulensi
+                                </span>
                             </a>
+
+                            @php $lintasCount = $bidangCounts['lintas_dinas'] ?? 0; @endphp
                             <a href="{{ route('notulensi.arsip', ['bidang_id' => 'lintas_dinas']) }}" 
-                               class="flex items-center justify-between px-3.5 py-2.5 rounded-xl text-xs font-semibold transition-colors text-left {{ $selectedBidangId === 'lintas_dinas' ? 'bg-[#1b3bbb] text-white font-bold' : 'text-[#09103c] hover:bg-[#1b3bbb]/10 hover:text-[#1b3bbb]' }}">
-                                <span class="text-left leading-snug">Rapat Lintas Dinas ({{ $bidangCounts['lintas_dinas'] ?? 0 }} Notulensi)</span>
-                                @if($selectedBidangId === 'lintas_dinas')
-                                    <svg class="w-3.5 h-3.5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/></svg>
-                                @endif
+                               class="flex items-center justify-between gap-2 px-3 py-2 rounded-xl text-xs font-semibold transition-colors text-left {{ $selectedBidangId === 'lintas_dinas' ? 'bg-[#1b3bbb] text-white font-bold' : 'text-[#09103c] hover:bg-[#1b3bbb]/10 hover:text-[#1b3bbb]' }}">
+                                <div class="flex items-center gap-1.5 min-w-0">
+                                    @if($selectedBidangId === 'lintas_dinas')
+                                        <svg class="w-3.5 h-3.5 shrink-0 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/></svg>
+                                    @endif
+                                    <span class="truncate">Rapat Lintas Dinas</span>
+                                </div>
+                                <span class="px-2 py-0.5 rounded-full text-[10px] font-extrabold shrink-0 {{ $selectedBidangId === 'lintas_dinas' ? ($lintasCount > 0 ? 'bg-white/20 text-white border border-white/30' : 'bg-white/10 text-white/80 border border-white/20') : ($lintasCount > 0 ? 'bg-[#1b3bbb]/10 text-[#1b3bbb] border border-[#1b3bbb]/20' : 'bg-slate-100 text-slate-500 border border-slate-200') }}">
+                                    {{ $lintasCount }} Notulensi
+                                </span>
                             </a>
+
                             @foreach($bidangs as $b)
                                 @php
                                     $count = $bidangCounts[$b->id] ?? 0;
-                                    $labelName = $b->nama ? ($b->nama . ' (' . $b->singkatan . ')') : $b->singkatan;
+                                    $labelName = $b->nama ?: $b->singkatan;
                                     $isSelected = (string)$selectedBidangId === (string)$b->id;
                                 @endphp
                                 <a href="{{ route('notulensi.arsip', ['bidang_id' => $b->id]) }}" 
-                                   class="flex items-center justify-between px-3.5 py-2.5 rounded-xl text-xs font-semibold transition-colors text-left {{ $isSelected ? 'bg-[#1b3bbb] text-white font-bold' : 'text-[#09103c] hover:bg-[#1b3bbb]/10 hover:text-[#1b3bbb]' }}">
-                                    <span class="text-left leading-snug">{{ $labelName }} ({{ $count }} Notulensi)</span>
-                                    @if($isSelected)
-                                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/></svg>
-                                    @endif
+                                   class="flex items-center justify-between gap-2 px-3 py-2 rounded-xl text-xs font-semibold transition-colors text-left {{ $isSelected ? 'bg-[#1b3bbb] text-white font-bold' : 'text-[#09103c] hover:bg-[#1b3bbb]/10 hover:text-[#1b3bbb]' }}">
+                                    <div class="flex items-center gap-1.5 min-w-0">
+                                        @if($isSelected)
+                                            <svg class="w-3.5 h-3.5 shrink-0 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/></svg>
+                                        @endif
+                                        <span class="truncate" title="{{ $labelName }}">{{ $labelName }}</span>
+                                    </div>
+                                    <span class="px-2 py-0.5 rounded-full text-[10px] font-extrabold shrink-0 {{ $isSelected ? ($count > 0 ? 'bg-white/20 text-white border border-white/30' : 'bg-white/10 text-white/80 border border-white/20') : ($count > 0 ? 'bg-[#1b3bbb]/10 text-[#1b3bbb] border border-[#1b3bbb]/20' : 'bg-slate-100 text-slate-500 border border-slate-200') }}">
+                                        {{ $count }} Notulensi
+                                    </span>
                                 </a>
                             @endforeach
                         </div>
