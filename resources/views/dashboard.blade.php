@@ -12,19 +12,19 @@
             $hasOneKpiCard = Auth::user()->isKetuaMaster();
         @endphp
         <!-- Welcome Card -->
-        <div class="col-span-2 {{ $hasOneKpiCard ? 'md:col-span-2' : 'md:col-span-1' }} bg-[#2e2552] text-white rounded-xl md:rounded-[32px] p-3 sm:p-6 flex flex-col justify-between shadow-sm relative overflow-hidden">
+        <div class="col-span-2 {{ $hasOneKpiCard ? 'md:col-span-2' : 'md:col-span-1' }} bg-gradient-to-br from-[#1b3bbb] via-[#102480] to-[#0b1554] text-white rounded-xl md:rounded-[32px] p-3 sm:p-6 flex flex-col justify-between shadow-sm relative overflow-hidden">
             <!-- Decorative circle overlay -->
-            <div class="absolute -top-12 -right-12 w-28 h-28 bg-white/5 rounded-full"></div>
+            <div class="absolute -top-12 -right-12 w-28 h-28 bg-white/10 rounded-full"></div>
             
             <div class="space-y-1 sm:space-y-2 z-10">
-                <span class="text-[8.5px] sm:text-[10px] font-bold uppercase tracking-widest text-[#8e88dd]">Ringkasan Hari Ini</span>
-                <h3 class="text-sm sm:text-xl font-black leading-tight">Pantau Agenda Rapat & Notulensi Kerja</h3>
-                <p class="text-[10px] sm:text-xs text-[#bda6ff] leading-relaxed">Kelola dan hadiri koordinasi kedinasan Dinkominfo Banyumas secara terpadu.</p>
+                <span class="text-[8.5px] sm:text-[10px] font-bold uppercase tracking-widest text-blue-200">Ringkasan Hari Ini</span>
+                <h3 class="text-sm sm:text-xl font-black leading-tight text-white">Pantau Agenda Rapat & Notulensi Kerja</h3>
+                <p class="text-[10px] sm:text-xs text-blue-100/90 leading-relaxed">Kelola dan hadiri koordinasi kedinasan Dinkominfo Banyumas secara terpadu.</p>
             </div>
             
             <div class="mt-2.5 sm:mt-6 z-10">
                 <a href="{{ route('calendar') }}" 
-                   class="inline-flex items-center gap-1 px-2.5 py-1 sm:px-4 sm:py-2 bg-white text-[#2e2552] hover:bg-[#ebe9fe] text-[10px] sm:text-xs font-bold rounded-lg sm:rounded-xl shadow-sm transition-all duration-200">
+                   class="inline-flex items-center gap-1 px-2.5 py-1 sm:px-4 sm:py-2 bg-white text-[#1b3bbb] hover:bg-blue-50 text-[10px] sm:text-xs font-bold rounded-lg sm:rounded-xl shadow-sm transition-all duration-200">
                     <span>Lihat Kalender Rinci</span>
                     <svg class="w-3 h-3 sm:w-4 sm:h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7-7 7"></path>

@@ -166,19 +166,19 @@
 class="space-y-6">
     
     <!-- Title & Add Trigger -->
-    <div class="flex items-center justify-between">
+    <div class="flex items-center justify-between gap-4">
         <div>
             <h1 class="text-base sm:text-xl font-black text-[#2e2552] tracking-wide">Kelola Akun Pegawai</h1>
             <p class="text-[11px] sm:text-xs text-[#5a508f] mt-0.5">Tambah akun, reset password, dan kelola peran/role pegawai</p>
         </div>
         <button @click="openAddModal = true"
-                class="w-9 h-9 sm:w-auto sm:h-auto sm:px-4 sm:py-2.5 bg-[#2e2552] hover:bg-[#3d326a] text-white text-xs font-bold rounded-xl shadow-md shadow-[#2e2552]/10 transition-all inline-flex items-center justify-center gap-1.5 shrink-0"
+                class="px-4 py-2.5 sm:px-6 sm:py-3 bg-gradient-to-r from-[#1b3bbb] to-[#0b1554] hover:from-[#0b1554] hover:to-[#1b3bbb] text-white text-xs sm:text-xs font-bold rounded-xl sm:rounded-2xl shadow-md shadow-[#1b3bbb]/20 hover:shadow-lg hover:scale-[1.02] active:scale-95 transition-all duration-300 inline-flex items-center justify-center gap-2 shrink-0 whitespace-nowrap cursor-pointer"
                 title="Tambah Pegawai Baru"
                 aria-label="Tambah Pegawai Baru">
             <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z"></path>
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z"></path>
             </svg>
-            <span class="hidden sm:inline">Tambah Pegawai Baru</span>
+            <span>Tambah Pegawai Baru</span>
         </button>
     </div>
 

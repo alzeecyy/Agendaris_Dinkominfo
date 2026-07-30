@@ -148,18 +148,7 @@ class="w-full flex flex-col gap-3.5 sm:gap-5 select-none">
             </div>
             <div class="space-y-1">
                 <h3 class="text-sm sm:text-base font-extrabold text-[#09103c]">Belum Ada Agenda Rapat Hari Ini</h3>
-                <p class="text-xs text-slate-500 max-w-md mx-auto">Belum ada agenda rapat atau kegiatan yang dijadwalkan untuk hari ini ({{ \Carbon\Carbon::today()->locale('id')->translatedFormat('l, d F Y') }}).</p>
-            </div>
-
-            @if(Auth::check() && (Auth::user()->isSekretarisMaster() || Auth::user()->isSekretarisBidang()))
-                <div class="pt-2">
-                    <a href="{{ route('calendar', ['open_add' => 1]) }}" 
-                       class="px-5 py-2.5 bg-[#1b3bbb] hover:bg-[#09103c] text-white text-xs font-bold rounded-xl shadow-md shadow-[#1b3bbb]/20 transition-all inline-flex items-center gap-2">
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
-                        <span>Tambah Agenda Baru</span>
-                    </a>
-                </div>
-            @endif
+                <p class="text-xs text-slate-500 max-w-none mx-auto">Belum ada agenda rapat atau kegiatan yang dijadwalkan untuk hari ini ({{ \Carbon\Carbon::today()->locale('id')->translatedFormat('l, d F Y') }}).</p>
         </div>
     @else
         <div class="space-y-4 sm:space-y-6 pt-2 sm:pt-4 pb-12 sm:pb-16">

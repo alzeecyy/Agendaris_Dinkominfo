@@ -9,19 +9,19 @@
     <div class="grid grid-cols-1 md:grid-cols-4 gap-6 items-stretch">
         
         <!-- Welcome Card -->
-        <div class="md:col-span-1 bg-[#2e2552] text-white rounded-[32px] p-6 flex flex-col justify-between shadow-sm relative overflow-hidden">
+        <div class="md:col-span-1 bg-gradient-to-br from-[#1b3bbb] via-[#102480] to-[#0b1554] text-white rounded-[32px] p-6 flex flex-col justify-between shadow-sm relative overflow-hidden">
             <!-- Decorative circle overlay -->
-            <div class="absolute -top-12 -right-12 w-28 h-28 bg-white/5 rounded-full"></div>
+            <div class="absolute -top-12 -right-12 w-28 h-28 bg-white/10 rounded-full"></div>
             
             <div class="space-y-2 z-10">
-                <span class="text-[10px] font-bold uppercase tracking-widest text-[#8e88dd]">Panel Admin</span>
-                <h3 class="text-xl font-black leading-tight">Kontrol Sistem &amp; Akun Pegawai</h3>
-                <p class="text-xs text-[#bda6ff] leading-relaxed">Kelola otentikasi, pembagian divisi/bidang, serta pemantauan data aktivitas SiRENA.</p>
+                <span class="text-[10px] font-bold uppercase tracking-widest text-blue-200">Panel Admin</span>
+                <h3 class="text-xl font-black leading-tight text-white">Kontrol Sistem &amp; Akun Pegawai</h3>
+                <p class="text-xs text-blue-100/90 leading-relaxed">Kelola otentikasi, pembagian divisi/bidang, serta pemantauan data aktivitas SiRENA.</p>
             </div>
             
             <div class="mt-6 z-10">
                 <a href="{{ route('admin.users.index') }}" 
-                   class="inline-flex items-center gap-1.5 px-4 py-2 bg-white text-[#2e2552] hover:bg-[#ebe9fe] text-xs font-bold rounded-xl shadow-sm transition-all duration-200">
+                   class="inline-flex items-center gap-1.5 px-4 py-2 bg-white text-[#1b3bbb] hover:bg-blue-50 text-xs font-bold rounded-xl shadow-sm transition-all duration-200">
                     <span>Kelola Pegawai</span>
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7-7 7"></path>

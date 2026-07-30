@@ -96,7 +96,24 @@
         .hover\:bg-\[\#8e88dd\]\/20:hover { background-color: rgba(27, 59, 187, 0.1) !important; }
         .hover\:border-\[\#8e88dd\]\/50:hover { border-color: rgba(27, 59, 187, 0.5) !important; }
         .hover\:bg-\[\#f8f7ff\]:hover { background-color: #f1f5f9 !important; }
-        .hover\:bg-\[\#3d326a\]:hover { background-color: #0d228c !important; }
+        .hover\:bg-\[\#3d326a\]:hover { background-image: linear-gradient(135deg, #0b1554 0%, #1b3bbb 100%) !important; }
+        .hover\:bg-\[\#152e96\]:hover { background-image: linear-gradient(135deg, #0b1554 0%, #1b3bbb 100%) !important; }
+        .hover\:bg-\[\#09103c\]:hover { background-image: linear-gradient(135deg, #0b1554 0%, #1b3bbb 100%) !important; }
+
+        /* Global Blue Buttons Gradient & Hover Style */
+        button.bg-\[\#1b3bbb\],
+        a.bg-\[\#1b3bbb\],
+        label.bg-\[\#1b3bbb\],
+        .btn-primary {
+            background-image: linear-gradient(135deg, #1b3bbb 0%, #0b1554 100%) !important;
+            transition: all 0.3s ease !important;
+        }
+        button.bg-\[\#1b3bbb\]:hover,
+        a.bg-\[\#1b3bbb\]:hover,
+        label.bg-\[\#1b3bbb\]:hover,
+        .btn-primary:hover {
+            background-image: linear-gradient(135deg, #0b1554 0%, #1b3bbb 100%) !important;
+        }
 
         /* Custom SweetAlert2 Premium Compact Responsive Styling */
         .swal2-popup {
@@ -352,54 +369,54 @@
              x-transition:enter-end="opacity-100 translate-y-0"
              class="md:hidden bg-white/95 backdrop-blur-md rounded-xl border border-slate-200/80 p-2.5 shadow-lg sticky top-12 z-40 space-y-1 text-[#09103c]">
             @if(Auth::check() && !Auth::user()->isAdmin())
-                <a href="{{ route('dashboard') }}" class="flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-bold {{ request()->routeIs('dashboard') ? 'bg-[#1b3bbb] text-white shadow-md' : 'text-slate-700 hover:bg-[#1b3bbb]/10' }}">
+                <a href="{{ route('dashboard') }}" class="flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-bold {{ request()->routeIs('dashboard') ? 'bg-gradient-to-r from-[#1b3bbb] to-[#0b1554] text-white shadow-md' : 'text-slate-700 hover:bg-[#1b3bbb]/10' }}">
                     <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"></path></svg>
                     <span>Dashboard Utama</span>
                 </a>
                 @if(Auth::user()->canViewAgendaToday())
-                    <a href="{{ route('agenda.today') }}" class="flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-bold {{ request()->routeIs('agenda.today') ? 'bg-[#1b3bbb] text-white shadow-md' : 'text-slate-700 hover:bg-[#1b3bbb]/10' }}">
+                    <a href="{{ route('agenda.today') }}" class="flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-bold {{ request()->routeIs('agenda.today') ? 'bg-gradient-to-r from-[#1b3bbb] to-[#0b1554] text-white shadow-md' : 'text-slate-700 hover:bg-[#1b3bbb]/10' }}">
                         <svg class="w-4 h-4 shrink-0 text-rose-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
                         <span>Agenda Hari Ini</span>
                     </a>
                 @endif
-                <a href="{{ route('calendar') }}" class="flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-bold {{ (request()->routeIs('calendar') && !request()->has('open_add')) || request()->routeIs('agenda.show') || (request()->routeIs('notulensi.*') && !request()->routeIs('notulensi.arsip')) ? 'bg-[#1b3bbb] text-white shadow-md' : 'text-slate-700 hover:bg-[#1b3bbb]/10' }}">
+                <a href="{{ route('calendar') }}" class="flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-bold {{ (request()->routeIs('calendar') && !request()->has('open_add')) || request()->routeIs('agenda.show') || (request()->routeIs('notulensi.*') && !request()->routeIs('notulensi.arsip')) ? 'bg-gradient-to-r from-[#1b3bbb] to-[#0b1554] text-white shadow-md' : 'text-slate-700 hover:bg-[#1b3bbb]/10' }}">
                     <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
                     <span>Kalender Rinci</span>
                 </a>
                 @if(Auth::user()->isSekretarisMaster() || Auth::user()->isSekretarisBidang())
-                    <a href="{{ route('calendar', ['open_add' => 1]) }}" class="flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-bold {{ request()->routeIs('calendar') && request()->has('open_add') ? 'bg-[#1b3bbb] text-white shadow-md' : 'text-slate-700 hover:bg-[#1b3bbb]/10' }}">
+                    <a href="{{ route('calendar', ['open_add' => 1]) }}" class="flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-bold {{ request()->routeIs('calendar') && request()->has('open_add') ? 'bg-gradient-to-r from-[#1b3bbb] to-[#0b1554] text-white shadow-md' : 'text-slate-700 hover:bg-[#1b3bbb]/10' }}">
                         <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
                         <span>Tambah Agenda</span>
                     </a>
                 @endif
                 @if(Auth::user()->isKetuaMaster() || Auth::user()->isSekretarisMaster())
-                    <a href="{{ route('notulensi.arsip') }}" class="flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-bold {{ request()->routeIs('notulensi.arsip') ? 'bg-[#1b3bbb] text-white shadow-md' : 'text-slate-700 hover:bg-[#1b3bbb]/10' }}">
+                    <a href="{{ route('notulensi.arsip') }}" class="flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-bold {{ request()->routeIs('notulensi.arsip') ? 'bg-gradient-to-r from-[#1b3bbb] to-[#0b1554] text-white shadow-md' : 'text-slate-700 hover:bg-[#1b3bbb]/10' }}">
                         <svg class="w-4 h-4 shrink-0 text-[#1b3bbb]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
                         <span>Arsip Notulensi Dinas</span>
                     </a>
                 @endif
-                <a href="{{ route('riwayat') }}" class="flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-bold {{ request()->routeIs('riwayat') ? 'bg-[#1b3bbb] text-white shadow-md' : 'text-slate-700 hover:bg-[#1b3bbb]/10' }}">
+                <a href="{{ route('riwayat') }}" class="flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-bold {{ request()->routeIs('riwayat') ? 'bg-gradient-to-r from-[#1b3bbb] to-[#0b1554] text-white shadow-md' : 'text-slate-700 hover:bg-[#1b3bbb]/10' }}">
                     <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
                     <span>Riwayat Kegiatan</span>
                 </a>
-                <a href="{{ route('profile') }}" class="flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-bold {{ request()->routeIs('profile') ? 'bg-[#1b3bbb] text-white shadow-md' : 'text-slate-700 hover:bg-[#1b3bbb]/10' }}">
+                <a href="{{ route('profile') }}" class="flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-bold {{ request()->routeIs('profile') ? 'bg-gradient-to-r from-[#1b3bbb] to-[#0b1554] text-white shadow-md' : 'text-slate-700 hover:bg-[#1b3bbb]/10' }}">
                     <svg class="w-4 h-4 shrink-0 text-[#8e88dd]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path></svg>
                     <span>Kelola Profil</span>
                 </a>
             @elseif(Auth::check() && Auth::user()->isAdmin())
-                <a href="{{ route('dashboard') }}" class="flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-bold {{ request()->routeIs('dashboard') ? 'bg-[#1b3bbb] text-white shadow-md' : 'text-slate-700 hover:bg-[#1b3bbb]/10' }}">
+                <a href="{{ route('dashboard') }}" class="flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-bold {{ request()->routeIs('dashboard') ? 'bg-gradient-to-r from-[#1b3bbb] to-[#0b1554] text-white shadow-md' : 'text-slate-700 hover:bg-[#1b3bbb]/10' }}">
                     <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"></path></svg>
                     <span>Dashboard Admin</span>
                 </a>
-                <a href="{{ route('admin.users.index') }}" class="flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-bold {{ request()->routeIs('admin.users.index') ? 'bg-[#1b3bbb] text-white shadow-md' : 'text-slate-700 hover:bg-[#1b3bbb]/10' }}">
+                <a href="{{ route('admin.users.index') }}" class="flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-bold {{ request()->routeIs('admin.users.index') ? 'bg-gradient-to-r from-[#1b3bbb] to-[#0b1554] text-white shadow-md' : 'text-slate-700 hover:bg-[#1b3bbb]/10' }}">
                     <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"></path></svg>
                     <span>Kelola Pegawai</span>
                 </a>
-                <a href="{{ route('admin.bidang.index') }}" class="flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-bold {{ request()->routeIs('admin.bidang.index') ? 'bg-[#1b3bbb] text-white shadow-md' : 'text-slate-700 hover:bg-[#1b3bbb]/10' }}">
+                <a href="{{ route('admin.bidang.index') }}" class="flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-bold {{ request()->routeIs('admin.bidang.index') ? 'bg-gradient-to-r from-[#1b3bbb] to-[#0b1554] text-white shadow-md' : 'text-slate-700 hover:bg-[#1b3bbb]/10' }}">
                     <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path></svg>
                     <span>Kelola Bidang</span>
                 </a>
-                <a href="{{ route('password.change') }}" class="flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-bold {{ request()->routeIs('password.change') ? 'bg-[#1b3bbb] text-white shadow-md' : 'text-slate-700 hover:bg-[#1b3bbb]/10' }}">
+                <a href="{{ route('password.change') }}" class="flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-bold {{ request()->routeIs('password.change') ? 'bg-gradient-to-r from-[#1b3bbb] to-[#0b1554] text-white shadow-md' : 'text-slate-700 hover:bg-[#1b3bbb]/10' }}">
                     <svg class="w-4 h-4 shrink-0 text-[#8e88dd]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path></svg>
                     <span>Ubah Kata Sandi</span>
                 </a>
@@ -429,8 +446,8 @@
                     @if(Auth::check() && !Auth::user()->isAdmin())
                         <!-- Dashboard Link -->
                         <a href="{{ route('dashboard') }}" 
-                           class="flex items-center gap-3 px-4 py-3 rounded-2xl font-bold text-xs transition-all duration-200 
-                           {{ request()->routeIs('dashboard') ? 'bg-[#1b3bbb] text-white shadow-lg shadow-[#1b3bbb]/20' : 'text-slate-600 hover:bg-[#1b3bbb]/5 hover:text-[#1b3bbb]' }}">
+                           class="flex items-center gap-3 px-4 py-3 rounded-2xl font-bold text-xs transition-all duration-300 
+                           {{ request()->routeIs('dashboard') ? 'bg-gradient-to-r from-[#1b3bbb] to-[#0b1554] hover:from-[#0b1554] hover:to-[#1b3bbb] text-white shadow-lg shadow-[#1b3bbb]/20' : 'text-slate-600 hover:bg-[#1b3bbb]/5 hover:text-[#1b3bbb]' }}">
                             <svg class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"></path>
                             </svg>
@@ -440,8 +457,8 @@
                         @if(Auth::user()->canViewAgendaToday())
                             <!-- Today's Agendas Link -->
                             <a href="{{ route('agenda.today') }}" 
-                               class="flex items-center gap-3 px-4 py-3 rounded-2xl font-bold text-xs transition-all duration-200 
-                               {{ request()->routeIs('agenda.today') ? 'bg-[#1b3bbb] text-white shadow-lg shadow-[#1b3bbb]/20' : 'text-slate-600 hover:bg-[#1b3bbb]/5 hover:text-[#1b3bbb]' }}">
+                               class="flex items-center gap-3 px-4 py-3 rounded-2xl font-bold text-xs transition-all duration-300 
+                               {{ request()->routeIs('agenda.today') ? 'bg-gradient-to-r from-[#1b3bbb] to-[#0b1554] hover:from-[#0b1554] hover:to-[#1b3bbb] text-white shadow-lg shadow-[#1b3bbb]/20' : 'text-slate-600 hover:bg-[#1b3bbb]/5 hover:text-[#1b3bbb]' }}">
                                 <svg class="w-5 h-5 shrink-0 text-rose-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
                                 </svg>
@@ -451,8 +468,8 @@
 
                         <!-- Calendar Link -->
                         <a href="{{ route('calendar') }}" 
-                           class="flex items-center gap-3 px-4 py-3 rounded-2xl font-bold text-xs transition-all duration-200 
-                           {{ (request()->routeIs('calendar') && !request()->has('open_add')) || request()->routeIs('agenda.show') || (request()->routeIs('notulensi.*') && !request()->routeIs('notulensi.arsip')) ? 'bg-[#1b3bbb] text-white shadow-lg shadow-[#1b3bbb]/20' : 'text-slate-600 hover:bg-[#1b3bbb]/5 hover:text-[#1b3bbb]' }}">
+                           class="flex items-center gap-3 px-4 py-3 rounded-2xl font-bold text-xs transition-all duration-300 
+                           {{ (request()->routeIs('calendar') && !request()->has('open_add')) || request()->routeIs('agenda.show') || (request()->routeIs('notulensi.*') && !request()->routeIs('notulensi.arsip')) ? 'bg-gradient-to-r from-[#1b3bbb] to-[#0b1554] hover:from-[#0b1554] hover:to-[#1b3bbb] text-white shadow-lg shadow-[#1b3bbb]/20' : 'text-slate-600 hover:bg-[#1b3bbb]/5 hover:text-[#1b3bbb]' }}">
                             <svg class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
                             </svg>
@@ -462,8 +479,8 @@
                         @if(Auth::user()->isSekretarisMaster() || Auth::user()->isSekretarisBidang())
                             <!-- Tambah Agenda Link (Sekretaris Only - Shortcut to Open Add Agenda Modal) -->
                             <a href="{{ route('calendar', ['open_add' => 1]) }}" 
-                               class="flex items-center gap-3 px-4 py-3 rounded-2xl font-bold text-xs transition-all duration-200 
-                               {{ request()->routeIs('calendar') && request()->has('open_add') ? 'bg-[#1b3bbb] text-white shadow-lg shadow-[#1b3bbb]/20' : 'text-slate-600 hover:bg-[#1b3bbb]/5 hover:text-[#1b3bbb]' }}">
+                               class="flex items-center gap-3 px-4 py-3 rounded-2xl font-bold text-xs transition-all duration-300 
+                               {{ request()->routeIs('calendar') && request()->has('open_add') ? 'bg-gradient-to-r from-[#1b3bbb] to-[#0b1554] hover:from-[#0b1554] hover:to-[#1b3bbb] text-white shadow-lg shadow-[#1b3bbb]/20' : 'text-slate-600 hover:bg-[#1b3bbb]/5 hover:text-[#1b3bbb]' }}">
                                 <svg class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
                                 </svg>
@@ -474,8 +491,8 @@
                         @if(Auth::user()->isKetuaMaster() || Auth::user()->isSekretarisMaster())
                             <!-- Arsip Notulensi Dinas Link (Only for Kadis & Sekdin) -->
                             <a href="{{ route('notulensi.arsip') }}" 
-                               class="flex items-center gap-3 px-4 py-3 rounded-2xl font-bold text-xs transition-all duration-200 
-                               {{ request()->routeIs('notulensi.arsip') ? 'bg-[#1b3bbb] text-white shadow-lg shadow-[#1b3bbb]/20' : 'text-slate-600 hover:bg-[#1b3bbb]/5 hover:text-[#1b3bbb]' }}">
+                               class="flex items-center gap-3 px-4 py-3 rounded-2xl font-bold text-xs transition-all duration-300 
+                               {{ request()->routeIs('notulensi.arsip') ? 'bg-gradient-to-r from-[#1b3bbb] to-[#0b1554] hover:from-[#0b1554] hover:to-[#1b3bbb] text-white shadow-lg shadow-[#1b3bbb]/20' : 'text-slate-600 hover:bg-[#1b3bbb]/5 hover:text-[#1b3bbb]' }}">
                                 <svg class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
                                 </svg>
@@ -485,8 +502,8 @@
 
                         <!-- Riwayat Link -->
                         <a href="{{ route('riwayat') }}" 
-                           class="flex items-center gap-3 px-4 py-3 rounded-2xl font-bold text-xs transition-all duration-200 
-                           {{ request()->routeIs('riwayat') ? 'bg-[#1b3bbb] text-white shadow-lg shadow-[#1b3bbb]/20' : 'text-slate-600 hover:bg-[#1b3bbb]/5 hover:text-[#1b3bbb]' }}">
+                           class="flex items-center gap-3 px-4 py-3 rounded-2xl font-bold text-xs transition-all duration-300 
+                           {{ request()->routeIs('riwayat') ? 'bg-gradient-to-r from-[#1b3bbb] to-[#0b1554] hover:from-[#0b1554] hover:to-[#1b3bbb] text-white shadow-lg shadow-[#1b3bbb]/20' : 'text-slate-600 hover:bg-[#1b3bbb]/5 hover:text-[#1b3bbb]' }}">
                             <svg class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"></path>
                             </svg>
@@ -495,8 +512,8 @@
 
                         <!-- Profil Link -->
                         <a href="{{ route('profile') }}" 
-                           class="flex items-center gap-3 px-4 py-3 rounded-2xl font-bold text-xs transition-all duration-200 
-                           {{ request()->routeIs('profile') ? 'bg-[#1b3bbb] text-white shadow-lg shadow-[#1b3bbb]/20' : 'text-slate-600 hover:bg-[#1b3bbb]/5 hover:text-[#1b3bbb]' }}">
+                           class="flex items-center gap-3 px-4 py-3 rounded-2xl font-bold text-xs transition-all duration-300 
+                           {{ request()->routeIs('profile') ? 'bg-gradient-to-r from-[#1b3bbb] to-[#0b1554] hover:from-[#0b1554] hover:to-[#1b3bbb] text-white shadow-lg shadow-[#1b3bbb]/20' : 'text-slate-600 hover:bg-[#1b3bbb]/5 hover:text-[#1b3bbb]' }}">
                             <svg class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
                             </svg>
@@ -508,8 +525,8 @@
                     @if(Auth::check() && Auth::user()->isAdmin())
                         <!-- Dashboard Admin Link -->
                         <a href="{{ route('dashboard') }}" 
-                           class="flex items-center gap-3 px-4 py-3 rounded-2xl font-bold text-xs transition-all duration-200 
-                           {{ request()->routeIs('dashboard') ? 'bg-[#1b3bbb] text-white shadow-lg shadow-[#1b3bbb]/20' : 'text-slate-600 hover:bg-[#1b3bbb]/5 hover:text-[#1b3bbb]' }}">
+                           class="flex items-center gap-3 px-4 py-3 rounded-2xl font-bold text-xs transition-all duration-300 
+                           {{ request()->routeIs('dashboard') ? 'bg-gradient-to-r from-[#1b3bbb] to-[#0b1554] hover:from-[#0b1554] hover:to-[#1b3bbb] text-white shadow-lg shadow-[#1b3bbb]/20' : 'text-slate-600 hover:bg-[#1b3bbb]/5 hover:text-[#1b3bbb]' }}">
                             <svg class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"></path>
                             </svg>
@@ -518,8 +535,8 @@
 
                         <!-- Users CRUD -->
                         <a href="{{ route('admin.users.index') }}" 
-                           class="flex items-center gap-3 px-4 py-3 rounded-2xl font-bold text-xs transition-all duration-200 
-                           {{ request()->routeIs('admin.users.index') ? 'bg-[#1b3bbb] text-white shadow-lg shadow-[#1b3bbb]/20' : 'text-slate-600 hover:bg-[#1b3bbb]/5 hover:text-[#1b3bbb]' }}">
+                           class="flex items-center gap-3 px-4 py-3 rounded-2xl font-bold text-xs transition-all duration-300 
+                           {{ request()->routeIs('admin.users.index') ? 'bg-gradient-to-r from-[#1b3bbb] to-[#0b1554] hover:from-[#0b1554] hover:to-[#1b3bbb] text-white shadow-lg shadow-[#1b3bbb]/20' : 'text-slate-600 hover:bg-[#1b3bbb]/5 hover:text-[#1b3bbb]' }}">
                             <svg class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"></path>
                             </svg>
@@ -528,8 +545,8 @@
 
                         <!-- Bidang CRUD -->
                         <a href="{{ route('admin.bidang.index') }}" 
-                           class="flex items-center gap-3 px-4 py-3 rounded-2xl font-bold text-xs transition-all duration-200 
-                           {{ request()->routeIs('admin.bidang.index') ? 'bg-[#1b3bbb] text-white shadow-lg shadow-[#1b3bbb]/20' : 'text-slate-600 hover:bg-[#1b3bbb]/5 hover:text-[#1b3bbb]' }}">
+                           class="flex items-center gap-3 px-4 py-3 rounded-2xl font-bold text-xs transition-all duration-300 
+                           {{ request()->routeIs('admin.bidang.index') ? 'bg-gradient-to-r from-[#1b3bbb] to-[#0b1554] hover:from-[#0b1554] hover:to-[#1b3bbb] text-white shadow-lg shadow-[#1b3bbb]/20' : 'text-slate-600 hover:bg-[#1b3bbb]/5 hover:text-[#1b3bbb]' }}">
                             <svg class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path>
                             </svg>
