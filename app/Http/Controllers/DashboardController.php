@@ -304,7 +304,7 @@ class DashboardController extends Controller
             }
 
         } elseif ($user->role === 'ketua_master') {
-            // Kepala Dinas (ketua_master): Approves notulensi for agendas created by Sekdin (sekretaris_master)
+            // Kepala Dinas (ketua_master): Monitoring Read Only role
             $startOfMonth = Carbon::today()->startOfMonth();
             $endOfMonth = Carbon::today()->endOfMonth();
             $kpi['master_month_agendas'] = Agenda::whereBetween('tanggal', [$startOfMonth->toDateString(), $endOfMonth->toDateString()])->count();
@@ -313,32 +313,11 @@ class DashboardController extends Controller
             $endOfWeek = Carbon::today()->endOfWeek(Carbon::SUNDAY);
             $kpi['ketua_week_agendas'] = Agenda::whereBetween('tanggal', [$startOfWeek->toDateString(), $endOfWeek->toDateString()])->count();
 
+            $kpi['approved_notulensi_count'] = Notulensi::where('status', 'disahkan')->count();
+
             $links['master_month_agendas'] = route('calendar');
             $links['ketua_week_agendas'] = route('calendar');
-
-            // Pending notulensi reviews for Kadin (agendas created by Sekdin)
-            $pendingReviews = Notulensi::where('status', 'menunggu_review')
-                ->with('agenda.sekretaris')
-                ->get()
-                ->filter(function($notulensi) use ($user) {
-                    return $notulensi->agenda && $user->isApproverOfAgenda($notulensi->agenda);
-                });
-
-            $kpi['kadin_pending_reviews'] = $pendingReviews->count();
-            $firstPending = $pendingReviews->first();
-            $links['kadin_pending_reviews'] = ($pendingReviews->count() === 1 && $firstPending) 
-                ? route('notulensi.review', $firstPending->agenda_id) 
-                : route('riwayat', ['notulensi_status' => 'menunggu_review']);
-
-            foreach ($pendingReviews as $notulensi) {
-                $highlights[] = [
-                    'type' => 'review',
-                    'agenda_id' => $notulensi->agenda_id,
-                    'text' => "Notulensi rapat '{$notulensi->agenda->judul}' (Sekretaris Dinas) menunggu keputusan persetujuan Anda.",
-                    'action_text' => 'Tinjau & Sahkan',
-                    'url' => route('notulensi.review', $notulensi->agenda_id),
-                ];
-            }
+            $links['approved_notulensi_count'] = route('riwayat', ['notulensi_status' => 'disahkan']);
 
             // Highlights for Kadin: Only agendas where Kadin is explicitly invited today or Lintas Dinas
             $todayAgendas = Agenda::where('tanggal', Carbon::today()->toDateString())

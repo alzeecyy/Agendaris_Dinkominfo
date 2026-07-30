@@ -79,8 +79,8 @@ Route::middleware(['auth'])->group(function () {
     // Notulensi Review (Accessible by Ketua and Secretary for preview)
     Route::get('/agenda/{agenda}/notulensi/review', [NotulensiController::class, 'review'])->name('notulensi.review');
 
-    // Roles: Pimpinan (Ketua Master, Ketua Bidang, Sekretaris Master / Sekdin)
-    Route::middleware(['role:ketua_master,ketua_bidang,sekretaris_master'])->group(function () {
+    // Roles: Pimpinan Approval (Ketua Bidang, Sekretaris Master / Sekdin)
+    Route::middleware(['role:ketua_bidang,sekretaris_master'])->group(function () {
         // Notulensi Review Actions
         Route::post('/agenda/{agenda}/notulensi/review/approve', [NotulensiController::class, 'approve'])->name('notulensi.review.approve');
         Route::post('/agenda/{agenda}/notulensi/review/revision', [NotulensiController::class, 'requestRevision'])->name('notulensi.review.revision');

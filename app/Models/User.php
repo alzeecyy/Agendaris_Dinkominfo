@@ -297,9 +297,9 @@ class User extends Authenticatable
     /**
      * Checks if this user has authority to APPROVE and SIGN (TTD) an agenda's notulensi.
      * Rules:
-     * 1. KADIN (ketua_master): Can ONLY approve & sign agendas created by SEKDIN (sekretaris_master).
-     * 2. SEKDIN (sekretaris_master): Can approve & sign agendas created in Sekretariat scope or Subbag under Sekretariat.
-     * 3. Kasubag / Kabid (ketua_bidang): Can approve agendas created by their own Bidang / Subbag.
+     * 1. KADIN (ketua_master): READ ONLY monitoring role. NEVER approves notulensi.
+     * 2. SEKDIN (sekretaris_master): Approves notulensi created in Sekretariat scope or Subbag under Sekretariat.
+     * 3. Kasubag / Kabid (ketua_bidang): Approves agendas created by their own Bidang / Subbag.
      */
     public function isApproverOfAgenda(Agenda $agenda): bool
     {

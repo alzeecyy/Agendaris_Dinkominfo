@@ -354,8 +354,8 @@ class NotulensiController extends Controller
     {
         $user = Auth::user();
 
-        if (!$user->isApproverOfAgenda($agenda)) {
-            return back()->with('error', 'Akses ditolak.');
+        if ($user->isKetuaMaster() || !$user->isApproverOfAgenda($agenda)) {
+            return back()->with('error', 'Akses ditolak. Kepala Dinas tidak memiliki wewenang approval.');
         }
 
         $request->validate([
@@ -385,8 +385,8 @@ class NotulensiController extends Controller
     {
         $user = Auth::user();
 
-        if (!$user->isApproverOfAgenda($agenda)) {
-            return back()->with('error', 'Akses ditolak.');
+        if ($user->isKetuaMaster() || !$user->isApproverOfAgenda($agenda)) {
+            return back()->with('error', 'Akses ditolak. Kepala Dinas tidak memiliki wewenang approval.');
         }
 
         $validated = $request->validate([
