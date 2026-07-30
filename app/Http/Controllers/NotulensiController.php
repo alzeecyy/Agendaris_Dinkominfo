@@ -411,7 +411,8 @@ class NotulensiController extends Controller
         }
 
         return redirect()->route('agenda.show', $agenda->id)
-            ->with('warning', 'Notulensi dikembalikan ke sekretaris untuk direvisi.');
+            ->with('warning', 'Notulensi dikembalikan ke sekretaris untuk direvisi.')
+            ->with('warning_title', 'Notulensi Dikembalikan');
     }
 
     /**
@@ -894,7 +895,9 @@ class NotulensiController extends Controller
     {
         $user = Auth::user();
         if ($user->isAdmin() || (!$user->isKetuaMaster() && !$user->isSekretarisMaster())) {
-            return redirect()->route('dashboard')->with('warning', 'Akses ditolak. Halaman Arsip Notulensi Dinas hanya dapat diakses oleh Kepala Dinas dan Sekretaris Dinas.');
+            return redirect()->route('dashboard')
+                ->with('warning', 'Akses ditolak. Halaman Arsip Notulensi Dinas hanya dapat diakses oleh Kepala Dinas dan Sekretaris Dinas.')
+                ->with('warning_title', 'Akses Ditolak');
         }
 
         $selectedBidangId = $request->query('bidang_id', 'semua');

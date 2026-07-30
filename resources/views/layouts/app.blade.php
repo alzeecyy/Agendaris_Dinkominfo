@@ -642,7 +642,7 @@
                                 function fireWarningSwal() {
                                     if (typeof Swal !== 'undefined') {
                                         Swal.fire({
-                                            title: 'Akses Ditolak',
+                                            title: @json(session('warning_title', 'Perhatian')),
                                             text: "{{ session('warning') }}",
                                             icon: 'warning',
                                             confirmButtonText: 'Mengerti',

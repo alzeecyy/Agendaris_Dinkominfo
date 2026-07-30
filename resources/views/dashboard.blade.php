@@ -5,14 +5,15 @@
 @section('content')
 <div class="space-y-2.5 sm:space-y-6 pb-12 sm:pb-16">
 
+    @php
+        $hasOneKpiCard = Auth::user()->isKetuaMaster();
+        $hasThreeKpiCards = Auth::user()->role === 'sekretaris_bidang';
+    @endphp
     <!-- KPI Summary Grid (Greeting & Cards) -->
-    <div class="grid grid-cols-2 md:grid-cols-3 gap-2 sm:gap-6 items-stretch">
+    <div class="grid grid-cols-2 {{ $hasThreeKpiCards ? 'lg:grid-cols-4' : 'md:grid-cols-3' }} gap-2 sm:gap-6 items-stretch">
         
-        @php
-            $hasOneKpiCard = Auth::user()->isKetuaMaster();
-        @endphp
         <!-- Welcome Card -->
-        <div class="col-span-2 {{ $hasOneKpiCard ? 'md:col-span-2' : 'md:col-span-1' }} bg-gradient-to-br from-[#1b3bbb] via-[#102480] to-[#0b1554] text-white rounded-xl md:rounded-[32px] p-3 sm:p-6 flex flex-col justify-between shadow-sm relative overflow-hidden">
+        <div class="col-span-2 {{ $hasOneKpiCard ? 'md:col-span-2' : 'lg:col-span-1' }} bg-gradient-to-br from-[#1b3bbb] via-[#102480] to-[#0b1554] text-white rounded-xl md:rounded-[32px] p-3 sm:p-6 flex flex-col justify-between shadow-sm relative overflow-hidden">
             <!-- Decorative circle overlay -->
             <div class="absolute -top-12 -right-12 w-28 h-28 bg-white/10 rounded-full"></div>
             
@@ -148,6 +149,48 @@
                     <div class="mt-2.5 sm:mt-4">
                         <h2 class="text-2xl sm:text-3xl md:text-4xl font-black text-amber-600 group-hover:scale-105 origin-left transition-transform duration-200">0</h2>
                         <p class="text-[10px] sm:text-xs text-[#5a508f] mt-0.5 sm:mt-1 font-medium">Belum ada draf pending &rarr;</p>
+                    </div>
+                </button>
+            @endif
+
+            <!-- Card 3: Need Revision -->
+            @php
+                $bidangRevisedCount = $kpi['bidang_revised_notulensi'] ?? 0;
+            @endphp
+            @if($bidangRevisedCount > 0)
+                <a href="{{ $links['bidang_revised_notulensi'] ?? route('riwayat') }}" class="kpi-card bg-white border border-[#d4d1f5]/60 hover:border-rose-400 rounded-2xl md:rounded-[32px] p-3.5 sm:p-5 md:p-6 flex flex-col justify-between shadow-sm hover:shadow-md hover:scale-[1.01] active:scale-[0.99] transition-all duration-200 group cursor-pointer">
+                    <div class="flex items-center justify-between">
+                        <span class="text-[10px] sm:text-xs font-bold text-[#5a508f] group-hover:text-rose-600 transition-colors uppercase">Notulensi Perlu Revisi</span>
+                        <div class="kpi-icon kpi-icon-rose p-1.5 sm:p-2 bg-rose-50 text-rose-500 rounded-xl sm:rounded-2xl group-hover:!bg-[#f43f5e] group-hover:!text-white transition-all duration-200 shrink-0">
+                            <svg class="w-4 h-4 sm:w-5 sm:h-5 md:w-6 md:h-6 text-rose-500 group-hover:!text-white transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
+                            </svg>
+                        </div>
+                    </div>
+                    <div class="mt-2.5 sm:mt-4">
+                        <h2 class="text-2xl sm:text-3xl md:text-4xl font-black text-rose-600 group-hover:scale-105 origin-left transition-transform duration-200">{{ $bidangRevisedCount }}</h2>
+                        <p class="text-[10px] sm:text-xs text-[#5a508f] mt-0.5 sm:mt-1 font-medium">Perbaiki &amp; ajukan ulang &rarr;</p>
+                    </div>
+                </a>
+            @else
+                <button type="button" onclick="Swal.fire({
+                    title: 'Tidak Ada Catatan Revisi',
+                    text: 'Saat ini tidak ada notulensi rapat yang dikembalikan pimpinan untuk direvisi.',
+                    icon: 'success',
+                    confirmButtonColor: '#1b3bbb',
+                    confirmButtonText: 'Selesai'
+                })" class="text-left kpi-card bg-white border border-[#d4d1f5]/60 hover:border-rose-400 rounded-2xl md:rounded-[32px] p-3.5 sm:p-5 md:p-6 flex flex-col justify-between shadow-sm hover:shadow-md hover:scale-[1.01] active:scale-[0.99] transition-all duration-200 group cursor-pointer w-full">
+                    <div class="flex items-center justify-between">
+                        <span class="text-[10px] sm:text-xs font-bold text-[#5a508f] group-hover:text-rose-600 transition-colors uppercase">Notulensi Perlu Revisi</span>
+                        <div class="kpi-icon kpi-icon-rose p-1.5 sm:p-2 bg-rose-50 text-rose-500 rounded-xl sm:rounded-2xl group-hover:!bg-[#f43f5e] group-hover:!text-white transition-all duration-200 shrink-0">
+                            <svg class="w-4 h-4 sm:w-5 sm:h-5 md:w-6 md:h-6 text-rose-500 group-hover:!text-white transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
+                            </svg>
+                        </div>
+                    </div>
+                    <div class="mt-2.5 sm:mt-4">
+                        <h2 class="text-2xl sm:text-3xl md:text-4xl font-black text-rose-600 group-hover:scale-105 origin-left transition-transform duration-200">0</h2>
+                        <p class="text-[10px] sm:text-xs text-[#5a508f] mt-0.5 sm:mt-1 font-medium">Tidak ada catatan revisi &rarr;</p>
                     </div>
                 </button>
             @endif
@@ -489,16 +532,16 @@
                 
                 <div class="space-y-2 max-h-[220px] overflow-y-auto pr-1 flex-1">
                     @forelse($highlights as $hl)
-                        <div class="p-2 bg-[#f8f7ff] border border-amber-300/30 rounded-xl flex flex-col gap-1">
+                        <div class="p-2.5 {{ ($hl['type'] ?? '') === 'revision' ? 'bg-rose-50/90 border-rose-300' : 'bg-[#f8f7ff] border-amber-300/30' }} border rounded-xl flex flex-col gap-1.5 shadow-2xs">
                             <div class="flex items-start gap-1.5">
-                                <svg class="w-3.5 h-3.5 text-amber-500 shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <svg class="w-3.5 h-3.5 {{ ($hl['type'] ?? '') === 'revision' ? 'text-rose-600' : 'text-amber-500' }} shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path>
                                 </svg>
-                                <p class="text-[9px] text-[#5a508f] leading-snug font-semibold">{{ $hl['text'] }}</p>
+                                <p class="text-[9.5px] {{ ($hl['type'] ?? '') === 'revision' ? 'text-rose-950 font-bold' : 'text-[#5a508f] font-semibold' }} leading-snug">{{ $hl['text'] }}</p>
                             </div>
                             @if(isset($hl['url']))
                                 <a href="{{ $hl['url'] }}" 
-                                   class="self-end px-2 py-0.5 bg-[#2e2552] hover:bg-[#3d326a] text-white text-[8px] font-bold rounded-md transition-colors">
+                                   class="self-end px-2.5 py-1 {{ ($hl['type'] ?? '') === 'revision' ? 'bg-rose-600 hover:bg-rose-700' : 'bg-[#2e2552] hover:bg-[#3d326a]' }} text-white text-[8.5px] font-bold rounded-lg transition-all shadow-xs">
                                     {{ $hl['action_text'] }}
                                 </a>
                             @endif

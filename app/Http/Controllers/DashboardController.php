@@ -194,6 +194,36 @@ class DashboardController extends Controller
                 ? route('notulensi.review', $firstPending->agenda_id) 
                 : route('riwayat', ['notulensi_status' => 'menunggu_review']);
 
+            // Sekre Bidang KPI 3: Notulensi returned for revision by Pimpinan
+            $revisedNotulensiQuery = Notulensi::where('status', 'draft')
+                ->whereNotNull('catatan_revisi')
+                ->where('catatan_revisi', '!=', '')
+                ->whereHas('agenda', function($q) use ($user) {
+                    $q->where('sekretaris_id', $user->id)
+                      ->orWhereHas('sekretaris', function($sq) use ($user) {
+                          $sq->where('bidang_id', $user->bidang_id);
+                      });
+                });
+
+            $revisedNotulensis = $revisedNotulensiQuery->with('agenda')->get();
+            $kpi['bidang_revised_notulensi'] = $revisedNotulensis->count();
+            $firstRevised = $revisedNotulensis->first();
+            $links['bidang_revised_notulensi'] = ($revisedNotulensis->count() === 1 && $firstRevised) 
+                ? route('notulensi.edit', $firstRevised->agenda_id) 
+                : route('riwayat', ['notulensi_status' => 'draft']);
+
+            foreach ($revisedNotulensis as $rev) {
+                if ($rev->agenda) {
+                    $highlights[] = [
+                        'type' => 'revision',
+                        'agenda_id' => $rev->agenda_id,
+                        'text' => "Notulensi '{$rev->agenda->judul}' dikembalikan pimpinan untuk direvisi: \"{$rev->catatan_revisi}\"",
+                        'action_text' => 'Perbaiki Notulensi',
+                        'url' => route('notulensi.edit', $rev->agenda_id),
+                    ];
+                }
+            }
+
             // Sekre Bidang Highlights: Overdue pending reviews (> 3 days)
             $overdueReviews = $pendingReviews->filter(function($notulensi) {
                 return $notulensi->created_at <= Carbon::now()->subDays(3);
