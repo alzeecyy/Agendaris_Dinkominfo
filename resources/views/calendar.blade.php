@@ -687,10 +687,7 @@
 
                     isMandatoryUser(user) {
                         if (!user) return false;
-                        let uId = String(user.id);
-                        let isCreator = (uId === String(this.currentUserId));
-                        let isKetua = this.isKetuaUser(user);
-                        return isCreator || isKetua;
+                        return this.isKetuaUser(user);
                     },
 
                     toggleUserParticipant(user) {
@@ -1352,7 +1349,6 @@
                                                            :value="user.id" 
                                                            x-model="selectedParticipants" 
                                                            :disabled="isMandatoryUser(user)"
-                                                           @change="toggleUserParticipant(user)" 
                                                            class="w-4 h-4 rounded border-slate-300 mt-0.5 shrink-0"
                                                            :class="isAdminUser(user) ? 'text-amber-600 focus:ring-amber-500' : (isKetuaUser(user) ? 'text-purple-600 focus:ring-purple-500' : 'text-[#1b3bbb] focus:ring-[#1b3bbb]')"
                                                            :class="isMandatoryUser(user) ? 'opacity-80 cursor-not-allowed' : ''">
@@ -1396,23 +1392,22 @@
                     </div>
                 <!-- Presensi Toggle & Action Footer -->
                 <div class="flex items-center justify-between gap-2 border-t border-[#d4d1f5]/60 pt-3 shrink-0">
-                    <div class="flex items-center justify-between p-2 px-3 bg-gradient-to-r from-[#f8f7ff] to-[#f3f2fe] border border-[#d4d1f5] rounded-xl flex-1 min-w-0">
+                    <label for="butuh_presensi" class="flex items-center justify-between p-2 px-3 bg-gradient-to-r from-[#f8f7ff] to-[#f3f2fe] border border-[#d4d1f5] rounded-xl flex-1 min-w-0 cursor-pointer select-none" x-data="{ checked: true }">
                         <div class="flex items-center gap-1.5 min-w-0">
                             <svg class="w-3.5 h-3.5 text-[#1b3bbb] shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
                             </svg>
-                            <label for="butuh_presensi" class="text-[11px] sm:text-xs font-bold text-[#2e2552] cursor-pointer whitespace-nowrap truncate">Memerlukan Presensi Digital?</label>
+                            <span class="text-[11px] sm:text-xs font-bold text-[#2e2552] whitespace-nowrap truncate">Memerlukan Presensi Digital?</span>
                         </div>
-                        <label class="relative inline-flex items-center cursor-pointer select-none ml-1.5 shrink-0" x-data="{ checked: true }">
-                            <input type="checkbox" name="butuh_presensi" id="butuh_presensi" :checked="checked" value="1" class="sr-only">
-                            <div @click="checked = !checked" 
-                                 :style="checked ? 'background-color: #1b3bbb !important;' : 'background-color: #cbd5e1 !important;'"
-                                 class="w-9 h-5 rounded-full p-0.5 transition-all duration-200 relative flex items-center cursor-pointer shadow-inner shrink-0">
+                        <div class="relative inline-flex items-center ml-1.5 shrink-0">
+                            <input type="checkbox" name="butuh_presensi" id="butuh_presensi" x-model="checked" value="1" class="sr-only">
+                            <div :style="checked ? 'background-color: #1b3bbb !important;' : 'background-color: #cbd5e1 !important;'"
+                                 class="w-9 h-5 rounded-full p-0.5 transition-all duration-200 relative flex items-center shadow-inner shrink-0">
                                 <div :style="checked ? 'transform: translateX(16px) !important; background-color: #ffffff !important;' : 'transform: translateX(0px) !important; background-color: #ffffff !important;'"
                                      class="w-4 h-4 rounded-full shadow-md transition-transform duration-200 border border-slate-200"></div>
                             </div>
-                        </label>
-                    </div>
+                        </div>
+                    </label>
 
                     <div class="flex items-center justify-end gap-1.5 shrink-0">
                         <button type="button" @click="openAddModal = false"

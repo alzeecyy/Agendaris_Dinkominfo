@@ -567,13 +567,7 @@ class AgendaController extends Controller
             }
         }
 
-        // Enforce mandatory creator (Notulis)
-        $creatorId = $agenda->sekretaris_id ?: Auth::id();
-        if ($creatorId && !in_array($creatorId, $targetUserIds)) {
-            $targetUserIds[] = $creatorId;
-        }
-
-        // Validate exactly 1 Admin per invited bidang/subbag
+        // Validate at least 1 Admin per invited bidang/subbag
         if (!in_array('semua_orang', $newHakAkses)) {
             $invitedNumericBidangs = array_values(array_filter($newHakAkses, 'is_numeric'));
             foreach ($invitedNumericBidangs as $bidId) {
