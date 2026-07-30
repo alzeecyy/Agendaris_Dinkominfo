@@ -14,6 +14,19 @@
             font-family: 'Plus Jakarta Sans', sans-serif;
             background: linear-gradient(135deg, #eef2ff 0%, #f8fafc 100%);
         }
+
+        /* Royal Blue & Dark Navy Horizontal Mirror Sliding Gradient */
+        button[type="submit"],
+        .btn-gradient-mirror {
+            background-image: linear-gradient(to right, #1b3bbb 0%, #09103c 50%, #1b3bbb 100%) !important;
+            background-size: 200% 100% !important;
+            background-position: left center !important;
+            transition: background-position 0.4s ease-in-out, transform 0.2s ease, box-shadow 0.2s ease !important;
+        }
+        button[type="submit"]:hover,
+        .btn-gradient-mirror:hover {
+            background-position: right center !important;
+        }
     </style>
 </head>
 <body class="min-h-screen flex items-center justify-center py-8 px-4 relative overflow-hidden">
