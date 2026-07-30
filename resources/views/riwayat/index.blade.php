@@ -365,14 +365,21 @@ class="space-y-6">
                                             </span>
                                         @else
                                             @php
-                                                $bRecords = \App\Models\Bidang::whereIn('id', $itemHak)->get();
-                                                $bNames = $bRecords->map(fn($b) => $b->singkatan ?? $b->nama)->toArray();
-                                                $maxRShow = 2;
-                                                $totalRCount = count($bNames);
-                                                $visibleRNames = array_slice($bNames, 0, $maxRShow);
-                                                $remRCount = $totalRCount - $maxRShow;
-                                                $remRNames = $remRCount > 0 ? implode(', ', array_slice($bNames, $maxRShow)) : '';
-                                            @endphp
+                                                 $numericItemHak = array_values(array_filter($itemHak, 'is_numeric'));
+                                                 $bRecords = \App\Models\Bidang::whereIn('id', $numericItemHak)->get();
+                                                 $bNames = [];
+                                                 if (in_array('kadin', $itemHak)) {
+                                                     $bNames[] = 'Kadin';
+                                                 }
+                                                 foreach ($bRecords as $bRec) {
+                                                     $bNames[] = $bRec->singkatan ?? $bRec->nama;
+                                                 }
+                                                 $maxRShow = 2;
+                                                 $totalRCount = count($bNames);
+                                                 $visibleRNames = array_slice($bNames, 0, $maxRShow);
+                                                 $remRCount = $totalRCount - $maxRShow;
+                                                 $remRNames = $remRCount > 0 ? implode(', ', array_slice($bNames, $maxRShow)) : '';
+                                             @endphp
                                             @foreach($visibleRNames as $bNm)
                                                 <span class="inline-block text-[8.5px] px-1.5 py-0.5 font-bold rounded-md bg-indigo-50 text-[#1b3bbb] border border-indigo-200">
                                                     {{ $bNm }}

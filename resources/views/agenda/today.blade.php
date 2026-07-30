@@ -207,12 +207,23 @@ class="w-full flex flex-col gap-3.5 sm:gap-5 select-none">
                             @else
                                 @php
                                     $hList = (array)($agenda->hak_akses ?? []);
-                                    $targetBids = \App\Models\Bidang::whereIn('id', $hList)->get();
+                                    $numericHList = array_values(array_filter($hList, 'is_numeric'));
+                                    $targetBids = \App\Models\Bidang::whereIn('id', $numericHList)->get();
+                                    $hasKadinTarget = in_array('kadin', $hList);
+
+                                    $badgeItems = [];
+                                    if ($hasKadinTarget) {
+                                        $badgeItems[] = (object)['singkatan' => 'Kadin', 'nama' => 'Kepala Dinas'];
+                                    }
+                                    foreach ($targetBids as $tb) {
+                                        $badgeItems[] = $tb;
+                                    }
+
                                     $maxShowT = 2;
-                                    $totalTBids = $targetBids->count();
-                                    $visibleTBids = $targetBids->take($maxShowT);
+                                    $totalTBids = count($badgeItems);
+                                    $visibleTBids = array_slice($badgeItems, 0, $maxShowT);
                                     $remTBidsCount = $totalTBids - $maxShowT;
-                                    $remTBidsNames = $remTBidsCount > 0 ? $targetBids->skip($maxShowT)->pluck('singkatan')->filter()->implode(', ') : '';
+                                    $remTBidsNames = $remTBidsCount > 0 ? implode(', ', array_map(fn($b) => $b->singkatan ?? $b->nama, array_slice($badgeItems, $maxShowT))) : '';
                                 @endphp
                                 @if($totalTBids > 0)
                                     @foreach($visibleTBids as $tb)

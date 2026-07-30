@@ -14,99 +14,7 @@
     $initialTempat = $isPredefined ? $agenda->lokasi : 'Lainnya';
     $initialTempatLainnya = $isPredefined ? '' : $agenda->lokasi;
 @endphp
-<div x-data="{
-    openEditModal: {{ ($errors->has('judul') || $errors->has('tanggal') || $errors->has('jam_mulai') || $errors->has('jam_selesai') || $errors->has('lokasi') || $errors->has('kategori') || $errors->has('bidangs')) ? 'true' : 'false' }},
-    openDetailModal: false,
-    openAbsenModal: false,
-    openGuestModal: false,
-    openNomorSuratModal: false,
-    status: 'hadir',
-    keterangan: '',
-    signatureData: '',
-    isSignatureEmpty: true,
-    signaturePad: null,
-    selectedBidangName: '',
-    detailParticipants: [],
-    get allParticipants() {
-        try {
-            const root = document.querySelector('[data-participants]');
-            return JSON.parse(root ? root.getAttribute('data-participants') : '[]');
-        } catch(e) {
-            return [];
-        }
-    },
-    tempat: '{{ $initialTempat }}',
-    tempatLainnya: '{{ $initialTempatLainnya }}',
-    init() {
-        this.$watch('status', value => {
-            if (value === 'hadir') {
-                this.initSignaturePad();
-            }
-        });
-        this.$watch('openAbsenModal', value => {
-            if (value && this.status === 'hadir') {
-                this.initSignaturePad();
-            }
-        });
-    },
-    get combinedLokasi() {
-        return this.tempat === 'Lainnya' ? this.tempatLainnya : this.tempat;
-    },
-    showBidangDetails(bidId, bidName) {
-        this.selectedBidangName = bidName;
-        if (bidId == 0) {
-            this.detailParticipants = this.allParticipants.filter(p => p.role === 'ketua_master' || !p.bidang_id || p.bidang_id == 0);
-        } else {
-            this.detailParticipants = this.allParticipants.filter(p => p.bidang_id == bidId && p.role !== 'ketua_master');
-        }
-        this.openDetailModal = true;
-    },
-    initSignaturePad() {
-        this.$nextTick(() => {
-            const canvas = document.getElementById('signature-canvas');
-            if (!canvas) return;
-
-            const ratio = Math.max(window.devicePixelRatio || 1, 1);
-            canvas.width = canvas.offsetWidth * ratio;
-            canvas.height = canvas.offsetHeight * ratio;
-            canvas.getContext('2d').scale(ratio, ratio);
-
-            if (this.signaturePad) {
-                this.signaturePad.off();
-            }
-
-            this.signaturePad = new SignaturePad(canvas, {
-                backgroundColor: 'rgba(255, 255, 255, 0)',
-                penColor: '#09103c'
-            });
-
-            this.signaturePad.addEventListener('beginStroke', () => {
-                this.isSignatureEmpty = false;
-            });
-
-            this.clearSignature();
-        });
-    },
-    clearSignature() {
-        if (this.signaturePad) {
-            this.signaturePad.clear();
-        }
-        this.signatureData = '';
-        this.isSignatureEmpty = true;
-    },
-    submitAbsen(e) {
-        if (this.status === 'hadir') {
-            if (this.isSignatureEmpty || !this.signaturePad || this.signaturePad.isEmpty()) {
-                e.preventDefault();
-                alert('Tanda tangan digital wajib diisi sebelum mengirim presensi.');
-                return;
-            }
-            this.signatureData = this.signaturePad.toDataURL('image/png');
-        } else {
-            this.signatureData = '';
-        }
-    }
-}" data-participants='@json($participants)' style="display: flex; flex-direction: column; width: 100%; gap: 1rem;" class="w-full min-w-0">
+<div x-data="agendaDetail" data-participants='@json($participants)' style="display: flex; flex-direction: column; width: 100%; gap: 1rem;" class="w-full min-w-0">
     
     <!-- Breadcrumbs / Back button -->
     <div style="display: flex; align-items: center; justify-content: space-between; width: 100%; min-width: 0; padding-bottom: 0.25rem;" class="w-full">
@@ -1326,6 +1234,7 @@
     function registerAgendaDetail() {
         if (typeof Alpine !== 'undefined') {
             Alpine.data('agendaDetail', () => ({
+                openEditModal: {{ ($errors->has('judul') || $errors->has('tanggal') || $errors->has('jam_mulai') || $errors->has('jam_selesai') || $errors->has('lokasi') || $errors->has('kategori') || $errors->has('bidangs')) ? 'true' : 'false' }},
                 openDetailModal: false,
                 openAbsenModal: false,
                 openGuestModal: false,
@@ -1337,6 +1246,433 @@
                 selectedBidangName: '',
                 detailParticipants: [],
                 allParticipants: @json((Auth::user()->role === 'staff' && !Auth::user()->isSekretariat()) ? [] : $participants),
+
+                // Edit Modal State
+                judul: @json($agenda->judul),
+                kategori: @json($agenda->kategori),
+                openKategori: false,
+                selectedDate: @json($agenda->tanggal->format('Y-m-d')),
+                selectedTime: @json(substr($agenda->jam_mulai, 0, 5)),
+                selectedEndTime: @json(substr($agenda->jam_selesai, 0, 5)),
+                lokasiVal: @json($agenda->lokasi),
+                openLokasi: false,
+                deskripsi: @json($agenda->deskripsi ?? ''),
+                butuh_presensi: {{ $agenda->butuh_presensi ? 'true' : 'false' }},
+
+                bidangs: @json(array_values(array_map('strval', (array)($agenda->hak_akses ?? [])))),
+                semuaOrang: {{ in_array('semua_orang', (array)($agenda->hak_akses ?? [])) ? 'true' : 'false' }},
+                semuaSekretariat: false,
+                kadinTarget: {{ in_array('kadin', (array)($agenda->hak_akses ?? [])) ? 'true' : 'false' }},
+
+                ownBidangId: @json((string)Auth::user()->bidang_id),
+                isSekBid: {{ (Auth::user()->role === 'sekretaris_bidang' && !Auth::user()->isSekretariat()) ? 'true' : 'false' }},
+                isSekretariatScope: {{ Auth::user()->isSekretariatScope() ? 'true' : 'false' }},
+                allBidangIds: @json(array_values(array_map('strval', $bidangsUserData->pluck('id')->toArray()))),
+                totalCount: {{ count($bidangsUserData) }},
+                sekretariatSubbagIds: @json(array_values(array_map('strval', $sekretariatSubbagIds ?? []))),
+                sekId: @json((string)$sekretariatId),
+                kadinUserId: @json((string)$kadinUserId),
+                kadinUser: @json($kadinUserData),
+                showBidangLimitWarning: false,
+                bidangsUserData: @json($bidangsUserData),
+                currentUserId: @json((string)Auth::id()),
+                selectedParticipants: @json(array_values(array_map('strval', $agenda->participants->pluck('id')->toArray()))),
+                participantModalOpen: false,
+                searchParticipant: '',
+                adminValidationErrorMessage: '',
+                formErrors: {},
+                isDirty: false,
+
+                init() {
+                    this.$watch('status', value => {
+                        if (value === 'hadir') {
+                            this.initSignaturePad();
+                        }
+                    });
+                    this.$watch('openAbsenModal', value => {
+                        if (value && this.status === 'hadir') {
+                            this.initSignaturePad();
+                        }
+                    });
+
+                    let sekSubIds = (this.sekretariatSubbagIds || []).map(String);
+                    let curBids = (this.bidangs || []).map(String);
+                    this.semuaSekretariat = sekSubIds.length > 0 && sekSubIds.every(id => curBids.includes(id));
+                    this.syncParticipants();
+                },
+
+                validateForm(e) {
+                    this.formErrors = {};
+                    let hasError = false;
+
+                    if (!this.judul || !this.judul.trim()) {
+                        this.formErrors.judul = 'Judul kegiatan / rapat wajib diisi.';
+                        hasError = true;
+                    }
+
+                    if (!this.kategori) {
+                        this.formErrors.kategori = 'Kategori wajib dipilih.';
+                        hasError = true;
+                    }
+
+                    if (!this.selectedDate) {
+                        this.formErrors.tanggal = 'Tanggal wajib diisi.';
+                        hasError = true;
+                    }
+
+                    if (!this.selectedTime) {
+                        this.formErrors.jam_mulai = 'Jam mulai wajib diisi.';
+                        hasError = true;
+                    }
+
+                    if (!this.selectedEndTime) {
+                        this.formErrors.jam_selesai = 'Jam selesai wajib diisi.';
+                        hasError = true;
+                    } else if (this.selectedTime && this.selectedEndTime <= this.selectedTime) {
+                        this.formErrors.jam_selesai = 'Jam selesai harus setelah jam mulai.';
+                        hasError = true;
+                    }
+
+                    if (!this.lokasiVal) {
+                        this.formErrors.lokasi = 'Tempat / ruangan wajib dipilih.';
+                        hasError = true;
+                    }
+
+                    let numericBids = (this.bidangs || []).filter(b => b !== 'kadin');
+                    if (numericBids.length === 0 && !this.semuaOrang) {
+                        this.formErrors.bidangs = 'Pilih minimal 1 sasaran bidang / unit.';
+                        hasError = true;
+                    }
+
+                    if (!this.selectedParticipants || this.selectedParticipants.length === 0) {
+                        this.formErrors.participants = 'Pilih minimal 1 peserta rapat.';
+                        hasError = true;
+                    }
+
+                    if (!this.validateAdminSelection()) {
+                        hasError = true;
+                    }
+
+                    if (hasError) {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        this.$nextTick(() => {
+                            if (this.$refs.editFormContainer) {
+                                this.$refs.editFormContainer.scrollTo({ top: 0, behavior: 'smooth' });
+                            }
+                        });
+                        return false;
+                    }
+
+                    return true;
+                },
+
+                isAdminUser(user) {
+                    if (!user) return false;
+                    let r = user.role;
+                    return r === 'sekretaris_bidang' || r === 'sekretaris_master';
+                },
+
+                isKetuaUser(user) {
+                    if (!user) return false;
+                    let r = user.role;
+                    let j = (user.jabatan || '').toLowerCase();
+                    if (this.isAdminUser(user)) return false;
+                    return r === 'ketua_bidang' || r === 'ketua_master' || j.includes('kepala') || j.includes('kabid') || j.includes('kasubbag') || j.includes('kadin') || j.includes('sekdin');
+                },
+
+                isMandatoryUser(user) {
+                    if (!user) return false;
+                    let uId = String(user.id);
+                    let isCreator = (uId === String(this.currentUserId));
+                    let isKetua = this.isKetuaUser(user);
+                    return isCreator || isKetua;
+                },
+
+                toggleUserParticipant(user) {
+                    this.isDirty = true;
+                    let uId = String(user.id);
+                    let curParts = (this.selectedParticipants || []).map(String);
+
+                    if (this.isAdminUser(user)) {
+                        let unitId = String(user.bidang_id);
+                        let b = (this.bidangsUserData || []).find(item => String(item.id) === unitId);
+                        if (b) {
+                            let unitAdminIds = b.users.filter(u => this.isAdminUser(u)).map(u => String(u.id));
+                            if (!curParts.includes(uId)) {
+                                curParts = curParts.filter(id => !unitAdminIds.includes(id));
+                                curParts.push(uId);
+                            }
+                        }
+                        this.selectedParticipants = curParts;
+                    }
+                },
+
+                validateAdminSelection() {
+                    let selectedBidangIds = (this.bidangs || []).map(String);
+                    let curSelected = (this.selectedParticipants || []).map(String);
+                    let missingAdminBidangNames = [];
+
+                    (this.bidangsUserData || []).forEach(b => {
+                        if (selectedBidangIds.includes(String(b.id))) {
+                            let unitAdmins = (b.users || []).filter(u => this.isAdminUser(u));
+                            if (unitAdmins.length > 0) {
+                                let selectedCount = unitAdmins.filter(u => curSelected.includes(String(u.id))).length;
+                                if (selectedCount !== 1) {
+                                    missingAdminBidangNames.push(b.nama || b.singkatan);
+                                }
+                            }
+                        }
+                    });
+
+                    if (missingAdminBidangNames.length > 0) {
+                        this.adminValidationErrorMessage = 'Pilih 1 Admin dari unit yang diundang (' + missingAdminBidangNames.join(', ') + ').';
+                        this.$nextTick(() => {
+                            if (this.$refs.modalBody) {
+                                this.$refs.modalBody.scrollTo({ top: 0, behavior: 'smooth' });
+                            }
+                        });
+                        return false;
+                    }
+                    this.adminValidationErrorMessage = '';
+                    return true;
+                },
+
+                toggleKadinTarget() {
+                    this.isDirty = true;
+                    let kId = String(this.kadinUserId);
+                    let curParts = (this.selectedParticipants || []).map(String);
+                    let curBids = (this.bidangs || []).map(String);
+
+                    if (this.kadinTarget) {
+                        if (!curBids.includes('kadin')) curBids.push('kadin');
+                        if (kId && !curParts.includes(kId)) curParts.push(kId);
+                    } else {
+                        curBids = curBids.filter(b => b !== 'kadin');
+                        if (kId) curParts = curParts.filter(p => p !== kId);
+                    }
+                    this.bidangs = curBids;
+                    this.syncParticipants();
+                },
+
+                toggleSemua() {
+                    this.isDirty = true;
+                    if (this.semuaOrang) {
+                        this.bidangs = Array.from(this.allBidangIds);
+                    } else {
+                        this.bidangs = [];
+                    }
+                    this.syncParticipants();
+                },
+
+                toggleSemuaSekretariat() {
+                    this.isDirty = true;
+                    let sekSubIds = (this.sekretariatSubbagIds || []).map(String);
+                    let curBids = (this.bidangs || []).map(String);
+
+                    if (this.semuaSekretariat) {
+                        sekSubIds.forEach(id => {
+                            if (!curBids.includes(id)) {
+                                curBids.push(id);
+                            }
+                        });
+                        if (!this.isSekretariatScope && curBids.length > 3) {
+                            curBids = curBids.slice(0, 3);
+                            this.showBidangLimitWarning = true;
+                        } else {
+                            this.showBidangLimitWarning = false;
+                        }
+                    } else {
+                        curBids = curBids.filter(id => !sekSubIds.includes(id));
+                        if (this.ownBidangId && !curBids.includes(String(this.ownBidangId))) {
+                            curBids.push(String(this.ownBidangId));
+                        }
+                        if (this.sekId && !curBids.includes(String(this.sekId))) {
+                            curBids.push(String(this.sekId));
+                        }
+                        this.showBidangLimitWarning = false;
+                    }
+                    this.bidangs = curBids;
+                    this.semuaSekretariat = sekSubIds.length > 0 && sekSubIds.every(id => curBids.includes(id));
+                    this.syncParticipants();
+                },
+
+                checkBidang(id) {
+                    this.isDirty = true;
+                    this.$nextTick(() => {
+                        let strId = String(id);
+                        let curBids = (this.bidangs || []).map(String);
+                        let curParts = (this.selectedParticipants || []).map(String);
+
+                        if (curBids.includes(strId)) {
+                            let b = (this.bidangsUserData || []).find(item => String(item.id) === strId);
+                            if (b && Array.isArray(b.users)) {
+                                b.users.forEach(u => {
+                                    let uId = String(u.id);
+                                    if (!curParts.includes(uId)) {
+                                        curParts.push(uId);
+                                    }
+                                });
+                            }
+                        } else {
+                            let b = (this.bidangsUserData || []).find(item => String(item.id) === strId);
+                            if (b && Array.isArray(b.users)) {
+                                let unitUserIds = b.users.map(u => String(u.id));
+                                curParts = curParts.filter(uId => !unitUserIds.includes(uId) || uId === String(this.currentUserId));
+                            }
+                        }
+                        this.selectedParticipants = curParts;
+
+                        if (this.isSekBid || this.isSekretariatScope) {
+                            if (this.ownBidangId && !curBids.includes(String(this.ownBidangId))) {
+                                curBids.push(String(this.ownBidangId));
+                            }
+                            if (this.isSekretariatScope && this.sekId && !curBids.includes(String(this.sekId))) {
+                                curBids.push(String(this.sekId));
+                            }
+                            let numericBids = curBids.filter(b => b !== 'kadin' && b !== String(this.sekId));
+                            if (!this.isSekretariatScope && numericBids.length > 3) {
+                                this.showBidangLimitWarning = true;
+                                curBids = curBids.filter(bId => bId !== strId);
+                            } else {
+                                this.showBidangLimitWarning = false;
+                            }
+                        }
+                        this.bidangs = curBids;
+                        let sekSubIds = (this.sekretariatSubbagIds || []).map(String);
+                        this.semuaSekretariat = sekSubIds.length > 0 && sekSubIds.every(id => curBids.includes(id));
+                        this.semuaOrang = (this.bidangs.length === this.totalCount);
+                        this.syncParticipants();
+                    });
+                },
+
+                filteredUsers(users) {
+                    if (!users || !Array.isArray(users)) return [];
+                    if (!this.searchParticipant || !this.searchParticipant.trim()) return users;
+                    let q = this.searchParticipant.toLowerCase().trim();
+                    return users.filter(u => 
+                        (u.name && String(u.name).toLowerCase().includes(q)) || 
+                        (u.jabatan && String(u.jabatan).toLowerCase().includes(q)) ||
+                        (u.nip && String(u.nip).toLowerCase().includes(q))
+                    );
+                },
+
+                get visibleBidangs() {
+                    let selectedBidangIds = (this.bidangs || []).map(String);
+                    return (this.bidangsUserData || []).filter(b => {
+                        let isSelected = selectedBidangIds.includes(String(b.id));
+                        if (!isSelected) return false;
+                        if (this.searchParticipant && this.searchParticipant.trim()) {
+                            return this.filteredUsers(b.users).length > 0;
+                        }
+                        return true;
+                    });
+                },
+
+                get totalFilteredUsersCount() {
+                    let count = 0;
+                    this.visibleBidangs.forEach(b => {
+                        count += this.filteredUsers(b.users).length;
+                    });
+                    return count;
+                },
+
+                syncParticipants() {
+                    let selectedBidangIds = (this.bidangs || []).map(String);
+                    let activeUserIds = [];
+                    let mandatoryUserIds = [];
+
+                    if (this.currentUserId) {
+                        mandatoryUserIds.push(String(this.currentUserId));
+                    }
+
+                    let currentSelected = (this.selectedParticipants || []).map(String);
+
+                    (this.bidangsUserData || []).forEach(b => {
+                        if (selectedBidangIds.includes(String(b.id))) {
+                            let unitAdmins = (b.users || []).filter(u => this.isAdminUser(u));
+                            let hasAdminSelected = unitAdmins.some(u => currentSelected.includes(String(u.id)));
+
+                            (b.users || []).forEach(u => {
+                                let uId = String(u.id);
+                                activeUserIds.push(uId);
+                                if (this.isMandatoryUser(u)) {
+                                    mandatoryUserIds.push(uId);
+                                }
+                            });
+
+                            if (!hasAdminSelected && unitAdmins.length > 0) {
+                                mandatoryUserIds.push(String(unitAdmins[0].id));
+                            }
+                        }
+                    });
+
+                    if (this.kadinTarget && this.kadinUserId) {
+                        let kId = String(this.kadinUserId);
+                        activeUserIds.push(kId);
+                        mandatoryUserIds.push(kId);
+                    }
+
+                    let newSelection = currentSelected.filter(id => activeUserIds.includes(id));
+
+                    selectedBidangIds.forEach(bidId => {
+                        let b = (this.bidangsUserData || []).find(item => String(item.id) === bidId);
+                        if (b && Array.isArray(b.users)) {
+                            let hasAnySelected = b.users.some(u => currentSelected.includes(String(u.id)));
+                            if (!hasAnySelected) {
+                                b.users.forEach(u => {
+                                    let uId = String(u.id);
+                                    if (!newSelection.includes(uId)) {
+                                        newSelection.push(uId);
+                                    }
+                                });
+                            }
+                        }
+                    });
+
+                    mandatoryUserIds.forEach(id => {
+                        if (!newSelection.includes(id)) {
+                            newSelection.push(id);
+                        }
+                    });
+
+                    this.selectedParticipants = newSelection;
+                    if (this.kadinUserId) {
+                        this.kadinTarget = this.selectedParticipants.map(String).includes(String(this.kadinUserId));
+                    }
+                },
+
+                toggleBidangUsers(bidangId) {
+                    this.isDirty = true;
+                    let b = this.bidangsUserData.find(item => String(item.id) === String(bidangId));
+                    if (!b) return;
+                    let bUserIds = b.users.map(u => String(u.id));
+                    let currentSelected = this.selectedParticipants.map(String);
+                    let allChecked = bUserIds.every(id => currentSelected.includes(id));
+
+                    if (!allChecked) {
+                        bUserIds.forEach(id => {
+                            if (!currentSelected.includes(id)) {
+                                currentSelected.push(id);
+                            }
+                        });
+                    } else {
+                        currentSelected = currentSelected.filter(id => {
+                            let u = b.users.find(usr => String(usr.id) === String(id));
+                            if (u && this.isMandatoryUser(u)) return true;
+                            return !bUserIds.includes(id);
+                        });
+                    }
+                    this.selectedParticipants = currentSelected;
+                },
+
+                isBidangAllChecked(bidangId) {
+                    let b = this.bidangsUserData.find(item => String(item.id) === String(bidangId));
+                    if (!b || !b.users || b.users.length === 0) return false;
+                    let currentSelected = this.selectedParticipants.map(String);
+                    return b.users.every(u => currentSelected.includes(String(u.id)));
+                },
+
                 init() {
                     this.$watch('status', value => {
                         if (value === 'hadir') {
@@ -1489,6 +1825,494 @@
                 window.location.reload();
             }, 4000);
         </script>
+    @endif
+    @if($isSecretaryOfAgenda)
+    <!-- MODAL EDIT AGENDA KEGIATAN -->
+    <div x-show="openEditModal" x-cloak class="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-slate-950/60 backdrop-blur-sm select-none">
+        <div @click.away="openEditModal = false" 
+             class="bg-white border border-[#d4d1f5]/60 rounded-3xl w-full max-w-xl shadow-2xl overflow-hidden relative text-[#2e2552] my-auto flex flex-col max-h-[90vh]"
+             x-transition:enter="transition ease-out duration-300 transform"
+             x-transition:enter-start="opacity-0 scale-95"
+             x-transition:enter-end="opacity-100 scale-100">
+             
+            <!-- Header Modal Edit -->
+            <div class="px-5 py-3.5 bg-gradient-to-r from-[#09103c] via-[#1b3bbb] to-[#09103c] text-white flex items-center justify-between shrink-0 rounded-t-3xl shadow-sm">
+                <div class="flex items-center gap-2.5">
+                    <div class="p-1.5 bg-white/10 rounded-xl border border-white/20 shrink-0">
+                        <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
+                        </svg>
+                    </div>
+                    <div>
+                        <h3 class="text-sm font-extrabold text-white leading-tight">Edit Agenda Kegiatan</h3>
+                        <p class="text-[10px] text-[#d4d1f5] font-medium leading-tight">Perbarui rincian rapat atau kegiatan Dinkominfo</p>
+                    </div>
+                </div>
+                <button type="button" @click="openEditModal = false" class="w-7 h-7 rounded-full bg-white/10 hover:bg-white/20 text-white flex items-center justify-center transition-all cursor-pointer">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                    </svg>
+                </button>
+            </div>
+
+            <!-- Form Edit Agenda -->
+            <form action="{{ route('agenda.update', $agenda->id) }}" method="POST" @submit="validateForm($event)" x-ref="editFormContainer" class="p-4 sm:p-5 space-y-3.5 overflow-y-auto max-h-[calc(90vh-120px)] scroll-smooth">
+                @csrf
+                @method('PUT')
+
+                <!-- Title & Category Row -->
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                    <div class="sm:col-span-2 space-y-1">
+                        <label for="edit_judul" class="block text-[11px] font-bold text-[#5a508f] uppercase tracking-wider">Judul Kegiatan / Rapat <span class="text-rose-500 font-bold">*</span></label>
+                        <input type="text" name="judul" id="edit_judul" x-model="judul" placeholder="Contoh: Rapat Koordinasi Layanan SPBE"
+                               :class="formErrors.judul ? 'border-rose-500 bg-rose-50/50 ring-2 ring-rose-500/20 text-rose-900 placeholder-rose-400' : 'border-[#d4d1f5] bg-[#f8f7ff] hover:bg-[#f3f2fe] focus:bg-white focus:border-[#1b3bbb] focus:ring-2 focus:ring-[#1b3bbb]/20 text-[#2e2552]'"
+                               class="w-full px-3.5 py-2 rounded-xl text-xs placeholder-slate-400 transition-all font-semibold"
+                               @input="if(formErrors.judul) delete formErrors.judul">
+                        <template x-if="formErrors.judul">
+                            <p class="text-[10.5px] text-rose-600 font-bold mt-1 flex items-center gap-1">
+                                <svg class="w-3 h-3 text-rose-600 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
+                                <span x-text="formErrors.judul"></span>
+                            </p>
+                        </template>
+                    </div>
+                    <div class="space-y-1 relative" @click.outside="openKategori = false">
+                        <label for="edit_kategori" class="block text-[11px] font-bold text-[#5a508f] uppercase tracking-wider">Kategori <span class="text-rose-500 font-bold">*</span></label>
+                        <input type="hidden" name="kategori" id="edit_kategori" x-model="kategori">
+                        <button type="button" @click="openKategori = !openKategori" 
+                                :class="formErrors.kategori ? 'border-rose-500 bg-rose-50/50 ring-2 ring-rose-500/20 text-rose-900' : 'border-[#d4d1f5] bg-[#f8f7ff] hover:bg-[#f3f2fe] focus:bg-white focus:ring-2 focus:ring-[#1b3bbb] text-[#09103c]'"
+                                class="w-full px-3.5 py-2 rounded-xl text-xs font-semibold flex items-center justify-between transition-all cursor-pointer focus:outline-none">
+                            <span class="truncate" x-text="kategori ? (kategori === 'rapat' ? 'Rapat' : (kategori === 'sosialisasi' ? 'Sosialisasi' : (kategori === 'pelatihan' ? 'Pelatihan' : 'Kegiatan Lainnya'))) : 'Pilih Kategori'"></span>
+                            <svg class="w-3.5 h-3.5 text-[#1b3bbb] transition-transform duration-200" :class="openKategori ? 'rotate-180' : ''" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                        </button>
+                        <template x-if="formErrors.kategori">
+                            <p class="text-[10.5px] text-rose-600 font-bold mt-1 flex items-center gap-1">
+                                <svg class="w-3 h-3 text-rose-600 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
+                                <span x-text="formErrors.kategori"></span>
+                            </p>
+                        </template>
+                        <div x-show="openKategori" x-cloak 
+                             x-transition:enter="transition ease-out duration-150 transform" 
+                             x-transition:enter-start="opacity-0 scale-95 -translate-y-1" 
+                             x-transition:enter-end="opacity-100 scale-100 translate-y-0" 
+                             x-transition:leave="transition ease-in duration-100 transform" 
+                             x-transition:leave-start="opacity-100 scale-100 translate-y-0" 
+                             x-transition:leave-end="opacity-0 scale-95 -translate-y-1" 
+                             class="absolute left-0 top-full mt-1 w-full bg-white border border-[#cbd5e1] rounded-2xl shadow-xl shadow-[#1b3bbb]/10 p-1.5 z-50 max-h-52 overflow-y-auto">
+                            <div class="space-y-0.5">
+                                <template x-for="opt in [
+                                    { value: 'rapat', label: 'Rapat' },
+                                    { value: 'sosialisasi', label: 'Sosialisasi' },
+                                    { value: 'pelatihan', label: 'Pelatihan' },
+                                    { value: 'kegiatan_lainnya', label: 'Kegiatan Lainnya' }
+                                ]" :key="opt.value">
+                                    <button type="button" @click="kategori = opt.value; openKategori = false; if(formErrors.kategori) delete formErrors.kategori" 
+                                            class="w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs font-semibold transition-colors text-left"
+                                            :class="kategori === opt.value ? 'bg-[#1b3bbb] text-white font-bold' : 'text-[#09103c] hover:bg-[#1b3bbb]/10 hover:text-[#1b3bbb]'">
+                                        <span class="text-left leading-snug" x-text="opt.label"></span>
+                                        <svg x-show="kategori === opt.value" class="w-3.5 h-3.5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/></svg>
+                                    </button>
+                                </template>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Date & Hours Row -->
+                <div class="grid grid-cols-2 sm:grid-cols-3 gap-3">
+                    <div class="col-span-2 sm:col-span-1 space-y-1">
+                        <label for="edit_tanggal" class="block text-[11px] font-bold text-[#5a508f] uppercase tracking-wider">Tanggal <span class="text-rose-500 font-bold">*</span></label>
+                        <input type="date" name="tanggal" id="edit_tanggal" x-model="selectedDate"
+                               min="{{ now()->subMonths(6)->toDateString() }}"
+                               max="{{ now()->addMonths(6)->toDateString() }}"
+                               :class="formErrors.tanggal ? 'border-rose-500 bg-rose-50/50 ring-2 ring-rose-500/20 text-rose-900' : 'border-[#d4d1f5] bg-[#f8f7ff] hover:bg-[#f3f2fe] focus:bg-white focus:border-[#1b3bbb] focus:ring-2 focus:ring-[#1b3bbb]/20 text-[#2e2552]'"
+                               class="w-full px-3 py-2 rounded-xl text-xs font-semibold transition-all"
+                               @change="if(formErrors.tanggal) delete formErrors.tanggal">
+                        <template x-if="formErrors.tanggal">
+                            <p class="text-[10.5px] text-rose-600 font-bold mt-1 flex items-center gap-1">
+                                <svg class="w-3 h-3 text-rose-600 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
+                                <span x-text="formErrors.tanggal"></span>
+                            </p>
+                        </template>
+                    </div>
+                    <div class="space-y-1">
+                        <label for="edit_jam_mulai" class="block text-[11px] font-bold text-[#5a508f] uppercase tracking-wider">Jam Mulai <span class="text-rose-500 font-bold">*</span></label>
+                        <input type="time" name="jam_mulai" id="edit_jam_mulai" x-model="selectedTime"
+                               :class="formErrors.jam_mulai ? 'border-rose-500 bg-rose-50/50 ring-2 ring-rose-500/20 text-rose-900' : 'border-[#d4d1f5] bg-[#f8f7ff] hover:bg-[#f3f2fe] focus:bg-white focus:border-[#1b3bbb] focus:ring-2 focus:ring-[#1b3bbb]/20 text-[#2e2552]'"
+                               class="w-full px-2.5 py-2 rounded-xl text-xs font-semibold transition-all"
+                               @change="if(formErrors.jam_mulai) delete formErrors.jam_mulai">
+                        <template x-if="formErrors.jam_mulai">
+                            <p class="text-[10.5px] text-rose-600 font-bold mt-1 flex items-center gap-1">
+                                <svg class="w-3 h-3 text-rose-600 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
+                                <span x-text="formErrors.jam_mulai"></span>
+                            </p>
+                        </template>
+                    </div>
+                    <div class="space-y-1">
+                        <label for="edit_jam_selesai" class="block text-[11px] font-bold text-[#5a508f] uppercase tracking-wider">Jam Selesai <span class="text-rose-500 font-bold">*</span></label>
+                        <input type="time" name="jam_selesai" id="edit_jam_selesai" x-model="selectedEndTime"
+                               :class="formErrors.jam_selesai ? 'border-rose-500 bg-rose-50/50 ring-2 ring-rose-500/20 text-rose-900' : 'border-[#d4d1f5] bg-[#f8f7ff] hover:bg-[#f3f2fe] focus:bg-white focus:border-[#1b3bbb] focus:ring-2 focus:ring-[#1b3bbb]/20 text-[#2e2552]'"
+                               class="w-full px-2.5 py-2 rounded-xl text-xs font-semibold transition-all"
+                               @change="if(formErrors.jam_selesai) delete formErrors.jam_selesai">
+                        <template x-if="formErrors.jam_selesai">
+                            <p class="text-[10.5px] text-rose-600 font-bold mt-1 flex items-center gap-1">
+                                <svg class="w-3 h-3 text-rose-600 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
+                                <span x-text="formErrors.jam_selesai"></span>
+                            </p>
+                        </template>
+                    </div>
+                </div>
+
+                <!-- Location & Description Row -->
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <div class="space-y-1 relative" @click.outside="openLokasi = false">
+                        <label for="edit_tempat" class="block text-[11px] font-bold text-[#5a508f] uppercase tracking-wider">Tempat / Ruangan <span class="text-rose-500 font-bold">*</span></label>
+                        <input type="hidden" id="edit_tempat" name="lokasi" :value="lokasiVal">
+                        <button type="button" @click="openLokasi = !openLokasi" 
+                                :class="formErrors.lokasi ? 'border-rose-500 bg-rose-50/50 ring-2 ring-rose-500/20 text-rose-900' : 'border-[#d4d1f5] bg-[#f8f7ff] hover:bg-[#f3f2fe] focus:bg-white focus:ring-2 focus:ring-[#1b3bbb] text-[#09103c]'"
+                                class="w-full px-3.5 py-2 rounded-xl text-xs font-semibold flex items-center justify-between transition-all cursor-pointer focus:outline-none">
+                            <span class="truncate" x-text="lokasiVal || 'Pilih Lokasi / Ruangan'"></span>
+                            <svg class="w-3.5 h-3.5 text-[#1b3bbb] transition-transform duration-200" :class="openLokasi ? 'rotate-180' : ''" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                        </button>
+                        <template x-if="formErrors.lokasi">
+                            <p class="text-[10.5px] text-rose-600 font-bold mt-1 flex items-center gap-1">
+                                <svg class="w-3.5 h-3.5 text-rose-600 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
+                                <span x-text="formErrors.lokasi"></span>
+                            </p>
+                        </template>
+                        <div x-show="openLokasi" x-cloak 
+                             x-transition:enter="transition ease-out duration-150 transform" 
+                             x-transition:enter-start="opacity-0 scale-95 translate-y-1" 
+                             x-transition:enter-end="opacity-100 scale-100 translate-y-0" 
+                             x-transition:leave="transition ease-in duration-100 transform" 
+                             x-transition:leave-start="opacity-100 scale-100 translate-y-0" 
+                             x-transition:leave-end="opacity-0 scale-95 translate-y-1" 
+                             class="absolute left-0 bottom-full mb-1 w-full bg-white border border-[#cbd5e1] rounded-2xl shadow-xl shadow-[#1b3bbb]/10 p-1.5 z-50 max-h-52 overflow-y-auto">
+                            <div class="space-y-0.5">
+                                <template x-for="loc in ['Aula Rapat Dinkominfo', 'Ruang Pelatihan', 'Smart Room Graha Satria']" :key="loc">
+                                    <button type="button" @click="lokasiVal = loc; openLokasi = false; if(formErrors.lokasi) delete formErrors.lokasi" 
+                                            class="w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs font-semibold transition-colors text-left"
+                                            :class="lokasiVal === loc ? 'bg-[#1b3bbb] text-white font-bold' : 'text-[#09103c] hover:bg-[#1b3bbb]/10 hover:text-[#1b3bbb]'">
+                                        <span class="text-left leading-snug" x-text="loc"></span>
+                                        <svg x-show="lokasiVal === loc" class="w-3.5 h-3.5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/></svg>
+                                    </button>
+                                </template>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="space-y-1">
+                        <label for="edit_deskripsi" class="block text-[11px] font-bold text-[#5a508f] uppercase tracking-wider">Deskripsi (Opsional)</label>
+                        <input type="text" name="deskripsi" id="edit_deskripsi" x-model="deskripsi" placeholder="Masukkan rincian singkat agenda..."
+                               class="w-full px-3.5 py-2 bg-[#f8f7ff] hover:bg-[#f3f2fe] border border-[#d4d1f5] rounded-xl text-[#2e2552] text-xs placeholder-slate-400 focus:bg-white focus:border-[#1b3bbb] focus:ring-2 focus:ring-[#1b3bbb]/20 transition-all font-semibold">
+                    </div>
+                </div>
+
+                <!-- Hak Akses & Kelola Peserta -->
+                <div class="space-y-2 border-t border-[#d4d1f5]/60 pt-2.5">
+                    <!-- Hidden Payload Inputs -->
+                    <template x-for="bidangId in bidangs" :key="'bidang-' + bidangId">
+                        <input type="hidden" name="bidangs[]" :value="bidangId">
+                    </template>
+                    <template x-for="userId in selectedParticipants" :key="'participant-' + userId">
+                        <input type="hidden" name="participants[]" :value="userId">
+                    </template>
+                    <template x-if="semuaOrang">
+                        <input type="hidden" name="semua_orang" value="1">
+                    </template>
+
+                    <!-- Header & Manage Participants Button Row -->
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <label class="block text-[11px] font-bold text-[#5a508f] uppercase tracking-wider">
+                                Sasaran Bidang & Peserta <span class="text-rose-500 font-bold">*</span>
+                            </label>
+                            <p class="text-[10.5px] text-slate-500 font-medium">Pilihan pimpinan ACC dan notulis otomatis tercentang wajib</p>
+                        </div>
+                        <button type="button" 
+                                @click="participantModalOpen = true"
+                                :class="selectedParticipants.length === 0 || formErrors.participants ? 'bg-rose-50 text-rose-600 border-rose-300 hover:bg-rose-100 ring-2 ring-rose-500/20' : 'bg-[#f8f7ff] text-[#1b3bbb] border-[#d4d1f5] hover:border-[#1b3bbb] hover:bg-[#f3f2fe]'"
+                                class="inline-flex items-center gap-1.5 px-3 py-1.5 border rounded-xl text-xs font-bold transition-all shadow-2xs cursor-pointer active:scale-95">
+                            <svg class="w-3.5 h-3.5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"></path>
+                            </svg>
+                            <span>Kelola Peserta</span>
+                            <span class="px-1.5 py-0.5 rounded-full text-[10px] font-extrabold" 
+                                  :class="selectedParticipants.length === 0 || formErrors.participants ? 'bg-rose-600 text-white animate-pulse' : 'bg-[#1b3bbb] text-white'" 
+                                  x-text="selectedParticipants.length"></span>
+                        </button>
+                    </div>
+
+                    <template x-if="formErrors.bidangs">
+                        <p class="text-[10.5px] text-rose-600 font-bold flex items-center gap-1">
+                            <svg class="w-3.5 h-3.5 text-rose-600 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
+                            <span x-text="formErrors.bidangs"></span>
+                        </p>
+                    </template>
+                    <template x-if="formErrors.participants">
+                        <p class="text-[10.5px] text-rose-600 font-bold flex items-center gap-1">
+                            <svg class="w-3.5 h-3.5 text-rose-600 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
+                            <span x-text="formErrors.participants"></span>
+                        </p>
+                    </template>
+
+                    <!-- Bidang Selection List Card -->
+                    <div :class="formErrors.bidangs ? 'border-rose-400 bg-rose-50/30 ring-2 ring-rose-500/20' : 'border-[#d4d1f5] bg-[#f8f7ff]'"
+                         class="border rounded-2xl p-3 space-y-2 transition-all">
+                        <!-- Inline Alert for 3-Bidang Limit -->
+                        <div x-show="showBidangLimitWarning" x-cloak class="p-2.5 bg-amber-50 border border-amber-200 text-amber-900 rounded-xl text-[11px] font-semibold flex items-center gap-2 animate-in fade-in duration-200 shadow-2xs">
+                            <svg class="w-4 h-4 text-amber-600 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path>
+                            </svg>
+                            <span>Admin Bidang hanya dapat memilih maksimal 3 bidang (bidang Anda + maksimal 2 bidang tambahan).</span>
+                        </div>
+
+                        @if(Auth::user()->isSekretarisMaster())
+                            <label class="flex items-center gap-2 px-2.5 py-1.5 bg-white rounded-xl border border-[#d4d1f5] hover:border-[#1b3bbb] transition-all cursor-pointer select-none">
+                                <input type="checkbox" x-model="semuaOrang" @change="toggleSemua()" 
+                                       class="w-4 h-4 rounded border-[#d4d1f5] text-[#1b3bbb] focus:ring-[#1b3bbb] transition-all">
+                                <span class="text-xs text-[#2e2552] font-extrabold">Semua Bidang / Rapat Lintas Dinas (Semua Orang)</span>
+                            </label>
+                        @endif
+
+                        <div class="grid grid-cols-1 gap-1 max-h-[140px] overflow-y-auto pr-1">
+                            <!-- Checkbox Kepala Dinas (Kadin) -->
+                            <label class="flex items-center justify-between px-2.5 py-1.5 rounded-xl border border-transparent hover:border-[#d4d1f5] hover:bg-white transition-all cursor-pointer select-none">
+                                <div class="flex items-center gap-2">
+                                    <input type="checkbox" value="kadin" x-model="kadinTarget" @change="toggleKadinTarget()"
+                                           class="w-4 h-4 rounded border-[#d4d1f5] text-[#1b3bbb] focus:ring-[#1b3bbb] focus:ring-offset-0 transition-all shrink-0">
+                                    <span class="text-xs text-[#2e2552] font-semibold">
+                                        Kepala Dinas <span class="text-[#5a508f] font-normal">(Kadin)</span>
+                                    </span>
+                                </div>
+                            </label>
+                            @foreach($bidangsWithUsers as $bid)
+                                @php
+                                    $isSekretariatItem = (strcasecmp($bid->singkatan, 'Sekretariat') === 0 || strcasecmp($bid->nama, 'Sekretariat') === 0);
+                                    $isSubbag = (str_contains(strtolower($bid->nama), 'subbag') || str_contains(strtolower($bid->singkatan), 'subbag')) && !$isSekretariatItem;
+                                    $isUserBidang = Auth::user()->isSekretarisBidang() && Auth::user()->bidang_id == $bid->id;
+                                @endphp
+                                @if($isSekretariatItem)
+                                    <!-- Checkbox Lingkup Sekretariat (Right above Sekretariat) -->
+                                    <label class="flex items-center gap-2 px-2.5 py-1.5 bg-indigo-50/80 rounded-xl border border-indigo-200/80 hover:border-[#1b3bbb] transition-all cursor-pointer select-none my-0.5">
+                                        <input type="checkbox" x-model="semuaSekretariat" @change="toggleSemuaSekretariat()" 
+                                               class="w-4 h-4 rounded border-[#d4d1f5] text-[#1b3bbb] focus:ring-[#1b3bbb] transition-all shrink-0">
+                                        <span class="text-xs text-[#1b3bbb] font-extrabold">Lingkup Sekretariat</span>
+                                    </label>
+                                @endif
+                                <label class="flex items-center justify-between px-2.5 py-1.5 rounded-xl border border-transparent hover:border-[#d4d1f5] hover:bg-white transition-all cursor-pointer select-none {{ $isSubbag ? 'pl-6' : '' }}">
+                                    <div class="flex items-center gap-2">
+                                        @if($isSubbag)
+                                            <span class="text-[#8e88dd] text-xs font-bold shrink-0 -mr-1">└</span>
+                                        @endif
+                                        <input type="checkbox" value="{{ $bid->id }}" x-model="bidangs" @change="checkBidang('{{ $bid->id }}')"
+                                               @if($isUserBidang) disabled @endif
+                                               class="w-4 h-4 rounded border-[#d4d1f5] text-[#1b3bbb] focus:ring-[#1b3bbb] focus:ring-offset-0 transition-all shrink-0">
+                                        <span class="text-xs text-[#2e2552] font-semibold {{ $isUserBidang ? 'font-extrabold text-[#1b3bbb]' : '' }}">
+                                            {{ $bid->nama }} <span class="text-[#5a508f] font-normal">({{ $bid->singkatan }})</span>
+                                        </span>
+                                    </div>
+                                    @if($isUserBidang)
+                                        <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-extrabold bg-amber-50 text-amber-700 border border-amber-200/80 shrink-0 ml-2">
+                                            Wajib Hadir
+                                        </span>
+                                    @endif
+                                </label>
+                            @endforeach
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Presensi Toggle & Action Footer -->
+                <div class="flex items-center justify-between gap-2 border-t border-[#d4d1f5]/60 pt-3 shrink-0">
+                    <div class="flex items-center justify-between p-2 px-3 bg-gradient-to-r from-[#f8f7ff] to-[#f3f2fe] border border-[#d4d1f5] rounded-xl flex-1 min-w-0">
+                        <div class="flex items-center gap-1.5 min-w-0">
+                            <svg class="w-3.5 h-3.5 text-[#1b3bbb] shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                            </svg>
+                            <label for="edit_butuh_presensi" class="text-[11px] sm:text-xs font-bold text-[#2e2552] cursor-pointer whitespace-nowrap truncate">Memerlukan Presensi Digital?</label>
+                        </div>
+                        <label class="relative inline-flex items-center cursor-pointer select-none ml-1.5 shrink-0">
+                            <input type="checkbox" name="butuh_presensi" id="edit_butuh_presensi" x-model="butuh_presensi" value="1" class="sr-only">
+                            <div @click="butuh_presensi = !butuh_presensi" 
+                                 :style="butuh_presensi ? 'background-color: #1b3bbb !important;' : 'background-color: #cbd5e1 !important;'"
+                                 class="w-9 h-5 rounded-full p-0.5 transition-all duration-200 relative flex items-center cursor-pointer shadow-inner shrink-0">
+                                <div :style="butuh_presensi ? 'transform: translateX(16px) !important; background-color: #ffffff !important;' : 'transform: translateX(0px) !important; background-color: #ffffff !important;'"
+                                     class="w-4 h-4 rounded-full shadow-md transition-transform duration-200 border border-slate-200"></div>
+                            </div>
+                        </label>
+                    </div>
+
+                    <div class="flex items-center justify-end gap-1.5 shrink-0">
+                        <button type="button" @click="openEditModal = false"
+                                class="px-3.5 py-2 bg-slate-100 hover:bg-slate-200 text-[#2e2552] text-xs font-bold rounded-xl transition-all active:scale-[0.98] whitespace-nowrap">
+                            Batalkan
+                        </button>
+                        <button type="submit"
+                                class="px-4 py-2 bg-[#1b3bbb] hover:bg-[#09103c] text-white text-xs font-extrabold rounded-xl shadow-md shadow-[#1b3bbb]/20 transition-all active:scale-[0.98] flex items-center gap-1.5 cursor-pointer whitespace-nowrap">
+                            <span>Simpan Perubahan</span>
+                            <svg class="w-3.5 h-3.5 text-indigo-200 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- KELOLA PESERTA MODAL FOR EDIT AGENDA -->
+    <div x-show="participantModalOpen" x-cloak 
+         class="fixed inset-0 z-[99999] flex items-center justify-center p-4 sm:p-6 bg-slate-950/70 backdrop-blur-sm select-none">
+        <div @click.away="participantModalOpen = false" 
+             class="bg-white rounded-3xl shadow-2xl border border-[#d4d1f5] w-full max-w-xl flex flex-col max-h-[85vh] overflow-hidden animate-in fade-in zoom-in duration-200">
+            
+            <!-- Header Modal Kelola Peserta -->
+            <div class="px-5 py-4 bg-gradient-to-r from-[#09103c] via-[#1b3bbb] to-[#09103c] text-white flex items-center justify-between shrink-0">
+                <div class="flex items-center gap-3">
+                    <div class="p-2 bg-white/10 rounded-xl border border-white/15 shrink-0">
+                        <svg class="w-5 h-5 text-amber-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"></path>
+                        </svg>
+                    </div>
+                    <div>
+                        <h3 class="text-base font-extrabold text-white">Kelola Peserta Rapat & Kewenangan</h3>
+                        <p class="text-[11px] text-indigo-100 font-medium">Pilih tepat 1 Admin dari setiap unit yang diundang</p>
+                    </div>
+                </div>
+                <button @click="participantModalOpen = false" type="button" class="p-1.5 bg-white/10 hover:bg-rose-500/80 rounded-xl text-white transition-all cursor-pointer shrink-0">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                    </svg>
+                </button>
+            </div>
+
+            <!-- Body Modal Kelola Peserta -->
+            <div x-ref="modalBody" class="p-4 sm:p-5 overflow-y-auto no-scrollbar space-y-4 flex-1 bg-slate-50/50">
+                 <!-- Search Bar -->
+                <div class="relative">
+                    <input type="text" x-model="searchParticipant" placeholder="Cari nama, NIP, atau jabatan peserta..." 
+                           class="w-full pl-9 pr-8 py-2 bg-white border border-[#d4d1f5] rounded-xl text-xs text-[#2e2552] placeholder-slate-400 focus:border-[#1b3bbb] focus:ring-2 focus:ring-[#1b3bbb]/20 transition-all font-semibold shadow-2xs">
+                    <svg class="w-4 h-4 text-[#1b3bbb] absolute left-3 top-2.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+                    </svg>
+                    <button type="button" x-show="searchParticipant.length > 0" @click="searchParticipant = ''" class="absolute right-2.5 top-2.5 text-slate-400 hover:text-slate-600">
+                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                    </button>
+                </div>
+
+                <!-- Inline Validation Alert Banner inside Kelola Peserta Modal -->
+                <template x-if="adminValidationErrorMessage">
+                    <div class="p-3 bg-amber-50 border-2 border-amber-400 text-amber-900 rounded-2xl text-xs font-bold flex items-center justify-between shadow-sm animate-in fade-in duration-200">
+                        <div class="flex items-center gap-2.5 min-w-0">
+                            <div class="p-1 bg-amber-200/80 rounded-lg shrink-0">
+                                <svg class="w-4 h-4 text-amber-800 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path>
+                                </svg>
+                            </div>
+                            <span x-text="adminValidationErrorMessage" class="leading-tight"></span>
+                        </div>
+                        <button type="button" @click="adminValidationErrorMessage = ''" class="p-1 text-amber-700 hover:text-amber-950 hover:bg-amber-200/60 rounded-lg transition-all cursor-pointer shrink-0 ml-2">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                        </button>
+                    </div>
+                </template>
+
+                <template x-if="bidangs.length === 0">
+                    <div class="p-8 text-center bg-white rounded-2xl border border-dashed border-[#d4d1f5] shadow-2xs">
+                        <p class="text-xs text-slate-500 font-bold">Pilih minimal satu bidang di atas terlebih dahulu untuk mengelola peserta.</p>
+                    </div>
+                </template>
+
+                <!-- Group Card Khusus Kepala Dinas (Kadin) -->
+                <template x-if="kadinUser && kadinTarget && (!searchParticipant || kadinUser.name.toLowerCase().includes(searchParticipant.toLowerCase()) || kadinUser.jabatan.toLowerCase().includes(searchParticipant.toLowerCase()))">
+                    <div class="bg-gradient-to-r from-purple-100 via-purple-100/90 to-purple-200/70 border border-purple-400 rounded-2xl p-3.5 space-y-2.5 shadow-2xs">
+                        <div class="flex items-center justify-between pb-2 border-b border-purple-200">
+                            <div class="flex items-center gap-2">
+                                <span class="w-2.5 h-2.5 rounded-full bg-purple-600"></span>
+                                <span class="text-xs font-extrabold text-purple-950">Kepala Dinas (Kadin)</span>
+                            </div>
+                        </div>
+
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-1.5">
+                            <label class="flex items-start gap-2.5 p-2 bg-white/90 rounded-xl border border-purple-300 cursor-pointer select-none transition-all">
+                                <input type="checkbox" :value="kadinUser.id" x-model="selectedParticipants" :disabled="true" class="w-4 h-4 rounded border-slate-300 text-purple-600 focus:ring-purple-500 mt-0.5 shrink-0 opacity-80 cursor-not-allowed">
+                                <div class="min-w-0 flex-1">
+                                    <div class="text-xs font-bold text-purple-950 leading-tight truncate">
+                                        <span x-text="kadinUser.name"></span>
+                                    </div>
+                                    <div class="text-[10px] text-purple-700 font-medium truncate" x-text="kadinUser.jabatan || 'Kepala Dinas / Kadin'"></div>
+                                </div>
+                            </label>
+                        </div>
+                    </div>
+                </template>
+
+                <template x-for="bidang in visibleBidangs" :key="bidang.id">
+                    <div class="bg-white border border-[#d4d1f5]/80 rounded-2xl p-3.5 space-y-2.5 shadow-2xs">
+                        <div class="flex items-center justify-between pb-2 border-b border-[#d4d1f5]/40">
+                            <div class="flex items-center gap-2">
+                                <span class="w-2.5 h-2.5 rounded-full bg-[#1b3bbb]"></span>
+                                <span class="text-xs font-extrabold text-[#2e2552]" x-text="bidang.nama + ' (' + bidang.singkatan + ')'"></span>
+                            </div>
+                            <button type="button" @click="toggleBidangUsers(bidang.id)" class="text-[11px] font-extrabold text-[#1b3bbb] hover:underline cursor-pointer">
+                                <span x-text="isBidangAllChecked(bidang.id) ? 'Hapus Centang Staf' : 'Centang Semua Staf'"></span>
+                            </button>
+                        </div>
+
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-1.5">
+                            <template x-for="user in filteredUsers(bidang.users)" :key="user.id">
+                                <label class="flex items-start gap-2.5 p-2.5 rounded-xl border select-none transition-all cursor-pointer"
+                                       :class="isAdminUser(user) 
+                                               ? 'bg-gradient-to-r from-amber-50/90 to-amber-100/60 border-amber-300 hover:border-amber-400' 
+                                               : (isKetuaUser(user)
+                                                   ? 'bg-gradient-to-r from-purple-100 via-purple-100/90 to-purple-200/70 border-purple-400 hover:border-purple-500' 
+                                                   : 'bg-[#f8f7ff] hover:bg-indigo-50/50 border-[#d4d1f5]/60 hover:border-[#1b3bbb]')">
+                                    
+                                    <input type="checkbox" 
+                                           :value="user.id" 
+                                           x-model="selectedParticipants" 
+                                           :disabled="isMandatoryUser(user)"
+                                           @change="toggleUserParticipant(user)" 
+                                           class="w-4 h-4 rounded border-slate-300 mt-0.5 shrink-0"
+                                           :class="isAdminUser(user) ? 'text-amber-600 focus:ring-amber-500' : (isKetuaUser(user) ? 'text-purple-600 focus:ring-purple-500' : 'text-[#1b3bbb] focus:ring-[#1b3bbb]')"
+                                           :class="isMandatoryUser(user) ? 'opacity-80 cursor-not-allowed' : ''">
+                                    
+                                    <div class="min-w-0 flex-1">
+                                        <div class="text-xs font-bold leading-tight truncate" :class="isAdminUser(user) ? 'text-amber-950' : (isKetuaUser(user) ? 'text-purple-950' : 'text-[#2e2552]')">
+                                            <span x-text="user.name" class="truncate"></span>
+                                        </div>
+                                        <div class="text-[10px] font-medium truncate mt-0.5" :class="isAdminUser(user) ? 'text-amber-800' : (isKetuaUser(user) ? 'text-purple-800' : 'text-[#5a508f]')" x-text="user.jabatan"></div>
+                                    </div>
+                                </label>
+                            </template>
+                        </div>
+                    </div>
+                </template>
+            </div>
+
+            <!-- Footer Modal Kelola Peserta -->
+            <div class="px-5 py-3.5 bg-[#f8f7ff] border-t border-[#d4d1f5] flex flex-col sm:flex-row items-center justify-between gap-3 shrink-0">
+                <div class="text-xs font-bold text-[#5a508f] flex items-center gap-1">
+                    <template x-if="selectedParticipants.length === 0">
+                        <span class="text-rose-600 font-black flex items-center gap-1">Pilih minimal 1 peserta!</span>
+                    </template>
+                    <template x-if="selectedParticipants.length > 0">
+                        <span>Total Terpilih: <span class="text-[#1b3bbb] font-extrabold" x-text="selectedParticipants.length"></span> Peserta</span>
+                    </template>
+                </div>
+                <div class="flex items-center gap-2 w-full sm:w-auto justify-end">
+                    <button type="button" @click="participantModalOpen = false" class="px-4 py-2 bg-slate-200 hover:bg-slate-300 text-[#2e2552] text-xs font-bold rounded-xl transition-all cursor-pointer">
+                        Tutup
+                    </button>
+                    <button type="button" 
+                            @click="if(validateAdminSelection()) { participantModalOpen = false; }" 
+                            :class="selectedParticipants.length === 0 ? 'bg-slate-300 text-slate-500 cursor-not-allowed' : 'bg-[#1b3bbb] hover:bg-[#09103c] text-white shadow-md shadow-[#1b3bbb]/20 cursor-pointer'"
+                            class="px-5 py-2 text-xs font-extrabold rounded-xl transition-all">
+                        Simpan Peserta
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
     @endif
 </div>
 @endsection

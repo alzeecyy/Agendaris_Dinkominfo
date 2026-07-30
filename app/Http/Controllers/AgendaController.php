@@ -405,6 +405,38 @@ class AgendaController extends Controller
             $q->where('role', '!=', 'admin')->where('active', true)->orderBy('name');
         }])->orderBy('nama')->get();
 
+        $sekretariatId = Bidang::where('singkatan', 'Sekretariat')->orWhere('nama', 'Sekretariat')->value('id');
+        $sekretariatSubbagIds = Bidang::whereIn('singkatan', ['Subbag Umum & Kepegawaian', 'Subbag Keuangan', 'Subbag Perencanaan'])
+            ->orWhereIn('nama', ['Subbag Umum dan Kepegawaian', 'Subbag Keuangan', 'Subbag Perencanaan'])
+            ->pluck('id')->toArray();
+        $kadinUser = \App\Models\User::where('role', 'ketua_master')->first();
+        $kadinUserId = $kadinUser ? $kadinUser->id : null;
+        $kadinUserData = $kadinUser ? [
+            'id' => $kadinUser->id,
+            'name' => $kadinUser->name,
+            'nip' => $kadinUser->nip,
+            'jabatan' => $kadinUser->jabatan,
+            'role' => $kadinUser->role,
+        ] : null;
+
+        $bidangsUserData = $bidangsWithUsers->map(function($b) {
+            return [
+                'id' => $b->id,
+                'nama' => $b->nama,
+                'singkatan' => $b->singkatan,
+                'users' => $b->users->map(function($u) {
+                    return [
+                        'id' => $u->id,
+                        'name' => $u->name,
+                        'nip' => $u->nip,
+                        'jabatan' => $u->jabatan,
+                        'role' => $u->role,
+                        'bidang_id' => $u->bidang_id,
+                    ];
+                })
+            ];
+        });
+
         return view('agenda.show', compact(
             'agenda', 
             'ownPresensi', 
@@ -415,7 +447,12 @@ class AgendaController extends Controller
             'isApproverOfAgenda',
             'initialTempat',
             'initialTempatLainnya',
-            'bidangsWithUsers'
+            'bidangsWithUsers',
+            'sekretariatId',
+            'sekretariatSubbagIds',
+            'kadinUserId',
+            'kadinUserData',
+            'bidangsUserData'
         ));
     }
 
