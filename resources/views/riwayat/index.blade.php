@@ -4,7 +4,7 @@
 
 @section('content')
 <div x-data="{ 
-    searchQuery: '',
+    searchQuery: '{{ addslashes($searchQuery ?? "") }}',
     filterKategori: '',
     filterTanggal: '',
     filterStatus: '',
@@ -25,14 +25,15 @@
         },
         @endforeach
     ],
-    checkSearch(title, query) {
+    checkSearch(title, location, query) {
         if (!query) return true;
         const q = query.toLowerCase().trim();
-        const t = title.toLowerCase();
-        return t.includes(q);
+        const t = (title || '').toLowerCase();
+        const l = (location || '').toLowerCase();
+        return t.includes(q) || l.includes(q);
     },
-    matchesFilter(judul, kategori, tanggalStr, statusKehadiran, notulensiStatus) {
-        const matchesSearch = this.checkSearch(judul, this.searchQuery);
+    matchesFilter(judul, lokasi, kategori, tanggalStr, statusKehadiran, notulensiStatus) {
+        const matchesSearch = this.checkSearch(judul, lokasi, this.searchQuery);
         const matchesKategori = !this.filterKategori || kategori === this.filterKategori;
         const matchesTanggal = !this.filterTanggal || tanggalStr === this.filterTanggal;
         const matchesStatus = !this.filterStatus || statusKehadiran === this.filterStatus;
@@ -42,7 +43,7 @@
     },
     get filteredAgendas() {
         return this.agendas.filter(a => {
-            const matchesSearch = this.checkSearch(a.judul, this.searchQuery);
+            const matchesSearch = this.checkSearch(a.judul, a.lokasi, this.searchQuery);
             const matchesKategori = !this.filterKategori || a.kategori === this.filterKategori;
             const matchesTanggal = !this.filterTanggal || a.tanggal === this.filterTanggal;
             const matchesStatus = !this.filterStatus || a.status_kehadiran === this.filterStatus;
@@ -348,7 +349,7 @@ class="space-y-6">
                     @forelse($riwayatData as $item)
                         <tr class="agenda-row hover:bg-[#f8f7ff] cursor-pointer transition-colors"
                             onclick="if (!event.target.closest('a')) { window.loadPage('{{ route('agenda.show', $item->id) }}', this) }"
-                            x-show="matchesFilter('{{ addslashes($item->judul) }}', '{{ $item->kategori }}', '{{ $item->tanggal->toDateString() }}', '{{ $item->status_kehadiran }}', '{{ $item->notulensi_status }}') && isAgendaVisible({{ $item->id }})">
+                            x-show="matchesFilter('{{ addslashes($item->judul) }}', '{{ addslashes($item->lokasi) }}', '{{ $item->kategori }}', '{{ $item->tanggal->toDateString() }}', '{{ $item->status_kehadiran }}', '{{ $item->notulensi_status }}') && isAgendaVisible({{ $item->id }})">
                             <td class="py-2 sm:py-4 px-2 sm:px-4 font-bold text-[#2e2552]">
                                 <a href="{{ route('agenda.show', $item->id) }}" class="hover:text-[#8e88dd] transition-colors leading-snug">
                                     {{ $item->judul }}

@@ -643,6 +643,14 @@ class DashboardController extends Controller
               });
         });
 
+        $searchQuery = trim($request->query('search', ''));
+        if (!empty($searchQuery)) {
+            $query->where(function($sq) use ($searchQuery) {
+                $sq->where('judul', 'like', "%{$searchQuery}%")
+                  ->orWhere('lokasi', 'like', "%{$searchQuery}%");
+            });
+        }
+
         // Filter access directly at database level for optimal performance
         if (!$user->isSekretarisMaster() && !$user->isKetuaMaster() && !$user->isSekretariat()) {
             $query->where(function($q) use ($user) {
@@ -693,6 +701,6 @@ class DashboardController extends Controller
             ];
         });
 
-        return view('riwayat.index', compact('riwayatData', 'selectedNotulensiStatus'));
+        return view('riwayat.index', compact('riwayatData', 'selectedNotulensiStatus', 'searchQuery'));
     }
 }
