@@ -509,161 +509,67 @@
             </div>
 
             <!-- Form Content -->
-            <form action="{{ route('agenda.store') }}" method="POST" class="p-4 sm:p-5 space-y-2.5 flex-1 min-h-0 overflow-y-auto">
-                @csrf
+            @php
+                $allBidangIds = $bidangs->pluck('id')->map(fn($id) => (string)$id)->toArray();
+                $totalBidangCount = count($allBidangIds);
+                $sekretariatBid = $bidangs->first(fn($b) => strcasecmp($b->singkatan, 'Sekretariat') === 0 || strcasecmp($b->nama, 'Sekretariat') === 0);
+                $sekretariatId = $sekretariatBid ? (string)$sekretariatBid->id : null;
+                $sekretariatSubbagIds = $bidangs->filter(function($b) {
+                    return strcasecmp($b->singkatan, 'Sekretariat') === 0 || 
+                           strcasecmp($b->nama, 'Sekretariat') === 0 || 
+                           str_contains(strtolower($b->nama), 'subbag') || 
+                           str_contains(strtolower($b->singkatan), 'subbag');
+                })->pluck('id')->map(fn($id) => (string)$id)->values()->toArray();
 
-                <!-- Title & Category Row -->
-                <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
-                    <div class="sm:col-span-2 space-y-1">
-                        <label for="judul" class="block text-[11px] font-bold text-[#5a508f] uppercase tracking-wider">Judul Kegiatan / Rapat <span class="text-rose-500 font-bold">*</span></label>
-                        <input type="text" name="judul" id="judul" required placeholder="Contoh: Rapat Koordinasi Layanan SPBE"
-                               class="w-full px-3.5 py-2 bg-[#f8f7ff] hover:bg-[#f3f2fe] border border-[#d4d1f5] rounded-xl text-[#2e2552] text-xs placeholder-slate-400 focus:bg-white focus:border-[#1b3bbb] focus:ring-2 focus:ring-[#1b3bbb]/20 transition-all font-semibold">
-                    </div>
-                    <div class="space-y-1 relative" x-data="{ openKategori: false }" @click.outside="openKategori = false">
-                        <label for="kategori" class="block text-[11px] font-bold text-[#5a508f] uppercase tracking-wider">Kategori <span class="text-rose-500 font-bold">*</span></label>
-                        <input type="hidden" name="kategori" id="kategori" x-model="kategori" required>
-                        <button type="button" @click="openKategori = !openKategori" 
-                                class="w-full px-3.5 py-2 bg-[#f8f7ff] hover:bg-[#f3f2fe] border border-[#d4d1f5] rounded-xl text-[#09103c] text-xs font-semibold flex items-center justify-between transition-all cursor-pointer focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#1b3bbb]">
-                            <span class="truncate" x-text="kategori ? (kategori === 'rapat' ? 'Rapat' : (kategori === 'sosialisasi' ? 'Sosialisasi' : (kategori === 'pelatihan' ? 'Pelatihan' : 'Kegiatan Lainnya'))) : 'Pilih Kategori'"></span>
-                            <svg class="w-3.5 h-3.5 text-[#1b3bbb] transition-transform duration-200" :class="openKategori ? 'rotate-180' : ''" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
-                        </button>
-                        <div x-show="openKategori" x-cloak 
-                             x-transition:enter="transition ease-out duration-150 transform" 
-                             x-transition:enter-start="opacity-0 scale-95 -translate-y-1" 
-                             x-transition:enter-end="opacity-100 scale-100 translate-y-0" 
-                             x-transition:leave="transition ease-in duration-100 transform" 
-                             x-transition:leave-start="opacity-100 scale-100 translate-y-0" 
-                             x-transition:leave-end="opacity-0 scale-95 -translate-y-1" 
-                             class="absolute left-0 top-full mt-1 w-full bg-white border border-[#cbd5e1] rounded-2xl shadow-xl shadow-[#1b3bbb]/10 p-1.5 z-50 max-h-52 overflow-y-auto">
-                            <div class="space-y-0.5">
-                                <template x-for="opt in [
-                                    { value: 'rapat', label: 'Rapat' },
-                                    { value: 'sosialisasi', label: 'Sosialisasi' },
-                                    { value: 'pelatihan', label: 'Pelatihan' },
-                                    { value: 'kegiatan_lainnya', label: 'Kegiatan Lainnya' }
-                                ]" :key="opt.value">
-                                    <button type="button" @click="kategori = opt.value; openKategori = false" 
-                                            class="w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs font-semibold transition-colors text-left"
-                                            :class="kategori === opt.value ? 'bg-[#1b3bbb] text-white font-bold' : 'text-[#09103c] hover:bg-[#1b3bbb]/10 hover:text-[#1b3bbb]'">
-                                        <span class="text-left leading-snug" x-text="opt.label"></span>
-                                        <svg x-show="kategori === opt.value" class="w-3.5 h-3.5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/></svg>
-                                    </button>
-                                </template>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Date & Hours Row -->
-                <div class="grid grid-cols-2 sm:grid-cols-3 gap-3">
-                    <div class="col-span-2 sm:col-span-1 space-y-1">
-                        <label for="tanggal" class="block text-[11px] font-bold text-[#5a508f] uppercase tracking-wider">Tanggal <span class="text-rose-500 font-bold">*</span></label>
-                        <input type="date" name="tanggal" id="tanggal" required x-model="selectedDate"
-                               min="{{ now()->subMonths(6)->toDateString() }}"
-                               max="{{ now()->addMonths(6)->toDateString() }}"
-                               class="w-full px-3 py-2 bg-[#f8f7ff] hover:bg-[#f3f2fe] border border-[#d4d1f5] rounded-xl text-[#2e2552] text-xs font-semibold focus:bg-white focus:border-[#1b3bbb] focus:ring-2 focus:ring-[#1b3bbb]/20 transition-all">
-                    </div>
-                    <div class="space-y-1">
-                        <label for="jam_mulai" class="block text-[11px] font-bold text-[#5a508f] uppercase tracking-wider">Jam Mulai <span class="text-rose-500 font-bold">*</span></label>
-                        <input type="time" name="jam_mulai" id="jam_mulai" required x-model="selectedTime"
-                               class="w-full px-2.5 py-2 bg-[#f8f7ff] hover:bg-[#f3f2fe] border border-[#d4d1f5] rounded-xl text-[#2e2552] text-xs font-semibold focus:bg-white focus:border-[#1b3bbb] focus:ring-2 focus:ring-[#1b3bbb]/20 transition-all">
-                    </div>
-                    <div class="space-y-1">
-                        <label for="jam_selesai" class="block text-[11px] font-bold text-[#5a508f] uppercase tracking-wider">Jam Selesai <span class="text-rose-500 font-bold">*</span></label>
-                        <input type="time" name="jam_selesai" id="jam_selesai" required x-model="selectedEndTime"
-                               class="w-full px-2.5 py-2 bg-[#f8f7ff] hover:bg-[#f3f2fe] border border-[#d4d1f5] rounded-xl text-[#2e2552] text-xs font-semibold focus:bg-white focus:border-[#1b3bbb] focus:ring-2 focus:ring-[#1b3bbb]/20 transition-all">
-                    </div>
-                </div>
-
-                <!-- Location & Description Row -->
-                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                    <div class="space-y-1 relative" x-data="{ lokasiVal: '', openLokasi: false }" @click.outside="openLokasi = false">
-                        <label for="tempat" class="block text-[11px] font-bold text-[#5a508f] uppercase tracking-wider">Tempat / Ruangan <span class="text-rose-500 font-bold">*</span></label>
-                        <input type="hidden" id="tempat" name="lokasi" :value="lokasiVal" required>
-                        <button type="button" @click="openLokasi = !openLokasi" 
-                                class="w-full px-3.5 py-2 bg-[#f8f7ff] hover:bg-[#f3f2fe] border border-[#d4d1f5] rounded-xl text-[#09103c] text-xs font-semibold flex items-center justify-between transition-all cursor-pointer focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#1b3bbb]">
-                            <span class="truncate" x-text="lokasiVal || 'Pilih Lokasi / Ruangan'"></span>
-                            <svg class="w-3.5 h-3.5 text-[#1b3bbb] transition-transform duration-200" :class="openLokasi ? 'rotate-180' : ''" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
-                        </button>
-                        <div x-show="openLokasi" x-cloak 
-                             x-transition:enter="transition ease-out duration-150 transform" 
-                             x-transition:enter-start="opacity-0 scale-95 translate-y-1" 
-                             x-transition:enter-end="opacity-100 scale-100 translate-y-0" 
-                             x-transition:leave="transition ease-in duration-100 transform" 
-                             x-transition:leave-start="opacity-100 scale-100 translate-y-0" 
-                             x-transition:leave-end="opacity-0 scale-95 translate-y-1" 
-                             class="absolute left-0 bottom-full mb-1 w-full bg-white border border-[#cbd5e1] rounded-2xl shadow-xl shadow-[#1b3bbb]/10 p-1.5 z-50 max-h-52 overflow-y-auto">
-                            <div class="space-y-0.5">
-                                <template x-for="loc in ['Aula Rapat Dinkominfo', 'Ruang Pelatihan', 'Smart Room Graha Satria']" :key="loc">
-                                    <button type="button" @click="lokasiVal = loc; openLokasi = false" 
-                                            class="w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs font-semibold transition-colors text-left"
-                                            :class="lokasiVal === loc ? 'bg-[#1b3bbb] text-white font-bold' : 'text-[#09103c] hover:bg-[#1b3bbb]/10 hover:text-[#1b3bbb]'">
-                                        <span class="text-left leading-snug" x-text="loc"></span>
-                                        <svg x-show="lokasiVal === loc" class="w-3.5 h-3.5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/></svg>
-                                    </button>
-                                </template>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="space-y-1">
-                        <label for="deskripsi" class="block text-[11px] font-bold text-[#5a508f] uppercase tracking-wider">Deskripsi (Opsional)</label>
-                        <input type="text" name="deskripsi" id="deskripsi" placeholder="Masukkan rincian singkat agenda..."
-                               class="w-full px-3.5 py-2 bg-[#f8f7ff] hover:bg-[#f3f2fe] border border-[#d4d1f5] rounded-xl text-[#2e2552] text-xs placeholder-slate-400 focus:bg-white focus:border-[#1b3bbb] focus:ring-2 focus:ring-[#1b3bbb]/20 transition-all font-semibold">
-                    </div>
-                </div>
-
-                <!-- Hak Akses & Kelola Peserta -->
-                @php
-                    $allBidangIds = $bidangs->pluck('id')->map(fn($id) => (string)$id)->toArray();
-                    $totalBidangCount = count($allBidangIds);
-                    $sekretariatBid = $bidangs->first(fn($b) => strcasecmp($b->singkatan, 'Sekretariat') === 0 || strcasecmp($b->nama, 'Sekretariat') === 0);
-                    $sekretariatId = $sekretariatBid ? (string)$sekretariatBid->id : null;
-                    $sekretariatSubbagIds = $bidangs->filter(function($b) {
-                        return strcasecmp($b->singkatan, 'Sekretariat') === 0 || 
-                               strcasecmp($b->nama, 'Sekretariat') === 0 || 
-                               str_contains(strtolower($b->nama), 'subbag') || 
-                               str_contains(strtolower($b->singkatan), 'subbag');
-                    })->pluck('id')->map(fn($id) => (string)$id)->values()->toArray();
-
-                    $kadinUser = \App\Models\User::where('role', 'ketua_master')->first();
-                    $kadinUserId = $kadinUser ? (string)$kadinUser->id : '';
-                    $kadinUserData = $kadinUser ? [
-                        'id' => (string)$kadinUser->id,
-                        'name' => $kadinUser->name,
-                        'nip' => $kadinUser->nip ?? '-',
-                        'jabatan' => $kadinUser->jabatan ?? 'Kepala Dinas / Kadin',
-                        'role' => $kadinUser->role,
-                    ] : null;
-                    
-                    $defaultInitialBidangs = [];
-                    if (Auth::user()->isSekretarisBidang() || Auth::user()->isSekretariatScope()) {
-                        if (Auth::user()->bidang_id) {
-                            $defaultInitialBidangs[] = (string)Auth::user()->bidang_id;
-                        }
-                        if (Auth::user()->isSekretariatScope() && $sekretariatId) {
-                            $defaultInitialBidangs[] = (string)$sekretariatId;
-                        }
+                $kadinUser = \App\Models\User::where('role', 'ketua_master')->first();
+                $kadinUserId = $kadinUser ? (string)$kadinUser->id : '';
+                $kadinUserData = $kadinUser ? [
+                    'id' => (string)$kadinUser->id,
+                    'name' => $kadinUser->name,
+                    'nip' => $kadinUser->nip ?? '-',
+                    'jabatan' => $kadinUser->jabatan ?? 'Kepala Dinas / Kadin',
+                    'role' => $kadinUser->role,
+                ] : null;
+                
+                $defaultInitialBidangs = [];
+                if (Auth::user()->isSekretarisBidang() || Auth::user()->isSekretariatScope()) {
+                    if (Auth::user()->bidang_id) {
+                        $defaultInitialBidangs[] = (string)Auth::user()->bidang_id;
                     }
+                    if (Auth::user()->isSekretariatScope() && $sekretariatId) {
+                        $defaultInitialBidangs[] = (string)$sekretariatId;
+                    }
+                }
 
-                    $bidangsUserData = $bidangs->map(function($b) {
-                        return [
-                            'id' => (string)$b->id,
-                            'nama' => $b->nama,
-                            'singkatan' => $b->singkatan,
-                            'users' => $b->users->map(function($u) {
-                                return [
-                                    'id' => (string)$u->id,
-                                    'name' => $u->name,
-                                    'nip' => $u->nip ?? '-',
-                                    'jabatan' => $u->jabatan ?? '-',
-                                    'role' => $u->role,
-                                ];
-                            })->values()->toArray(),
-                        ];
-                    })->values()->toArray();
-                @endphp
+                $bidangsUserData = $bidangs->map(function($b) {
+                    return [
+                        'id' => (string)$b->id,
+                        'nama' => $b->nama,
+                        'singkatan' => $b->singkatan,
+                        'users' => $b->users->map(function($u) {
+                            return [
+                                'id' => (string)$u->id,
+                                'name' => $u->name,
+                                'nip' => $u->nip ?? '-',
+                                'jabatan' => $u->jabatan ?? '-',
+                                'role' => $u->role,
+                            ];
+                        })->values()->toArray(),
+                    ];
+                })->values()->toArray();
+            @endphp
 
-                <div x-data='{
+            <form action="{{ route('agenda.store') }}" method="POST" 
+                  x-ref="formContainer"
+                  @submit="validateAndSubmitAgendaForm($event)"
+                  novalidate
+                  class="p-4 sm:p-5 space-y-3 flex-1 min-h-0 overflow-y-auto"
+                  x-data='{
+                    judul: "{{ old('judul') }}",
+                    lokasiVal: "{{ old('lokasi') }}",
+                    openKategori: false,
+                    openLokasi: false,
+                    formErrors: {},
                     semuaOrang: false,
                     semuaSekretariat: false,
                     sekretariatSubbagIds: {{ json_encode(array_values($sekretariatSubbagIds)) }},
@@ -685,6 +591,72 @@
                     searchParticipant: "",
                     adminValidationErrorMessage: "",
                     isDirty: false,
+
+                    validateAndSubmitAgendaForm(e) {
+                        this.formErrors = {};
+                        let hasError = false;
+
+                        if (!this.judul || !this.judul.trim()) {
+                            this.formErrors.judul = "Judul kegiatan / rapat wajib diisi.";
+                            hasError = true;
+                        }
+
+                        if (!this.kategori) {
+                            this.formErrors.kategori = "Kategori wajib dipilih.";
+                            hasError = true;
+                        }
+
+                        if (!this.selectedDate) {
+                            this.formErrors.tanggal = "Tanggal wajib diisi.";
+                            hasError = true;
+                        }
+
+                        if (!this.selectedTime) {
+                            this.formErrors.jam_mulai = "Jam mulai wajib diisi.";
+                            hasError = true;
+                        }
+
+                        if (!this.selectedEndTime) {
+                            this.formErrors.jam_selesai = "Jam selesai wajib diisi.";
+                            hasError = true;
+                        } else if (this.selectedTime && this.selectedEndTime <= this.selectedTime) {
+                            this.formErrors.jam_selesai = "Jam selesai harus setelah jam mulai.";
+                            hasError = true;
+                        }
+
+                        if (!this.lokasiVal) {
+                            this.formErrors.lokasi = "Tempat / ruangan wajib dipilih.";
+                            hasError = true;
+                        }
+
+                        let numericBids = (this.bidangs || []).filter(b => b !== "kadin");
+                        if (numericBids.length === 0 && !this.semuaOrang) {
+                            this.formErrors.bidangs = "Pilih minimal 1 sasaran bidang / unit.";
+                            hasError = true;
+                        }
+
+                        if (!this.selectedParticipants || this.selectedParticipants.length === 0) {
+                            this.formErrors.participants = "Pilih minimal 1 peserta rapat.";
+                            hasError = true;
+                        }
+
+                        if (!this.validateAdminSelection()) {
+                            hasError = true;
+                        }
+
+                        if (hasError) {
+                            e.preventDefault();
+                            e.stopPropagation();
+                            this.$nextTick(() => {
+                                if (this.$refs.formContainer) {
+                                    this.$refs.formContainer.scrollTo({ top: 0, behavior: "smooth" });
+                                }
+                            });
+                            return false;
+                        }
+
+                        return true;
+                    },
 
                     init() {
                         this.syncParticipants();
@@ -732,7 +704,6 @@
                             if (b) {
                                 let unitAdminIds = b.users.filter(u => this.isAdminUser(u)).map(u => String(u.id));
                                 if (!curParts.includes(uId)) {
-                                    // Switch to this admin (max 1 admin selected per unit)
                                     curParts = curParts.filter(id => !unitAdminIds.includes(id));
                                     curParts.push(uId);
                                 }
@@ -838,7 +809,6 @@
                             let curParts = (this.selectedParticipants || []).map(String);
 
                             if (curBids.includes(strId)) {
-                                // Bidang checked: Auto-check ALL users in this bidang
                                 let b = (this.bidangsUserData || []).find(item => String(item.id) === strId);
                                 if (b && Array.isArray(b.users)) {
                                     b.users.forEach(u => {
@@ -849,7 +819,6 @@
                                     });
                                 }
                             } else {
-                                // Bidang unchecked: Remove users belonging to this bidang
                                 let b = (this.bidangsUserData || []).find(item => String(item.id) === strId);
                                 if (b && Array.isArray(b.users)) {
                                     let unitUserIds = b.users.map(u => String(u.id));
@@ -917,7 +886,6 @@
                         let activeUserIds = [];
                         let mandatoryUserIds = [];
 
-                        // Always enforce logged-in creator (Notulis)
                         if (this.currentUserId) {
                             mandatoryUserIds.push(String(this.currentUserId));
                         }
@@ -937,7 +905,6 @@
                                     }
                                 });
 
-                                // Auto-pick 1st admin if no admin is currently selected for this invited unit
                                 if (!hasAdminSelected && unitAdmins.length > 0) {
                                     mandatoryUserIds.push(String(unitAdmins[0].id));
                                 }
@@ -950,15 +917,8 @@
                             mandatoryUserIds.push(kId);
                         }
 
-                        if (this.sekdinTarget && this.sekdinUserId) {
-                            let sId = String(this.sekdinUserId);
-                            activeUserIds.push(sId);
-                            mandatoryUserIds.push(sId);
-                        }
-
                         let newSelection = currentSelected.filter(id => activeUserIds.includes(id));
 
-                        // Auto-check all users of newly invited bidangs if none were selected yet for that unit
                         selectedBidangIds.forEach(bidId => {
                             let b = (this.bidangsUserData || []).find(item => String(item.id) === bidId);
                             if (b && Array.isArray(b.users)) {
@@ -974,7 +934,6 @@
                             }
                         });
 
-                        // Mandatory users (Creator + Ketua + 1 Admin) MUST always be checked
                         mandatoryUserIds.forEach(id => {
                             if (!newSelection.includes(id)) {
                                 newSelection.push(id);
@@ -984,9 +943,6 @@
                         this.selectedParticipants = newSelection;
                         if (this.kadinUserId) {
                             this.kadinTarget = this.selectedParticipants.map(String).includes(String(this.kadinUserId));
-                        }
-                        if (this.sekdinUserId) {
-                            this.sekdinTarget = this.selectedParticipants.map(String).includes(String(this.sekdinUserId));
                         }
                     },
 
@@ -1005,7 +961,6 @@
                                 }
                             });
                         } else {
-                            // Uncheck only non-mandatory users; keep mandatory leaders and notulis checked
                             currentSelected = currentSelected.filter(id => {
                                 let u = b.users.find(usr => String(usr.id) === String(id));
                                 if (u && this.isMandatoryUser(u)) return true;
@@ -1021,7 +976,157 @@
                         let currentSelected = this.selectedParticipants.map(String);
                         return b.users.every(u => currentSelected.includes(String(u.id)));
                     }
-                }' class="space-y-2 border-t border-[#d4d1f5]/60 pt-2.5">
+                 }'>
+                @csrf
+
+                <!-- Title & Category Row -->
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                    <div class="sm:col-span-2 space-y-1">
+                        <label for="judul" class="block text-[11px] font-bold text-[#5a508f] uppercase tracking-wider">Judul Kegiatan / Rapat <span class="text-rose-500 font-bold">*</span></label>
+                        <input type="text" name="judul" id="judul" x-model="judul" placeholder="Contoh: Rapat Koordinasi Layanan SPBE"
+                               :class="formErrors.judul ? 'border-rose-500 bg-rose-50/50 ring-2 ring-rose-500/20 text-rose-900 placeholder-rose-400' : 'border-[#d4d1f5] bg-[#f8f7ff] hover:bg-[#f3f2fe] focus:bg-white focus:border-[#1b3bbb] focus:ring-2 focus:ring-[#1b3bbb]/20 text-[#2e2552]'"
+                               class="w-full px-3.5 py-2 rounded-xl text-xs placeholder-slate-400 transition-all font-semibold"
+                               @input="if(formErrors.judul) delete formErrors.judul">
+                        <template x-if="formErrors.judul">
+                            <p class="text-[10.5px] text-rose-600 font-bold mt-1 flex items-center gap-1">
+                                <svg class="w-3 h-3 text-rose-600 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
+                                <span x-text="formErrors.judul"></span>
+                            </p>
+                        </template>
+                    </div>
+                    <div class="space-y-1 relative" @click.outside="openKategori = false">
+                        <label for="kategori" class="block text-[11px] font-bold text-[#5a508f] uppercase tracking-wider">Kategori <span class="text-rose-500 font-bold">*</span></label>
+                        <input type="hidden" name="kategori" id="kategori" x-model="kategori">
+                        <button type="button" @click="openKategori = !openKategori" 
+                                :class="formErrors.kategori ? 'border-rose-500 bg-rose-50/50 ring-2 ring-rose-500/20 text-rose-900' : 'border-[#d4d1f5] bg-[#f8f7ff] hover:bg-[#f3f2fe] focus:bg-white focus:ring-2 focus:ring-[#1b3bbb] text-[#09103c]'"
+                                class="w-full px-3.5 py-2 rounded-xl text-xs font-semibold flex items-center justify-between transition-all cursor-pointer focus:outline-none">
+                            <span class="truncate" x-text="kategori ? (kategori === 'rapat' ? 'Rapat' : (kategori === 'sosialisasi' ? 'Sosialisasi' : (kategori === 'pelatihan' ? 'Pelatihan' : 'Kegiatan Lainnya'))) : 'Pilih Kategori'"></span>
+                            <svg class="w-3.5 h-3.5 text-[#1b3bbb] transition-transform duration-200" :class="openKategori ? 'rotate-180' : ''" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                        </button>
+                        <template x-if="formErrors.kategori">
+                            <p class="text-[10.5px] text-rose-600 font-bold mt-1 flex items-center gap-1">
+                                <svg class="w-3 h-3 text-rose-600 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
+                                <span x-text="formErrors.kategori"></span>
+                            </p>
+                        </template>
+                        <div x-show="openKategori" x-cloak 
+                             x-transition:enter="transition ease-out duration-150 transform" 
+                             x-transition:enter-start="opacity-0 scale-95 -translate-y-1" 
+                             x-transition:enter-end="opacity-100 scale-100 translate-y-0" 
+                             x-transition:leave="transition ease-in duration-100 transform" 
+                             x-transition:leave-start="opacity-100 scale-100 translate-y-0" 
+                             x-transition:leave-end="opacity-0 scale-95 -translate-y-1" 
+                             class="absolute left-0 top-full mt-1 w-full bg-white border border-[#cbd5e1] rounded-2xl shadow-xl shadow-[#1b3bbb]/10 p-1.5 z-50 max-h-52 overflow-y-auto">
+                            <div class="space-y-0.5">
+                                <template x-for="opt in [
+                                    { value: 'rapat', label: 'Rapat' },
+                                    { value: 'sosialisasi', label: 'Sosialisasi' },
+                                    { value: 'pelatihan', label: 'Pelatihan' },
+                                    { value: 'kegiatan_lainnya', label: 'Kegiatan Lainnya' }
+                                ]" :key="opt.value">
+                                    <button type="button" @click="kategori = opt.value; openKategori = false; if(formErrors.kategori) delete formErrors.kategori" 
+                                            class="w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs font-semibold transition-colors text-left"
+                                            :class="kategori === opt.value ? 'bg-[#1b3bbb] text-white font-bold' : 'text-[#09103c] hover:bg-[#1b3bbb]/10 hover:text-[#1b3bbb]'">
+                                        <span class="text-left leading-snug" x-text="opt.label"></span>
+                                        <svg x-show="kategori === opt.value" class="w-3.5 h-3.5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/></svg>
+                                    </button>
+                                </template>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Date & Hours Row -->
+                <div class="grid grid-cols-2 sm:grid-cols-3 gap-3">
+                    <div class="col-span-2 sm:col-span-1 space-y-1">
+                        <label for="tanggal" class="block text-[11px] font-bold text-[#5a508f] uppercase tracking-wider">Tanggal <span class="text-rose-500 font-bold">*</span></label>
+                        <input type="date" name="tanggal" id="tanggal" x-model="selectedDate"
+                               min="{{ now()->subMonths(6)->toDateString() }}"
+                               max="{{ now()->addMonths(6)->toDateString() }}"
+                               :class="formErrors.tanggal ? 'border-rose-500 bg-rose-50/50 ring-2 ring-rose-500/20 text-rose-900' : 'border-[#d4d1f5] bg-[#f8f7ff] hover:bg-[#f3f2fe] focus:bg-white focus:border-[#1b3bbb] focus:ring-2 focus:ring-[#1b3bbb]/20 text-[#2e2552]'"
+                               class="w-full px-3 py-2 rounded-xl text-xs font-semibold transition-all"
+                               @change="if(formErrors.tanggal) delete formErrors.tanggal">
+                        <template x-if="formErrors.tanggal">
+                            <p class="text-[10.5px] text-rose-600 font-bold mt-1 flex items-center gap-1">
+                                <svg class="w-3 h-3 text-rose-600 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
+                                <span x-text="formErrors.tanggal"></span>
+                            </p>
+                        </template>
+                    </div>
+                    <div class="space-y-1">
+                        <label for="jam_mulai" class="block text-[11px] font-bold text-[#5a508f] uppercase tracking-wider">Jam Mulai <span class="text-rose-500 font-bold">*</span></label>
+                        <input type="time" name="jam_mulai" id="jam_mulai" x-model="selectedTime"
+                               :class="formErrors.jam_mulai ? 'border-rose-500 bg-rose-50/50 ring-2 ring-rose-500/20 text-rose-900' : 'border-[#d4d1f5] bg-[#f8f7ff] hover:bg-[#f3f2fe] focus:bg-white focus:border-[#1b3bbb] focus:ring-2 focus:ring-[#1b3bbb]/20 text-[#2e2552]'"
+                               class="w-full px-2.5 py-2 rounded-xl text-xs font-semibold transition-all"
+                               @change="if(formErrors.jam_mulai) delete formErrors.jam_mulai">
+                        <template x-if="formErrors.jam_mulai">
+                            <p class="text-[10.5px] text-rose-600 font-bold mt-1 flex items-center gap-1">
+                                <svg class="w-3 h-3 text-rose-600 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
+                                <span x-text="formErrors.jam_mulai"></span>
+                            </p>
+                        </template>
+                    </div>
+                    <div class="space-y-1">
+                        <label for="jam_selesai" class="block text-[11px] font-bold text-[#5a508f] uppercase tracking-wider">Jam Selesai <span class="text-rose-500 font-bold">*</span></label>
+                        <input type="time" name="jam_selesai" id="jam_selesai" x-model="selectedEndTime"
+                               :class="formErrors.jam_selesai ? 'border-rose-500 bg-rose-50/50 ring-2 ring-rose-500/20 text-rose-900' : 'border-[#d4d1f5] bg-[#f8f7ff] hover:bg-[#f3f2fe] focus:bg-white focus:border-[#1b3bbb] focus:ring-2 focus:ring-[#1b3bbb]/20 text-[#2e2552]'"
+                               class="w-full px-2.5 py-2 rounded-xl text-xs font-semibold transition-all"
+                               @change="if(formErrors.jam_selesai) delete formErrors.jam_selesai">
+                        <template x-if="formErrors.jam_selesai">
+                            <p class="text-[10.5px] text-rose-600 font-bold mt-1 flex items-center gap-1">
+                                <svg class="w-3 h-3 text-rose-600 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
+                                <span x-text="formErrors.jam_selesai"></span>
+                            </p>
+                        </template>
+                    </div>
+                </div>
+
+                <!-- Location & Description Row -->
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <div class="space-y-1 relative" @click.outside="openLokasi = false">
+                        <label for="tempat" class="block text-[11px] font-bold text-[#5a508f] uppercase tracking-wider">Tempat / Ruangan <span class="text-rose-500 font-bold">*</span></label>
+                        <input type="hidden" id="tempat" name="lokasi" :value="lokasiVal">
+                        <button type="button" @click="openLokasi = !openLokasi" 
+                                :class="formErrors.lokasi ? 'border-rose-500 bg-rose-50/50 ring-2 ring-rose-500/20 text-rose-900' : 'border-[#d4d1f5] bg-[#f8f7ff] hover:bg-[#f3f2fe] focus:bg-white focus:ring-2 focus:ring-[#1b3bbb] text-[#09103c]'"
+                                class="w-full px-3.5 py-2 rounded-xl text-xs font-semibold flex items-center justify-between transition-all cursor-pointer focus:outline-none">
+                            <span class="truncate" x-text="lokasiVal || 'Pilih Lokasi / Ruangan'"></span>
+                            <svg class="w-3.5 h-3.5 text-[#1b3bbb] transition-transform duration-200" :class="openLokasi ? 'rotate-180' : ''" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                        </button>
+                        <template x-if="formErrors.lokasi">
+                            <p class="text-[10.5px] text-rose-600 font-bold mt-1 flex items-center gap-1">
+                                <svg class="w-3.5 h-3.5 text-rose-600 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
+                                <span x-text="formErrors.lokasi"></span>
+                            </p>
+                        </template>
+                        <div x-show="openLokasi" x-cloak 
+                             x-transition:enter="transition ease-out duration-150 transform" 
+                             x-transition:enter-start="opacity-0 scale-95 translate-y-1" 
+                             x-transition:enter-end="opacity-100 scale-100 translate-y-0" 
+                             x-transition:leave="transition ease-in duration-100 transform" 
+                             x-transition:leave-start="opacity-100 scale-100 translate-y-0" 
+                             x-transition:leave-end="opacity-0 scale-95 translate-y-1" 
+                             class="absolute left-0 bottom-full mb-1 w-full bg-white border border-[#cbd5e1] rounded-2xl shadow-xl shadow-[#1b3bbb]/10 p-1.5 z-50 max-h-52 overflow-y-auto">
+                            <div class="space-y-0.5">
+                                <template x-for="loc in ['Aula Rapat Dinkominfo', 'Ruang Pelatihan', 'Smart Room Graha Satria']" :key="loc">
+                                    <button type="button" @click="lokasiVal = loc; openLokasi = false; if(formErrors.lokasi) delete formErrors.lokasi" 
+                                            class="w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs font-semibold transition-colors text-left"
+                                            :class="lokasiVal === loc ? 'bg-[#1b3bbb] text-white font-bold' : 'text-[#09103c] hover:bg-[#1b3bbb]/10 hover:text-[#1b3bbb]'">
+                                        <span class="text-left leading-snug" x-text="loc"></span>
+                                        <svg x-show="lokasiVal === loc" class="w-3.5 h-3.5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/></svg>
+                                    </button>
+                                </template>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="space-y-1">
+                        <label for="deskripsi" class="block text-[11px] font-bold text-[#5a508f] uppercase tracking-wider">Deskripsi (Opsional)</label>
+                        <input type="text" name="deskripsi" id="deskripsi" placeholder="Masukkan rincian singkat agenda..."
+                               class="w-full px-3.5 py-2 bg-[#f8f7ff] hover:bg-[#f3f2fe] border border-[#d4d1f5] rounded-xl text-[#2e2552] text-xs placeholder-slate-400 focus:bg-white focus:border-[#1b3bbb] focus:ring-2 focus:ring-[#1b3bbb]/20 transition-all font-semibold">
+                    </div>
+                </div>
+
+                <!-- Hak Akses & Kelola Peserta -->
+                <div class="space-y-2 border-t border-[#d4d1f5]/60 pt-2.5">
                     
                     <!-- Hidden Payload Inputs -->
                     <template x-for="bidangId in bidangs" :key="'bidang-' + bidangId">
@@ -1044,20 +1149,34 @@
                         </div>
                         <button type="button" 
                                 @click="participantModalOpen = true"
-                                :class="selectedParticipants.length === 0 ? 'bg-rose-50 text-rose-600 border-rose-200 hover:bg-rose-100' : 'bg-[#f8f7ff] text-[#1b3bbb] border-[#d4d1f5] hover:border-[#1b3bbb] hover:bg-[#f3f2fe]'"
+                                :class="selectedParticipants.length === 0 || formErrors.participants ? 'bg-rose-50 text-rose-600 border-rose-300 hover:bg-rose-100 ring-2 ring-rose-500/20' : 'bg-[#f8f7ff] text-[#1b3bbb] border-[#d4d1f5] hover:border-[#1b3bbb] hover:bg-[#f3f2fe]'"
                                 class="inline-flex items-center gap-1.5 px-3 py-1.5 border rounded-xl text-xs font-bold transition-all shadow-2xs cursor-pointer active:scale-95">
                             <svg class="w-3.5 h-3.5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"></path>
                             </svg>
                             <span>Kelola Peserta</span>
                             <span class="px-1.5 py-0.5 rounded-full text-[10px] font-extrabold" 
-                                  :class="selectedParticipants.length === 0 ? 'bg-rose-600 text-white animate-pulse' : 'bg-[#1b3bbb] text-white'" 
+                                  :class="selectedParticipants.length === 0 || formErrors.participants ? 'bg-rose-600 text-white animate-pulse' : 'bg-[#1b3bbb] text-white'" 
                                   x-text="selectedParticipants.length"></span>
                         </button>
                     </div>
 
+                    <template x-if="formErrors.bidangs">
+                        <p class="text-[10.5px] text-rose-600 font-bold flex items-center gap-1">
+                            <svg class="w-3.5 h-3.5 text-rose-600 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
+                            <span x-text="formErrors.bidangs"></span>
+                        </p>
+                    </template>
+                    <template x-if="formErrors.participants">
+                        <p class="text-[10.5px] text-rose-600 font-bold flex items-center gap-1">
+                            <svg class="w-3.5 h-3.5 text-rose-600 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
+                            <span x-text="formErrors.participants"></span>
+                        </p>
+                    </template>
+
                     <!-- Bidang Selection List Card -->
-                    <div class="bg-[#f8f7ff] border border-[#d4d1f5] rounded-2xl p-3 space-y-2">
+                    <div :class="formErrors.bidangs ? 'border-rose-400 bg-rose-50/30 ring-2 ring-rose-500/20' : 'border-[#d4d1f5] bg-[#f8f7ff]'"
+                         class="border rounded-2xl p-3 space-y-2 transition-all">
                         <!-- Inline Alert for 3-Bidang Limit -->
                         <div x-show="showBidangLimitWarning" x-cloak class="p-2.5 bg-amber-50 border border-amber-200 text-amber-900 rounded-xl text-[11px] font-semibold flex items-center gap-2 animate-in fade-in duration-200 shadow-2xs">
                             <svg class="w-4 h-4 text-amber-600 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">

@@ -484,10 +484,10 @@
         <div class="space-y-4 sm:space-y-6 flex flex-col h-full justify-between">
             
             <!-- Highlights Panel -->
-            <div class="bg-white border border-[#d4d1f5]/60 rounded-2xl md:rounded-[32px] p-3.5 sm:p-6 shadow-sm space-y-3 sm:space-y-4 shrink-0">
-                <h3 class="text-[11px] sm:text-xs font-bold uppercase tracking-wider text-[#2e2552]">Perhatian Khusus</h3>
+            <div class="bg-white border border-[#d4d1f5]/60 rounded-2xl md:rounded-[32px] p-3.5 sm:p-6 shadow-sm flex flex-col min-h-[250px] flex-1">
+                <h3 class="text-[11px] sm:text-xs font-bold uppercase tracking-wider text-[#2e2552] mb-3 sm:mb-4">Perhatian Khusus</h3>
                 
-                <div class="space-y-1.5 max-h-[220px] overflow-y-auto pr-1">
+                <div class="space-y-1.5 max-h-[220px] overflow-y-auto pr-1 flex-1 flex flex-col justify-center">
                     @forelse($highlights as $hl)
                         <div class="p-2 bg-[#f8f7ff] border border-amber-300/30 rounded-xl flex flex-col gap-1">
                             <div class="flex items-start gap-1.5">
@@ -504,19 +504,21 @@
                             @endif
                         </div>
                     @empty
-                        <p class="text-xs text-slate-400 text-center py-4 italic">Tidak ada tindakan mendesak hari ini.</p>
+                        <div class="my-auto py-8 text-center">
+                            <p class="text-xs text-slate-400 italic">Tidak ada tindakan mendesak hari ini.</p>
+                        </div>
                     @endforelse
                 </div>
             </div>
 
             <!-- Recent Activity History Card -->
-            <div class="bg-white border border-[#d4d1f5]/60 rounded-2xl md:rounded-[32px] p-3.5 sm:p-6 shadow-sm flex-1 flex flex-col">
+            <div class="bg-white border border-[#d4d1f5]/60 rounded-2xl md:rounded-[32px] p-3.5 sm:p-6 shadow-sm flex flex-col min-h-[250px] flex-1">
                 <div class="flex items-center justify-between mb-3.5 sm:mb-4">
                     <h3 class="text-[11px] sm:text-xs font-bold uppercase tracking-wider text-[#2e2552]">Riwayat Kegiatan</h3>
                     <a href="{{ route('riwayat') }}" class="text-[10px] text-[#8e88dd] hover:text-[#2e2552] font-bold transition-colors">Lihat Semua</a>
                 </div>
 
-                <div class="space-y-2.5 max-h-[200px] overflow-y-auto pr-1">
+                <div class="space-y-2.5 max-h-[220px] overflow-y-auto pr-1 flex-1">
                     @forelse($riwayatRingkas as $rw)
                         <div class="p-3 bg-[#fcfbff] border border-[#d4d1f5]/20 rounded-2xl flex items-center justify-between gap-3 text-xs">
                             <div class="min-w-0 flex-1">
