@@ -524,59 +524,59 @@
         <div class="space-y-4 sm:space-y-6 flex flex-col h-full justify-between">
             
             <!-- Highlights Panel -->
-            <div class="bg-white border border-[#d4d1f5]/60 rounded-2xl md:rounded-[28px] p-3 sm:p-4.5 shadow-sm space-y-2.5 shrink-0">
+            <div class="bg-white border border-[#d4d1f5]/60 rounded-2xl md:rounded-[32px] p-3.5 sm:p-6 shadow-sm space-y-3 sm:space-y-4 shrink-0">
                 <h3 class="text-[11px] sm:text-xs font-bold uppercase tracking-wider text-[#2e2552]">Perhatian Khusus</h3>
                 
-                <div class="space-y-2 max-h-[195px] overflow-y-auto pr-1">
+                <div class="space-y-1.5 max-h-[220px] overflow-y-auto pr-1">
                     @forelse($highlights as $hl)
-                        <div class="p-2 sm:p-2.5 bg-[#f8f7ff] border border-amber-300/30 rounded-xl flex flex-col gap-1">
+                        <div class="p-2 bg-[#f8f7ff] border border-amber-300/30 rounded-xl flex flex-col gap-1">
                             <div class="flex items-start gap-1.5">
-                                <svg class="w-3.5 h-3.5 sm:w-4 sm:h-4 text-amber-500 shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <svg class="w-3.5 h-3.5 text-amber-500 shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path>
                                 </svg>
-                                <p class="text-[9.5px] sm:text-[10px] text-[#5a508f] leading-snug font-semibold">{{ $hl['text'] }}</p>
+                                <p class="text-[9px] text-[#5a508f] leading-snug font-semibold">{{ $hl['text'] }}</p>
                             </div>
                             @if(isset($hl['url']))
                                 <a href="{{ $hl['url'] }}" 
-                                   class="self-end px-2 py-0.5 bg-[#2e2552] hover:bg-[#3d326a] text-white text-[8.5px] font-bold rounded-md transition-colors">
+                                   class="self-end px-2 py-0.5 bg-[#2e2552] hover:bg-[#3d326a] text-white text-[8px] font-bold rounded-md transition-colors">
                                     {{ $hl['action_text'] }}
                                 </a>
                             @endif
                         </div>
                     @empty
-                        <p class="text-xs text-slate-400 text-center py-4 sm:py-6 italic">Tidak ada tindakan mendesak hari ini.</p>
+                        <p class="text-xs text-slate-400 text-center py-4 italic">Tidak ada tindakan mendesak hari ini.</p>
                     @endforelse
                 </div>
             </div>
 
             <!-- Recent Activity History Card -->
-            <div class="bg-white border border-[#d4d1f5]/60 rounded-2xl md:rounded-[28px] p-3 sm:p-4.5 shadow-sm flex-1 flex flex-col">
-                <div class="flex items-center justify-between mb-2.5">
+            <div class="bg-white border border-[#d4d1f5]/60 rounded-2xl md:rounded-[32px] p-3.5 sm:p-6 shadow-sm flex-1 flex flex-col">
+                <div class="flex items-center justify-between mb-3.5 sm:mb-4">
                     <h3 class="text-[11px] sm:text-xs font-bold uppercase tracking-wider text-[#2e2552]">Riwayat Kegiatan</h3>
                     <a href="{{ route('riwayat') }}" class="text-[10px] text-[#8e88dd] hover:text-[#2e2552] font-bold transition-colors">Lihat Semua</a>
                 </div>
 
-                <div class="space-y-1.5 max-h-[160px] overflow-y-auto pr-1">
+                <div class="space-y-2.5 max-h-[200px] overflow-y-auto pr-1">
                     @forelse($riwayatRingkas as $rw)
-                        <div class="p-2 sm:p-2.5 bg-[#fcfbff] border border-[#d4d1f5]/20 rounded-xl flex items-center justify-between gap-2 text-xs">
+                        <div class="p-3 bg-[#fcfbff] border border-[#d4d1f5]/20 rounded-2xl flex items-center justify-between gap-3 text-xs">
                             <div class="min-w-0 flex-1">
-                                <h4 class="font-bold text-[#2e2552] text-[10.5px] sm:text-[11px] truncate leading-tight">{{ $rw->judul }}</h4>
-                                <p class="text-[8.5px] sm:text-[9px] text-[#5a508f] mt-0.5">
+                                <h4 class="font-bold text-[#2e2552] truncate">{{ $rw->judul }}</h4>
+                                <p class="text-[9px] text-[#5a508f] mt-0.5">
                                     {{ $rw->tanggal->translatedFormat('d M Y') }} &bull; {{ substr($rw->jam_mulai, 0, 5) }}
                                 </p>
                             </div>
                             <!-- Status Presence badge -->
-                            <div class="shrink-0">
+                            <div>
                                 @if($rw->status_kehadiran === 'hadir')
-                                    <span class="text-[8.5px] font-bold text-emerald-600 bg-emerald-50 px-1.5 py-0.5 rounded-md border border-emerald-100 font-semibold">Hadir</span>
+                                    <span class="text-[9px] font-bold text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-lg border border-emerald-100 font-semibold">Hadir</span>
                                 @elseif($rw->status_kehadiran === 'izin')
-                                    <span class="text-[8.5px] font-bold text-amber-600 bg-amber-50 px-1.5 py-0.5 rounded-md border border-amber-100 font-semibold">Izin</span>
+                                    <span class="text-[9px] font-bold text-amber-600 bg-amber-50 px-2 py-0.5 rounded-lg border border-amber-100 font-semibold">Izin</span>
                                 @elseif($rw->status_kehadiran === 'sakit')
-                                    <span class="text-[8.5px] font-bold text-rose-600 bg-rose-50 px-1.5 py-0.5 rounded-md border border-rose-100 font-semibold">Sakit</span>
+                                    <span class="text-[9px] font-bold text-rose-600 bg-rose-50 px-2 py-0.5 rounded-lg border border-rose-100 font-semibold">Sakit</span>
                                 @elseif($rw->status_kehadiran === 'alfa')
-                                    <span class="text-[8.5px] font-bold text-red-600 bg-red-50 px-1.5 py-0.5 rounded-md border border-red-100 font-semibold">Alfa</span>
+                                    <span class="text-[9px] font-bold text-red-600 bg-red-50 px-2 py-0.5 rounded-lg border border-red-100 font-semibold">Alfa</span>
                                 @else
-                                    <span class="text-[8.5px] font-bold text-slate-400 bg-slate-50 px-1.5 py-0.5 rounded-md border border-slate-100 font-semibold">-</span>
+                                    <span class="text-[9px] font-bold text-slate-400 bg-slate-50 px-2 py-0.5 rounded-lg border border-slate-100 font-semibold">-</span>
                                 @endif
                             </div>
                         </div>
