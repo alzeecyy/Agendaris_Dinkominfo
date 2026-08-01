@@ -14,6 +14,11 @@
         @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800;900&display=swap');
         body {
             font-family: 'Plus Jakarta Sans', sans-serif;
+            background-color: #dbeafe !important;
+            background-image: linear-gradient(rgba(219, 234, 254, 0.78), rgba(219, 234, 254, 0.78)), url("{{ asset('images/batik-admin.jpg') }}") !important;
+            background-repeat: repeat !important;
+            background-attachment: fixed !important;
+            background-size: 380px auto !important;
         }
         .glass-card {
             background: rgba(255, 255, 255, 0.98);

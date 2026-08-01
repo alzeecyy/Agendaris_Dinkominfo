@@ -12,7 +12,11 @@
         @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@800;900&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap');
         body {
             font-family: 'Plus Jakarta Sans', sans-serif;
-            background: linear-gradient(135deg, #eef2ff 0%, #f8fafc 100%);
+            background-color: #dbeafe !important;
+            background-image: linear-gradient(rgba(219, 234, 254, 0.78), rgba(219, 234, 254, 0.78)), url("{{ asset('images/batik-admin.jpg') }}") !important;
+            background-repeat: repeat !important;
+            background-attachment: fixed !important;
+            background-size: 380px auto !important;
         }
         .hover-card-trigger {
             transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
