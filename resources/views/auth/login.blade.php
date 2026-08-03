@@ -154,7 +154,7 @@
                         </div>
 
                         <div>
-                            <span class="inline-block text-[#1b3bbb] text-[10.5px] font-black uppercase tracking-widest">
+                            <span class="inline-flex items-center gap-1.5 px-3 py-1 bg-[#1b3bbb]/10 text-[#1b3bbb] text-[10px] font-extrabold uppercase tracking-widest rounded-full border border-[#1b3bbb]/20">
                                 PORTAL SIRENA
                             </span>
                         </div>
