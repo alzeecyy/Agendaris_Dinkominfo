@@ -341,7 +341,10 @@ class DashboardController extends Controller
 
             $startOfWeek = Carbon::today()->startOfWeek(Carbon::MONDAY);
             $endOfWeek = Carbon::today()->endOfWeek(Carbon::SUNDAY);
-            $kpi['ketua_week_agendas'] = Agenda::whereBetween('tanggal', [$startOfWeek->toDateString(), $endOfWeek->toDateString()])->count();
+            $kpi['ketua_week_agendas'] = Agenda::whereBetween('tanggal', [$startOfWeek->toDateString(), $endOfWeek->toDateString()])
+                ->get()
+                ->filter(fn($a) => $user->isInvitedToAgenda($a))
+                ->count();
 
             $kpi['approved_notulensi_count'] = Notulensi::where('status', 'disahkan')->count();
 
