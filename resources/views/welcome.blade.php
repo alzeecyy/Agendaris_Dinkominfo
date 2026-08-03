@@ -12,11 +12,14 @@
         @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@800;900&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap');
         body {
             font-family: 'Plus Jakarta Sans', sans-serif;
-            background-color: #dbeafe !important;
-            background-image: linear-gradient(rgba(219, 234, 254, 0.78), rgba(219, 234, 254, 0.78)), url("{{ asset('images/batik-admin.jpg') }}") !important;
-            background-repeat: repeat !important;
+            background-color: #09103c !important;
+            background-image: 
+                linear-gradient(135deg, rgba(27, 59, 187, 0.82) 0%, rgba(16, 36, 128, 0.90) 50%, rgba(9, 16, 60, 0.95) 100%),
+                url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22100%22%20height%3D%22100%22%20viewBox%3D%220%200%20100%20100%22%3E%3Cg%20fill%3D%22%23ffffff%22%20fill-opacity%3D%220.25%22%3E%3Cpath%20d%3D%22M50%2C10%20Q50%2C50%2010%2C50%20Q50%2C50%2050%2C90%20Q50%2C50%2090%2C50%20Q50%2C50%2050%2C10%20Z%22%2F%3E%3Cpath%20d%3D%22M0%2C-40%20Q0%2C0%20-40%2C0%20Q0%2C0%200%2C40%20Q0%2C0%2040%2C0%20Q0%2C0%200%2C-40%20Z%22%2F%3E%3Cpath%20d%3D%22M100%2C-40%20Q100%2C0%2060%2C0%20Q100%2C0%20100%2C40%20Q100%2C0%20140%2C0%20Q100%2C0%20100%2C-40%20Z%22%2F%3E%3Cpath%20d%3D%22M0%2C60%20Q0%2C100%20-40%2C100%20Q0%2C100%200%2C140%20Q0%2C100%2040%2C100%20Q0%2C100%200%2C60%20Z%22%2F%3E%3Cpath%20d%3D%22M100%2C60%20Q100%2C100%2060%2C100%20Q100%2C100%20100%2C140%20Q100%2C100%20140%2C100%20Q100%2C100%20100%2C60%20Z%22%2F%3E%3Cpath%20d%3D%22M50%2C0%20C22.4%2C0%200%2C22.4%200%2C50%20C0%2C77.6%2022.4%2C100%2050%2C100%20C77.6%2C100%20100%2C77.6%20100%2C50%20C100%2C22.4%2077.6%200%2050%2C0%20Z%20M50%2C12%20C71%2C12%2088%2C29%2088%2C50%20C88%2C71%2071%2C88%2050%2C88%20C29%2C88%2012%2C71%2012%2C50%20C12%2C29%2029%2C12%2050%2C12%20Z%22%20fill-opacity%3D%220.15%22%2F%3E%3C%2Fg%3E%3C%2Fsvg%3E") !important;
+            background-repeat: no-repeat, repeat !important;
+            background-size: cover, 180px 180px !important;
+            background-position: center center, center center !important;
             background-attachment: fixed !important;
-            background-size: 380px auto !important;
         }
         .hover-card-trigger {
             transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
@@ -45,7 +48,7 @@
     <div class="min-h-screen md:h-full w-full max-w-[1150px] mx-auto p-4 md:p-6 lg:p-8 flex flex-col justify-between gap-4 md:gap-6 z-10">
         
         <!-- Header / Top Bar -->
-        <header class="flex items-center justify-between relative bg-white/70 backdrop-blur-md rounded-2xl border border-slate-200/80 px-4 py-3 md:px-6 md:py-3.5 shadow-sm text-[#09103c] z-50 shrink-0">
+        <header class="flex items-center justify-between relative bg-white rounded-2xl border border-slate-200/80 px-4 py-3 md:px-6 md:py-3.5 shadow-md text-[#09103c] z-50 shrink-0">
             <!-- Brand Logo -->
             <div class="flex items-center gap-3 select-none z-10 min-w-0">
                 <img src="{{ asset('images/logo-banyumas-crest.png') }}" alt="Logo Banyumas" class="h-8 sm:h-9 md:h-10 w-auto hover:scale-105 transition-transform duration-300 shrink-0">
@@ -157,7 +160,7 @@
         <!-- Main Content Portal -->
         <main class="flex-1 flex flex-col items-center justify-center gap-4 md:gap-6 py-2 min-h-0">
             <!-- Hero Welcome Card -->
-            <div class="w-full bg-white/70 backdrop-blur-md rounded-2xl md:rounded-[24px] border border-slate-200/80 p-5 sm:p-6 md:p-8 shadow-sm md:shadow-md text-center space-y-2 md:space-y-3 max-w-3xl animate-fade-in shrink-0">
+            <div class="w-full bg-white rounded-2xl md:rounded-[24px] border border-slate-200/80 p-5 sm:p-6 md:p-8 shadow-xl text-center space-y-2 md:space-y-3 max-w-3xl animate-fade-in shrink-0">
                 <div class="flex justify-center">
                     <span class="text-[9px] md:text-[10px] font-extrabold uppercase tracking-widest text-[#1b3bbb] bg-[#1b3bbb]/10 px-3.5 py-1 rounded-full border border-[#1b3bbb]/20">Portal SIRENA</span>
                 </div>

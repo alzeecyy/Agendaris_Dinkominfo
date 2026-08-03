@@ -13,7 +13,7 @@
         @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap');
         body {
             font-family: 'Plus Jakarta Sans', sans-serif;
-            background: linear-gradient(135deg, #eef2ff 0%, #f8fafc 100%);
+            background: linear-gradient(135deg, #1b3bbb 0%, #102480 50%, #09103c 100%) !important;
         }
         @media (min-width: 768px) {
             html, body {
@@ -245,11 +245,14 @@
     <style>
         body.app-batik-bg,
         div.app-batik-bg {
-            background-color: #dbeafe !important;
-            background-image: linear-gradient(rgba(219, 234, 254, 0.78), rgba(219, 234, 254, 0.78)), url("{{ asset('images/batik-admin.jpg') }}") !important;
-            background-repeat: repeat !important;
+            background-color: #09103c !important;
+            background-image: 
+                linear-gradient(135deg, rgba(27, 59, 187, 0.82) 0%, rgba(16, 36, 128, 0.90) 50%, rgba(9, 16, 60, 0.95) 100%),
+                url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22100%22%20height%3D%22100%22%20viewBox%3D%220%200%20100%20100%22%3E%3Cg%20fill%3D%22%23ffffff%22%20fill-opacity%3D%220.25%22%3E%3Cpath%20d%3D%22M50%2C10%20Q50%2C50%2010%2C50%20Q50%2C50%2050%2C90%20Q50%2C50%2090%2C50%20Q50%2C50%2050%2C10%20Z%22%2F%3E%3Cpath%20d%3D%22M0%2C-40%20Q0%2C0%20-40%2C0%20Q0%2C0%200%2C40%20Q0%2C0%2040%2C0%20Q0%2C0%200%2C-40%20Z%22%2F%3E%3Cpath%20d%3D%22M100%2C-40%20Q100%2C0%2060%2C0%20Q100%2C0%20100%2C40%20Q100%2C0%20140%2C0%20Q100%2C0%20100%2C-40%20Z%22%2F%3E%3Cpath%20d%3D%22M0%2C60%20Q0%2C100%20-40%2C100%20Q0%2C100%200%2C140%20Q0%2C100%2040%2C100%20Q0%2C100%200%2C60%20Z%22%2F%3E%3Cpath%20d%3D%22M100%2C60%20Q100%2C100%2060%2C100%20Q100%2C100%20100%2C140%20Q100%2C100%20140%2C100%20Q100%2C100%20100%2C60%20Z%22%2F%3E%3Cpath%20d%3D%22M50%2C0%20C22.4%2C0%200%2C22.4%200%2C50%20C0%2C77.6%2022.4%2C100%2050%2C100%20C77.6%2C100%20100%2C77.6%20100%2C50%20C100%2C22.4%2077.6%200%2050%2C0%20Z%20M50%2C12%20C71%2C12%2088%2C29%2088%2C50%20C88%2C71%2071%2C88%2050%2C88%20C29%2C88%2012%2C71%2012%2C50%20C12%2C29%2029%2C12%2050%2C12%20Z%22%20fill-opacity%3D%220.15%22%2F%3E%3C%2Fg%3E%3C%2Fsvg%3E") !important;
+            background-repeat: no-repeat, repeat !important;
+            background-size: cover, 180px 180px !important;
+            background-position: center center, center center !important;
             background-attachment: fixed !important;
-            background-size: 380px auto !important;
         }
     </style>
     @yield('styles')
@@ -266,7 +269,7 @@
     <div x-data="{ mobileNavOpen: false, profileMenuOpen: false }" class="min-h-screen md:h-screen flex flex-col p-2.5 sm:p-3.5 md:p-4 pt-2 sm:pt-2.5 md:pt-3 gap-4.5 sm:gap-5.5 md:gap-6 max-w-[1600px] w-full mx-auto md:overflow-hidden bg-[#eef2ff] app-batik-bg">
         
         <!-- TOP NAVBAR (Sticky Header on Mobile, Top Header on Desktop) -->
-        <header class="w-full bg-white/95 backdrop-blur-md rounded-2xl sm:rounded-2xl md:rounded-3xl border border-slate-200/80 px-3 sm:px-4 md:px-6 py-2 sm:py-2.5 md:py-4 flex items-center justify-between shadow-sm md:shadow-md sticky top-2 sm:top-3 md:relative z-50 text-[#09103c]">
+        <header class="w-full bg-white rounded-2xl sm:rounded-2xl md:rounded-3xl border border-slate-200/80 px-3 sm:px-4 md:px-6 py-2 sm:py-2.5 md:py-4 flex items-center justify-between shadow-md sticky top-2 sm:top-3 md:relative z-50 text-[#09103c]">
             <!-- Left Logo & Mobile Hamburger Toggle -->
             <div class="flex items-center gap-2 sm:gap-3 select-none min-w-0">
                 <button type="button" @click="mobileNavOpen = !mobileNavOpen" class="md:hidden p-1.5 rounded-lg text-slate-700 hover:bg-slate-100 focus:outline-none transition-colors shrink-0" aria-label="Toggle Navigation">
@@ -382,7 +385,7 @@
              x-transition:enter="transition ease-out duration-200 transform"
              x-transition:enter-start="opacity-0 -translate-y-2"
              x-transition:enter-end="opacity-100 translate-y-0"
-             class="md:hidden bg-white/95 backdrop-blur-md rounded-xl border border-slate-200/80 p-2.5 shadow-lg sticky top-12 z-40 space-y-1 text-[#09103c]">
+             class="md:hidden bg-white rounded-xl border border-slate-200/80 p-2.5 shadow-lg sticky top-12 z-40 space-y-1 text-[#09103c]">
             @if(Auth::check() && !Auth::user()->isAdmin())
                 <a href="{{ route('dashboard') }}" class="flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-bold {{ request()->routeIs('dashboard') ? 'bg-gradient-to-r from-[#1b3bbb] to-[#0b1554] text-white shadow-md' : 'text-slate-700 hover:bg-[#1b3bbb]/10' }}">
                     <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"></path></svg>
@@ -679,7 +682,7 @@
 
     <!-- GOJEK-STYLE FLOATING BOTTOM NAVIGATION BAR (Mobile Native UX) -->
     @if(Auth::check())
-        <nav id="mobile-bottom-nav" class="md:hidden fixed bottom-0 left-0 right-0 z-40 bg-white/95 backdrop-blur-md border-t border-slate-200/80 px-2 py-1.5 flex items-center justify-around shadow-[0_-4px_16px_rgba(0,0,0,0.06)] text-[#09103c]">
+        <nav id="mobile-bottom-nav" class="md:hidden fixed bottom-0 left-0 right-0 z-40 bg-white border-t border-slate-200/80 px-2 py-1.5 flex items-center justify-around shadow-[0_-4px_16px_rgba(0,0,0,0.06)] text-[#09103c]">
             @if(!Auth::user()->isAdmin())
                 <!-- Beranda -->
                 <a href="{{ route('dashboard') }}" class="flex flex-col items-center justify-center gap-0.5 px-2.5 py-1 rounded-xl transition-all {{ request()->routeIs('dashboard') ? 'text-[#1b3bbb] font-extrabold' : 'text-slate-500 font-medium hover:text-[#1b3bbb]' }}">
