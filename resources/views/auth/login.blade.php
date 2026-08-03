@@ -122,6 +122,8 @@
                             <h4 class="text-xs sm:text-sm font-bold text-white tracking-wide">Presensi Digital Mandiri</h4>
                             <p class="text-[11px] text-indigo-200/90 font-medium truncate mt-0.5">Pengisian absensi & tanda tangan digital</p>
                         </div>
+                    </div>
+
                     <div class="bg-gradient-to-r from-white/12 to-white/5 border border-white/20 rounded-2xl p-3.5 sm:p-4 flex items-center gap-3.5 shadow-sm hover:from-white/20 hover:to-white/10 hover:border-white/30 transition-all duration-300 group backdrop-blur-md">
                         <div class="w-10 h-10 rounded-xl bg-sky-400/20 text-sky-300 border border-sky-300/30 flex items-center justify-center shrink-0 group-hover:scale-110 transition-transform">
                             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
