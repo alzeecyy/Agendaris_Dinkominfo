@@ -12,7 +12,14 @@
         @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap');
         body {
             font-family: 'Plus Jakarta Sans', sans-serif;
-            background: linear-gradient(135deg, #eef2ff 0%, #f8fafc 100%);
+            background-color: #09103c !important;
+            background-image: 
+                linear-gradient(135deg, rgba(27, 59, 187, 0.82) 0%, rgba(16, 36, 128, 0.90) 50%, rgba(9, 16, 60, 0.95) 100%),
+                url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22100%22%20height%3D%22100%22%20viewBox%3D%220%200%20100%20100%22%3E%3Cg%20fill%3D%22%23ffffff%22%20fill-opacity%3D%220.25%22%3E%3Cpath%20d%3D%22M50%2C10%20Q50%2C50%2010%2C50%20Q50%2C50%2050%2C90%20Q50%2C50%2090%2C50%20Q50%2C50%2050%2C10%20Z%22%2F%3E%3Cpath%20d%3D%22M0%2C-40%20Q0%2C0%20-40%2C0%20Q0%2C0%200%2C40%20Q0%2C0%2040%2C0%20Q0%2C0%200%2C-40%20Z%22%2F%3E%3Cpath%20d%3D%22M100%2C-40%20Q100%2C0%2060%2C0%20Q100%2C0%20100%2C40%20Q100%2C0%20140%2C0%20Q100%2C0%20100%2C-40%20Z%22%2F%3E%3Cpath%20d%3D%22M0%2C60%20Q0%2C100%20-40%2C100%20Q0%2C100%200%2C140%20Q0%2C100%2040%2C100%20Q0%2C100%200%2C60%20Z%22%2F%3E%3Cpath%20d%3D%22M100%2C60%20Q100%2C100%2060%2C100%20Q100%2C100%20100%2C140%20Q100%2C100%20140%2C100%20Q100%2C100%20100%2C60%20Z%22%2F%3E%3Cpath%20d%3D%22M50%2C0%20C22.4%2C0%200%2C22.4%200%2C50%20C0%2C77.6%2022.4%2C100%2050%2C100%20C77.6%2C100%20100%2C77.6%20100%2C50%20C100%2C22.4%2077.6%200%2050%2C0%20Z%20M50%2C12%20C71%2C12%2088%2C29%2088%2C50%20C88%2C71%2071%2C88%2050%2C88%20C29%2C88%2012%2C71%2012%2C50%20C12%2C29%2029%2C12%2050%2C12%20Z%22%20fill-opacity%3D%220.15%22%2F%3E%3C%2Fg%3E%3C%2Fsvg%3E") !important;
+            background-repeat: no-repeat, repeat !important;
+            background-size: cover, 180px 180px !important;
+            background-position: center center, center center !important;
+            background-attachment: fixed !important;
         }
 
         /* Royal Blue & Dark Navy Horizontal Mirror Sliding Gradient */
@@ -29,17 +36,17 @@
         }
     </style>
 </head>
-<body class="min-h-screen flex items-center justify-center py-8 px-4 relative overflow-hidden">
-    <!-- Decorative background blurred shapes -->
-    <div class="absolute top-10 left-10 w-72 h-72 bg-blue-300/20 rounded-full filter blur-3xl"></div>
-    <div class="absolute bottom-10 right-10 w-80 h-80 bg-indigo-300/10 rounded-full filter blur-3xl"></div>
+<body class="min-h-screen flex items-center justify-center py-8 px-4 relative overflow-hidden text-slate-800 antialiased select-none">
+    <!-- Ambient Background Glows -->
+    <div class="fixed -top-32 -left-32 w-[350px] sm:w-[450px] h-[350px] sm:h-[450px] bg-[#1b3bbb]/15 rounded-full filter blur-[100px] sm:blur-[120px] pointer-events-none"></div>
+    <div class="fixed -bottom-32 -right-32 w-[350px] sm:w-[450px] h-[350px] sm:h-[450px] bg-[#8e88dd]/20 rounded-full filter blur-[110px] sm:blur-[140px] pointer-events-none"></div>
 
     <div class="w-full max-w-md z-10 space-y-4">
         <!-- Logo & Header -->
         <div class="text-center flex flex-col items-center justify-center">
-            <img src="{{ asset('images/logo-banyumas-crest.png') }}" alt="Logo Kabupaten Banyumas" class="w-16 h-16 object-contain hover:scale-105 transition-transform duration-300">
-            <h1 class="text-xl font-extrabold text-[#09103c] tracking-wide mt-3">Pengamanan Akun</h1>
-            <p class="text-slate-500 text-xs font-semibold mt-1">Pembaruan Kata Sandi Akun Agendaris</p>
+            <img src="{{ asset('images/logo-banyumas-crest.png') }}" alt="Logo Kabupaten Banyumas" class="w-16 h-16 object-contain hover:scale-105 transition-transform duration-300 filter drop-shadow-md">
+            <h1 class="text-xl font-extrabold text-white tracking-wide mt-3">Pengamanan Akun</h1>
+            <p class="text-blue-100/80 text-xs font-semibold mt-1">Pembaruan Kata Sandi Akun SIRENA</p>
         </div>
 
         <!-- Premium White Card -->
@@ -122,7 +129,7 @@
         </div>
 
         <!-- Footer copyright -->
-        <div class="text-center text-slate-500 text-[10px] font-semibold">
+        <div class="text-center text-white text-[10px] sm:text-xs font-semibold tracking-wide">
             &copy; 2026 Dinas Komunikasi dan Informatika Kabupaten Banyumas.
         </div>
     </div>
