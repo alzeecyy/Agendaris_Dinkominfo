@@ -423,7 +423,7 @@ class="space-y-6">
                             </td>
                             <td class="py-2 sm:py-4 px-2 sm:px-4 text-center text-[10px] sm:text-xs">
                                 @if($item->status_kehadiran === 'hadir')
-                                    <span class="inline-block px-2 py-0.5 sm:px-2.5 sm:py-1 rounded-md sm:rounded-lg bg-emerald-50 text-emerald-600 border border-emerald-200 font-bold">Hadir ✓</span>
+                                    <span class="inline-block px-2 py-0.5 sm:px-2.5 sm:py-1 rounded-md sm:rounded-lg bg-emerald-50 text-emerald-600 border border-emerald-200 font-bold">Hadir</span>
                                 @elseif($item->status_kehadiran === 'izin')
                                     <span class="inline-block px-2 py-0.5 sm:px-2.5 sm:py-1 rounded-md sm:rounded-lg bg-amber-50 text-amber-600 border border-amber-200 font-bold">Izin</span>
                                 @elseif($item->status_kehadiran === 'sakit')
@@ -459,7 +459,7 @@ class="space-y-6">
                                             <svg class="w-3.5 h-3.5 text-amber-600 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
                                             </svg>
-                                            <span>Tinjau Notulensi &rarr;</span>
+                                            <span>Tinjau Notulensi</span>
                                         </a>
                                     @else
                                         <span class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-amber-50/80 text-amber-700 border border-amber-200/80 rounded-xl text-xs font-bold shadow-2xs select-none">
