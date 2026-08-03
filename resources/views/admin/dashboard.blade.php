@@ -16,7 +16,7 @@
             <div class="space-y-2 z-10">
                 <span class="text-[10px] font-bold uppercase tracking-widest text-blue-200">Panel Admin</span>
                 <h3 class="text-xl font-black leading-tight text-white">Kontrol Sistem &amp; Akun Pegawai</h3>
-                <p class="text-xs text-blue-100/90 leading-relaxed">Kelola otentikasi, pembagian divisi/bidang, serta pemantauan data aktivitas SiRENA.</p>
+                <p class="text-xs text-blue-100/90 leading-relaxed">Kelola otentikasi, pembagian divisi/bidang, serta pemantauan data aktivitas SIRENA.</p>
             </div>
             
             <div class="mt-6 z-10">

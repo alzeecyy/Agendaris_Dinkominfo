@@ -524,7 +524,7 @@ class="w-full flex flex-col gap-3.5 sm:gap-5 select-none">
             </div>
             <div class="overflow-hidden whitespace-nowrap w-full">
                 <p class="inline-block animate-marquee text-xs sm:text-sm lg:text-base font-bold text-white tracking-wide">
-                    📢 Selamat Datang di Dinas Komunikasi dan Informatika Kabupaten Banyumas &nbsp;•&nbsp; Harap melakukan Presensi Mandiri pada aplikasi SiRENA sebelum rapat dimulai &nbsp;•&nbsp; Jagalah ketertiban dan kebersihan ruang rapat demi kenyamanan bersama &nbsp;•&nbsp; Terima kasih.
+                    📢 Selamat Datang di Dinas Komunikasi dan Informatika Kabupaten Banyumas &nbsp;•&nbsp; Harap melakukan Presensi Mandiri pada aplikasi SIRENA sebelum rapat dimulai &nbsp;•&nbsp; Jagalah ketertiban dan kebersihan ruang rapat demi kenyamanan bersama &nbsp;•&nbsp; Terima kasih.
                 </p>
             </div>
         </div>

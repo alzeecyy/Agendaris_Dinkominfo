@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login - SiRENA Dinkominfo Banyumas</title>
+    <title>Login - SIRENA Dinkominfo Banyumas</title>
     <!-- Favicon / Logo Resmi -->
     <link rel="icon" type="image/png" href="{{ asset('images/logo-banyumas-crest.png') }}">
     <link rel="shortcut icon" href="{{ asset('favicon.ico') }}">
@@ -60,12 +60,10 @@
                 <!-- Top Brand Header -->
                 <div class="relative z-10 space-y-5">
                     <div class="flex items-center gap-4">
-                        <div class="w-14 h-14 rounded-2xl bg-white/10 glass-panel border border-white/20 p-2.5 flex items-center justify-center shadow-lg shrink-0">
-                            <img src="{{ asset('images/logo-banyumas-crest.png') }}" alt="Logo Kabupaten Banyumas" class="w-full h-full object-contain filter drop-shadow-md">
-                        </div>
+                        <img src="{{ asset('images/logo-banyumas-crest.png') }}" alt="Logo Kabupaten Banyumas" class="w-14 h-14 object-contain shrink-0 filter drop-shadow-md">
                         <div>
-                            <span class="inline-block px-2.5 py-0.5 rounded-md bg-white/10 text-indigo-200 text-[10px] font-bold uppercase tracking-[0.15em] border border-white/10">Dinkominfo Banyumas</span>
-                            <h1 class="text-3xl font-black text-white tracking-tight mt-1" style="text-shadow: 0 2px 12px rgba(27,59,187,0.4);">SiRENA</h1>
+                            <span class="inline-block text-indigo-200 text-[10.5px] font-extrabold uppercase tracking-[0.15em]">Dinkominfo Banyumas</span>
+                            <h1 class="text-3xl font-black text-white tracking-tight mt-0.5" style="text-shadow: 0 2px 12px rgba(27,59,187,0.4);">SIRENA</h1>
                         </div>
                     </div>
 
@@ -132,23 +130,21 @@
                     <div class="space-y-2 sm:space-y-3">
                         <!-- Mobile Brand Header (Clean White Theme) -->
                         <div class="lg:hidden flex items-center gap-3 pb-1">
-                            <div class="w-11 h-11 rounded-2xl bg-gradient-to-br from-[#1b3bbb]/10 to-indigo-50 border border-[#1b3bbb]/20 p-2 flex items-center justify-center shadow-xs shrink-0">
-                                <img src="{{ asset('images/logo-banyumas-crest.png') }}" alt="Logo Kabupaten Banyumas" class="w-full h-full object-contain">
-                            </div>
+                            <img src="{{ asset('images/logo-banyumas-crest.png') }}" alt="Logo Kabupaten Banyumas" class="w-10 h-10 object-contain shrink-0">
                             <div>
-                                <span class="inline-block px-2.5 py-0.5 rounded bg-[#1b3bbb]/10 text-[#1b3bbb] text-[9.5px] font-black uppercase tracking-wider border border-[#1b3bbb]/15">Dinkominfo Banyumas</span>
-                                <h1 class="text-xl font-black text-[#09103c] tracking-tight leading-none mt-0.5">SiRENA</h1>
+                                <span class="inline-block text-[#1b3bbb] text-[9.5px] font-black uppercase tracking-wider">Dinkominfo Banyumas</span>
+                                <h1 class="text-xl font-black text-[#09103c] tracking-tight leading-none mt-0.5">SIRENA</h1>
                             </div>
                         </div>
 
                         <div class="hidden lg:block">
-                            <span class="inline-block px-3.5 py-1.5 rounded-full bg-gradient-to-r from-[#1b3bbb]/10 to-indigo-500/10 text-[#1b3bbb] text-[10.5px] font-black uppercase tracking-wider border border-[#1b3bbb]/15">
+                            <span class="inline-block text-[#1b3bbb] text-[10.5px] font-black uppercase tracking-wider">
                                 PORTAL SIRENA
                             </span>
                         </div>
                         <h2 class="text-xl sm:text-2xl md:text-3xl font-black text-[#09103c] tracking-tight leading-tight">Selamat Datang Kembali</h2>
                         <p class="text-xs text-slate-500 font-medium leading-relaxed">
-                            Masuk dengan NIP dan kata sandi untuk mengakses sistem SiRENA.
+                            Masuk dengan NIP dan kata sandi untuk mengakses sistem SIRENA.
                         </p>
                     </div>
 
@@ -188,7 +184,7 @@
                         @endif
 
                         <!-- Field 1: NIP Input -->
-                        <div class="space-y-1.5 sm:space-y-2">
+                        <div class="space-y-1.5">
                             <label for="nip" class="block text-[10.5px] sm:text-[11px] font-black uppercase tracking-wider text-slate-600">
                                 Nomor Induk Pegawai (NIP) <span class="text-rose-500">*</span>
                             </label>
@@ -199,12 +195,12 @@
                                     </svg>
                                 </div>
                                 <input type="text" name="nip" id="nip" value="{{ old('nip') }}" placeholder="Masukkan 18 digit NIP tanpa spasi" required autofocus
-                                       class="w-full pl-11 sm:pl-12 pr-4 py-3 sm:py-3.5 bg-white hover:bg-slate-50/50 border-2 border-slate-200/80 rounded-xl text-slate-900 text-xs sm:text-sm font-semibold placeholder-slate-400 focus:bg-white focus:border-[#1b3bbb] focus:ring-4 focus:ring-[#1b3bbb]/10 transition-all duration-200 shadow-sm">
+                                       class="w-full pl-11 sm:pl-12 pr-4 py-2.5 sm:py-3 bg-white hover:bg-slate-50/50 border-2 border-slate-200/80 rounded-2xl sm:rounded-3xl text-slate-900 text-xs sm:text-sm font-semibold placeholder-slate-400 focus:bg-white focus:border-[#1b3bbb] focus:ring-4 focus:ring-[#1b3bbb]/10 transition-all duration-200 shadow-sm">
                             </div>
                         </div>
 
                         <!-- Field 2: Password Input with Toggle Eye Icon -->
-                        <div class="space-y-1.5 sm:space-y-2">
+                        <div class="space-y-1.5">
                             <label for="password" class="block text-[10.5px] sm:text-[11px] font-black uppercase tracking-wider text-slate-600">
                                 Kata Sandi <span class="text-rose-500">*</span>
                             </label>
@@ -215,7 +211,7 @@
                                     </svg>
                                 </div>
                                 <input :type="showPassword ? 'text' : 'password'" name="password" id="password" placeholder="Masukkan kata sandi akun Anda" required
-                                       class="w-full pl-11 sm:pl-12 pr-11 sm:pr-12 py-3 sm:py-3.5 bg-white hover:bg-slate-50/50 border-2 border-slate-200/80 rounded-xl text-slate-900 text-xs sm:text-sm font-semibold placeholder-slate-400 focus:bg-white focus:border-[#1b3bbb] focus:ring-4 focus:ring-[#1b3bbb]/10 transition-all duration-200 shadow-sm">
+                                       class="w-full pl-11 sm:pl-12 pr-11 sm:pr-12 py-2.5 sm:py-3 bg-white hover:bg-slate-50/50 border-2 border-slate-200/80 rounded-2xl sm:rounded-3xl text-slate-900 text-xs sm:text-sm font-semibold placeholder-slate-400 focus:bg-white focus:border-[#1b3bbb] focus:ring-4 focus:ring-[#1b3bbb]/10 transition-all duration-200 shadow-sm">
                                 
                                 <!-- Eye Icon Button -->
                                 <button type="button" @click="showPassword = !showPassword" tabindex="-1" class="absolute inset-y-0 right-0 pr-3.5 sm:pr-4 flex items-center text-slate-400 hover:text-[#1b3bbb] transition-colors cursor-pointer" title="Tampilkan/Sembunyikan Kata Sandi">
@@ -232,7 +228,7 @@
 
                         <!-- Submit Button -->
                         <button type="submit"
-                                class="w-full py-3.5 sm:py-4 bg-gradient-to-r from-[#1b3bbb] to-[#2a4fd4] hover:from-[#09103c] hover:to-[#1b3bbb] active:scale-[0.98] text-[#ffffff] font-extrabold text-[11px] sm:text-xs uppercase tracking-widest rounded-xl transition-all duration-300 shadow-lg shadow-[#1b3bbb]/25 hover:shadow-xl hover:shadow-[#1b3bbb]/30 flex items-center justify-center gap-2.5 cursor-pointer">
+                                class="w-full py-3 sm:py-3.5 bg-gradient-to-r from-[#1b3bbb] to-[#2a4fd4] hover:from-[#09103c] hover:to-[#1b3bbb] active:scale-[0.98] text-[#ffffff] font-extrabold text-[11px] sm:text-xs uppercase tracking-widest rounded-2xl sm:rounded-3xl transition-all duration-300 shadow-lg shadow-[#1b3bbb]/25 hover:shadow-xl hover:shadow-[#1b3bbb]/30 flex items-center justify-center gap-2.5 cursor-pointer">
                             <span>MASUK KE SIRENA</span>
                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M14 5l7 7m0 0l-7 7m7-7H3"></path>
@@ -267,7 +263,7 @@
                         btn.disabled = true;
                         btn.classList.add('opacity-75', 'cursor-not-allowed');
                         const spinnerSvg = `<svg class="w-4 h-4 mr-2 animate-spin text-current shrink-0" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>`;
-                        btn.innerHTML = `<span class="inline-flex items-center justify-center">${spinnerSvg}<span>Memuat Hak Akses SiRENA...</span></span>`;
+                        btn.innerHTML = `<span class="inline-flex items-center justify-center">${spinnerSvg}<span>Memuat Hak Akses SIRENA...</span></span>`;
                     }
                 });
             }
