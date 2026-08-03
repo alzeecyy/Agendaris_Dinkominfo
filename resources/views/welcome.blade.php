@@ -78,9 +78,9 @@
                 @endphp
                 @if(Auth::user()->isAdmin())
                     <div x-data="{ openAdminMenu: false }" class="relative shrink-0 select-none">
-                        <button type="button" @click="openAdminMenu = !openAdminMenu" class="text-[#09103c] flex items-center gap-2.5 p-1 rounded-xl hover:bg-slate-50 transition-colors cursor-pointer focus:outline-none">
+                        <button type="button" @click="openAdminMenu = !openAdminMenu" class="text-[#09103c] flex items-center gap-3 px-3 py-1.5 sm:px-4 sm:py-2.5 rounded-2xl border border-transparent hover:border-[#1b3bbb]/20 hover:bg-[#1b3bbb]/8 hover:shadow-md transition-all duration-300 text-right cursor-pointer focus:outline-none group">
                             <div class="hidden lg:flex flex-col justify-center gap-0.5 text-right">
-                                <div class="text-xs md:text-sm font-black text-[#09103c] leading-none">{{ Auth::user()->name }}</div>
+                                <div class="text-xs md:text-sm font-black text-[#09103c] group-hover:text-[#1b3bbb] transition-colors leading-tight">{{ Auth::user()->name }}</div>
                                 <div>
                                     <span class="inline-block text-[8px] md:text-[9px] font-extrabold px-2 py-0.5 rounded-full border {{ $roleColors[Auth::user()->role] ?? 'bg-slate-100 border-slate-200 text-slate-700' }} uppercase tracking-wider leading-none">
                                         {{ Auth::user()->role_label }}
@@ -88,7 +88,7 @@
                                 </div>
                                 <div class="text-[9px] md:text-[10px] text-slate-500 font-bold font-mono leading-none">NIP. {{ Auth::user()->nip }}</div>
                             </div>
-                            <div class="w-8 h-8 sm:w-9 sm:h-9 md:w-10 md:h-10 bg-[#1b3bbb]/10 rounded-xl md:rounded-2xl flex items-center justify-center font-extrabold text-xs md:text-sm text-[#1b3bbb] border border-[#1b3bbb]/20 shadow-sm hover:bg-[#1b3bbb]/20 transition-colors shrink-0">
+                            <div class="w-8 h-8 sm:w-9 sm:h-9 md:w-10 md:h-10 bg-[#1b3bbb]/10 rounded-xl md:rounded-2xl flex items-center justify-center font-extrabold text-xs md:text-sm text-[#1b3bbb] border border-[#1b3bbb]/20 shadow-sm shrink-0 group-hover:bg-[#1b3bbb] group-hover:text-white transition-all">
                                 {{ substr(Auth::user()->name, 0, 2) }}
                             </div>
                         </button>
@@ -102,8 +102,8 @@
                              class="absolute right-0 mt-2 w-60 bg-white border border-[#d4d1f5]/80 rounded-2xl shadow-xl z-50 p-3.5 space-y-3 text-[#2e2552]">
                             
                             <div class="pb-2.5 border-b border-[#d4d1f5]/50 flex items-center gap-2.5">
-                                <div class="w-8 h-8 bg-red-50 text-red-600 rounded-xl flex items-center justify-center font-black text-xs border border-red-100 shrink-0">
-                                    Ad
+                                <div class="w-8 h-8 bg-[#1b3bbb]/10 text-[#1b3bbb] rounded-xl flex items-center justify-center font-black text-xs border border-[#1b3bbb]/20 shrink-0">
+                                    {{ substr(Auth::user()->name, 0, 2) }}
                                 </div>
                                 <div class="min-w-0 flex-1">
                                     <div class="text-xs font-black text-[#2e2552] truncate">{{ Auth::user()->name }}</div>
@@ -119,23 +119,37 @@
                                     <span>Ubah Kata Sandi</span>
                                 </a>
                             </div>
+
+                            <div class="border-t border-[#d4d1f5]/40 pt-2">
+                                <form action="{{ route('logout') }}" method="POST">
+                                    @csrf
+                                    <button type="submit" class="w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-bold text-rose-600 hover:bg-rose-50 transition-colors cursor-pointer">
+                                        <svg class="w-4 h-4 text-rose-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"></path>
+                                        </svg>
+                                        <span>Keluar Sistem</span>
+                                    </button>
+                                </form>
+                            </div>
                         </div>
                     </div>
                 @else
-                    <a href="{{ route('profile') }}" class="relative shrink-0 select-none text-[#09103c] flex items-center gap-2.5 p-1 rounded-xl hover:bg-slate-50 transition-colors">
-                        <div class="hidden lg:flex flex-col justify-center gap-0.5 text-right">
-                            <div class="text-xs md:text-sm font-black text-[#09103c] leading-none">{{ Auth::user()->name }}</div>
-                            <div>
-                                <span class="inline-block text-[8px] md:text-[9px] font-extrabold px-2 py-0.5 rounded-full border {{ $roleColors[Auth::user()->role] ?? 'bg-slate-100 border-slate-200 text-slate-700' }} uppercase tracking-wider leading-none">
-                                    {{ Auth::user()->role_label }}
-                                </span>
+                    <div class="relative shrink-0 select-none">
+                        <a href="{{ route('profile') }}" class="text-[#09103c] flex items-center gap-3 px-3 py-1.5 sm:px-4 sm:py-2.5 rounded-2xl border border-transparent hover:border-[#1b3bbb]/20 hover:bg-[#1b3bbb]/8 hover:shadow-md transition-all duration-300 text-right cursor-pointer group">
+                            <div class="hidden lg:flex flex-col justify-center gap-0.5 text-right">
+                                <div class="text-xs md:text-sm font-black text-[#09103c] group-hover:text-[#1b3bbb] transition-colors leading-tight">{{ Auth::user()->name }}</div>
+                                <div>
+                                    <span class="inline-block text-[8px] md:text-[9px] font-extrabold px-2 py-0.5 rounded-full border {{ $roleColors[Auth::user()->role] ?? 'bg-slate-100 border-slate-200 text-slate-700' }} uppercase tracking-wider leading-none">
+                                        {{ Auth::user()->role_label }}
+                                    </span>
+                                </div>
+                                <div class="text-[9px] md:text-[10px] text-slate-500 font-bold font-mono leading-none">NIP. {{ Auth::user()->nip }}</div>
                             </div>
-                            <div class="text-[9px] md:text-[10px] text-slate-500 font-bold font-mono leading-none">NIP. {{ Auth::user()->nip }}</div>
-                        </div>
-                        <div class="w-8 h-8 sm:w-9 sm:h-9 md:w-10 md:h-10 bg-[#1b3bbb]/10 rounded-xl md:rounded-2xl flex items-center justify-center font-extrabold text-xs md:text-sm text-[#1b3bbb] border border-[#1b3bbb]/20 shadow-sm hover:bg-[#1b3bbb]/20 transition-colors shrink-0">
-                            {{ substr(Auth::user()->name, 0, 2) }}
-                        </div>
-                    </a>
+                            <div class="w-8 h-8 sm:w-9 sm:h-9 md:w-10 md:h-10 bg-[#1b3bbb]/10 rounded-xl md:rounded-2xl flex items-center justify-center font-extrabold text-xs md:text-sm text-[#1b3bbb] border border-[#1b3bbb]/20 shadow-sm shrink-0 group-hover:bg-[#1b3bbb] group-hover:text-white transition-all">
+                                {{ substr(Auth::user()->name, 0, 2) }}
+                            </div>
+                        </a>
+                    </div>
                 @endif
             @endauth
         </header>
@@ -245,12 +259,12 @@
 
                 <!-- Card 3: Riwayat Kegiatan / Ganti Password (Clean White Card) -->
                 @if(Auth::check() && !Auth::user()->isAdmin())
-                    <a href="{{ route('riwayat') }}" class="group bg-white hover:bg-slate-50/80 border border-slate-200/80 rounded-2xl md:rounded-3xl p-4 sm:p-5 md:p-6 shadow-sm hover:shadow-md transition-all duration-300 flex flex-col justify-between relative overflow-hidden">
-                        <div class="space-y-2 sm:space-y-3 relative z-10">
-                            <div class="w-9 h-9 sm:w-10 sm:h-10 md:w-12 md:h-12 rounded-xl sm:rounded-2xl bg-amber-500/10 text-amber-600 flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
-                                <svg class="w-5 h-5 sm:w-6 sm:h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                    <a href="{{ route('riwayat') }}" class="hover-card-trigger bg-white rounded-2xl md:rounded-[24px] border border-slate-200/80 p-4 sm:p-5 md:p-6 flex flex-col justify-between shadow-sm hover:shadow-md relative overflow-hidden group text-[#09103c]">
+                        <div class="space-y-2 md:space-y-3">
+                            <div class="w-9 h-9 md:w-11 md:h-11 bg-amber-500/10 text-amber-600 rounded-xl md:rounded-2xl flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
+                                <svg class="w-5 h-5 md:w-6 md:h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
                             </div>
-                            <div>
+                            <div class="space-y-1">
                                 <h3 class="text-sm sm:text-base md:text-lg font-extrabold text-[#09103c]">Riwayat Kegiatan</h3>
                                 <p class="text-xs md:text-xs text-slate-500 leading-relaxed">Akses berkas notulensi PDF/Word dan risalah rapat sebelumnya.</p>
                             </div>
