@@ -106,7 +106,7 @@
                     <div class="glass-panel border border-white/15 rounded-2xl p-3.5 flex items-center gap-3.5 shadow-sm hover:bg-white/15 transition-all">
                         <div class="w-9 h-9 rounded-xl bg-sky-400/20 text-sky-300 border border-sky-300/30 flex items-center justify-center shrink-0">
                             <svg class="w-4.5 h-4.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 100-6 3 3 0 000 6z"></path>
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 18.75a6 6 0 006-6v-1.5m-6 7.5a6 6 0 01-6-6v-1.5m6 7.5v3.75m-3.75 0h7.5M12 15.75a3 3 0 003-3V4.5a3 3 0 10-6 0v8.25a3 3 0 003 3z"></path>
                             </svg>
                         </div>
                         <div class="min-w-0">
