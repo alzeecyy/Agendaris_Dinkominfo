@@ -405,7 +405,7 @@ class NotulensiController extends Controller
         $notulensi = $agenda->notulensi;
         if ($notulensi) {
             $notulensi->update([
-                'status' => 'draft',
+                'status' => 'revisi',
                 'catatan_revisi' => $validated['catatan_revisi'],
             ]);
         }
@@ -790,7 +790,7 @@ class NotulensiController extends Controller
 
         if ($apiKey) {
             try {
-                $response = \Illuminate\Support\Facades\Http::withoutVerifying()->timeout(45)->post("https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=" . $apiKey, [
+                $response = \Illuminate\Support\Facades\Http::withoutVerifying()->timeout(120)->post("https://generativelanguage.googleapis.com/v1beta/models/gemini-flash-latest:generateContent?key=" . $apiKey, [
                     'contents' => [
                         [
                             'parts' => [
@@ -801,7 +801,8 @@ class NotulensiController extends Controller
                         ]
                     ],
                     'generationConfig' => [
-                        'temperature' => 0.0
+                        'temperature' => 0.1,
+                        'topP' => 0.2
                     ]
                 ]);
 
@@ -831,12 +832,13 @@ class NotulensiController extends Controller
         if ($llmApiBase) {
             try {
                 $url = rtrim($llmApiBase, '/') . '/chat/completions';
-                $llmResponse = \Illuminate\Support\Facades\Http::withoutVerifying()->timeout(15)->withHeaders([
+                $llmResponse = \Illuminate\Support\Facades\Http::withoutVerifying()->timeout(120)->withHeaders([
                     'Authorization' => 'Bearer ' . $llmApiKey,
                     'Content-Type' => 'application/json',
                 ])->post($url, [
                     'model' => $llmModel,
-                    'temperature' => 0.0,
+                    'temperature' => 0.1,
+                    'top_p' => 0.2,
                     'max_tokens' => 3000,
                     'messages' => [
                         [

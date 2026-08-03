@@ -210,7 +210,7 @@ class DashboardController extends Controller
             $firstRevised = $revisedNotulensis->first();
             $links['bidang_revised_notulensi'] = ($revisedNotulensis->count() === 1 && $firstRevised) 
                 ? route('notulensi.edit', $firstRevised->agenda_id) 
-                : route('riwayat', ['notulensi_status' => 'draft']);
+                : route('riwayat', ['notulensi_status' => 'revisi']);
 
             foreach ($revisedNotulensis as $rev) {
                 if ($rev->agenda) {
@@ -647,9 +647,10 @@ class DashboardController extends Controller
         $currentTimeStr = $now->format('H:i:s');
 
         // Agenda masuk Riwayat HANYA JIKA:
+        // Agenda masuk Riwayat HANYA JIKA:
         // 1. Tanggal lampau (< hari ini)
         // 2. Tanggal hari ini DAN jam_mulai <= jam sekarang (rapat sudah dimulai/berlangsung)
-        // 3. Atau notulensi sudah resmi diajukan (menunggu_review) atau disahkan
+        // 3. Atau notulensi sudah resmi diajukan (menunggu_review), disahkan, atau dikembalikan untuk revisi
         $query = Agenda::where(function($q) use ($todayStr, $currentTimeStr) {
             $q->where('tanggal', '<', $todayStr)
               ->orWhere(function($sub) use ($todayStr, $currentTimeStr) {
@@ -657,7 +658,11 @@ class DashboardController extends Controller
                       ->where('jam_mulai', '<=', $currentTimeStr);
               })
               ->orWhereHas('notulensi', function($nq) {
-                  $nq->whereIn('status', ['menunggu_review', 'disahkan']);
+                  $nq->whereIn('status', ['menunggu_review', 'disahkan', 'revisi'])
+                     ->orWhere(function($subq) {
+                         $subq->whereNotNull('catatan_revisi')
+                              ->where('catatan_revisi', '!=', '');
+                     });
               });
         });
 
@@ -704,6 +709,11 @@ class DashboardController extends Controller
                 $status = 'alfa';
             }
             
+            $notulensiStatus = $agenda->notulensi->status ?? null;
+            if ($agenda->notulensi && (!empty($agenda->notulensi->catatan_revisi) || $notulensiStatus === 'revisi')) {
+                $notulensiStatus = 'revisi';
+            }
+
             return (object) [
                 'id' => $agenda->id,
                 'judul' => $agenda->judul,
@@ -711,7 +721,7 @@ class DashboardController extends Controller
                 'jam_mulai' => $agenda->jam_mulai,
                 'jam_selesai' => $agenda->jam_selesai,
                 'status_kehadiran' => $status,
-                'notulensi_status' => $agenda->notulensi->status ?? null,
+                'notulensi_status' => $notulensiStatus,
                 'notulensi' => $agenda->notulensi,
                 'kategori' => $agenda->kategori,
                 'lokasi' => $agenda->lokasi,

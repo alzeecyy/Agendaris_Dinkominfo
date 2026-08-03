@@ -109,7 +109,7 @@ class ProcessMeetingAudio implements ShouldQueue
 
                             $audioBase64 = base64_encode(file_get_contents($audioFile));
 
-                            $sttResponse = Http::withoutVerifying()->timeout(60)->post("https://generativelanguage.googleapis.com/v1beta/models/gemini-flash-latest:generateContent?key=" . $apiKey, [
+                            $sttResponse = Http::withoutVerifying()->timeout(120)->post("https://generativelanguage.googleapis.com/v1beta/models/gemini-flash-latest:generateContent?key=" . $apiKey, [
                                 'contents' => [
                                     [
                                         'parts' => [
@@ -248,12 +248,12 @@ class ProcessMeetingAudio implements ShouldQueue
                       "   - [Tuliskan istilah ambigu/meragukan atau ketik 'Tidak ada' jika semua data sudah jelas].\n\n" .
                       "Berikut teks sumber (transkrip / catatan mentah rapat):\n\n" . $combinedTranscript;
 
-            // 1. Primary LLM Engine: Google Gemini API (Super fast 1-2s response)
+            // 1. Primary LLM Engine: Google Gemini API (Super fast response)
             if (!$summarized && $apiKey) {
                 try {
                     Log::info("ProcessMeetingAudio: calling Primary LLM Engine (Gemini API) to summarize...");
                     $url = "https://generativelanguage.googleapis.com/v1beta/models/gemini-flash-latest:generateContent?key=" . $apiKey;
-                    $responseSummary = Http::withoutVerifying()->timeout(45)->post($url, [
+                    $responseSummary = Http::withoutVerifying()->timeout(120)->post($url, [
                         'contents' => [
                             [
                                 'parts' => [
@@ -304,7 +304,7 @@ class ProcessMeetingAudio implements ShouldQueue
                 try {
                     Log::info("ProcessMeetingAudio: calling Fallback LLM Engine ({$llmApiBase}) with model: {$llmModel}...");
                     $url = rtrim($llmApiBase, '/') . '/chat/completions';
-                    $response = Http::timeout(45)->withHeaders([
+                    $response = Http::timeout(120)->withHeaders([
                         'Authorization' => 'Bearer ' . $llmApiKey,
                         'Content-Type' => 'application/json'
                     ])->post($url, [
