@@ -77,14 +77,13 @@
                 <div class="absolute -top-20 -right-20 w-64 h-64 bg-[#8e88dd]/30 rounded-full filter blur-2xl pointer-events-none"></div>
 
                 <!-- Top Brand Header -->
+                <!-- Top Brand Header -->
                 <div class="relative z-10 space-y-6">
                     <div class="flex items-center gap-3.5">
                         <img src="{{ asset('images/logo-banyumas-crest.png') }}" alt="Logo Kabupaten Banyumas" class="w-12 h-12 object-contain shrink-0 filter drop-shadow-md">
                         <div>
-                            <span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 bg-white/10 border border-white/20 rounded-full text-indigo-200 text-[9.5px] font-extrabold uppercase tracking-widest">
-                                Dinkominfo Banyumas
-                            </span>
-                            <h1 class="text-2xl lg:text-3xl font-black text-white tracking-tight leading-none mt-1" style="text-shadow: 0 2px 10px rgba(27,59,187,0.4);">SIRENA</h1>
+                            <span class="inline-block text-indigo-200 text-[10.5px] font-extrabold uppercase tracking-widest">Dinkominfo Banyumas</span>
+                            <h1 class="text-2xl lg:text-3xl font-black text-white tracking-tight leading-none mt-0.5" style="text-shadow: 0 2px 10px rgba(27,59,187,0.4);">SIRENA</h1>
                         </div>
                     </div>
 
@@ -127,7 +126,7 @@
                     <div class="bg-gradient-to-r from-white/12 to-white/5 border border-white/20 rounded-2xl p-3.5 sm:p-4 flex items-center gap-3.5 shadow-sm hover:from-white/20 hover:to-white/10 hover:border-white/30 transition-all duration-300 group backdrop-blur-md">
                         <div class="w-10 h-10 rounded-xl bg-sky-400/20 text-sky-300 border border-sky-300/30 flex items-center justify-center shrink-0 group-hover:scale-110 transition-transform">
                             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 100-6 3 3 0 000 6z"></path>
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 18.75a6 6 0 006-6v-1.5m-6 7.5a6 6 0 01-6-6v-1.5m6 7.5v3.75m-3.75 0h7.5M12 15.75a3 3 0 003-3V4.5a3 3 0 10-6 0v8.25a3 3 0 003 3z"></path>
                             </svg>
                         </div>
                         <div class="min-w-0">
@@ -155,7 +154,7 @@
                         </div>
 
                         <div>
-                            <span class="inline-flex items-center gap-1.5 px-3 py-1 bg-[#1b3bbb]/10 text-[#1b3bbb] text-[10px] font-extrabold uppercase tracking-widest rounded-full border border-[#1b3bbb]/20">
+                            <span class="inline-block text-[#1b3bbb] text-[10.5px] font-black uppercase tracking-widest">
                                 PORTAL SIRENA
                             </span>
                         </div>
