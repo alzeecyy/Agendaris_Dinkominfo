@@ -266,10 +266,10 @@ class AgendaController extends Controller
             $notulensi = $agenda->notulensi;
             $hasAudio = !empty($notulensi->audio_path) || (!empty($notulensi->audio_files) && count($notulensi->audio_files) > 0);
             
-            // Check if a queue job is currently pending or active in the jobs table for this notulensi
-            $jobPendingOrRunning = false;
+            // Check if a queue job is currently pending in the jobs table for this notulensi
+            $jobPendingInQueue = false;
             try {
-                $jobPendingOrRunning = \Illuminate\Support\Facades\DB::table('jobs')
+                $jobPendingInQueue = \Illuminate\Support\Facades\DB::table('jobs')
                     ->where('payload', 'like', '%ProcessMeetingAudio%')
                     ->where(function ($q) use ($notulensi) {
                         $q->where('payload', 'like', '%"id";i:' . $notulensi->id . '%')
@@ -277,16 +277,33 @@ class AgendaController extends Controller
                     })
                     ->exists();
             } catch (\Exception $e) {
-                // In case queue table isn't accessible, fallback safely
-                $jobPendingOrRunning = false;
+                $jobPendingInQueue = false;
             }
 
-            // Only heal if no audio file exists OR if no job is actively running/pending in queue
-            if (!$hasAudio || !$jobPendingOrRunning) {
-                $notulensi->update([
-                    'is_transcribing' => false,
-                    'transkrip_error' => !$hasAudio ? null : ($notulensi->transkrip_error ?: 'Proses transkripsi terhenti. Silakan coba lagi.'),
-                ]);
+            // Only heal if no job is pending in queue
+            if (!$jobPendingInQueue) {
+                // Refresh to get latest data — job may have already saved results
+                $notulensi->refresh();
+                $alreadyHasResult = !empty(trim($notulensi->transkrip_raw ?? ''));
+
+                if ($alreadyHasResult) {
+                    // Job succeeded — clear flag, NO error message
+                    $notulensi->update([
+                        'is_transcribing' => false,
+                        'transkrip_error' => null,
+                    ]);
+                } else if (!$hasAudio) {
+                    $notulensi->update([
+                        'is_transcribing' => false,
+                        'transkrip_error' => null,
+                    ]);
+                } else {
+                    // No result and no job in queue — genuinely failed
+                    $notulensi->update([
+                        'is_transcribing' => false,
+                        'transkrip_error' => $notulensi->transkrip_error ?: 'Proses transkripsi terhenti. Silakan coba lagi.',
+                    ]);
+                }
             }
         }
 

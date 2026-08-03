@@ -477,9 +477,9 @@
                         } elseif ($notulensi->transkrip_error) {
                             $notulenLabel = 'Gagal Transkripsi';
                             $notulenColor = 'bg-rose-50 text-rose-600 border-rose-200';
-                        } elseif ($notulensi->status === 'revisi') {
-                            $notulenLabel = 'Perlu Revisi Admin';
-                            $notulenColor = 'bg-rose-50 text-rose-700 border-rose-200';
+                        } elseif ($notulensi->status === 'revisi' || !empty($notulensi->catatan_revisi)) {
+                            $notulenLabel = 'Perlu Revisi (Dikembalikan Pimpinan)';
+                            $notulenColor = 'bg-rose-50 text-rose-700 border-rose-200 font-extrabold';
                         } elseif ($notulensi->status === 'draft') {
                             if ($hasDraftContent) {
                                 $notulenLabel = 'Draft Belum Direview';
@@ -508,7 +508,7 @@
                             </span>
                         </div>
 
-                        @if($agenda->notulensi->status === 'revisi')
+                        @if($agenda->notulensi->status === 'revisi' || !empty($agenda->notulensi->catatan_revisi))
                             @if($agenda->notulensi->catatan_revisi)
                                 <div class="bg-rose-50 border border-rose-200 text-rose-800 p-3 rounded-xl text-xs space-y-1">
                                     <p class="font-extrabold flex items-center gap-1.5 text-rose-700">
@@ -522,7 +522,7 @@
                             @if($isSecretaryOfAgenda)
                                 <a href="{{ route('notulensi.edit', $agenda->id) }}" 
                                    class="w-full py-1.5 sm:py-2.5 bg-rose-600 hover:bg-rose-700 text-white font-bold text-[11px] sm:text-xs rounded-xl shadow-md transition-all flex items-center justify-center gap-1.5">
-                                    <span>Perbaiki & Edit Notulensi</span>
+                                    <span>Perbaiki & Edit Notulensi &rarr;</span>
                                 </a>
                             @else
                                 <p class="text-xs text-rose-700 text-center py-2 italic font-medium">
@@ -1869,16 +1869,16 @@
 
     <!-- Floating AI Background Processing Toast (Sekretaris Only - Non-blocking top-right position) -->
     @if($isSecretaryOfAgenda && $agenda->notulensi && $agenda->notulensi->is_transcribing && (!empty($agenda->notulensi->audio_path) || (!empty($agenda->notulensi->audio_files) && count($agenda->notulensi->audio_files) > 0)))
-        <div class="fixed top-24 right-6 z-50 bg-[#09103c] text-white p-4 rounded-2xl shadow-2xl border border-sky-500/30 flex items-center gap-3.5 max-w-sm animate-bounce pointer-events-none">
-            <div class="w-9 h-9 bg-sky-500/20 text-sky-400 rounded-xl flex items-center justify-center shrink-0">
+        <div class="fixed top-24 right-6 z-50 bg-amber-50 text-amber-900 p-4 rounded-2xl shadow-2xl border border-amber-300 flex items-center gap-3.5 max-w-sm animate-bounce pointer-events-none">
+            <div class="w-9 h-9 bg-amber-500/20 text-amber-600 rounded-xl flex items-center justify-center shrink-0">
                 <svg class="w-5 h-5 animate-spin" fill="none" viewBox="0 0 24 24">
                     <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
                     <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                 </svg>
             </div>
             <div class="space-y-0.5 text-left flex-1 min-w-0">
-                <p class="text-xs font-bold text-sky-300">Transkripsi AI Sedang Berjalan</p>
-                <p class="text-[10px] text-slate-300 leading-tight">Rekaman audio rapat sedang diolah oleh AI. Halaman akan diperbarui otomatis.</p>
+                <p class="text-xs font-bold text-amber-800">Transkripsi AI Sedang Berjalan</p>
+                <p class="text-[10px] text-amber-600 leading-tight">Rekaman audio rapat sedang diolah oleh AI. Halaman akan diperbarui otomatis.</p>
             </div>
         </div>
         <script>
