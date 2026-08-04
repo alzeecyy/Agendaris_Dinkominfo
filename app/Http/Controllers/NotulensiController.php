@@ -574,6 +574,23 @@ class NotulensiController extends Controller
             $logoBase64 = 'data:image/png;base64,' . base64_encode($logoData);
         }
 
+        // Pre-render Markdown to HTML and clean full-paragraph <strong> wrappers for clean regular-weight export
+        $notulensi->ringkasan_html = !empty($notulensi->ringkasan_html) 
+            ? $this->cleanExportHtml($notulensi->ringkasan_html) 
+            : $this->cleanExportHtml(\Illuminate\Support\Str::markdown($notulensi->ringkasan ?? ''));
+
+        $notulensi->pembahasan_html = !empty($notulensi->pembahasan) 
+            ? $this->cleanExportHtml(\Illuminate\Support\Str::markdown($notulensi->pembahasan)) 
+            : '';
+
+        $notulensi->keputusan_html = !empty($notulensi->keputusan) 
+            ? $this->cleanExportHtml(\Illuminate\Support\Str::markdown($notulensi->keputusan)) 
+            : '';
+
+        $notulensi->kesimpulan_html = !empty($notulensi->kesimpulan) 
+            ? $this->cleanExportHtml(\Illuminate\Support\Str::markdown($notulensi->kesimpulan)) 
+            : '';
+
         // Get designated approver signature info according to scope rule
         $approverInfo = $this->getApproverSignatureInfo($agenda, $notulensi);
 
@@ -647,11 +664,77 @@ class NotulensiController extends Controller
             ];
         }
 
+        // Attendance recap per bidang
+        $recap = [];
+        $numericHakAkses = array_values(array_filter((array) $hakAkses, 'is_numeric'));
+        $allowedBidangs = in_array('semua_orang', (array) $hakAkses) 
+            ? \App\Models\Bidang::orderBy('nama')->get()
+            : \App\Models\Bidang::whereIn('id', $numericHakAkses)->orderBy('nama')->get();
+
+        $kadinUsers = $internalUsers->filter(fn($p) => $p->role === 'ketua_master' || !$p->bidang_id);
+        if ($kadinUsers->isNotEmpty() || in_array('kadin', (array)$hakAkses)) {
+            $hadir = $kadinUsers->filter(fn($p) => $attendanceRecords->has($p->id) && $attendanceRecords[$p->id]->status === 'hadir')->count();
+            $izin = $kadinUsers->filter(fn($p) => $attendanceRecords->has($p->id) && $attendanceRecords[$p->id]->status === 'izin')->count();
+            $sakit = $kadinUsers->filter(fn($p) => $attendanceRecords->has($p->id) && $attendanceRecords[$p->id]->status === 'sakit')->count();
+            $belum = $kadinUsers->filter(fn($p) => !$attendanceRecords->has($p->id) || !in_array($attendanceRecords[$p->id]->status, ['hadir', 'izin', 'sakit']))->count();
+
+            $recap[] = (object) [
+                'bidang_nama' => 'Kepala Dinas',
+                'hadir' => $hadir,
+                'izin' => $izin,
+                'sakit' => $sakit,
+                'alfa' => $belum,
+                'belum' => $belum,
+            ];
+        }
+
+        foreach ($allowedBidangs as $bid) {
+            $bidangUsers = $internalUsers->filter(fn($p) => (int)$p->bidang_id === (int)$bid->id && $p->role !== 'ketua_master');
+            $hadir = $bidangUsers->filter(fn($p) => $attendanceRecords->has($p->id) && $attendanceRecords[$p->id]->status === 'hadir')->count();
+            $izin = $bidangUsers->filter(fn($p) => $attendanceRecords->has($p->id) && $attendanceRecords[$p->id]->status === 'izin')->count();
+            $sakit = $bidangUsers->filter(fn($p) => $attendanceRecords->has($p->id) && $attendanceRecords[$p->id]->status === 'sakit')->count();
+            $belum = $bidangUsers->filter(fn($p) => !$attendanceRecords->has($p->id) || !in_array($attendanceRecords[$p->id]->status, ['hadir', 'izin', 'sakit']))->count();
+
+            $recap[] = (object) [
+                'bidang_nama' => $bid->nama,
+                'hadir' => $hadir,
+                'izin' => $izin,
+                'sakit' => $sakit,
+                'alfa' => $belum,
+                'belum' => $belum,
+            ];
+        }
+
+        // Convert Banyumas logo to base64 for document rendering compatibility
+        $logoPath = public_path('images/logo-banyumas.png');
+        $logoBase64 = '';
+        if (file_exists($logoPath)) {
+            $logoData = file_get_contents($logoPath);
+            $logoBase64 = 'data:image/png;base64,' . base64_encode($logoData);
+        }
+
+        // Pre-render Markdown to HTML and clean full-paragraph <strong> wrappers for clean regular-weight export
+        $notulensi->ringkasan_html = !empty($notulensi->ringkasan_html) 
+            ? $this->cleanExportHtml($notulensi->ringkasan_html) 
+            : $this->cleanExportHtml(\Illuminate\Support\Str::markdown($notulensi->ringkasan ?? ''));
+
+        $notulensi->pembahasan_html = !empty($notulensi->pembahasan) 
+            ? $this->cleanExportHtml(\Illuminate\Support\Str::markdown($notulensi->pembahasan)) 
+            : '';
+
+        $notulensi->keputusan_html = !empty($notulensi->keputusan) 
+            ? $this->cleanExportHtml(\Illuminate\Support\Str::markdown($notulensi->keputusan)) 
+            : '';
+
+        $notulensi->kesimpulan_html = !empty($notulensi->kesimpulan) 
+            ? $this->cleanExportHtml(\Illuminate\Support\Str::markdown($notulensi->kesimpulan)) 
+            : '';
+
         // Get designated approver signature info according to scope rule
         $approverInfo = $this->getApproverSignatureInfo($agenda, $notulensi);
 
         // Generate clean document layout
-        $viewContent = view('notulensi.export_docx', compact('agenda', 'notulensi', 'attendees', 'approverInfo'))->render();
+        $viewContent = view('notulensi.export_docx', compact('agenda', 'notulensi', 'attendees', 'recap', 'logoBase64', 'approverInfo'))->render();
         
         $filename = 'notulensi-rapat-' . $agenda->id . '.doc';
 
@@ -965,6 +1048,39 @@ class NotulensiController extends Controller
         if (preg_match('/^Kepala\s+Dinas\b/i', $rawJabatan)) {
             return 'Kepala Dinas';
         }
-        return trim(preg_replace('/\s+(Bidang|Dinas)\s+.*$/i', '', $rawJabatan));
+        return preg_replace('/\s+Bidang\s+.*$/i', '', $rawJabatan);
+    }
+
+    /**
+     * Clean inline styles and inject explicit Word-compatible inline styles for regular font-weight, 12pt size, and black color.
+     */
+    private function cleanExportHtml(?string $html): string
+    {
+        if (empty($html)) return '';
+        
+        // Strip conflicting inline color, font-size, font-family, font-weight from existing style attributes
+        $cleaned = preg_replace('/color\s*:\s*[^;"]+;?/i', '', $html);
+        $cleaned = preg_replace('/font-size\s*:\s*[^;"]+;?/i', '', $cleaned);
+        $cleaned = preg_replace('/font-family\s*:\s*[^;"]+;?/i', '', $cleaned);
+        $cleaned = preg_replace('/font-weight\s*:\s*[^;"]+;?/i', '', $cleaned);
+        
+        // Clean empty style="" attributes
+        $cleaned = preg_replace('/style=\s*["\']\s*["\']/i', '', $cleaned);
+
+        // Remove <strong> and <b> wrappers if they wrap an entire paragraph or list item
+        $cleaned = preg_replace('/<p>\s*<strong\b[^>]*>(.*?)<\/strong>\s*<\/p>/is', '<p>$1</p>', $cleaned);
+        $cleaned = preg_replace('/<p>\s*<b\b[^>]*>(.*?)<\/b>\s*<\/p>/is', '<p>$1</p>', $cleaned);
+        $cleaned = preg_replace('/<li>\s*<strong\b[^>]*>(.*?)<\/strong>\s*<\/li>/is', '<li>$1</li>', $cleaned);
+        $cleaned = preg_replace('/<li>\s*<b\b[^>]*>(.*?)<\/b>\s*<\/li>/is', '<li>$1</li>', $cleaned);
+
+        // Inject explicit inline styles directly on tags for 100% Word HTML rendering compatibility
+        $wordStyle = 'style="font-family: \'Times New Roman\', Times, serif; font-size: 12pt; font-weight: normal; color: #000000; line-height: 1.5;"';
+        
+        $cleaned = preg_replace('/<p\b[^>]*>/i', '<p ' . $wordStyle . '>', $cleaned);
+        $cleaned = preg_replace('/<li\b[^>]*>/i', '<li ' . $wordStyle . '>', $cleaned);
+        $cleaned = preg_replace('/<ol\b[^>]*>/i', '<ol ' . $wordStyle . '>', $cleaned);
+        $cleaned = preg_replace('/<ul\b[^>]*>/i', '<ul ' . $wordStyle . '>', $cleaned);
+
+        return $cleaned;
     }
 }

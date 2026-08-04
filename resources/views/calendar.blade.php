@@ -758,11 +758,31 @@
 
                     toggleSemua() {
                         this.isDirty = true;
+                        let kId = String(this.kadinUserId);
+                        let curParts = (this.selectedParticipants || []).map(String);
+                        let curBids = (this.bidangs || []).map(String);
+
                         if (this.semuaOrang) {
                             this.bidangs = Array.from(this.allBidangIds);
+                            this.kadinTarget = true;
+                            curBids = (this.bidangs || []).map(String);
+                            if (!curBids.includes("kadin")) curBids.push("kadin");
+                            if (kId && !curParts.includes(kId)) curParts.push(kId);
+                            this.showBidangLimitWarning = false;
                         } else {
                             this.bidangs = [];
+                            this.kadinTarget = false;
+                            if (kId) curParts = curParts.filter(p => p !== kId);
+                            if (this.ownBidangId) {
+                                this.bidangs.push(String(this.ownBidangId));
+                            }
+                            if (this.isSekretariatScope && this.sekId) {
+                                this.bidangs.push(String(this.sekId));
+                            }
+                            curBids = (this.bidangs || []).map(String);
                         }
+                        this.selectedParticipants = curParts;
+                        this.bidangs = curBids;
                         this.syncParticipants();
                     },
 
@@ -1182,7 +1202,7 @@
                             <span>Admin Bidang hanya dapat memilih maksimal 3 bidang (bidang Anda + maksimal 2 bidang tambahan).</span>
                         </div>
 
-                        @if(Auth::user()->isSekretarisMaster())
+                        @if(Auth::user()->isSekretarisMaster() || Auth::user()->isSekretarisBidang())
                             <label class="flex items-center gap-2 px-2.5 py-1.5 bg-white rounded-xl border border-[#d4d1f5] hover:border-[#1b3bbb] transition-all cursor-pointer select-none">
                                 <input type="checkbox" x-model="semuaOrang" @change="toggleSemua()" 
                                        class="w-4 h-4 rounded border-[#d4d1f5] text-[#1b3bbb] focus:ring-[#1b3bbb] transition-all">

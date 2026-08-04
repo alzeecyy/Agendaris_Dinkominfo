@@ -119,17 +119,18 @@ class AgendaController extends Controller
             'lokasi.required' => 'Lokasi kegiatan wajib diisi.',
             'kategori.required' => 'Kategori agenda wajib diisi.',
             'bidangs.required_without' => 'Pilih minimal satu bidang atau centang Semua Orang.',
-            'semua_orang.prohibited' => 'Admin Bidang tidak diperbolehkan membuat rapat Lintas Dinas (Semua Orang).',
         ]);
 
         // Determine hak_akses
-        if ($user->isSekretarisBidang() && !$user->isSekretariatScope()) {
+        if ($request->has('semua_orang')) {
+            $hakAkses = ['semua_orang'];
+        } else if ($user->isSekretarisBidang() && !$user->isSekretariatScope()) {
             $bidangs = array_map('strval', $request->input('bidangs', []));
             // Enforce own bidang is checked
             if (!in_array((string)$user->bidang_id, $bidangs)) {
                 $bidangs[] = (string)$user->bidang_id;
             }
-            // Max 3 bidangs allowed for standard Bidangs (excluding Kadin & Bidang Sekretariat)
+            // Max 3 bidangs allowed for standard Bidangs (excluding Kadin & Bidang Sekretariat) when NOT semua_orang
             $sekretariatId = \App\Models\Bidang::where('singkatan', 'Sekretariat')->orWhere('nama', 'Sekretariat')->value('id');
 
             $actualBidangCount = count(array_filter($bidangs, function($b) use ($sekretariatId) {
@@ -141,12 +142,8 @@ class AgendaController extends Controller
             }
             $hakAkses = array_values(array_unique($bidangs));
         } else {
-            if ($request->has('semua_orang')) {
-                $hakAkses = ['semua_orang'];
-            } else {
-                $bidangs = array_map('strval', (array)$request->input('bidangs', []));
-                $hakAkses = array_values(array_unique($bidangs));
-            }
+            $bidangs = array_map('strval', (array)$request->input('bidangs', []));
+            $hakAkses = array_values(array_unique($bidangs));
         }
 
         $butuhPresensi = $request->has('butuh_presensi');
@@ -511,7 +508,6 @@ class AgendaController extends Controller
             'lokasi.required' => 'Lokasi kegiatan wajib diisi.',
             'kategori.required' => 'Kategori agenda wajib diisi.',
             'bidangs.required_without' => 'Pilih minimal satu bidang atau centang Semua Orang.',
-            'semua_orang.prohibited' => 'Admin Bidang tidak diperbolehkan membuat rapat Lintas Dinas (Semua Orang).',
         ]);
 
         // Reject changes to kategori/butuh_presensi if notulensi workflow is locked
@@ -528,7 +524,9 @@ class AgendaController extends Controller
         }
 
         // Determine hak_akses
-        if ($user->isSekretarisBidang() && !$user->isSekretariatScope()) {
+        if ($request->has('semua_orang')) {
+            $newHakAkses = ['semua_orang'];
+        } else if ($user->isSekretarisBidang() && !$user->isSekretariatScope()) {
             $bidangs = array_map('strval', (array)$request->input('bidangs', []));
             if (!in_array((string)$user->bidang_id, $bidangs)) {
                 $bidangs[] = (string)$user->bidang_id;
@@ -544,12 +542,8 @@ class AgendaController extends Controller
             }
             $newHakAkses = array_values(array_unique($bidangs));
         } else {
-            if ($request->has('semua_orang')) {
-                $newHakAkses = ['semua_orang'];
-            } else {
-                $bidangs = array_map('strval', (array)$request->input('bidangs', []));
-                $newHakAkses = array_values(array_unique($bidangs));
-            }
+            $bidangs = array_map('strval', (array)$request->input('bidangs', []));
+            $newHakAkses = array_values(array_unique($bidangs));
         }
 
         $butuhPresensi = $request->has('butuh_presensi');
