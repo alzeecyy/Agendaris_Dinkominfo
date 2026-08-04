@@ -259,25 +259,6 @@
         </div>
     </div>
 
-    <!-- Heavy Process Loading Overlay Modal (Matching Picture 2 / app.blade.php) -->
-    <div id="login-loading-overlay" class="fixed inset-0 z-[99999] bg-slate-900/50 backdrop-blur-md hidden items-center justify-center p-4 transition-all duration-300">
-        <div class="bg-white/95 rounded-2xl sm:rounded-[28px] p-6 sm:p-7 max-w-[300px] sm:max-w-sm w-full text-center shadow-2xl border border-slate-200/80 flex flex-col items-center gap-3.5 sm:gap-4 transform transition-transform duration-300">
-            <!-- Spinner Icon Container -->
-            <div class="relative w-12 h-12 sm:w-14 sm:h-14 flex items-center justify-center shrink-0">
-                <div class="absolute inset-0 rounded-full border-3 sm:border-4 border-[#1b3bbb]/15 border-t-[#1b3bbb] animate-spin"></div>
-                <div class="w-7 h-7 sm:w-8 sm:h-8 rounded-xl sm:rounded-2xl bg-[#1b3bbb]/10 flex items-center justify-center text-[#1b3bbb]">
-                    <svg class="w-4 h-4 sm:w-5 sm:h-5 animate-pulse" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                    </svg>
-                </div>
-            </div>
-            <div class="space-y-1">
-                <h3 class="text-sm sm:text-base font-extrabold text-[#09103c]">Memvalidasi Hak Akses...</h3>
-                <p class="text-[11px] sm:text-xs text-slate-500 font-medium">Mohon tunggu sejenak...</p>
-            </div>
-        </div>
-    </div>
-
     <!-- Form Submit Loading Script -->
     <script>
         document.addEventListener('DOMContentLoaded', function() {
@@ -289,18 +270,13 @@
                         e.preventDefault();
                         return;
                     }
-                    form.dataset.submitting = 'true';
-                    
                     const btn = form.querySelector('button[type="submit"]');
                     if (btn) {
+                        form.dataset.submitting = 'true';
                         btn.disabled = true;
                         btn.classList.add('opacity-75', 'cursor-not-allowed');
-                    }
-                    
-                    const overlay = document.getElementById('login-loading-overlay');
-                    if (overlay) {
-                        overlay.classList.remove('hidden');
-                        overlay.classList.add('flex');
+                        const spinnerSvg = `<svg class="w-4 h-4 mr-2 animate-spin text-current shrink-0" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>`;
+                        btn.innerHTML = `<span class="inline-flex items-center justify-center">${spinnerSvg}<span>Memuat Hak Akses SIRENA...</span></span>`;
                     }
                 });
             }
