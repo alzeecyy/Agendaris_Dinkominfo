@@ -229,14 +229,15 @@
 
                         <div class="flex flex-col sm:flex-row items-center gap-3 w-full sm:w-auto justify-end">
                             <button type="submit" @click="isDirty = false" formaction="{{ route('notulensi.save', $agenda->id) }}" formmethod="POST"
-                                    class="w-full sm:w-auto px-5 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 border border-slate-300 text-xs font-bold rounded-xl shadow-xs transition-all flex items-center justify-center gap-1.5">
+                                    onclick="if (typeof window.showHeavyLoading === 'function') window.showHeavyLoading('Menyimpan Draf Notulensi', 'Perubahan draf notulensi sedang disimpan. Mohon tunggu...');"
+                                    class="w-full sm:w-auto px-5 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 border border-slate-300 text-xs font-bold rounded-xl shadow-xs transition-all flex items-center justify-center gap-1.5 cursor-pointer">
                                 <svg class="w-4 h-4 text-slate-600 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4"/>
                                 </svg>
                                 <span>Simpan Progress Draft</span>
                             </button>
                             <button type="button" @click="submitForReview($event)"
-                                    class="w-full sm:w-auto px-6 py-2.5 bg-gradient-to-r from-[#1b3bbb] to-indigo-600 hover:from-[#09103c] hover:to-[#1b3bbb] text-white text-xs font-bold rounded-xl shadow-md shadow-[#1b3bbb]/20 transition-all flex items-center justify-center gap-2">
+                                    class="w-full sm:w-auto px-6 py-2.5 bg-gradient-to-r from-[#1b3bbb] to-indigo-600 hover:from-[#09103c] hover:to-[#1b3bbb] text-white text-xs font-bold rounded-xl shadow-md shadow-[#1b3bbb]/20 transition-all flex items-center justify-center gap-2 cursor-pointer">
                                 <span>Ajukan untuk Persetujuan</span>
                                 <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"/>
@@ -517,6 +518,11 @@
 
                     this.showNomorSuratAlert = false;
                     this.isDirty = false;
+
+                    if (typeof window.showHeavyLoading === 'function') {
+                        window.showHeavyLoading('Mengajukan Notulensi Rapat', 'Notulensi sedang dikirim ke Pimpinan untuk proses persetujuan & pengesahan. Mohon tunggu...');
+                    }
+
                     const form = document.getElementById('notulen-form');
                     if (form) {
                         form.action = '{{ route("notulensi.submit", $agenda->id) }}';
