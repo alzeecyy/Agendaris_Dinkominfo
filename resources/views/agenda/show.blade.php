@@ -253,9 +253,6 @@
                             Batal
                         </button>
                         <button type="submit" class="px-5 py-2 bg-[#1b3bbb] hover:bg-indigo-700 text-white text-xs font-bold rounded-xl shadow-md shadow-[#1b3bbb]/20 transition-all flex items-center gap-1.5 active:scale-95 cursor-pointer">
-                            <svg class="w-3.5 h-3.5 text-indigo-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
-                            </svg>
                             <span>Simpan Nomor Surat</span>
                         </button>
                     </div>
