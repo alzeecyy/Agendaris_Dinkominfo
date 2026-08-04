@@ -176,7 +176,7 @@
             <div class="grid grid-cols-1 sm:grid-cols-3 gap-3.5 sm:gap-4 md:gap-6 w-full max-w-4xl shrink-0">
                 <!-- Card 1: Dashboard / Kelola Pegawai -->
                 @if(Auth::check() && !Auth::user()->isAdmin())
-                    <a href="{{ route('dashboard') }}" class="hover-card-trigger bg-gradient-to-br from-[#1b3bbb] to-[#0b1554] rounded-2xl md:rounded-[24px] border border-[#1b3bbb]/40 p-4 sm:p-5 md:p-6 flex flex-col justify-between shadow-md relative overflow-hidden group text-white">
+                    <a href="{{ route('dashboard') }}" class="hover-card-trigger bg-gradient-to-br from-[#1b3bbb] to-[#0b1554] rounded-2xl md:rounded-[24px] border-2 border-white/45 hover:border-white/70 p-4 sm:p-5 md:p-6 flex flex-col justify-between shadow-lg relative overflow-hidden group text-white transition-all duration-300">
                         <div class="space-y-2 md:space-y-3 z-10">
                             <div class="w-9 h-9 md:w-11 md:h-11 bg-white/15 rounded-xl md:rounded-2xl flex items-center justify-center text-white group-hover:scale-110 transition-transform duration-300">
                                 <svg class="w-5 h-5 md:w-6 md:h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -196,7 +196,7 @@
                         </div>
                     </a>
                 @elseif(Auth::check() && Auth::user()->isAdmin())
-                    <a href="{{ route('dashboard') }}" class="hover-card-trigger bg-gradient-to-br from-[#1b3bbb] to-[#0b1554] rounded-2xl md:rounded-[24px] border border-[#1b3bbb]/40 p-4 sm:p-5 md:p-6 flex flex-col justify-between shadow-md relative overflow-hidden group text-white">
+                    <a href="{{ route('dashboard') }}" class="hover-card-trigger bg-gradient-to-br from-[#1b3bbb] to-[#0b1554] rounded-2xl md:rounded-[24px] border-2 border-white/45 hover:border-white/70 p-4 sm:p-5 md:p-6 flex flex-col justify-between shadow-lg relative overflow-hidden group text-white transition-all duration-300">
                         <div class="space-y-2 md:space-y-3 z-10">
                             <div class="w-9 h-9 md:w-11 md:h-11 bg-white/15 rounded-xl md:rounded-2xl flex items-center justify-center text-white group-hover:scale-110 transition-transform duration-300">
                                 <svg class="w-5 h-5 md:w-6 md:h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
