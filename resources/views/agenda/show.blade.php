@@ -770,10 +770,12 @@
                                                                                     currentStatus = st.value; 
                                                                                     openStatus = false; 
                                                                                     isLoading = true;
-                                                                                    if (typeof Swal !== 'undefined') {
+                                                                                    if (typeof window.showHeavyLoading === 'function') {
+                                                                                        window.showHeavyLoading('Memperbarui Presensi...', 'Mohon tunggu sejenak...');
+                                                                                    } else if (typeof Swal !== 'undefined') {
                                                                                         Swal.fire({
                                                                                             title: 'Memperbarui Presensi...',
-                                                                                            text: 'Mohon tunggu sebentar',
+                                                                                            text: 'Mohon tunggu sejenak...',
                                                                                             allowOutsideClick: false,
                                                                                             showConfirmButton: false,
                                                                                             didOpen: () => { Swal.showLoading(); }
@@ -949,10 +951,12 @@
                                                                                 currentStatus = st.value; 
                                                                                 openStatus = false; 
                                                                                 isLoading = true;
-                                                                                if (typeof Swal !== 'undefined') {
+                                                                                if (typeof window.showHeavyLoading === 'function') {
+                                                                                    window.showHeavyLoading('Memperbarui Presensi...', 'Mohon tunggu sejenak...');
+                                                                                } else if (typeof Swal !== 'undefined') {
                                                                                     Swal.fire({
                                                                                         title: 'Memperbarui Presensi...',
-                                                                                        text: 'Mohon tunggu sebentar',
+                                                                                        text: 'Mohon tunggu sejenak...',
                                                                                         allowOutsideClick: false,
                                                                                         showConfirmButton: false,
                                                                                         didOpen: () => { Swal.showLoading(); }
