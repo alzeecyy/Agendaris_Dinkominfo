@@ -351,21 +351,56 @@ class DashboardController extends Controller
             $links['master_month_agendas'] = route('calendar');
             $links['ketua_week_agendas'] = route('calendar');
             $links['approved_notulensi_count'] = route('riwayat', ['notulensi_status' => 'disahkan']);
+        }
 
-            // Highlights for Kadin: Only agendas where Kadin is explicitly invited today or Lintas Dinas
-            $todayAgendas = Agenda::where('tanggal', Carbon::today()->toDateString())
+        // Today's Agendas & Presensi Alerts for all non-admin users
+        if (!$user->isAdmin()) {
+            $submittedPresenceIds = Presensi::where('user_id', $user->id)
+                ->pluck('agenda_id')
+                ->toArray();
+
+            $todayAccessibleAgendas = Agenda::where('tanggal', $todayStr)
                 ->orderBy('jam_mulai', 'asc')
                 ->get()
-                ->filter(fn($agenda) => $user->isInvitedToAgenda($agenda));
+                ->filter(fn($a) => $user->hasAccessToAgenda($a) || $user->isInvitedToAgenda($a));
 
-            foreach ($todayAgendas as $agenda) {
-                $highlights[] = [
-                    'type' => 'agenda',
-                    'agenda_id' => $agenda->id,
-                    'text' => "Anda diundang dalam kegiatan '{$agenda->judul}' hari ini pukul " . substr($agenda->jam_mulai, 0, 5) . " WIB.",
-                    'action_text' => 'Lihat Detail',
-                    'url' => route('agenda.show', $agenda->id),
-                ];
+            $existingAgendaHighlightIds = array_filter(array_column($highlights, 'agenda_id'));
+
+            foreach ($todayAccessibleAgendas as $agenda) {
+                if (in_array($agenda->id, $existingAgendaHighlightIds)) {
+                    continue;
+                }
+
+                if ($agenda->butuh_presensi && !in_array($agenda->id, $submittedPresenceIds)) {
+                    if ($agenda->canPresensiBeFilled()) {
+                        $highlights[] = [
+                            'type' => 'presence',
+                            'agenda_id' => $agenda->id,
+                            'text' => "Agenda hari ini: '{$agenda->judul}' jam " . substr($agenda->jam_mulai, 0, 5) . " — Anda belum mengisi absen mandiri.",
+                            'action_text' => 'Absen Sekarang',
+                            'url' => route('agenda.show', $agenda->id),
+                        ];
+                        $existingAgendaHighlightIds[] = $agenda->id;
+                    } elseif ($agenda->isPresensiNotStarted()) {
+                        $highlights[] = [
+                            'type' => 'presence',
+                            'agenda_id' => $agenda->id,
+                            'text' => "Agenda hari ini: '{$agenda->judul}' jam " . substr($agenda->jam_mulai, 0, 5) . " — Absen mandiri dapat diisi saat rapat dimulai.",
+                            'action_text' => 'Lihat Agenda',
+                            'url' => route('agenda.show', $agenda->id),
+                        ];
+                        $existingAgendaHighlightIds[] = $agenda->id;
+                    }
+                } elseif ($user->role !== 'staff') {
+                    $highlights[] = [
+                        'type' => 'agenda',
+                        'agenda_id' => $agenda->id,
+                        'text' => "Anda diundang dalam kegiatan '{$agenda->judul}' hari ini pukul " . substr($agenda->jam_mulai, 0, 5) . " WIB.",
+                        'action_text' => 'Lihat Detail',
+                        'url' => route('agenda.show', $agenda->id),
+                    ];
+                    $existingAgendaHighlightIds[] = $agenda->id;
+                }
             }
         }
         // Recent activity history (max 5 entries)
