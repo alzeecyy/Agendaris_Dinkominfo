@@ -541,7 +541,7 @@
                             </div>
                             @if(isset($hl['url']))
                                 <a href="{{ $hl['url'] }}" 
-                                   class="self-end px-2.5 py-1 {{ ($hl['type'] ?? '') === 'revision' ? 'bg-rose-600 hover:bg-rose-700' : 'bg-[#2e2552] hover:bg-[#3d326a]' }} text-white text-[8.5px] font-bold rounded-lg transition-all shadow-xs">
+                                   class="self-end px-3 py-1.5 {{ ($hl['type'] ?? '') === 'revision' ? 'bg-gradient-to-r from-rose-600 to-red-600 hover:from-rose-700 hover:to-red-700 shadow-rose-600/20' : 'bg-gradient-to-r from-[#1b3bbb] to-[#0b1554] hover:from-[#0b1554] hover:to-[#1b3bbb] shadow-[#1b3bbb]/20' }} text-white text-[9px] sm:text-[10px] font-bold rounded-xl transition-all duration-300 shadow-md active:scale-95">
                                     {{ $hl['action_text'] }}
                                 </a>
                             @endif

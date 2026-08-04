@@ -133,7 +133,7 @@
 }" 
 class="space-y-6">
     <div>
-        <h1 class="text-xl sm:text-2xl font-bold text-[#09103c] tracking-wide">Riwayat Kegiatan & Rapat</h1>
+        <h1 class="text-xl sm:text-2xl font-black text-[#09103c] tracking-tight">Riwayat Kegiatan & Rapat</h1>
         <p class="text-xs sm:text-sm font-medium text-[#5a508f] mt-1">Arsip seluruh kegiatan dan status kehadiran Anda di Dinkominfo</p>
     </div>
 
