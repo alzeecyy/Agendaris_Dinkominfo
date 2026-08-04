@@ -6,7 +6,7 @@
 <div class="w-full space-y-6 max-w-7xl mx-auto pb-20 md:pb-10">
     <!-- Page Header Title -->
     <div>
-        <h1 class="text-xl sm:text-2xl font-bold text-[#09103c] tracking-wide">Arsip Notulensi Resmi Dinas</h1>
+        <h1 class="text-xl sm:text-2xl font-black text-[#09103c] tracking-tight">Arsip Notulensi Resmi Dinas</h1>
         <p class="text-xs sm:text-sm font-medium text-[#5a508f] mt-1">Kumpulan dokumen notulensi rapat seluruh bidang & unit kerja yang telah disahkan oleh Pimpinan Dinkominfo</p>
     </div>
 
