@@ -4,89 +4,88 @@
 </p>
 
 <p align="center">
-  <img src="https://img.shields.io/badge/Laravel-12.x-FF2D20?style=for-the-badge&logo=laravel&logoColor=white" alt="Laravel">
-  <img src="https://img.shields.io/badge/PHP-8.3-777BB4?style=for-the-badge&logo=php&logoColor=white" alt="PHP">
-  <img src="https://img.shields.io/badge/TailwindCSS-4.0-38B2AC?style=for-the-badge&logo=tailwind-css&logoColor=white" alt="TailwindCSS">
-  <img src="https://img.shields.io/badge/Alpine.js-3.x-8BC0D0?style=for-the-badge&logo=alpine.js&logoColor=white" alt="Alpine.js">
+  <img src="https://img.shields.io/badge/Laravel-11.x-FF2D20?style=for-the-badge&logo=laravel&logoColor=white" alt="Laravel">
+  <img src="https://img.shields.io/badge/PHP-8.2+-777BB4?style=for-the-badge&logo=php&logoColor=white" alt="PHP">
+  <img src="https://img.shields.io/badge/PostgreSQL-15.x-4169E1?style=for-the-badge&logo=postgresql&logoColor=white" alt="PostgreSQL">
   <img src="https://img.shields.io/badge/Google%20Gemini%20AI-Integration-4285F4?style=for-the-badge&logo=google&logoColor=white" alt="Google Gemini AI">
+  <img src="https://img.shields.io/badge/Whisper.cpp-Offline%20STT-000000?style=for-the-badge&logo=openai&logoColor=white" alt="Whisper.cpp Engine">
 </p>
 
 ---
 
 ## 📌 Tentang Aplikasi
 
-**SIRENA (Agendaris Dinkominfo)** adalah sistem informasi berbasis web yang dirancang khusus untuk mengelola seluruh agenda kegiatan, rapat dinas, presensi digital mandiri, serta penyusunan dan pengesahan notulensi berbasis **Kecerdasan Buatan (AI)** di lingkungan Dinas Komunikasi dan Informatika.
+**SIRENA (Sistem Informasi Rekapitulasi & Agenda Dinkominfo)** adalah platform web terpadu yang dirancang khusus untuk mengelola seluruh agenda kegiatan dinas, presensi digital mandiri, serta penyusunan dan pengesahan notulensi berbasis **Kecerdasan Buatan (AI Hybrid: Google Gemini 1.5 & Whisper.cpp)** di lingkungan Dinas Komunikasi dan Informatika Kabupaten Banyumas.
 
-Sistem ini memudahkan koordinasi antar-bidang, pencatatan kehadiran pegawai dengan tanda tangan digital, transkripsi & perapihan notulensi otomatis menggunakan **Google Gemini AI**, serta pengesahan dokumen notulensi resmi secara digital oleh Pimpinan/Kepala Dinas.
+Sistem ini memfasilitasi koordinasi antar-bidang, pencatatan kehadiran pegawai dengan tanda tangan digital canvas, otomatisasi transkripsi audio rapat menggunakan AI, serta alur pengesahan digital resmi oleh Pimpinan/Kepala Dinas.
 
 ---
 
 ## ✨ Fitur Utama
 
 ### 🗓️ 1. Manajemen Agenda & Kalender Kegiatan
-- **Kalender Interaktif**: Tampilan agenda bulanan, mini calendar, dan filter kegiatan hari ini.
-- **Kategori Kegiatan**: Mendukung berbagai jenis kegiatan (Rapat, Sosialisasi, Pelatihan, Bimtek, Workshop, Seminar, Webinar, Koordinasi).
-- **Pengaturan Disposisi / Hak Akses**: Pembatasan akses agenda (Semua Pegawai, Bidang Tertentu, atau Spesifik Pegawai).
+- **Kalender Grid Interaktif**: Tampilan agenda mingguan, mini calendar, dan filter kegiatan hari ini.
+- **Kategori Kegiatan**: Rapat, Sosialisasi, Pelatihan, dan Kegiatan Lainnya.
+- **Pengaturan Disposisi & Hak Akses**: Pembatasan akses agenda per bidang atau lintas dinas (*semua orang*).
 - **Manajemen Nomor Surat**: Pencatatan dan pembaharuan Nomor Surat Dasar pelaksanaan agenda rapat.
 
 ### ✍️ 2. Absensi Digital & Tanda Tangan Mandiri
-- **Presensi Digital Canvas**: Pegawai melakukan absensi mandiri lengkap dengan tanda tangan digital pada layar sentuh/mouse.
-- **Masa Toleransi Absensi (Auto-Alfa)**: Sistem secara otomatis mendeteksi batas waktu presensi (1 jam setelah rapat berakhir) dan mengubah status pegawai yang belum absen menjadi **Alfa**.
-- **Koreksi Presensi Manual**: Fitur bagi Sekretaris/Admin untuk melakukan perbaikan status presensi pegawai.
-- **Rekap Kehadiran Bidang**: Pemantauan statistik kehadiran pegawai per bidang/unit kerja secara *real-time*.
+- **Presensi Digital Canvas**: Pegawai melakukan absensi mandiri lengkap dengan Tanda Tangan Digital pada layar sentuh/mouse.
+- **Penguncian Jendela Waktu (Auto-Alfa)**: Batas waktu presensi mandiri dibuka tepat saat rapat mulai dan otomatis terkunci 1 jam setelah rapat selesai (status belum absen berubah menjadi **ALFA**).
+- **Anti-Kecurangan & Koreksi Manual**: Pegawai hanya bisa presensi untuk akun NIP sendiri. Fitur Koreksi Presensi Manual tersedia khusus untuk Notulis/Admin.
 
-### 🤖 3. Notulensi Berbasis AI (Google Gemini AI)
-- **Audio Processing & Transkripsi**: Unggah rekaman suara rapat untuk diproses dan dirapikan otomatis menjadi draf notulensi resmi.
-- **Refine & Analysis Catatan**: AI merapikan rangkuman poin penting rapat, keputusan, dan tindak lanjut secara terstruktur.
-- **Draf Peserta Eksternal**: Pencatatan peserta tamu/luar dinas secara rinci.
+### 🤖 3. Notulensi AI Hybrid (Gemini 1.5 & Whisper.cpp Fallback)
+- **Primary Cloud STT (Google Gemini 1.5 Flash)**: Memproses rekaman suara rapat di cloud untuk transkripsi dan rangkuman poin rapat terstruktur.
+- **Local Fallback STT (Whisper.cpp CLI)**: Mesin cadangan lokal berbasis Python & Whisper.cpp jika koneksi internet terputus.
+- **Background Queue Processing**: Pemrosesan audio berjalan di background queue (`queue:work`) sehingga sistem tidak mengalami timeout.
+- **Interactive Notulensi Editor**: Editor interaktif untuk merapikan poin ringkasan, pembahasan, keputusan, dan kesimpulan rapat.
 
 ### ✒️ 4. Verifikasi & Pengesahan Digital Pimpinan
-- **Alur Persetujuan Dokumen**: `Draf` ➔ `Menunggu Review` ➔ `Perlu Revisi` / `Telah Disahkan`.
-- **Tanda Tangan Digital Pimpinan**: Pengesahan notulensi oleh Kepala Dinas/Kepala Bidang secara digital melalui modal Canvas Signature.
-- **Export Dokumen Resmi**: Unduh hasil notulensi ke format **PDF (DomPDF)** dan **DOCX (Microsoft Word)** yang sudah dilengkapi Kop Dinas dan Tanda Tangan Digital.
-- **Arsip Notulensi Dinas**: Pencarian dan pengarsipan notulensi resmi yang dapat diakses antar-bidang.
+- **Alur Persetujuan Dokumen**: `Draft` ➔ `Menunggu Review` ➔ `Perlu Revisi` / `Telah Disahkan`.
+- **Privasi Staff**: Notulensi yang sedang dalam proses perbaikan/revisi akan ditampilkan dengan status netral **"Sedang Ditinjau"** pada layar Staff umum. Catatan revisi hanya dapat dibaca oleh Notulis dan Pimpinan.
+- **Export Dokumen Resmi**: Unduh hasil notulensi ke format **PDF (Dompdf)** dan **Word (PHPWord)** berformat Tata Naskah Dinas Pemkab Banyumas lengkap dengan Tanda Tangan Digital.
 
-### 🛡️ 5. Manajemen Pengguna & Keamanan
+### 🛡️ 5. Manajemen Pengguna & Keamanan (RBAC)
 - **Multi-Role RBAC (Role-Based Access Control)**:
-  - `admin`: Administrator Sistem (Manajemen User & Bidang).
-  - `ketua_master`: Kepala Dinas (Kadin).
-  - `sekretaris_master`: Sekretaris Dinas (Sekdin).
-  - `ketua_bidang`: Kepala Bidang (Kabid).
-  - `sekretaris_bidang`: Sekretaris/Admin Bidang.
-  - `staff`: Staff / Pegawai / Kasi.
-- **Keamanan Login**: Fitur *Force Change Password* pada login pertama & proteksi hashing BCRYPT.
+  - `admin`: Administrator Sistem (Kelola User, Bidang, TV Board).
+  - `ketua_master`: Kepala Dinas (Pengesahan Notulensi Seluruh Dinas).
+  - `sekretaris_master`: Sekretaris Dinas (Kelola Agenda & Notulensi Dinas).
+  - `ketua_bidang`: Kepala Bidang / Kasubag (Pengesahan Notulensi Bidang).
+  - `sekretaris_bidang`: Sekretaris Bidang (Kelola Agenda & Notulensi Bidang).
+  - `staff`: Staff / Pegawai (Kalender, Presensi Mandiri, Download Notulen Sah).
+- **Keamanan Login**: Protection *Force Password Change* pada login pertama & hashing BCRYPT.
 
 ---
 
 ## 🛠️ Teknologi & Dependensi
 
-- **Backend**: PHP 8.3+, Laravel 12.x / 13.x (Eloquent ORM, Blade Templating)
-- **Frontend**: TailwindCSS 4.0, Alpine.js, HTML5 Canvas
-- **Kecerdasan Buatan (AI)**: Google Gemini API (`GEMINI_API_KEY`)
-- **PDF & Document Engine**: `barryvdh/laravel-dompdf`
-- **Database**: MySQL / MariaDB / SQLite
-- **Build Tool**: Vite 8.0, Node.js
+- **Backend**: PHP 8.2+, Laravel 11.x / 12.x (Eloquent ORM, Blade Templating)
+- **Database Server**: **PostgreSQL v14+ / v15+ / v16+** (Native JSONB & Full-Text Search) / MySQL
+- **Engine AI**: Google Gemini 1.5 Flash API Key (`GEMINI_API_KEY`) & Local Whisper.cpp CLI (Python 3.10+)
+- **Audio Processing**: FFmpeg
+- **Frontend**: TailwindCSS, Alpine.js, HTML5 Canvas Signature
+- **Dokumen Generator**: `barryvdh/laravel-dompdf` & `phpoffice/phpword`
 
 ---
 
-## 🚀 Panduan Instalasi Lokal
+## 🚀 Panduan Instalasi & Konfigurasi
 
 ### 1. Prasyarat Sistem
-- PHP >= 8.3
+- PHP >= 8.2 (dengan ekstensi `pdo_pgsql` dan `pgsql`)
+- PostgreSQL 14 / 15 / 16 (atau MySQL)
 - Composer >= 2.x
-- Node.js >= 18.x & NPM
-- Database Server (MySQL/MariaDB via Laragon/XAMPP atau SQLite)
+- FFmpeg Media Engine
+- Python 3.10+ & package `openai-whisper`
 
 ### 2. Clone Repository
 ```bash
-git clone https://github.com/alzeecyy/Agendaris_Dinkominfo.git
-cd Agendaris_Dinkominfo
+git clone https://github.com/alzeecyy/Agendaris_Dinkominfo.git sirena
+cd sirena
 ```
 
-### 3. Instalasi Dependensi PHP & Node.js
+### 3. Instalasi Dependensi PHP
 ```bash
 composer install
-npm install
 ```
 
 ### 4. Konfigurasi Environment (`.env`)
@@ -94,99 +93,55 @@ Salin berkas contoh `.env.example` menjadi `.env`:
 ```bash
 cp .env.example .env
 ```
-Buka berkas `.env` dan atur konfigurasi database serta API Key Google Gemini:
+Atur konfigurasi database PostgreSQL dan API Key Google Gemini:
 ```ini
 APP_NAME="SIRENA - Agendaris Dinkominfo"
-APP_URL=http://127.0.0.1:8000
+APP_URL=http://sirena.test
 
-DB_CONNECTION=mysql
+DB_CONNECTION=pgsql
 DB_HOST=127.0.0.1
-DB_PORT=3306
-DB_DATABASE=agendaris_dinkominfo
-DB_USERNAME=root
-DB_PASSWORD=
+DB_PORT=5432
+DB_DATABASE=sirena_db
+DB_USERNAME=postgres
+DB_PASSWORD=your_postgres_password
 
 # API Key Google Gemini untuk fitur Notulensi AI
 GEMINI_API_KEY=your_google_gemini_api_key_here
 ```
 
-### 5. Generate Application Key & Migration
+### 5. Generate Application Key, Migration & Link Storage
 ```bash
 php artisan key:generate
-php artisan migrate:fresh --seed
+php artisan migrate --seed
 php artisan storage:link
 ```
 
-### 6. Jalankan Server Pengembangan
-Jalankan dev server Laravel dan Vite secara bersamaan:
+### 6. Jalankan Background Queue Worker
 ```bash
-# Opsi 1: Menggunakan command dev bawaan
-npm run dev
-
-# Atau Opsi 2: Menjalankan secara terpisah di 2 terminal
-php artisan serve
-npm run dev
+php artisan queue:work
 ```
-
-Aplikasi dapat diakses melalui browser di: `http://127.0.0.1:8000`
+*(Wajib berjalan agar fitur transkripsi AI audio bekerja di latar belakang).*
 
 ---
 
 ## 🔑 Akun Default (Seeder)
 
-Setelah menjalankan `php artisan db:seed`, Anda dapat menguji aplikasi menggunakan akun default berikut (Password default: `password`):
+Setelah menjalankan `php artisan migrate --seed`, Anda dapat menguji aplikasi menggunakan akun default berikut (Password default: `password`):
 
 | Role | NIP | Nama / Jabatan | Bidang |
 | :--- | :--- | :--- | :--- |
-| **Admin System** | `199001012015011000` | Administrator Dinkominfo | - |
+| **Admin System** | `199001012015011000` | Administrator System | - |
 | **Kepala Dinas (Kadin)** | `199001012015011001` | Ir. Purwadi Santoso, M.Hum. | - |
-| **Sekretaris Dinas (Sekdin)**| `199001012015011002` | Drs. Bambang Wijaya, M.Si. | Sekretariat |
-| **Kepala Bidang (Aptika)** | `199001012015011003` | Eko Prasetyo, S.Kom., M.T. | Bidang Aptika |
-| **Sekretaris Bidang (Aptika)**| `199001012015011004` | Siti Rahmawati, S.STP. | Bidang Aptika |
-| **Staff (Aptika)** | `199001012015011005` | Budi Santoso, A.Md. | Bidang Aptika |
-
----
-
-## 📁 Struktur Direktori Utama
-
-```
-Agendaris_Dinkominfo/
-├── app/
-│   ├── Http/Controllers/
-│   │   ├── AdminUserController.php   # Manajemen Akun Pegawai & Bidang
-│   │   ├── AgendaController.php      # Manajemen Agenda & Kegiatan
-│   │   ├── AuthController.php        # Autentikasi & Profil
-│   │   ├── DashboardController.php   # Dashboard, Kalender & Riwayat
-│   │   ├── NotulensiController.php   # Pengolahan AI Notulensi, Export & Pengesahan
-│   │   └── PresensiController.php    # Absensi Mandiri & Koreksi
-│   └── Models/
-│       ├── Agenda.php
-│       ├── Bidang.php
-│       ├── Notulensi.php
-│       ├── Presensi.php
-│       └── User.php
-├── database/
-│   ├── migrations/                  # Skema Database System
-│   └── seeders/                     # Seeder Data Awal & Dummy Accounts
-├── resources/
-│   ├── views/                       # Blade Views & UI Components
-│   │   ├── admin/                   # Panel Admin System
-│   │   ├── agenda/                  # View Agenda & Absensi
-│   │   ├── notulensi/               # View Edit, Review, & Export Notulensi
-│   │   ├── riwayat/                 # View Riwayat & Filternya
-│   │   ├── dashboard.blade.php      # Dashboard Utama Multi-Role
-│   │   └── calendar.blade.php       # Kalender Interaktif
-├── routes/
-│   └── web.php                      # Endpoint Routing & Middleware RBAC
-└── storage/
-    └── app/public/presensi/         # Simpan Tanda Tangan Digital & File Audio
-```
+| **Sekretaris Dinas (Sekdin)**| `199001012015011002` | Drs. H. Mulyono, M.Si. | Sekretariat |
+| **Kepala Bidang (Aptika)** | `199001012015011010` | Hendra Wijaya, S.Kom. | Bidang Aptika |
+| **Sekretaris Bidang (Aptika)**| `199001012015011011` | Dewi Lestari, S.T. | Bidang Aptika |
+| **Staff (Aptika)** | `199001012015011012` | Siti Aminah, A.Md.Ak. | Bidang Aptika |
 
 ---
 
 ## 📄 Lisensi
 
-Pengembangan aplikasi ini dikelola secara internal untuk Dinas Komunikasi dan Informatika.
+Pengembangan aplikasi ini dikelola secara internal untuk Dinas Komunikasi dan Informatika Kabupaten Banyumas.
 
 ---
 <p align="center">
