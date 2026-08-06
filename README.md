@@ -132,10 +132,12 @@ Setelah menjalankan `php artisan migrate --seed`, Anda dapat menguji aplikasi me
 | :--- | :--- | :--- | :--- |
 | **Admin System** | `199001012015011000` | Administrator System | - |
 | **Kepala Dinas (Kadin)** | `199001012015011001` | Ir. Purwadi Santoso, M.Hum. | - |
-| **Sekretaris Dinas (Sekdin)**| `199001012015011002` | Drs. H. Mulyono, M.Si. | Sekretariat |
+| **Sekretaris Dinas (Sekdin)** | `199001012015011002` | Drs. H. Mulyono, M.Si. | Sekretariat |
 | **Kepala Bidang (Aptika)** | `199001012015011010` | Hendra Wijaya, S.Kom. | Bidang Aptika |
-| **Sekretaris Bidang (Aptika)**| `199001012015011011` | Dewi Lestari, S.T. | Bidang Aptika |
+| **Sekretaris Bidang (Aptika)** | `199001012015011011` | Dewi Lestari, S.T. | Bidang Aptika |
 | **Staff (Aptika)** | `199001012015011012` | Siti Aminah, A.Md.Ak. | Bidang Aptika |
+| **Kasubag Umum** | `199001012015011070` | Tri Cahyono, S.H. | Subbag Umum & Kepegawaian |
+| **Admin Subbag Umum** | `199001012015011071` | Ahmad Rizky, A.Md. | Subbag Umum & Kepegawaian |
 
 ---
 
