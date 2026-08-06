@@ -133,11 +133,24 @@ Setelah menjalankan `php artisan migrate --seed`, Anda dapat menguji aplikasi me
 | **Admin System** | `199001012015011000` | Administrator System | - |
 | **Kepala Dinas (Kadin)** | `199001012015011001` | Ir. Purwadi Santoso, M.Hum. | - |
 | **Sekretaris Dinas (Sekdin)** | `199001012015011002` | Drs. H. Mulyono, M.Si. | Sekretariat |
-| **Kepala Bidang (Aptika)** | `199001012015011010` | Hendra Wijaya, S.Kom. | Bidang Aptika |
-| **Sekretaris Bidang (Aptika)** | `199001012015011011` | Dewi Lestari, S.T. | Bidang Aptika |
-| **Staff (Aptika)** | `199001012015011012` | Siti Aminah, A.Md.Ak. | Bidang Aptika |
+| **Kabid Aptika** | `199001012015011010` | Hendra Wijaya, S.Kom. | Bidang Aptika |
+| **Sekretaris Bidang Aptika** | `199001012015011011` | Dewi Lestari, S.T. | Bidang Aptika |
+| **Staff Aptika (13 Orang)** | `199001012015011012` s.d. `199001012015011024` | Staff Aplikasi Informatika | Bidang Aptika |
+| **Kabid IKP** | `199001012015011030` | Drs. Bambang Sutejo | Bidang IKP |
+| **Sekretaris Bidang IKP** | `199001012015011031` | Rini Handayani, S.Sos. | Bidang IKP |
+| **Staff IKP (13 Orang)** | `199001012015011032` s.d. `199001012015011044` | Staff IKP | Bidang IKP |
+| **Kabid Statistik** | `199001012015011050` | Sigit Pramono, S.Si., M.Si. | Bidang Statistik & Persandian |
+| **Sekretaris Bidang Statistik** | `199001012015011051` | Agus Setiawan, S.Stat. | Bidang Statistik & Persandian |
+| **Staff Statistik (13 Orang)** | `199001012015011052` s.d. `199001012015011064` | Staff Statistik | Bidang Statistik & Persandian |
 | **Kasubag Umum** | `199001012015011070` | Tri Cahyono, S.H. | Subbag Umum & Kepegawaian |
 | **Admin Subbag Umum** | `199001012015011071` | Ahmad Rizky, A.Md. | Subbag Umum & Kepegawaian |
+| **Staff Subbag Umum (4 Orang)** | `199001012015011072` s.d. `199001012015011075` | Staff Subbag Umum | Subbag Umum & Kepegawaian |
+| **Kasubag Keuangan** | `199001012015011075` | Sri Wahyuni, S.E. | Subbag Keuangan |
+| **Admin Subbag Keuangan** | `199001012015011076` | Ratna Juwita, A.Md. | Subbag Keuangan |
+| **Staff Subbag Keuangan (3 Orang)**| `199001012015011077` s.d. `199001012015011079` | Staff Subbag Keuangan | Subbag Keuangan |
+| **Kasubag Perencanaan** | `199001012015011080` | Drs. Hendro Wibowo | Subbag Perencanaan |
+| **Admin Subbag Perencanaan** | `199001012015011081` | Budi Hartono, S.E. | Subbag Perencanaan |
+| **Staff Subbag Perencanaan (3 Orang)**| `199001012015011082` s.d. `199001012015011084` | Staff Subbag Perencanaan | Subbag Perencanaan |
 
 ---
 
