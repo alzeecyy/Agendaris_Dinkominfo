@@ -1,58 +1,149 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
-
 <p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
+  <h1 align="center">📅 SIRENA — Agendaris Dinkominfo</h1>
+  <p align="center"><b>Sistem Informasi Rekapitulasi & Agenda Dinas Komunikasi dan Informatika</b></p>
 </p>
 
-## About Laravel
+<p align="center">
+  <img src="https://img.shields.io/badge/Laravel-11.x-FF2D20?style=for-the-badge&logo=laravel&logoColor=white" alt="Laravel">
+  <img src="https://img.shields.io/badge/PHP-8.2+-777BB4?style=for-the-badge&logo=php&logoColor=white" alt="PHP">
+  <img src="https://img.shields.io/badge/PostgreSQL-15.x-4169E1?style=for-the-badge&logo=postgresql&logoColor=white" alt="PostgreSQL">
+  <img src="https://img.shields.io/badge/Google%20Gemini%20AI-Integration-4285F4?style=for-the-badge&logo=google&logoColor=white" alt="Google Gemini AI">
+  <img src="https://img.shields.io/badge/Whisper.cpp-Offline%20STT-000000?style=for-the-badge&logo=openai&logoColor=white" alt="Whisper.cpp Engine">
+</p>
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+---
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+## 📌 Tentang Aplikasi
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+**SIRENA (Sistem Informasi Rekapitulasi & Agenda Dinkominfo)** adalah platform web terpadu yang dirancang khusus untuk mengelola seluruh agenda kegiatan dinas, presensi digital mandiri, serta penyusunan dan pengesahan notulensi berbasis **Kecerdasan Buatan (AI Hybrid: Google Gemini 1.5 & Whisper.cpp)** di lingkungan Dinas Komunikasi dan Informatika Kabupaten Banyumas.
 
-## Learning Laravel
+Sistem ini memfasilitasi koordinasi antar-bidang, pencatatan kehadiran pegawai dengan tanda tangan digital canvas, otomatisasi transkripsi audio rapat menggunakan AI, serta alur pengesahan digital resmi oleh Pimpinan/Kepala Dinas.
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
+---
 
-In addition, [Laracasts](https://laracasts.com) contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+## ✨ Fitur Utama
 
-You can also watch bite-sized lessons with real-world projects on [Laravel Learn](https://laravel.com/learn), where you will be guided through building a Laravel application from scratch while learning PHP fundamentals.
+### 🗓️ 1. Manajemen Agenda & Kalender Kegiatan
+- **Kalender Grid Interaktif**: Tampilan agenda mingguan, mini calendar, dan filter kegiatan hari ini.
+- **Kategori Kegiatan**: Rapat, Sosialisasi, Pelatihan, dan Kegiatan Lainnya.
+- **Pengaturan Disposisi & Hak Akses**: Pembatasan akses agenda per bidang atau lintas dinas (*semua orang*).
+- **Manajemen Nomor Surat**: Pencatatan dan pembaharuan Nomor Surat Dasar pelaksanaan agenda rapat.
 
-## Agentic Development
+### ✍️ 2. Absensi Digital & Tanda Tangan Mandiri
+- **Presensi Digital Canvas**: Pegawai melakukan absensi mandiri lengkap dengan Tanda Tangan Digital pada layar sentuh/mouse.
+- **Penguncian Jendela Waktu (Auto-Alfa)**: Batas waktu presensi mandiri dibuka tepat saat rapat mulai dan otomatis terkunci 1 jam setelah rapat selesai (status belum absen berubah menjadi **ALFA**).
+- **Anti-Kecurangan & Koreksi Manual**: Pegawai hanya bisa presensi untuk akun NIP sendiri. Fitur Koreksi Presensi Manual tersedia khusus untuk Notulis/Admin.
 
-Laravel's predictable structure and conventions make it ideal for AI coding agents like Claude Code, Cursor, and GitHub Copilot. Install [Laravel Boost](https://laravel.com/docs/ai) to supercharge your AI workflow:
+### 🤖 3. Notulensi AI Hybrid (Gemini 1.5 & Whisper.cpp Fallback)
+- **Primary Cloud STT (Google Gemini 1.5 Flash)**: Memproses rekaman suara rapat di cloud untuk transkripsi dan rangkuman poin rapat terstruktur.
+- **Local Fallback STT (Whisper.cpp CLI)**: Mesin cadangan lokal berbasis Python & Whisper.cpp jika koneksi internet terputus.
+- **Background Queue Processing**: Pemrosesan audio berjalan di background queue (`queue:work`) sehingga sistem tidak mengalami timeout.
+- **Interactive Notulensi Editor**: Editor interaktif untuk merapikan poin ringkasan, pembahasan, keputusan, dan kesimpulan rapat.
 
+### ✒️ 4. Verifikasi & Pengesahan Digital Pimpinan
+- **Alur Persetujuan Dokumen**: `Draft` ➔ `Menunggu Review` ➔ `Perlu Revisi` / `Telah Disahkan`.
+- **Privasi Staff**: Notulensi yang sedang dalam proses perbaikan/revisi akan ditampilkan dengan status netral **"Sedang Ditinjau"** pada layar Staff umum. Catatan revisi hanya dapat dibaca oleh Notulis dan Pimpinan.
+- **Export Dokumen Resmi**: Unduh hasil notulensi ke format **PDF (Dompdf)** dan **Word (PHPWord)** berformat Tata Naskah Dinas Pemkab Banyumas lengkap dengan Tanda Tangan Digital.
+
+### 🛡️ 5. Manajemen Pengguna & Keamanan (RBAC)
+- **Multi-Role RBAC (Role-Based Access Control)**:
+  - `admin`: Administrator Sistem (Kelola User, Bidang, TV Board).
+  - `ketua_master`: Kepala Dinas (Pengesahan Notulensi Seluruh Dinas).
+  - `sekretaris_master`: Sekretaris Dinas (Kelola Agenda & Notulensi Dinas).
+  - `ketua_bidang`: Kepala Bidang / Kasubag (Pengesahan Notulensi Bidang).
+  - `sekretaris_bidang`: Sekretaris Bidang (Kelola Agenda & Notulensi Bidang).
+  - `staff`: Staff / Pegawai (Kalender, Presensi Mandiri, Download Notulen Sah).
+- **Keamanan Login**: Protection *Force Password Change* pada login pertama & hashing BCRYPT.
+
+---
+
+## 🛠️ Teknologi & Dependensi
+
+- **Backend**: PHP 8.2+, Laravel 11.x / 12.x (Eloquent ORM, Blade Templating)
+- **Database Server**: **PostgreSQL v14+ / v15+ / v16+** (Native JSONB & Full-Text Search) / MySQL
+- **Engine AI**: Google Gemini 1.5 Flash API Key (`GEMINI_API_KEY`) & Local Whisper.cpp CLI (Python 3.10+)
+- **Audio Processing**: FFmpeg
+- **Frontend**: TailwindCSS, Alpine.js, HTML5 Canvas Signature
+- **Dokumen Generator**: `barryvdh/laravel-dompdf` & `phpoffice/phpword`
+
+---
+
+## 🚀 Panduan Instalasi & Konfigurasi
+
+### 1. Prasyarat Sistem
+- PHP >= 8.2 (dengan ekstensi `pdo_pgsql` dan `pgsql`)
+- PostgreSQL 14 / 15 / 16 (atau MySQL)
+- Composer >= 2.x
+- FFmpeg Media Engine
+- Python 3.10+ & package `openai-whisper`
+
+### 2. Clone Repository
 ```bash
-composer require laravel/boost --dev
-
-php artisan boost:install
+git clone https://github.com/alzeecyy/Agendaris_Dinkominfo.git sirena
+cd sirena
 ```
 
-Boost provides your agent 15+ tools and skills that help agents build Laravel applications while following best practices.
+### 3. Instalasi Dependensi PHP
+```bash
+composer install
+```
 
-## Contributing
+### 4. Konfigurasi Environment (`.env`)
+Salin berkas contoh `.env.example` menjadi `.env`:
+```bash
+cp .env.example .env
+```
+Atur konfigurasi database PostgreSQL dan API Key Google Gemini:
+```ini
+APP_NAME="SIRENA - Agendaris Dinkominfo"
+APP_URL=http://sirena.test
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+DB_CONNECTION=pgsql
+DB_HOST=127.0.0.1
+DB_PORT=5432
+DB_DATABASE=sirena_db
+DB_USERNAME=postgres
+DB_PASSWORD=your_postgres_password
 
-## Code of Conduct
+# API Key Google Gemini untuk fitur Notulensi AI
+GEMINI_API_KEY=your_google_gemini_api_key_here
+```
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+### 5. Generate Application Key, Migration & Link Storage
+```bash
+php artisan key:generate
+php artisan migrate --seed
+php artisan storage:link
+```
 
-## Security Vulnerabilities
+### 6. Jalankan Background Queue Worker
+```bash
+php artisan queue:work
+```
+*(Wajib berjalan agar fitur transkripsi AI audio bekerja di latar belakang).*
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+---
 
-## License
+## 🔑 Akun Default (Seeder)
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+Setelah menjalankan `php artisan migrate --seed`, Anda dapat menguji aplikasi menggunakan akun default berikut (Password default: `password`):
+
+| Role | NIP | Nama / Jabatan | Bidang |
+| :--- | :--- | :--- | :--- |
+| **Admin System** | `199001012015011000` | Administrator System | - |
+| **Kepala Dinas (Kadin)** | `199001012015011001` | Ir. Purwadi Santoso, M.Hum. | - |
+| **Sekretaris Dinas (Sekdin)**| `199001012015011002` | Drs. H. Mulyono, M.Si. | Sekretariat |
+| **Kepala Bidang (Aptika)** | `199001012015011010` | Hendra Wijaya, S.Kom. | Bidang Aptika |
+| **Sekretaris Bidang (Aptika)**| `199001012015011011` | Dewi Lestari, S.T. | Bidang Aptika |
+| **Staff (Aptika)** | `199001012015011012` | Siti Aminah, A.Md.Ak. | Bidang Aptika |
+
+---
+
+## 📄 Lisensi
+
+Pengembangan aplikasi ini dikelola secara internal untuk Dinas Komunikasi dan Informatika Kabupaten Banyumas.
+
+---
+<p align="center">
+  <b>SIRENA &copy; 2026 Dinas Komunikasi dan Informatika</b>
+</p>

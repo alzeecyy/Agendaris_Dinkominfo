@@ -468,12 +468,21 @@
                             || !empty($notulensi->pembahasan) 
                             || $hasAudio;
 
+                        $canSeeInternalStatus = $isSecretaryOfAgenda || $isApproverOfAgenda || Auth::user()->isAdmin();
+
                         if ($isTranscribing) {
                             $notulenLabel = 'Proses Transkripsi';
                             $notulenColor = 'bg-sky-50 text-sky-600 border-sky-200';
                         } elseif ($notulensi->transkrip_error) {
                             $notulenLabel = 'Gagal Transkripsi';
                             $notulenColor = 'bg-rose-50 text-rose-600 border-rose-200';
+                        } elseif ($notulensi->status === 'disahkan') {
+                            $notulenLabel = 'Telah Disahkan Pimpinan';
+                            $notulenColor = 'bg-emerald-50 text-emerald-700 border-emerald-200';
+                        } elseif (!$canSeeInternalStatus) {
+                            // Untuk Staff Umum: Semua status sebelum disahkan hanya ditampilkan sebagai "Sedang Ditinjau"
+                            $notulenLabel = 'Sedang Ditinjau';
+                            $notulenColor = 'bg-amber-50 text-amber-700 border-amber-200 font-extrabold';
                         } elseif ($notulensi->status === 'revisi' || !empty($notulensi->catatan_revisi)) {
                             $notulenLabel = 'Perlu Revisi (Dikembalikan Pimpinan)';
                             $notulenColor = 'bg-rose-50 text-rose-700 border-rose-200 font-extrabold';
@@ -488,9 +497,6 @@
                         } elseif ($notulensi->status === 'menunggu_review') {
                             $notulenLabel = 'Menunggu Review Pimpinan';
                             $notulenColor = 'bg-amber-50 text-amber-700 border-amber-200';
-                        } elseif ($notulensi->status === 'disahkan') {
-                            $notulenLabel = 'Telah Disahkan Pimpinan';
-                            $notulenColor = 'bg-emerald-50 text-emerald-700 border-emerald-200';
                         } else {
                             $notulenLabel = strtoupper($notulensi->status);
                             $notulenColor = 'bg-slate-50 text-slate-600 border-slate-200';
@@ -505,7 +511,14 @@
                             </span>
                         </div>
 
-                        @if($agenda->notulensi->status === 'revisi' || !empty($agenda->notulensi->catatan_revisi))
+                        @if(!$canSeeInternalStatus && $agenda->notulensi->status !== 'disahkan')
+                            <!-- TAMPILAN STAFF UMUM (HANYA KETERANGAN NEUTRAL SEDANG DITINJAU) -->
+                            <div class="bg-[#f8f7ff] border border-[#d4d1f5]/50 rounded-2xl p-3 sm:p-3.5 space-y-1 text-center">
+                                <p class="text-xs text-[#5a508f] font-medium leading-relaxed italic">
+                                    Dokumentasi notulensi rapat sedang dalam proses penyusunan dan peninjauan oleh Pimpinan.
+                                </p>
+                            </div>
+                        @elseif($agenda->notulensi->status === 'revisi' || !empty($agenda->notulensi->catatan_revisi))
                             @if($agenda->notulensi->catatan_revisi)
                                 <div class="bg-rose-50 border border-rose-200 text-rose-800 p-3 rounded-xl text-xs space-y-1">
                                     <p class="font-extrabold flex items-center gap-1.5 text-rose-700">
